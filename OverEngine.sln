@@ -1,0 +1,39 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29609.76
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OverPlayer", "OverPlayer\OverPlayer.vcxproj", "{D5A1838A-5E6E-4ADB-A6E8-ACEBFD0BFC49}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OverEngine", "OverEngine\OverEngine.vcxproj", "{4401DB7D-C780-4793-AD2D-7AB40111E7BC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D5A1838A-5E6E-4ADB-A6E8-ACEBFD0BFC49}.Debug|x64.ActiveCfg = Debug|x64
+		{D5A1838A-5E6E-4ADB-A6E8-ACEBFD0BFC49}.Debug|x64.Build.0 = Debug|x64
+		{D5A1838A-5E6E-4ADB-A6E8-ACEBFD0BFC49}.Debug|x86.ActiveCfg = Debug|x64
+		{D5A1838A-5E6E-4ADB-A6E8-ACEBFD0BFC49}.Release|x64.ActiveCfg = Release|x64
+		{D5A1838A-5E6E-4ADB-A6E8-ACEBFD0BFC49}.Release|x64.Build.0 = Release|x64
+		{D5A1838A-5E6E-4ADB-A6E8-ACEBFD0BFC49}.Release|x86.ActiveCfg = Release|x64
+		{4401DB7D-C780-4793-AD2D-7AB40111E7BC}.Debug|x64.ActiveCfg = Debug|x64
+		{4401DB7D-C780-4793-AD2D-7AB40111E7BC}.Debug|x64.Build.0 = Debug|x64
+		{4401DB7D-C780-4793-AD2D-7AB40111E7BC}.Debug|x86.ActiveCfg = Debug|Win32
+		{4401DB7D-C780-4793-AD2D-7AB40111E7BC}.Debug|x86.Build.0 = Debug|Win32
+		{4401DB7D-C780-4793-AD2D-7AB40111E7BC}.Release|x64.ActiveCfg = Release|x64
+		{4401DB7D-C780-4793-AD2D-7AB40111E7BC}.Release|x64.Build.0 = Release|x64
+		{4401DB7D-C780-4793-AD2D-7AB40111E7BC}.Release|x86.ActiveCfg = Release|Win32
+		{4401DB7D-C780-4793-AD2D-7AB40111E7BC}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1C9C4D26-1AAE-482B-B56A-D40E6A2EAE20}
+	EndGlobalSection
+EndGlobal
