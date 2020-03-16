@@ -7,9 +7,3 @@
 | Model                  | CPU                 | RAM          | GPU                                      |
 | ---------------------- | ------------------- | ------------ | ---------------------------------------- |
 | Asus Vivobook K570UD-F | Intel Core i7 8550U | 12GB 2400Mhz | Nvidia GeForce GTX 1050 (mobile version) |
-
-| Tables        | Are           | Cool  |
-| ------------- |:-------------:| -----:|
-| col 3 is      | right-aligned | $1600 |
-| col 2 is      | centered      |   $12 |
-| zebra stripes | are neat      |    $1 |
