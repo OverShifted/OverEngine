@@ -5,22 +5,34 @@ VisualStudioVersion = 16.0.29609.76
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OverEngine", "OverEngine\OverEngine.vcxproj", "{F48ABA85-9D0F-44E9-9506-9C411B57C894}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OverPlayerExec", "OverPlayerExec\OverPlayerExec.vcxproj", "{8212A961-1447-4090-8CC4-7CF67C54DB23}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OverEditorExec", "OverEditorExec\OverEditorExec.vcxproj", "{17A37537-E457-4678-9D0D-61161A511D55}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OverEditor", "OverEditor\OverEditor.vcxproj", "{175D3A16-A3F3-47B9-ABE8-7F7429C47432}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
-		Debug|x86 = Debug|x86
 		Release|x64 = Release|x64
-		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{F48ABA85-9D0F-44E9-9506-9C411B57C894}.Debug|x64.ActiveCfg = Debug|x64
 		{F48ABA85-9D0F-44E9-9506-9C411B57C894}.Debug|x64.Build.0 = Debug|x64
-		{F48ABA85-9D0F-44E9-9506-9C411B57C894}.Debug|x86.ActiveCfg = Debug|Win32
-		{F48ABA85-9D0F-44E9-9506-9C411B57C894}.Debug|x86.Build.0 = Debug|Win32
 		{F48ABA85-9D0F-44E9-9506-9C411B57C894}.Release|x64.ActiveCfg = Release|x64
 		{F48ABA85-9D0F-44E9-9506-9C411B57C894}.Release|x64.Build.0 = Release|x64
-		{F48ABA85-9D0F-44E9-9506-9C411B57C894}.Release|x86.ActiveCfg = Release|Win32
-		{F48ABA85-9D0F-44E9-9506-9C411B57C894}.Release|x86.Build.0 = Release|Win32
+		{8212A961-1447-4090-8CC4-7CF67C54DB23}.Debug|x64.ActiveCfg = Debug|x64
+		{8212A961-1447-4090-8CC4-7CF67C54DB23}.Debug|x64.Build.0 = Debug|x64
+		{8212A961-1447-4090-8CC4-7CF67C54DB23}.Release|x64.ActiveCfg = Release|x64
+		{8212A961-1447-4090-8CC4-7CF67C54DB23}.Release|x64.Build.0 = Release|x64
+		{17A37537-E457-4678-9D0D-61161A511D55}.Debug|x64.ActiveCfg = Debug|x64
+		{17A37537-E457-4678-9D0D-61161A511D55}.Debug|x64.Build.0 = Debug|x64
+		{17A37537-E457-4678-9D0D-61161A511D55}.Release|x64.ActiveCfg = Release|x64
+		{17A37537-E457-4678-9D0D-61161A511D55}.Release|x64.Build.0 = Release|x64
+		{175D3A16-A3F3-47B9-ABE8-7F7429C47432}.Debug|x64.ActiveCfg = Debug|x64
+		{175D3A16-A3F3-47B9-ABE8-7F7429C47432}.Debug|x64.Build.0 = Debug|x64
+		{175D3A16-A3F3-47B9-ABE8-7F7429C47432}.Release|x64.ActiveCfg = Release|x64
+		{175D3A16-A3F3-47B9-ABE8-7F7429C47432}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
