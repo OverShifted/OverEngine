@@ -24,6 +24,9 @@
     <ClInclude Include="src\OverEngine\Core.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\OverEngine\EntryPoint.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\OverEngine\Application.cpp">

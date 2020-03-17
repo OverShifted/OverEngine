@@ -85,6 +85,7 @@
     <ClInclude Include="src\OverEngine\Application.h" />
     <ClInclude Include="src\OverEngine\Core.h" />
     <ClInclude Include="src\OverEngine.h" />
+    <ClInclude Include="src\OverEngine\EntryPoint.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\OverEngine\Application.cpp" />

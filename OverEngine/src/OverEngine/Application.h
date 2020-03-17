@@ -12,4 +12,7 @@ namespace OverEngine
 
 		void Run();
 	};
+
+	// To be defined in client
+	Application* CreateApplication();
 }
