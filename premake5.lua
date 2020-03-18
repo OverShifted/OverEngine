@@ -24,7 +24,10 @@ project "OverEngine"
 		"%{prj.name}/src/**.cpp"
  	}
 
-	-- include { "%{prj.name}/vendor/spdlog/include" }
+	includedirs
+	{
+		"%{prj.name}/vendor/spdlog/include"
+	}
 
 	filter "system:windows"
 		cppdialect "C++17"
@@ -73,7 +76,8 @@ project "OverPlayerExec"
 
 	includedirs
 	{
-		"OverEngine/src"
+		"OverEngine/src",
+		"OverEngine/vendor/spdlog/include"
 	}
 
 	links

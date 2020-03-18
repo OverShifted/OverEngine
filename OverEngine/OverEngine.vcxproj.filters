@@ -16,10 +16,12 @@
     <ClInclude Include="src\OverEngine\EntryPoint.h">
       <Filter>OverEngine</Filter>
     </ClInclude>
+    <ClInclude Include="src\OverEngine\Log.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\OverEngine\Application.cpp">
       <Filter>OverEngine</Filter>
     </ClCompile>
+    <ClCompile Include="src\OverEngine\Log.cpp" />
   </ItemGroup>
 </Project>
