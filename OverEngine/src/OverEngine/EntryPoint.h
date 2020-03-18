@@ -6,6 +6,7 @@ extern  OverEngine::Application* OverEngine::CreateApplication();
 
 int main(int argc, char** argv)
 {
+	OverEngine::Log::Init();
 	auto app = OverEngine::CreateApplication();
 	std::cout << "salam";
 	app->Run();
