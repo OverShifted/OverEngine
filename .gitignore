@@ -32,7 +32,7 @@ mono_crash.*
 #[Ll]ogs/   |
 #           |
 #           |
-bin    # >--|
+bin/    # >--|
 bin-int/
 *.sln
 *.vcxproj
