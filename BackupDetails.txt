@@ -1,5 +1,0 @@
-When "bin/Debug-windows-x86_64/OverEngine & OverEditor & OverPlayerExec" and "OverEngine/vendor/bin/GLFW" access denied
-                                                                                  |
-                    This accured later so I copyed that  <<<<<<<<<<<<<<<<<---------
-
-So i scared and made a backup
