@@ -143,15 +143,15 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="src\OverEngine\Log.h" />
     <ClInclude Include="src\OverEngine.h" />
     <ClInclude Include="src\OverEngine\Application.h" />
     <ClInclude Include="src\OverEngine\Core.h" />
     <ClInclude Include="src\OverEngine\EntryPoint.h" />
+    <ClInclude Include="src\OverEngine\Log.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\OverEngine\Log.cpp" />
     <ClCompile Include="src\OverEngine\Application.cpp" />
+    <ClCompile Include="src\OverEngine\Log.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
