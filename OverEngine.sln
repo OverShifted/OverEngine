@@ -1,43 +1,47 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29609.76
-MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OverEngine", "OverEngine\OverEngine.vcxproj", "{F48ABA85-9D0F-44E9-9506-9C411B57C894}"
+# Visual Studio 16
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OverEditor", "OverEditor\OverEditor.vcxproj", "{68DFF54B-5497-3799-BD9E-10F5A975D289}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OverPlayerExec", "OverPlayerExec\OverPlayerExec.vcxproj", "{8212A961-1447-4090-8CC4-7CF67C54DB23}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OverEditorExec", "OverEditorExec\OverEditorExec.vcxproj", "{6D354F09-5903-430F-4297-B3352E041F74}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OverEditorExec", "OverEditorExec\OverEditorExec.vcxproj", "{17A37537-E457-4678-9D0D-61161A511D55}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OverEngine", "OverEngine\OverEngine.vcxproj", "{B78CA94C-A344-EB99-0C4C-C4F5F822868A}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OverEditor", "OverEditor\OverEditor.vcxproj", "{175D3A16-A3F3-47B9-ABE8-7F7429C47432}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OverPlayerExec", "OverPlayerExec\OverPlayerExec.vcxproj", "{53EC27E1-3FBA-1BE7-284E-8C0D14BBF74B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
-		Release|x64 = Release|x64
+		Dist|x64 = Dist|x64
+		Realease|x64 = Realease|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{F48ABA85-9D0F-44E9-9506-9C411B57C894}.Debug|x64.ActiveCfg = Debug|x64
-		{F48ABA85-9D0F-44E9-9506-9C411B57C894}.Debug|x64.Build.0 = Debug|x64
-		{F48ABA85-9D0F-44E9-9506-9C411B57C894}.Release|x64.ActiveCfg = Release|x64
-		{F48ABA85-9D0F-44E9-9506-9C411B57C894}.Release|x64.Build.0 = Release|x64
-		{8212A961-1447-4090-8CC4-7CF67C54DB23}.Debug|x64.ActiveCfg = Debug|x64
-		{8212A961-1447-4090-8CC4-7CF67C54DB23}.Debug|x64.Build.0 = Debug|x64
-		{8212A961-1447-4090-8CC4-7CF67C54DB23}.Release|x64.ActiveCfg = Release|x64
-		{8212A961-1447-4090-8CC4-7CF67C54DB23}.Release|x64.Build.0 = Release|x64
-		{17A37537-E457-4678-9D0D-61161A511D55}.Debug|x64.ActiveCfg = Debug|x64
-		{17A37537-E457-4678-9D0D-61161A511D55}.Debug|x64.Build.0 = Debug|x64
-		{17A37537-E457-4678-9D0D-61161A511D55}.Release|x64.ActiveCfg = Release|x64
-		{17A37537-E457-4678-9D0D-61161A511D55}.Release|x64.Build.0 = Release|x64
-		{175D3A16-A3F3-47B9-ABE8-7F7429C47432}.Debug|x64.ActiveCfg = Debug|x64
-		{175D3A16-A3F3-47B9-ABE8-7F7429C47432}.Debug|x64.Build.0 = Debug|x64
-		{175D3A16-A3F3-47B9-ABE8-7F7429C47432}.Release|x64.ActiveCfg = Release|x64
-		{175D3A16-A3F3-47B9-ABE8-7F7429C47432}.Release|x64.Build.0 = Release|x64
+		{68DFF54B-5497-3799-BD9E-10F5A975D289}.Debug|x64.ActiveCfg = Debug|x64
+		{68DFF54B-5497-3799-BD9E-10F5A975D289}.Debug|x64.Build.0 = Debug|x64
+		{68DFF54B-5497-3799-BD9E-10F5A975D289}.Dist|x64.ActiveCfg = Dist|x64
+		{68DFF54B-5497-3799-BD9E-10F5A975D289}.Dist|x64.Build.0 = Dist|x64
+		{68DFF54B-5497-3799-BD9E-10F5A975D289}.Realease|x64.ActiveCfg = Realease|x64
+		{68DFF54B-5497-3799-BD9E-10F5A975D289}.Realease|x64.Build.0 = Realease|x64
+		{6D354F09-5903-430F-4297-B3352E041F74}.Debug|x64.ActiveCfg = Debug|x64
+		{6D354F09-5903-430F-4297-B3352E041F74}.Debug|x64.Build.0 = Debug|x64
+		{6D354F09-5903-430F-4297-B3352E041F74}.Dist|x64.ActiveCfg = Dist|x64
+		{6D354F09-5903-430F-4297-B3352E041F74}.Dist|x64.Build.0 = Dist|x64
+		{6D354F09-5903-430F-4297-B3352E041F74}.Realease|x64.ActiveCfg = Realease|x64
+		{6D354F09-5903-430F-4297-B3352E041F74}.Realease|x64.Build.0 = Realease|x64
+		{B78CA94C-A344-EB99-0C4C-C4F5F822868A}.Debug|x64.ActiveCfg = Debug|x64
+		{B78CA94C-A344-EB99-0C4C-C4F5F822868A}.Debug|x64.Build.0 = Debug|x64
+		{B78CA94C-A344-EB99-0C4C-C4F5F822868A}.Dist|x64.ActiveCfg = Dist|x64
+		{B78CA94C-A344-EB99-0C4C-C4F5F822868A}.Dist|x64.Build.0 = Dist|x64
+		{B78CA94C-A344-EB99-0C4C-C4F5F822868A}.Realease|x64.ActiveCfg = Realease|x64
+		{B78CA94C-A344-EB99-0C4C-C4F5F822868A}.Realease|x64.Build.0 = Realease|x64
+		{53EC27E1-3FBA-1BE7-284E-8C0D14BBF74B}.Debug|x64.ActiveCfg = Debug|x64
+		{53EC27E1-3FBA-1BE7-284E-8C0D14BBF74B}.Debug|x64.Build.0 = Debug|x64
+		{53EC27E1-3FBA-1BE7-284E-8C0D14BBF74B}.Dist|x64.ActiveCfg = Dist|x64
+		{53EC27E1-3FBA-1BE7-284E-8C0D14BBF74B}.Dist|x64.Build.0 = Dist|x64
+		{53EC27E1-3FBA-1BE7-284E-8C0D14BBF74B}.Realease|x64.ActiveCfg = Realease|x64
+		{53EC27E1-3FBA-1BE7-284E-8C0D14BBF74B}.Realease|x64.Build.0 = Realease|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {D5182AC6-054D-4120-84BC-867C62EB77BC}
 	EndGlobalSection
 EndGlobal
