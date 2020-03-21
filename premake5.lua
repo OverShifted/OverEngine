@@ -6,9 +6,16 @@ workspace "OverEngine"
 		"Realease",
 		"Dist"
 	}
+	startproject "OverPlayerExec"
 
 --            debug/realease       OS              x64
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
+
+-- include directories related to Solution folder
+IncludeDir = {}
+IncludeDir["GLFW"] = "OverEngine/vendor/GLFW/include"
+
+include "OverEngine/vendor/GLFW"
 
 project "OverEngine"
 	location "OverEngine"
@@ -18,6 +25,9 @@ project "OverEngine"
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir("bin-int/" .. outputdir .. "/%{prj.name}")
 
+	pchheader "pcheader.h"
+	pchsource "OverEngine/src/pcheader.cpp"
+
 	files
 	{
 		"%{prj.name}/src/**.h",
@@ -26,13 +36,21 @@ project "OverEngine"
 
 	includedirs
 	{
-		"%{prj.name}/vendor/spdlog/include"
+		"%{prj.name}/src",
+		"%{prj.name}/vendor/spdlog/include",
+		"%{IncludeDir.GLFW}"
+	}
+
+	links
+	{
+		"GLFW",
+		"opengl32.lib"
 	}
 
 	filter "system:windows"
 		cppdialect "C++17"
 		staticruntime "On"
-		systemversion "10.0.18362.0"
+		systemversion "latest"
 
 		defines
 		{
@@ -88,7 +106,7 @@ project "OverPlayerExec"
 	filter "system:windows"
 		cppdialect "C++17"
 		staticruntime "On"
-		systemversion "10.0.18362.0"
+		systemversion "latest"
 
 		defines
 		{
@@ -127,7 +145,7 @@ project "OverEditor"
 	filter "system:windows"
 		cppdialect "C++17"
 		staticruntime "On"
-		systemversion "10.0.18362.0"
+		systemversion "latest"
 
 		defines
 		{
@@ -178,7 +196,7 @@ project "OverEditorExec"
 	filter "system:windows"
 		cppdialect "C++17"
 		staticruntime "On"
-		systemversion "10.0.18362.0"
+		systemversion "latest"
 
 		defines
 		{
@@ -260,7 +278,7 @@ project "OverEditorExec"
 	-- filter "system:windows"
 	-- 	cppdialect "C++17"
 	-- 	staticruntime "On"
-	-- 	systemversion "10.0.18362.0"
+	-- 	systemversion "latest"
 
 	-- 	defines
 	-- 	{
@@ -312,7 +330,7 @@ project "OverEditorExec"
 -- 	filter "system:windows"
 -- 		cppdialect "C++17"
 -- 		staticruntime "On"
--- 		systemversion "10.0.18362.0"
+-- 		systemversion "latest"
 
 -- 		defines
 -- 		{

@@ -7,3 +7,5 @@
 		#define OVER_API __declspec(dllimport)
 	#endif // OE_BUILD_DYNAMIC
 #endif // OE_PLATFORM_WINDOWS
+
+#define BIT(x) (1 << x)

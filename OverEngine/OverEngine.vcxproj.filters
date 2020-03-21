@@ -4,6 +4,9 @@
     <Filter Include="OverEngine">
       <UniqueIdentifier>{B78CA94C-A344-EB99-0C4C-C4F5F822868A}</UniqueIdentifier>
     </Filter>
+    <Filter Include="OverEngine\Events">
+      <UniqueIdentifier>{BBE47803-27FB-7699-7072-02BBDCC74721}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\OverEngine.h" />
@@ -16,9 +19,22 @@
     <ClInclude Include="src\OverEngine\EntryPoint.h">
       <Filter>OverEngine</Filter>
     </ClInclude>
+    <ClInclude Include="src\OverEngine\Events\ApplicationEvent.h">
+      <Filter>OverEngine\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="src\OverEngine\Events\Event.h">
+      <Filter>OverEngine\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="src\OverEngine\Events\KeyEvent.h">
+      <Filter>OverEngine\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="src\OverEngine\Events\MouseEvent.h">
+      <Filter>OverEngine\Events</Filter>
+    </ClInclude>
     <ClInclude Include="src\OverEngine\Log.h">
       <Filter>OverEngine</Filter>
     </ClInclude>
+    <ClInclude Include="src\pcheader.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\OverEngine\Application.cpp">
@@ -27,5 +43,6 @@
     <ClCompile Include="src\OverEngine\Log.cpp">
       <Filter>OverEngine</Filter>
     </ClCompile>
+    <ClCompile Include="src\pcheader.cpp" />
   </ItemGroup>
 </Project>
