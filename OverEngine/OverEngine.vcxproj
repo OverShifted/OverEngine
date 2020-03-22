@@ -158,11 +158,14 @@
     <ClInclude Include="src\OverEngine\Events\KeyEvent.h" />
     <ClInclude Include="src\OverEngine\Events\MouseEvent.h" />
     <ClInclude Include="src\OverEngine\Log.h" />
+    <ClInclude Include="src\OverEngine\Window.h" />
+    <ClInclude Include="src\Platform\Windows\WindowsWindow.h" />
     <ClInclude Include="src\pcheader.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\OverEngine\Application.cpp" />
     <ClCompile Include="src\OverEngine\Log.cpp" />
+    <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp" />
     <ClCompile Include="src\pcheader.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
