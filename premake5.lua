@@ -47,6 +47,11 @@ project "OverEngine"
 		"opengl32.lib"
 	}
 
+	defines
+	{
+		"OE_BUILD_SHARED"
+	}
+
 	filter "system:windows"
 		cppdialect "C++17"
 		staticruntime "On"
@@ -54,8 +59,7 @@ project "OverEngine"
 
 		defines
 		{
-			"OE_PLATFORM_WINDOWS",
-			"OE_BUILD_DYNAMIC"
+			"OE_PLATFORM_WINDOWS"
 		}
 
 		postbuildcommands
@@ -65,7 +69,11 @@ project "OverEngine"
 		}
 
 	filter "configurations:Debug"
-		defines "OE_DEBUG"
+		defines
+		{
+			"OE_DEBUG",
+			"OE_ENABLE_ASSERTS"
+		}
 		symbols "On"
 
 	filter "configurations:Realease"
