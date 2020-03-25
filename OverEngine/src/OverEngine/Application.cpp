@@ -25,7 +25,17 @@ namespace OverEngine
 			glClear(GL_COLOR_BUFFER_BIT);
 			m_Window->OnUpdate();
 			GLFWwindow* a = m_Window.get()->GetWindow();
-			glfwSetCursorPos(a, 10, 10);
+			
+			//glfwSetInputMode(a, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+			double x = 0.0, y = 0.0;
+			double* xx = &x, * yy = &y;
+			glfwGetCursorPos(a, xx, yy);
+			//double xc = *x;
+			//double yc = *y;
+			if (x <= 0.0)
+				glfwSetCursorPos(a, 1600, y);
+			else if (x >= 1600)
+				glfwSetCursorPos(a, 0, y);
 		}
 	}
 }
