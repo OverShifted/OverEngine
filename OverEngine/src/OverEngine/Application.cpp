@@ -28,14 +28,15 @@ namespace OverEngine
 			
 			//glfwSetInputMode(a, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 			double x = 0.0, y = 0.0;
-			double* xx = &x, * yy = &y;
-			glfwGetCursorPos(a, xx, yy);
+			glfwGetCursorPos(a, &x, &y);
 			//double xc = *x;
 			//double yc = *y;
-			if (x <= 0.0)
-				glfwSetCursorPos(a, 1600, y);
-			else if (x >= 1600)
-				glfwSetCursorPos(a, 0, y);
+			if (0 < y && y < 900) {
+				if (x <= 0.0)
+					glfwSetCursorPos(a, 1600, y);
+				else if (x >= 1600)
+					glfwSetCursorPos(a, 0, y);
+			}
 		}
 	}
 }
