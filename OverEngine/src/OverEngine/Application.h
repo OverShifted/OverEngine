@@ -3,6 +3,7 @@
 #include "Core.h"
 #include "Events/Event.h"
 #include "Window.h"
+#include "Platform/Windows/WindowsWindow.h"
 
 namespace OverEngine
 {

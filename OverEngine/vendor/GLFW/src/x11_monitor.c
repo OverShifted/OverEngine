@@ -1,5 +1,5 @@
 //========================================================================
-// GLFW 3.4 X11 - www.glfw.org
+// GLFW 3.3 X11 - www.glfw.org
 //------------------------------------------------------------------------
 // Copyright (c) 2002-2006 Marcus Geelnard
 // Copyright (c) 2006-2019 Camilla Löwy <elmindreda@glfw.org>
@@ -322,12 +322,16 @@ void _glfwPlatformGetMonitorPos(_GLFWmonitor* monitor, int* xpos, int* ypos)
             XRRGetScreenResourcesCurrent(_glfw.x11.display, _glfw.x11.root);
         XRRCrtcInfo* ci = XRRGetCrtcInfo(_glfw.x11.display, sr, monitor->x11.crtc);
 
-        if (xpos)
-            *xpos = ci->x;
-        if (ypos)
-            *ypos = ci->y;
+        if (ci)
+        {
+            if (xpos)
+                *xpos = ci->x;
+            if (ypos)
+                *ypos = ci->y;
 
-        XRRFreeCrtcInfo(ci);
+            XRRFreeCrtcInfo(ci);
+        }
+
         XRRFreeScreenResources(sr);
     }
 }
@@ -493,9 +497,15 @@ void _glfwPlatformGetVideoMode(_GLFWmonitor* monitor, GLFWvidmode* mode)
             XRRGetScreenResourcesCurrent(_glfw.x11.display, _glfw.x11.root);
         XRRCrtcInfo* ci = XRRGetCrtcInfo(_glfw.x11.display, sr, monitor->x11.crtc);
 
-        *mode = vidmodeFromModeInfo(getModeInfo(sr, ci->mode), ci);
+        if (ci)
+        {
+            const XRRModeInfo* mi = getModeInfo(sr, ci->mode);
+            if (mi)  // mi can be NULL if the monitor has been disconnected
+                *mode = vidmodeFromModeInfo(mi, ci);
 
-        XRRFreeCrtcInfo(ci);
+            XRRFreeCrtcInfo(ci);
+        }
+
         XRRFreeScreenResources(sr);
     }
     else

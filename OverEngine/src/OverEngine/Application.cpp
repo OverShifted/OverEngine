@@ -24,6 +24,8 @@ namespace OverEngine
 			glClearColor(1, 0, 1, 1);
 			glClear(GL_COLOR_BUFFER_BIT);
 			m_Window->OnUpdate();
+			GLFWwindow* a = m_Window.get()->GetWindow();
+			glfwSetCursorPos(a, 10, 10);
 		}
 	}
 }

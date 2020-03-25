@@ -103,7 +103,8 @@ project "OverPlayerExec"
 	includedirs
 	{
 		"OverEngine/src",
-		"OverEngine/vendor/spdlog/include"
+		"OverEngine/vendor/spdlog/include",
+		"%{IncludeDir.GLFW}"
 	}
 
 	links

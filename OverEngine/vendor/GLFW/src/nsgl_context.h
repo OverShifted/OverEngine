@@ -1,5 +1,5 @@
 //========================================================================
-// GLFW 3.4 macOS - www.glfw.org
+// GLFW 3.3 macOS - www.glfw.org
 //------------------------------------------------------------------------
 // Copyright (c) 2009-2019 Camilla Löwy <elmindreda@glfw.org>
 //
@@ -44,10 +44,6 @@ typedef struct _GLFWcontextNSGL
 {
     id                pixelFormat;
     id                object;
-    CVDisplayLinkRef  displayLink;
-    atomic_int        swapInterval;
-    int               swapIntervalsPassed;
-    id                swapIntervalCond;
 
 } _GLFWcontextNSGL;
 
@@ -67,5 +63,4 @@ GLFWbool _glfwCreateContextNSGL(_GLFWwindow* window,
                                 const _GLFWctxconfig* ctxconfig,
                                 const _GLFWfbconfig* fbconfig);
 void _glfwDestroyContextNSGL(_GLFWwindow* window);
-void _glfwUpdateDisplayLinkDisplayNSGL(_GLFWwindow* window);
 

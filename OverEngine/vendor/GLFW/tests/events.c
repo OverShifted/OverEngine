@@ -320,12 +320,6 @@ static void window_close_callback(GLFWwindow* window)
     printf("%08x to %i at %0.3f: Window close\n",
            counter++, slot->number, glfwGetTime());
 
-    if (!slot->closeable)
-    {
-        printf("(( closing is disabled, press %s to re-enable )\n",
-               glfwGetKeyName(GLFW_KEY_C, 0));
-    }
-
     glfwSetWindowShouldClose(window, slot->closeable);
 }
 
@@ -509,20 +503,6 @@ static void joystick_callback(int jid, int event)
                axisCount,
                buttonCount,
                hatCount);
-
-        if (glfwJoystickIsGamepad(jid))
-        {
-            printf("  Joystick %i (%s) has a gamepad mapping (%s)\n",
-                   jid,
-                   glfwGetJoystickGUID(jid),
-                   glfwGetGamepadName(jid));
-        }
-        else
-        {
-            printf("  Joystick %i (%s) has no gamepad mapping\n",
-                   jid,
-                   glfwGetJoystickGUID(jid));
-        }
     }
     else
     {
