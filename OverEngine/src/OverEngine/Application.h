@@ -1,12 +1,13 @@
 #pragma once
 
 #include "Core.h"
-#include "Events/Event.h"
-#include "Window.h"
-#include "Platform/Windows/WindowsWindow.h"
+#include "OverEngine/Events/Event.h"
+#include "OverEngine/Events/ApplicationEvent.h"
 
-namespace OverEngine
-{
+#include "Window.h"
+
+namespace OverEngine {
+
 	class OVER_API Application
 	{
 	public:
@@ -14,11 +15,16 @@ namespace OverEngine
 		virtual ~Application();
 
 		void Run();
+
+		void OnEvent(Event& e);
 	private:
+		bool OnWindowClose(WindowCloseEvent& e);
+
 		std::unique_ptr<Window> m_Window;
 		bool m_Running = true;
 	};
 
-	// To be defined in client
+	// To be defined in CLIENT
 	Application* CreateApplication();
+
 }

@@ -74,14 +74,17 @@ project "OverEngine"
 			"OE_DEBUG",
 			"OE_ENABLE_ASSERTS"
 		}
+		buildoptions "/MDd"
 		symbols "On"
 
 	filter "configurations:Realease"
 		defines "OE_REALEASE"
+		buildoptions "/MD"
 		optimize "On"
 
 	filter "configurations:Dist"
 		defines "OE_DIST"
+		buildoptions "/MD"
 		optimize "On"
 
 
@@ -124,14 +127,17 @@ project "OverPlayerExec"
 
 	filter "configurations:Debug"
 		defines "OE_DEBUG"
+		buildoptions "/MDd"
 		symbols "On"
 
 	filter "configurations:Realease"
 		defines "OE_REALEASE"
+		buildoptions "/MD"
 		optimize "On"
 
 	filter "configurations:Dist"
 		defines "OE_DIST"
+		buildoptions "/MD"
 		optimize "On"
 
 
@@ -168,14 +174,17 @@ project "OverEditor"
 		-- }
 	filter "configurations:Debug"
 		defines "OE_DEBUG"
+		buildoptions "/MDd"
 		symbols "On"
 
 	filter "configurations:Realease"
 		defines "OE_REALEASE"
+		buildoptions "/MD"
 		optimize "On"
 
 	filter "configurations:Dist"
 		defines "OE_DIST"
+		buildoptions "/MD"
 		optimize "On"
 
 --
@@ -214,146 +223,15 @@ project "OverEditorExec"
 
 	filter "configurations:Debug"
 		defines "OE_DEBUG"
+		buildoptions "/MDd"
 		symbols "On"
 
 	filter "configurations:Realease"
 		defines "OE_REALEASE"
+		buildoptions "/MD"
 		optimize "On"
 
 	filter "configurations:Dist"
 		defines "OE_DIST"
+		buildoptions "/MD"
 		optimize "On"
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
--- workspace "OverEngine"
--- 	architecture "x64"
-
--- 	configurations
--- 	{
--- 		"Debug",
--- 		"Release",
--- 		"Dist"
--- 	}
-
--- outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
-
-
--- project "OverEngine"
--- 	location "OverEngine"
--- 	kind "SharedLib"
--- 	language "C++"
-
--- 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
--- 	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
-
--- 	files
--- 	{
--- 		"%{prj.name}/src/**.h",
--- 		"%{prj.name}/src/**.cpp"
--- 	}
-
-	-- includedirs
-	-- {
-	-- 	"%{prj.name}/src"
-	-- }
-
-	-- links
-	-- {
-	-- 	"GLFW",
-	-- 	"opengl32.lib"
-	-- }
-
-	-- filter "system:windows"
-	-- 	cppdialect "C++17"
-	-- 	staticruntime "On"
-	-- 	systemversion "latest"
-
-	-- 	defines
-	-- 	{
-	-- 		"OE_PLATFORM_WINDOWS",
-	-- 		"OE_BUILD_DYNAMIC"
-	-- 	}
-
-	-- 	postbuildcommands
-	-- 	{
-	-- 		("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/OverPlayerExec")
-	-- 	}
-
-	-- filter "configurations:Debug"
-	-- 	defines "OE_DEBUG"
-	-- 	symbols "On"
-
-	-- filter "configurations:Release"
-	-- 	defines "OE_RELEASE"
-	-- 	optimize "On"
-
-	-- filter "configurations:Dist"
-	-- 	defines "OE_DIST"
-	-- 	optimize "On"
-
--- project "OverPlayerExec"
--- 	location "OverPlayerExec"
--- 	kind "ConsoleApp"
--- 	language "C++"
-
--- 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
--- 	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
-
--- 	files
--- 	{
--- 		"%{prj.name}/src/**.h",
--- 		"%{prj.name}/src/**.cpp"
--- 	}
-
--- 	includedirs
--- 	{
--- 		"OverEngine/src"
--- 	}
-
--- 	links
--- 	{
--- 		"OverEngine"
--- 	}
-
--- 	filter "system:windows"
--- 		cppdialect "C++17"
--- 		staticruntime "On"
--- 		systemversion "latest"
-
--- 		defines
--- 		{
--- 			"OE_PLATFORM_WINDOWS"
--- 		}
-
--- 	filter "configurations:Debug"
--- 		defines "OE_DEBUG"
--- 		symbols "On"
-
--- 	filter "configurations:Release"
--- 		defines "OE_RELEASE"
--- 		optimize "On"
-
--- 	filter "configurations:Dist"
--- 		defines "OE_DIST"
--- 		optimize "On"

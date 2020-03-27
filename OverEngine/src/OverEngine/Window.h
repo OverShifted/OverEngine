@@ -36,10 +36,6 @@ namespace OverEngine {
 		virtual unsigned int GetWidth() const = 0;
 		virtual unsigned int GetHeight() const = 0;
 
-		#ifdef OE_PLATFORM_WINDOWS
-		virtual GLFWwindow* GetWindow() = 0;
-		#endif // OE_PLATFORM_WINDOWS
-
 		// Window attributes
 		virtual void SetEventCallback(const EventCallbackFn& callback) = 0;
 		virtual void SetVSync(bool enabled) = 0;

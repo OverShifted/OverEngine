@@ -2,8 +2,6 @@
 
 #include "OverEngine/Window.h"
 
-#include <GLFW/glfw3.h>
-
 namespace OverEngine {
 
 	class WindowsWindow : public Window
@@ -16,8 +14,6 @@ namespace OverEngine {
 
 		inline unsigned int GetWidth() const override { return m_Data.Width; }
 		inline unsigned int GetHeight() const override { return m_Data.Height; }
-
-		inline GLFWwindow* GetWindow() { return m_Window; };
 
 		// Window attributes
 		inline void SetEventCallback(const EventCallbackFn& callback) override { m_Data.EventCallback = callback; }
