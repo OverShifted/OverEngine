@@ -79,8 +79,8 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pcheader.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>OE_BUILD_SHARED;OE_PLATFORM_WINDOWS;OE_DEBUG;OE_ENABLE_ASSERTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\GLFW\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>OE_BUILD_SHARED;GLFW_INCLUDE_NONE;OE_PLATFORM_WINDOWS;OE_DEBUG;OE_ENABLE_ASSERTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\GLFW\include;vendor\Glad\include;vendor\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -102,8 +102,8 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pcheader.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>OE_BUILD_SHARED;OE_PLATFORM_WINDOWS;OE_REALEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\GLFW\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>OE_BUILD_SHARED;GLFW_INCLUDE_NONE;OE_PLATFORM_WINDOWS;OE_REALEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\GLFW\include;vendor\Glad\include;vendor\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -129,8 +129,8 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pcheader.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>OE_BUILD_SHARED;OE_PLATFORM_WINDOWS;OE_DIST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\GLFW\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>OE_BUILD_SHARED;GLFW_INCLUDE_NONE;OE_PLATFORM_WINDOWS;OE_DIST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\GLFW\include;vendor\Glad\include;vendor\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -155,19 +155,29 @@
     <ClInclude Include="src\OverEngine.h" />
     <ClInclude Include="src\OverEngine\Application.h" />
     <ClInclude Include="src\OverEngine\Core.h" />
+    <ClInclude Include="src\OverEngine\DataStructs\Vector2.h" />
     <ClInclude Include="src\OverEngine\EntryPoint.h" />
     <ClInclude Include="src\OverEngine\Events\ApplicationEvent.h" />
     <ClInclude Include="src\OverEngine\Events\Event.h" />
     <ClInclude Include="src\OverEngine\Events\KeyEvent.h" />
     <ClInclude Include="src\OverEngine\Events\MouseEvent.h" />
+    <ClInclude Include="src\OverEngine\ImGui\ImGuiLayer.h" />
+    <ClInclude Include="src\OverEngine\Layers\Layer.h" />
+    <ClInclude Include="src\OverEngine\Layers\LayerStack.h" />
     <ClInclude Include="src\OverEngine\Log.h" />
     <ClInclude Include="src\OverEngine\Window.h" />
+    <ClInclude Include="src\Platform\OpenGL\ImGuiOpenGLRenderer.h" />
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h" />
     <ClInclude Include="src\pcheader.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\OverEngine\Application.cpp" />
+    <ClCompile Include="src\OverEngine\DataStructs\Vector2.cpp" />
+    <ClCompile Include="src\OverEngine\ImGui\ImGuiLayer.cpp" />
+    <ClCompile Include="src\OverEngine\Layers\Layer.cpp" />
+    <ClCompile Include="src\OverEngine\Layers\LayerStack.cpp" />
     <ClCompile Include="src\OverEngine\Log.cpp" />
+    <ClCompile Include="src\Platform\OpenGL\ImGuiOpenGLRenderer.cpp" />
     <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp" />
     <ClCompile Include="src\pcheader.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
@@ -176,6 +186,12 @@
   <ItemGroup>
     <ProjectReference Include="vendor\GLFW\GLFW.vcxproj">
       <Project>{154B857C-0182-860D-AA6E-6C109684020F}</Project>
+    </ProjectReference>
+    <ProjectReference Include="vendor\Glad\Glad.vcxproj">
+      <Project>{BDD6857C-A90D-870D-52FA-6C103E10030F}</Project>
+    </ProjectReference>
+    <ProjectReference Include="vendor\imgui\ImGui.vcxproj">
+      <Project>{C0FF640D-2C14-8DBE-F595-301E616989EF}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -2,6 +2,8 @@
 
 #include "OverEngine/Window.h"
 
+#include <GLFW/glfw3.h>
+
 namespace OverEngine {
 
 	class WindowsWindow : public Window

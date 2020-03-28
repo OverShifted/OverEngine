@@ -47,6 +47,15 @@
       <Filter>Platform\Windows</Filter>
     </ClInclude>
     <ClInclude Include="src\pcheader.h" />
+    <ClInclude Include="src\OverEngine\Layers\Layer.h">
+      <Filter>OverEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="src\OverEngine\Layers\LayerStack.h">
+      <Filter>OverEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="src\OverEngine\ImGui\ImGuiLayer.h" />
+    <ClInclude Include="src\Platform\OpenGL\ImGuiOpenGLRenderer.h" />
+    <ClInclude Include="src\OverEngine\DataStructs\Vector2.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\OverEngine\Application.cpp">
@@ -59,5 +68,14 @@
       <Filter>Platform\Windows</Filter>
     </ClCompile>
     <ClCompile Include="src\pcheader.cpp" />
+    <ClCompile Include="src\OverEngine\Layers\Layer.cpp">
+      <Filter>OverEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\OverEngine\Layers\LayerStack.cpp">
+      <Filter>OverEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\OverEngine\ImGui\ImGuiLayer.cpp" />
+    <ClCompile Include="src\Platform\OpenGL\ImGuiOpenGLRenderer.cpp" />
+    <ClCompile Include="src\OverEngine\DataStructs\Vector2.cpp" />
   </ItemGroup>
 </Project>

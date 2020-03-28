@@ -1,12 +1,12 @@
 workspace "OverEngine"
 	architecture "x64"
+	startproject "OverPlayerExec"
 	configurations
 	{
 		"Debug",
 		"Realease",
 		"Dist"
 	}
-	startproject "OverPlayerExec"
 
 --            debug/realease       OS              x64
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
@@ -14,8 +14,12 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 -- include directories related to Solution folder
 IncludeDir = {}
 IncludeDir["GLFW"] = "OverEngine/vendor/GLFW/include"
+IncludeDir["Glad"] = "OverEngine/vendor/Glad/include"
+IncludeDir["ImGui"]= "OverEngine/vendor/imgui"
 
 include "OverEngine/vendor/GLFW"
+include "OverEngine/vendor/Glad"
+include "OverEngine/vendor/imgui"
 
 project "OverEngine"
 	location "OverEngine"
@@ -38,18 +42,23 @@ project "OverEngine"
 	{
 		"%{prj.name}/src",
 		"%{prj.name}/vendor/spdlog/include",
-		"%{IncludeDir.GLFW}"
+		"%{IncludeDir.GLFW}",
+		"%{IncludeDir.Glad}",
+		"%{IncludeDir.ImGui}"
 	}
 
 	links
 	{
 		"GLFW",
+		"Glad",
+		"ImGui",
 		"opengl32.lib"
 	}
 
 	defines
 	{
-		"OE_BUILD_SHARED"
+		"OE_BUILD_SHARED",
+		"GLFW_INCLUDE_NONE"
 	}
 
 	filter "system:windows"

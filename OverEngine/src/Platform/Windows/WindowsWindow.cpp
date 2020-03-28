@@ -5,6 +5,9 @@
 #include "OverEngine/Events/MouseEvent.h"
 #include "OverEngine/Events/KeyEvent.h"
 
+
+#include <glad\glad.h>
+
 namespace OverEngine {
 	
 	static bool s_GLFWInitialized = false;
@@ -41,13 +44,15 @@ namespace OverEngine {
 		{
 			// TODO: glfwTerminate on system shutdown
 			int success = glfwInit();
-			OE_CORE_ASSERT(success, "Could not intialize GLFW!");
+			OE_CORE_ASSERT(success, "Could not initialize GLFW!");
 			glfwSetErrorCallback(GLFWErrorCallback);
 			s_GLFWInitialized = true;
 		}
 
 		m_Window = glfwCreateWindow((int)props.Width, (int)props.Height, m_Data.Title.c_str(), nullptr, nullptr);
 		glfwMakeContextCurrent(m_Window);
+		int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+		OE_CORE_ASSERT(status, "Failed to initialize Glad!")
 		glfwSetWindowUserPointer(m_Window, &m_Data);
 		SetVSync(true);
 
