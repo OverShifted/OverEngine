@@ -4,6 +4,15 @@
 
 namespace OverEngine {
 
+	class OVER_API WindowCloseEvent : public Event
+	{
+	public:
+		WindowCloseEvent() {}
+
+		EVENT_CLASS_TYPE(WindowClose)
+		EVENT_CLASS_CATEGORY(EventCategoryApplication)
+	};
+
 	class OVER_API WindowResizeEvent : public Event
 	{
 	public:
@@ -26,13 +35,44 @@ namespace OverEngine {
 		unsigned int m_Width, m_Height;
 	};
 
-	class OVER_API WindowCloseEvent : public Event
+	class OVER_API WindowFocusEvent : public Event
 	{
 	public:
-		WindowCloseEvent() {}
+		WindowFocusEvent() {}
 
-		EVENT_CLASS_TYPE(WindowClose)
+		EVENT_CLASS_TYPE(WindowFocus)
 		EVENT_CLASS_CATEGORY(EventCategoryApplication)
+	};
+
+	class OVER_API WindowLostFocusEvent : public Event
+	{
+	public:
+		WindowLostFocusEvent() {}
+
+		EVENT_CLASS_TYPE(WindowLostFocus)
+		EVENT_CLASS_CATEGORY(EventCategoryApplication)
+	};
+
+	class OVER_API WindowMovedEvent : public Event
+	{
+	public:
+		WindowMovedEvent(unsigned int xPos, unsigned int yPos)
+			: m_WindowX(xPos), m_WindowY(yPos) {}
+
+		inline unsigned int GetX() const { return m_WindowX; }
+		inline unsigned int GetY() const { return m_WindowY; }
+
+		std::string ToString() const override
+		{
+			std::stringstream ss;
+			ss << "WindowMovedEvent: " << m_WindowX << ", " << m_WindowY;
+			return ss.str();
+		}
+
+		EVENT_CLASS_TYPE(WindowMoved)
+		EVENT_CLASS_CATEGORY(EventCategoryApplication)
+	private:
+		unsigned int m_WindowX, m_WindowY;
 	};
 
 	class OVER_API AppTickEvent : public Event

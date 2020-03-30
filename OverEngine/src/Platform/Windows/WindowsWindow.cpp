@@ -6,7 +6,7 @@
 #include "OverEngine/Events/KeyEvent.h"
 
 
-#include <glad\glad.h>
+#include <glad/glad.h>
 
 namespace OverEngine {
 	
@@ -101,6 +101,14 @@ namespace OverEngine {
 			}
 		});
 
+		glfwSetCharCallback(m_Window, [](GLFWwindow* window, unsigned int keycode)
+			{
+				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+
+				KeyTypedEvent event(keycode);
+				data.EventCallback(event);
+			});
+
 		glfwSetMouseButtonCallback(m_Window, [](GLFWwindow* window, int button, int action, int mods)
 		{
 			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
@@ -135,6 +143,30 @@ namespace OverEngine {
 			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
 
 			MouseMovedEvent event((float)xPos, (float)yPos);
+			data.EventCallback(event);
+		});
+		
+		glfwSetWindowFocusCallback(m_Window, [](GLFWwindow* window, int focused)
+		{
+			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+			
+			if (focused)
+			{
+				WindowFocusEvent event;
+				data.EventCallback(event);
+			}
+			else
+			{
+				WindowLostFocusEvent event;
+				data.EventCallback(event);
+			}
+		});
+
+		glfwSetWindowPosCallback(m_Window, [](GLFWwindow* window, int xPos, int yPos)
+		{
+			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+			
+			WindowMovedEvent event(xPos, yPos);
 			data.EventCallback(event);
 		});
 	}
