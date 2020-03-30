@@ -22,11 +22,12 @@ namespace OverEngine {
 		void PushLayer(Layer* layer);
 		void PushOverlay(Layer* layer);
 		inline static Application& Get() { return *m_Instance; }
-		inline Window& GetWindow() { return *m_Window; }
+		inline Window& GetMainWindow() { return *m_Windows[m_MainWindow]; }
 	private:
 		bool OnWindowClose(WindowCloseEvent& e);
 
-		std::unique_ptr<Window> m_Window;
+		std::unique_ptr<Window> m_Windows[1];
+		int m_MainWindow = 0;
 		bool m_Running = true;
 		LayerStack m_LayerStack;
 
