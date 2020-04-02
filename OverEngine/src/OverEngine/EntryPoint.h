@@ -1,9 +1,10 @@
 #pragma once
+#include"pcheader.h"
 #ifdef OE_PLATFORM_WINDOWS
 
 extern  OverEngine::Application* OverEngine::CreateApplication();
 
-int main(int argc, char** argv)
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)// int main(int argc, char** argv)
 {
 	OverEngine::Log::Init();
 	OE_CORE_INFO("OverEngine preRealease Build (Debug)");

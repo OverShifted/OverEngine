@@ -4,11 +4,23 @@
     <Filter Include="OverEngine">
       <UniqueIdentifier>{B78CA94C-A344-EB99-0C4C-C4F5F822868A}</UniqueIdentifier>
     </Filter>
+    <Filter Include="OverEngine\DataStructs">
+      <UniqueIdentifier>{585EF892-4458-21E5-2DC5-B7F5195E8751}</UniqueIdentifier>
+    </Filter>
     <Filter Include="OverEngine\Events">
       <UniqueIdentifier>{BBE47803-27FB-7699-7072-02BBDCC74721}</UniqueIdentifier>
     </Filter>
+    <Filter Include="OverEngine\ImGui">
+      <UniqueIdentifier>{216F8CBA-0D68-AB0C-369A-909122F28A18}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OverEngine\Layers">
+      <UniqueIdentifier>{96CF5B12-02E6-59A8-4B5D-E5C9B7B22A30}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Platform">
       <UniqueIdentifier>{2AC788B4-1694-E3BF-3FAD-D1672BD9184E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Platform\OpenGL">
+      <UniqueIdentifier>{1E7D2C1D-8A08-9AE1-9319-1DD6FF23F6E1}</UniqueIdentifier>
     </Filter>
     <Filter Include="Platform\Windows">
       <UniqueIdentifier>{64FBD71A-50F4-F66C-7926-DCF1657ED678}</UniqueIdentifier>
@@ -21,6 +33,9 @@
     </ClInclude>
     <ClInclude Include="src\OverEngine\Core.h">
       <Filter>OverEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="src\OverEngine\DataStructs\Vector2.h">
+      <Filter>OverEngine\DataStructs</Filter>
     </ClInclude>
     <ClInclude Include="src\OverEngine\EntryPoint.h">
       <Filter>OverEngine</Filter>
@@ -37,45 +52,54 @@
     <ClInclude Include="src\OverEngine\Events\MouseEvent.h">
       <Filter>OverEngine\Events</Filter>
     </ClInclude>
+    <ClInclude Include="src\OverEngine\ImGui\ImGuiLayer.h">
+      <Filter>OverEngine\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\OverEngine\Layers\Layer.h">
+      <Filter>OverEngine\Layers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\OverEngine\Layers\LayerStack.h">
+      <Filter>OverEngine\Layers</Filter>
+    </ClInclude>
     <ClInclude Include="src\OverEngine\Log.h">
       <Filter>OverEngine</Filter>
     </ClInclude>
     <ClInclude Include="src\OverEngine\Window.h">
       <Filter>OverEngine</Filter>
     </ClInclude>
+    <ClInclude Include="src\Platform\OpenGL\ImGuiOpenGLRenderer.h">
+      <Filter>Platform\OpenGL</Filter>
+    </ClInclude>
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h">
       <Filter>Platform\Windows</Filter>
     </ClInclude>
     <ClInclude Include="src\pcheader.h" />
-    <ClInclude Include="src\OverEngine\Layers\Layer.h">
-      <Filter>OverEngine</Filter>
-    </ClInclude>
-    <ClInclude Include="src\OverEngine\Layers\LayerStack.h">
-      <Filter>OverEngine</Filter>
-    </ClInclude>
-    <ClInclude Include="src\OverEngine\ImGui\ImGuiLayer.h" />
-    <ClInclude Include="src\Platform\OpenGL\ImGuiOpenGLRenderer.h" />
-    <ClInclude Include="src\OverEngine\DataStructs\Vector2.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\OverEngine\Application.cpp">
       <Filter>OverEngine</Filter>
     </ClCompile>
+    <ClCompile Include="src\OverEngine\DataStructs\Vector2.cpp">
+      <Filter>OverEngine\DataStructs</Filter>
+    </ClCompile>
+    <ClCompile Include="src\OverEngine\ImGui\ImGuiLayer.cpp">
+      <Filter>OverEngine\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\OverEngine\Layers\Layer.cpp">
+      <Filter>OverEngine\Layers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\OverEngine\Layers\LayerStack.cpp">
+      <Filter>OverEngine\Layers</Filter>
+    </ClCompile>
     <ClCompile Include="src\OverEngine\Log.cpp">
       <Filter>OverEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Platform\OpenGL\ImGuiOpenGLRenderer.cpp">
+      <Filter>Platform\OpenGL</Filter>
     </ClCompile>
     <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp">
       <Filter>Platform\Windows</Filter>
     </ClCompile>
     <ClCompile Include="src\pcheader.cpp" />
-    <ClCompile Include="src\OverEngine\Layers\Layer.cpp">
-      <Filter>OverEngine</Filter>
-    </ClCompile>
-    <ClCompile Include="src\OverEngine\Layers\LayerStack.cpp">
-      <Filter>OverEngine</Filter>
-    </ClCompile>
-    <ClCompile Include="src\OverEngine\ImGui\ImGuiLayer.cpp" />
-    <ClCompile Include="src\Platform\OpenGL\ImGuiOpenGLRenderer.cpp" />
-    <ClCompile Include="src\OverEngine\DataStructs\Vector2.cpp" />
   </ItemGroup>
 </Project>

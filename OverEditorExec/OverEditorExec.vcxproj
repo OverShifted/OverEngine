@@ -130,14 +130,6 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\OverEngine\OverEngine.vcxproj">
-      <Project>{B78CA94C-A344-EB99-0C4C-C4F5F822868A}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\OverEditor\OverEditor.vcxproj">
-      <Project>{68DFF54B-5497-3799-BD9E-10F5A975D289}</Project>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

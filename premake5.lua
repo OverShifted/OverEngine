@@ -4,11 +4,11 @@ workspace "OverEngine"
 	configurations
 	{
 		"Debug",
-		"Realease",
+		"Release",
 		"Dist"
 	}
 
---            debug/realease       OS              x64
+--            debug/release       OS              x64
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 -- include directories related to Solution folder
@@ -23,8 +23,10 @@ include "OverEngine/vendor/imgui"
 
 project "OverEngine"
 	location "OverEngine"
-	kind "SharedLib"
+	kind "StaticLib"
 	language "C++"
+	cppdialect "C++17"
+	staticruntime "on"
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir("bin-int/" .. outputdir .. "/%{prj.name}")
@@ -57,51 +59,51 @@ project "OverEngine"
 
 	defines
 	{
-		"OE_BUILD_SHARED",
-		"GLFW_INCLUDE_NONE"
+		--"OE_PROJECT_BUILD_SHARED",
+		--"OE_BUILD_SHARED",
+		"OE_BUILD_STATIC",
+		"GLFW_INCLUDE_NONE",
+		"OE_ENABLE_ASSERTS",
+		"_CRT_SECURE_NO_WARNINGS"
 	}
 
 	filter "system:windows"
-		cppdialect "C++17"
-		staticruntime "On"
 		systemversion "latest"
 
-		defines
-		{
-			"OE_PLATFORM_WINDOWS"
-		}
+		defines "OE_PLATFORM_WINDOWS"
 
 		postbuildcommands
 		{
-			("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/OverPlayerExec")--,
+			--("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/OverPlayerExec")--, NO DLL
 			--("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/OverEditorExec")
 		}
 
 	filter "configurations:Debug"
-		defines
-		{
-			"OE_DEBUG",
-			"OE_ENABLE_ASSERTS"
-		}
-		buildoptions "/MDd"
-		symbols "On"
+		defines "OE_DEBUG"
+		--buildoptions "/MDd"
+		runtime "Debug"
+		symbols "on"
 
-	filter "configurations:Realease"
-		defines "OE_REALEASE"
-		buildoptions "/MD"
-		optimize "On"
+	filter "configurations:Release"
+		defines "OE_RELEASE"
+		--buildoptions "/MD"
+		runtime "Release"
+		optimize "on"
 
 	filter "configurations:Dist"
 		defines "OE_DIST"
-		buildoptions "/MD"
-		optimize "On"
+		runtime "Release"
+		--buildoptions "/MD"
+		optimize "on"
 
 
 
 project "OverPlayerExec"
 	location "OverPlayerExec"
-	kind "ConsoleApp"
+	kind "WindowedApp"
 	language "C++"
+	cppdialect "C++17"
+	staticruntime "on"
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir("bin-int/" .. outputdir .. "/%{prj.name}")
@@ -124,9 +126,13 @@ project "OverPlayerExec"
 		"OverEngine"
 	}
 
+	defines
+	{
+		--"OE_BUILD_SHARED",
+		"OE_BUILD_STATIC"
+	}
+
 	filter "system:windows"
-		cppdialect "C++17"
-		staticruntime "On"
 		systemversion "latest"
 
 		defines
@@ -136,111 +142,111 @@ project "OverPlayerExec"
 
 	filter "configurations:Debug"
 		defines "OE_DEBUG"
-		buildoptions "/MDd"
-		symbols "On"
+		runtime "Debug"
+		symbols "on"
 
-	filter "configurations:Realease"
-		defines "OE_REALEASE"
-		buildoptions "/MD"
-		optimize "On"
-
-	filter "configurations:Dist"
-		defines "OE_DIST"
-		buildoptions "/MD"
-		optimize "On"
-
-
-project "OverEditor"
-	location "OverEditor"
-	kind "SharedLib"
-	language "C++"
-
-	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
-	objdir("bin-int/" .. outputdir .. "/%{prj.name}")
-
-	files
-	{
-		"%{prj.name}/src/**.h",
-		"%{prj.name}/src/**.cpp"
-	}
-
-	-- include {  }
-
-	filter "system:windows"
-		cppdialect "C++17"
-		staticruntime "On"
-		systemversion "latest"
-
-		defines
-		{
-			"OE_PLATFORM_WINDOWS",
-			"OE_BUILD_DYNAMIC"
-		}
-
-		-- postbuildcommands
-		-- {
-		-- 	("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/OverEditorExec")
-		-- }
-	filter "configurations:Debug"
-		defines "OE_DEBUG"
-		buildoptions "/MDd"
-		symbols "On"
-
-	filter "configurations:Realease"
-		defines "OE_REALEASE"
-		buildoptions "/MD"
-		optimize "On"
+	filter "configurations:Release"
+		defines "OE_RELEASE"
+		runtime "Release"
+		optimize "on"
 
 	filter "configurations:Dist"
 		defines "OE_DIST"
-		buildoptions "/MD"
-		optimize "On"
+		runtime "Release"
+		optimize "on"
 
---
 
-project "OverEditorExec"
-	location "OverEditorExec"
-	kind "ConsoleApp"
-	language "C++"
+-- project "OverEditor"
+-- 	location "OverEditor"
+-- 	kind "SharedLib"
+-- 	language "C++"
 
-	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
-	objdir("bin-int/" .. outputdir .. "/%{prj.name}")
+-- 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
+-- 	objdir("bin-int/" .. outputdir .. "/%{prj.name}")
 
-	files
-	{
-		"%{prj.name}/src/**.h",
-		"%{prj.name}/src/**.cpp"
-	}
+-- 	files
+-- 	{
+-- 		"%{prj.name}/src/**.h",
+-- 		"%{prj.name}/src/**.cpp"
+-- 	}
 
-	--includedirs { "OverEngine/src" }
+-- 	-- include {  }
 
-	links
-	{
-		"OverEngine",
-		"OverEditor"
-	}
+-- 	filter "system:windows"
+-- 		cppdialect "C++17"
+-- 		staticruntime "on"
+-- 		systemversion "latest"
 
-	filter "system:windows"
-		cppdialect "C++17"
-		staticruntime "On"
-		systemversion "latest"
+-- 		defines
+-- 		{
+-- 			"OE_PLATFORM_WINDOWS",
+-- 			"OE_BUILD_DYNAMIC"
+-- 		}
 
-		defines
-		{
-			"OE_PLATFORM_WINDOWS"
-		}
+-- 		-- postbuildcommands
+-- 		-- {
+-- 		-- 	("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/OverEditorExec")
+-- 		-- }
+-- 	filter "configurations:Debug"
+-- 		defines "OE_DEBUG"
+-- 		buildoptions "/MDd"
+-- 		symbols "on"
 
-	filter "configurations:Debug"
-		defines "OE_DEBUG"
-		buildoptions "/MDd"
-		symbols "On"
+-- 	filter "configurations:Release"
+-- 		defines "OE_RELEASE"
+-- 		buildoptions "/MD"
+-- 		optimize "on"
 
-	filter "configurations:Realease"
-		defines "OE_REALEASE"
-		buildoptions "/MD"
-		optimize "On"
+-- 	filter "configurations:Dist"
+-- 		defines "OE_DIST"
+-- 		buildoptions "/MD"
+-- 		optimize "on"
 
-	filter "configurations:Dist"
-		defines "OE_DIST"
-		buildoptions "/MD"
-		optimize "On"
+-- --
+
+-- project "OverEditorExec"
+-- 	location "OverEditorExec"
+-- 	kind "ConsoleApp"
+-- 	language "C++"
+
+-- 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
+-- 	objdir("bin-int/" .. outputdir .. "/%{prj.name}")
+
+-- 	files
+-- 	{
+-- 		"%{prj.name}/src/**.h",
+-- 		"%{prj.name}/src/**.cpp"
+-- 	}
+
+-- 	--includedirs { "OverEngine/src" }
+
+-- 	links
+-- 	{
+-- 		--"OverEngine",
+-- 		--"OverEditor"
+-- 	}
+
+-- 	filter "system:windows"
+-- 		cppdialect "C++17"
+-- 		staticruntime "on"
+-- 		systemversion "latest"
+
+-- 		defines
+-- 		{
+-- 			"OE_PLATFORM_WINDOWS"
+-- 		}
+
+-- 	filter "configurations:Debug"
+-- 		defines "OE_DEBUG"
+-- 		buildoptions "/MDd"
+-- 		symbols "on"
+
+-- 	filter "configurations:Release"
+-- 		defines "OE_RELEASE"
+-- 		buildoptions "/MD"
+-- 		optimize "on"
+
+-- 	filter "configurations:Dist"
+-- 		defines "OE_DIST"
+-- 		buildoptions "/MD"
+-- 		optimize "on"
