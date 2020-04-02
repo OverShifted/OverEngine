@@ -49,11 +49,12 @@
 //  ES 3.0    300       "#version 300 es"
 //----------------------------------------
 
+#include "pcheader.h"
+
 #if defined(_MSC_VER) && !defined(_CRT_SECURE_NO_WARNINGS)
 #define _CRT_SECURE_NO_WARNINGS
 #endif
 
-#include "pcheader.h"
 #include "imgui.h"
 #include "ImGuiOpenGLRenderer.h"
 #include "glad/glad.h"

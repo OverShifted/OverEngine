@@ -27,6 +27,7 @@ public:
 	{
 		PushLayer(new ExampleLayer());
 		PushLayer(new OverEngine::ImGuiLayer());
+		OE_INFO("Client Application Init");
 	}
 
 	~OverPlayer()
