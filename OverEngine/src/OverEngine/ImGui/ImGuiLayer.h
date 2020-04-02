@@ -19,6 +19,7 @@ namespace OverEngine
 		void OnUpdate();
 		void OnEvent(Event& event);
 
+		inline static float ClearColor[3] = { 0, 0.15f , 0.09f };
 	private:
 		bool OnMouseButtonPressedEvent(MouseButtonPressedEvent& e);
 		bool OnMouseButtonReleasedEvent(MouseButtonReleasedEvent& e);
@@ -31,5 +32,7 @@ namespace OverEngine
 
 	private:
 		float m_Time = 0.0f;
+		const char* Themes[3] = { "Dark", "Light", "Classic" };
+		int c = 0;
 	};
 }

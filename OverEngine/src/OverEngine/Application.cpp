@@ -3,6 +3,8 @@
 
 #include "OverEngine/Log.h"
 
+#include "ImGui/ImGuiLayer.h"
+
 #include <glad/glad.h>
 
 #include "OverEngine/DataStructs/Vector2.h"
@@ -44,7 +46,7 @@ namespace OverEngine {
 			if (e.Handled)
 				break;
 		}
-		OE_CORE_TRACE(e);
+		// OE_CORE_TRACE(e);
 	}
 
 	void Application::Run()
@@ -55,9 +57,8 @@ namespace OverEngine {
 
 		while (m_Running)
 		{
-			glClearColor(1, 0, 1, 1);
+			glClearColor(ImGuiLayer::ClearColor[0], ImGuiLayer::ClearColor[1], ImGuiLayer::ClearColor[2], 1);
 			glClear(GL_COLOR_BUFFER_BIT);
-			OE_CORE_CRITICAL("Hello");
 			for (Layer* layer : m_LayerStack)
 				layer->OnUpdate();
 

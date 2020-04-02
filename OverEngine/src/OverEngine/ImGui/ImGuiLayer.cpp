@@ -65,7 +65,7 @@ namespace OverEngine
 	{
 		ImGuiIO& io = ImGui::GetIO();
 		Application& app = Application::Get();
-		io.DisplaySize = ImVec2(app.GetMainWindow().GetWidth(), app.GetMainWindow().GetHeight());
+		io.DisplaySize = ImVec2((float)app.GetMainWindow().GetWidth(), (float)app.GetMainWindow().GetHeight());
 
 		float time = (float)glfwGetTime();
 		io.DeltaTime = m_Time > 0.0f ? (time - m_Time) : (1.0f / 60.0f);
@@ -76,6 +76,35 @@ namespace OverEngine
 
 		static bool show = true;
 		ImGui::ShowDemoWindow(&show);
+
+		ImGui::Begin("Prefrences");
+		if (ImGui::CollapsingHeader("User Interface"))
+		{
+			//ImGui::Text("Theme");
+			if (ImGui::Combo("Theme", &c, Themes, 3))
+			{
+				switch (c)
+				{
+				case 0:
+					ImGui::StyleColorsDark();
+					break;
+				case 1:
+					ImGui::StyleColorsLight();
+					break;
+				case 2:
+					ImGui::StyleColorsClassic();
+					break;
+				default:
+					break;
+				}
+			}
+		}
+
+		if (ImGui::CollapsingHeader("Clear Color"))
+		{
+			ImGui::ColorEdit3("Clear Color", ClearColor);
+		}
+		ImGui::End();
 
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -160,7 +189,7 @@ namespace OverEngine
 	bool ImGuiLayer::OnWindowResizeEvent(WindowResizeEvent & e)
 	{
 		ImGuiIO& io = ImGui::GetIO();
-		io.DisplaySize = ImVec2(e.GetWidth(), e.GetHeight());
+		io.DisplaySize = ImVec2((float)e.GetWidth(), (float)e.GetHeight());
 		io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
 		glViewport(0, 0, e.GetWidth(), e.GetHeight());
 
