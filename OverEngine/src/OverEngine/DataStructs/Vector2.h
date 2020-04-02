@@ -27,5 +27,5 @@ namespace OverEngine
 		return os << v.ToString();
 	}
 
-	#define OVER_VEC2_TO_IMVEC2(V) ImVec2(V.x, V.y)
+	#define OVER_VEC2_TO_IMVEC2(V) :: ImVec2(V->x, V->y)
 }
