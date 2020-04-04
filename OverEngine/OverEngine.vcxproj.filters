@@ -13,6 +13,9 @@
     <Filter Include="OverEngine\ImGui">
       <UniqueIdentifier>{216F8CBA-0D68-AB0C-369A-909122F28A18}</UniqueIdentifier>
     </Filter>
+    <Filter Include="OverEngine\Input">
+      <UniqueIdentifier>{F6A98DBA-E2A2-AC0C-0BD5-9191F72C8C18}</UniqueIdentifier>
+    </Filter>
     <Filter Include="OverEngine\Layers">
       <UniqueIdentifier>{96CF5B12-02E6-59A8-4B5D-E5C9B7B22A30}</UniqueIdentifier>
     </Filter>
@@ -55,6 +58,12 @@
     <ClInclude Include="src\OverEngine\ImGui\ImGuiLayer.h">
       <Filter>OverEngine\ImGui</Filter>
     </ClInclude>
+    <ClInclude Include="src\OverEngine\Input\Input.h">
+      <Filter>OverEngine\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="src\OverEngine\Input\KeyCodes.h">
+      <Filter>OverEngine\Input</Filter>
+    </ClInclude>
     <ClInclude Include="src\OverEngine\Layers\Layer.h">
       <Filter>OverEngine\Layers</Filter>
     </ClInclude>
@@ -84,6 +93,9 @@
     </ClCompile>
     <ClCompile Include="src\OverEngine\ImGui\ImGuiLayer.cpp">
       <Filter>OverEngine\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\OverEngine\Input\Input.cpp">
+      <Filter>OverEngine\Input</Filter>
     </ClCompile>
     <ClCompile Include="src\OverEngine\Layers\Layer.cpp">
       <Filter>OverEngine\Layers</Filter>

@@ -1,6 +1,7 @@
 workspace "OverEngine"
-	architecture "x64"
+	-- architecture "x64"
 	startproject "OverPlayerExec"
+	platforms {"x64", "x86"}
 	configurations
 	{
 		"Debug",
@@ -8,17 +9,23 @@ workspace "OverEngine"
 		"Dist"
 	}
 
+	filter "platforms:x64"
+		architecture "x64"
+	
+	filter "platforms:x32"
+		architecture "x32"
+
 --            debug/release       OS              x64
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 -- include directories related to Solution folder
 IncludeDir = {}
 IncludeDir["GLFW"] = "OverEngine/vendor/GLFW/include"
-IncludeDir["Glad"] = "OverEngine/vendor/Glad/include"
+IncludeDir["Glad"] = "OverEngine/vendor/Glad/include" -------------------------------
 IncludeDir["ImGui"]= "OverEngine/vendor/imgui"
 
 include "OverEngine/vendor/GLFW"
-include "OverEngine/vendor/Glad"
+include "OverEngine/vendor/Glad" -----------------------------------
 include "OverEngine/vendor/imgui"
 
 project "OverEngine"
@@ -52,7 +59,7 @@ project "OverEngine"
 	links
 	{
 		"GLFW",
-		"Glad",
+		"Glad", ---------------------------------
 		"ImGui",
 		"opengl32.lib"
 	}
@@ -63,20 +70,18 @@ project "OverEngine"
 		--"OE_BUILD_SHARED",
 		"OE_BUILD_STATIC",
 		"GLFW_INCLUDE_NONE",
-		"OE_ENABLE_ASSERTS",
 		"_CRT_SECURE_NO_WARNINGS"
 	}
 
 	filter "system:windows"
 		systemversion "latest"
-
 		defines "OE_PLATFORM_WINDOWS"
 
-		postbuildcommands
-		{
+		-- postbuildcommands
+		-- {
 			--("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/OverPlayerExec")--, NO DLL
 			--("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/OverEditorExec")
-		}
+		-- }
 
 	filter "configurations:Debug"
 		defines "OE_DEBUG"
@@ -100,7 +105,7 @@ project "OverEngine"
 
 project "OverPlayerExec"
 	location "OverPlayerExec"
-	kind "WindowedApp"
+	kind "ConsoleApp" -- "WindowedApp"
 	language "C++"
 	cppdialect "C++17"
 	staticruntime "on"
@@ -134,11 +139,7 @@ project "OverPlayerExec"
 
 	filter "system:windows"
 		systemversion "latest"
-
-		defines
-		{
-			"OE_PLATFORM_WINDOWS"
-		}
+		defines "OE_PLATFORM_WINDOWS"
 
 	filter "configurations:Debug"
 		defines "OE_DEBUG"

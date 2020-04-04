@@ -28,6 +28,3 @@ project "Glad"
     filter "configurations:Release"
         runtime "Release"
         optimize "on"
-
-    filter {"system:windows", "configurations:Release"}
-        buildoptions "/MT"
