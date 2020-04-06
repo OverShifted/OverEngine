@@ -1,8 +1,8 @@
 #pragma once
 
-enum class KeCodes
+enum class KeyCode
 {
-	GLFW_KEY_UNKNOWN      = -1,
+	KEY_NONE              = -1,
 
 	/* Printable keys */
 	KEY_SPACE             = 32,

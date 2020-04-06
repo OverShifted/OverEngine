@@ -19,6 +19,9 @@
     <Filter Include="OverEngine\Layers">
       <UniqueIdentifier>{96CF5B12-02E6-59A8-4B5D-E5C9B7B22A30}</UniqueIdentifier>
     </Filter>
+    <Filter Include="OverEngine\Renderer">
+      <UniqueIdentifier>{3D0E40BC-A96F-1DCA-32DD-637C9E3D5489}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Platform">
       <UniqueIdentifier>{2AC788B4-1694-E3BF-3FAD-D1672BD9184E}</UniqueIdentifier>
     </Filter>
@@ -73,11 +76,17 @@
     <ClInclude Include="src\OverEngine\Log.h">
       <Filter>OverEngine</Filter>
     </ClInclude>
+    <ClInclude Include="src\OverEngine\Renderer\RendererContext.h">
+      <Filter>OverEngine\Renderer</Filter>
+    </ClInclude>
     <ClInclude Include="src\OverEngine\Window.h">
       <Filter>OverEngine</Filter>
     </ClInclude>
-    <ClInclude Include="src\Platform\OpenGL\ImGuiOpenGLRenderer.h">
+    <ClInclude Include="src\Platform\OpenGL\OpenGLContext.h">
       <Filter>Platform\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Platform\Windows\WindowsInput.h">
+      <Filter>Platform\Windows</Filter>
     </ClInclude>
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h">
       <Filter>Platform\Windows</Filter>
@@ -106,8 +115,14 @@
     <ClCompile Include="src\OverEngine\Log.cpp">
       <Filter>OverEngine</Filter>
     </ClCompile>
-    <ClCompile Include="src\Platform\OpenGL\ImGuiOpenGLRenderer.cpp">
+    <ClCompile Include="src\Platform\OpenGL\ImGuiOpenGLImplBuild.cpp">
       <Filter>Platform\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Platform\OpenGL\OpenGLContext.cpp">
+      <Filter>Platform\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Platform\Windows\WindowsInput.cpp">
+      <Filter>Platform\Windows</Filter>
     </ClCompile>
     <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp">
       <Filter>Platform\Windows</Filter>

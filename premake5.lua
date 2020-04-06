@@ -20,13 +20,16 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 -- include directories related to Solution folder
 IncludeDir = {}
-IncludeDir["GLFW"] = "OverEngine/vendor/GLFW/include"
-IncludeDir["Glad"] = "OverEngine/vendor/Glad/include" -------------------------------
-IncludeDir["ImGui"]= "OverEngine/vendor/imgui"
+IncludeDir["GLFW"]  = "OverEngine/vendor/GLFW/include"
+IncludeDir["Glad"]  = "OverEngine/vendor/Glad/include" -------------------------------
+IncludeDir["ImGui"] = "OverEngine/vendor/imgui"
+IncludeDir["glm"]   = "OverEngine/vendor/glm"
 
+group "Dependencies"
 include "OverEngine/vendor/GLFW"
 include "OverEngine/vendor/Glad" -----------------------------------
 include "OverEngine/vendor/imgui"
+group ""
 
 project "OverEngine"
 	location "OverEngine"
@@ -53,7 +56,8 @@ project "OverEngine"
 		"%{prj.name}/vendor/spdlog/include",
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.Glad}",
-		"%{IncludeDir.ImGui}"
+		"%{IncludeDir.ImGui}",
+		"%{IncludeDir.glm}"
 	}
 
 	links
@@ -123,7 +127,8 @@ project "OverPlayerExec"
 	{
 		"OverEngine/src",
 		"OverEngine/vendor/spdlog/include",
-		"%{IncludeDir.GLFW}"
+		"OverEngine/vendor",
+		"%{IncludeDir.glm}"
 	}
 
 	links

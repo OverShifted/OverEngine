@@ -1,5 +1,7 @@
 #include <OverEngine.h>
 
+#include "imgui/imgui.h"
+
 class ExampleLayer : public OverEngine::Layer
 {
 public:
@@ -11,6 +13,15 @@ public:
 	void OnUpdate() override
 	{
 		//OE_INFO("ExampleLayer::Update");
+	}
+
+	void OnImGuiRender() override
+	{
+		ImGui::Begin("Test");
+		ImGui::Text("Hello World!");
+		ImGui::Text("I am rendering from client!");
+		ImGui::DockSpace(10);
+		ImGui::End();
 	}
 
 	void OnEvent(OverEngine::Event& event) override
@@ -26,8 +37,6 @@ public:
 	OverPlayer()
 	{
 		PushLayer(new ExampleLayer());
-		PushLayer(new OverEngine::ImGuiLayer());
-		OE_INFO("Client Application Init");
 	}
 
 	~OverPlayer()

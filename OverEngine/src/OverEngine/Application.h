@@ -3,6 +3,9 @@
 #include "Core.h"
 
 #include "Window.h"
+
+#include "OverEngine/ImGui/ImGuiLayer.h"
+
 #include "OverEngine/Layers/LayerStack.h"
 #include "OverEngine/Events/Event.h"
 #include "OverEngine/Events/ApplicationEvent.h"
@@ -27,9 +30,12 @@ namespace OverEngine {
 		bool OnWindowClose(WindowCloseEvent& e);
 
 		std::unique_ptr<Window> m_Windows[1];
+		ImGuiLayer* m_ImGuiLayer;
 		int m_MainWindow = 0;
 		bool m_Running = true;
 		LayerStack m_LayerStack;
+
+		unsigned int m_VertexArray, m_VertexBuffer, m_IndexBuffer;
 
 		static Application* m_Instance;
 	};

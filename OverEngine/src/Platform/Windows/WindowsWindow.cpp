@@ -5,7 +5,7 @@
 #include "OverEngine/Events/MouseEvent.h"
 #include "OverEngine/Events/KeyEvent.h"
 
-
+#include "Platform/OpenGL/OpenGLContext.h"
 #include <glad/glad.h>
 
 namespace OverEngine {
@@ -49,16 +49,22 @@ namespace OverEngine {
 			s_GLFWInitialized = true;
 		}
 
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 		m_Window = glfwCreateWindow((int)props.Width, (int)props.Height, m_Data.Title.c_str(), nullptr, nullptr);
-		glfwMakeContextCurrent(m_Window);
-		int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
-		OE_CORE_ASSERT(status, "Failed to initialize Glad!")
+		
+		m_Context = new OpenGLContext(m_Window);
+		m_Context->Init();
+
 		glfwSetWindowUserPointer(m_Window, &m_Data);
 		SetVSync(true);
-		OE_INFO(glGetString(GL_VERSION));
-		OE_INFO(glGetString(GL_VENDOR));
-		getchar();
+		
+		OE_INFO("OpenGL info");
+		OE_INFO("    Version : {0}" , glGetString(GL_VERSION));
+		OE_INFO("    Vendor : {0}"  , glGetString(GL_VENDOR));
+		OE_INFO("    Renderer : {0}", glGetString(GL_RENDERER));
 
 		// Set GLFW callbacks
 		glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height)
