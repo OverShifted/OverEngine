@@ -14,8 +14,8 @@
 * Visual Studio 2019 / Windows / MSVC
 
 #### Also we are planning to support these:
-* Codelite / Windows / Clang
 * Visual Studio 2019 / Linux / GCC
 * Codelite / Linux / GCC
 * Codelite / Linux / Clang
 * Codelite / Windows / GCC
+* Codelite / Windows / Clang
