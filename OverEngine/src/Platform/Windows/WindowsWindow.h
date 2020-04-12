@@ -24,6 +24,7 @@ namespace OverEngine {
 		bool IsVSync() const override;
 
 		inline virtual void* GetNativeWindow() const { return m_Window; }
+		inline virtual RendererContext* GetRendererContext() const { return m_Context; }
 	private:
 		virtual void Init(const WindowProps& props);
 		virtual void Shutdown();

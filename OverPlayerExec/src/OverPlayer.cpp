@@ -1,4 +1,4 @@
-#include <OverEngine.h>
+﻿#include <OverEngine.h>
 
 #include "imgui/imgui.h"
 
@@ -18,8 +18,8 @@ public:
 	void OnImGuiRender() override
 	{
 		ImGui::Begin("Test");
-		ImGui::Text("Hello World!");
 		ImGui::Text("I am rendering from client!");
+		ImGui::Text("Dock other windows down here by dragging from titlebar");
 		ImGui::DockSpace(10);
 		ImGui::End();
 	}

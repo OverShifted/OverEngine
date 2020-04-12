@@ -5,6 +5,8 @@
 #include "OverEngine/Core.h"
 #include "OverEngine/Events/Event.h"
 
+#include "Renderer/RendererContext.h"
+
 namespace OverEngine {
 
 	struct WindowProps
@@ -40,6 +42,7 @@ namespace OverEngine {
 		virtual bool IsVSync() const = 0;
 
 		virtual void* GetNativeWindow() const = 0;
+		virtual RendererContext* GetRendererContext() const = 0;
 
 		static Window* Create(const WindowProps& props = WindowProps());
 	};

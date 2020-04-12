@@ -26,4 +26,33 @@ namespace OverEngine
 		glfwSwapBuffers(m_WindowHandle);
 	}
 
+	void OpenGLContext::SetViewport(int width, int height, int x, int y)
+	{
+		glViewport(x, y, width, height);
+	}
+
+	void OpenGLContext::BackupContext()
+	{
+		m_WindowBackup = glfwGetCurrentContext();
+	}
+
+	void OpenGLContext::ApplyBackupedContext()
+	{
+		glfwMakeContextCurrent(m_WindowBackup);
+	}
+
+	const char* OpenGLContext::GetInfoVersion()
+	{
+		return (const char*)glGetString(GL_VERSION);
+	}
+
+	const char* OpenGLContext::GetInfoVendor()
+	{
+		return (const char*)glGetString(GL_VENDOR);
+	}
+
+	const char* OpenGLContext::GetInfoRenderer()
+	{
+		return (const char*)glGetString(GL_RENDERER);
+	}
 }
