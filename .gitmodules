@@ -3,3 +3,9 @@
 [submodule "OverEngine/vendor/spdlog"]
 	path = OverEngine/vendor/spdlog
 	url = https://github.com/gabime/spdlog
+[submodule "OverEngine/vendor/GLFW"]
+	path = OverEngine/vendor/GLFW
+	url = https://github.com/glfw/glfw
+[submodule "OverEngine/vendor/glm"]
+	path = OverEngine/vendor/glm
+	url = https://github.com/g-truc/glm
