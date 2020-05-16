@@ -1,7 +1,5 @@
 #pragma once
 
-#include "pcheader.h"
-
 #include "OverEngine/Core.h"
 
 #include "imgui.h"
@@ -20,12 +18,12 @@ namespace OverEngine
 		void Set(float _x, float _y);
 
 		std::string ToString() const;
+		inline operator ImVec2() const { return ImVec2(x, y); }
 	};
 
 	inline std::ostream& operator<<(std::ostream& os, const Vector2& v)
 	{
 		return os << v.ToString();
 	}
-
-	#define OVER_VEC2_TO_IMVEC2(V) :: ImVec2(V->x, V->y)
+	
 }

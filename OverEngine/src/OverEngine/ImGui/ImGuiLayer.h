@@ -21,10 +21,13 @@ namespace OverEngine
 		void Begin();
 		void End();
 
-		inline static float ClearColor[3] = { 0, 0, 0 };
+		enum class ImguiThemes {
+			Dark, Light, Classic, // BuiltIn
+			DarkVariant1, DarkVariant2, DarkVariant3
+		};
+
+		void ApplyTheme(ImguiThemes theme);
 	private:
 		float m_Time = 0.0f;
-		const char* Themes[5] = { "Dark", "Light", "Classic", "D1", "D2" };
-		int c = 0;
 	};
 }

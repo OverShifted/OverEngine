@@ -8,8 +8,9 @@
 namespace OverEngine
 {
 
-	OpenGLContext::OpenGLContext(GLFWwindow* windowHandle)
-		: m_WindowHandle(windowHandle)
+	OpenGLContext::OpenGLContext(void* windowHandle)
+		: m_WindowHandle(static_cast<GLFWwindow*>(windowHandle)),
+		  m_WindowBackup(nullptr)
 	{
 		OE_CORE_ASSERT(windowHandle, "Window handle is null!")
 	}

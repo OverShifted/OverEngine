@@ -9,7 +9,7 @@ namespace OverEngine {
 	class OpenGLContext : public RendererContext
 	{
 	public:
-		OpenGLContext(GLFWwindow* windowHandle);
+		OpenGLContext(void* windowHandle);
 
 		virtual void Init() override;
 		virtual void SwapBuffers() override;

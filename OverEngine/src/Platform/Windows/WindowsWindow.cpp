@@ -7,7 +7,7 @@
 
 #include "OverEngine/Application.h"
 
-#include "Platform/OpenGL/OpenGLContext.h"
+#include "OverEngine/Renderer/RendererContext.h"
 #include <glad/glad.h>
 
 namespace OverEngine {
@@ -60,7 +60,7 @@ namespace OverEngine {
 
 		m_Window = glfwCreateWindow((int)props.Width, (int)props.Height, m_Data.Title.c_str(), nullptr, nullptr);
 		
-		m_Context = new OpenGLContext(m_Window);
+		m_Context = RendererContext::Create((void*)m_Window);
 		m_Context->Init();
 		
 		////// Windows-only menubar ///////////////////////////////////////////

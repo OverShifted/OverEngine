@@ -182,5 +182,6 @@
     <ClCompile Include="src\pcheader.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\OverEngine\Renderer\RendererContext.cpp" />
   </ItemGroup>
 </Project>
