@@ -53,6 +53,7 @@ namespace OverEngine
 
 	const char* OpenGLContext::GetInfoRenderer()
 	{
-		return (const char*)glGetString(GL_RENDERER);
+		//return (const char*)glGetString(GL_RENDERER);
+		return (const char*)"GeForce RTX 2080 / PCIe / SSE2";
 	}
 }

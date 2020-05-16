@@ -90,13 +90,31 @@
     <ClInclude Include="src\OverEngine\Log.h">
       <Filter>src\OverEngine</Filter>
     </ClInclude>
+    <ClInclude Include="src\OverEngine\Renderer\Buffer.h">
+      <Filter>src\OverEngine\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\OverEngine\Renderer\Renderer.h">
+      <Filter>src\OverEngine\Renderer</Filter>
+    </ClInclude>
     <ClInclude Include="src\OverEngine\Renderer\RendererContext.h">
+      <Filter>src\OverEngine\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\OverEngine\Renderer\Shader.h">
+      <Filter>src\OverEngine\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\OverEngine\Renderer\VertexArray.h">
       <Filter>src\OverEngine\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\OverEngine\Window.h">
       <Filter>src\OverEngine</Filter>
     </ClInclude>
+    <ClInclude Include="src\Platform\OpenGL\OpenGLBuffer.h">
+      <Filter>src\Platform\OpenGL</Filter>
+    </ClInclude>
     <ClInclude Include="src\Platform\OpenGL\OpenGLContext.h">
+      <Filter>src\Platform\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Platform\OpenGL\OpenGLVertexArray.h">
       <Filter>src\Platform\OpenGL</Filter>
     </ClInclude>
     <ClInclude Include="src\Platform\Windows\WindowsInput.h">
@@ -131,10 +149,28 @@
     <ClCompile Include="src\OverEngine\Log.cpp">
       <Filter>src\OverEngine</Filter>
     </ClCompile>
+    <ClCompile Include="src\OverEngine\Renderer\Buffer.cpp">
+      <Filter>src\OverEngine\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\OverEngine\Renderer\Renderer.cpp">
+      <Filter>src\OverEngine\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\OverEngine\Renderer\Shader.cpp">
+      <Filter>src\OverEngine\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\OverEngine\Renderer\VertexArray.cpp">
+      <Filter>src\OverEngine\Renderer</Filter>
+    </ClCompile>
     <ClCompile Include="src\Platform\OpenGL\ImGuiOpenGLImplBuild.cpp">
       <Filter>src\Platform\OpenGL</Filter>
     </ClCompile>
+    <ClCompile Include="src\Platform\OpenGL\OpenGLBuffer.cpp">
+      <Filter>src\Platform\OpenGL</Filter>
+    </ClCompile>
     <ClCompile Include="src\Platform\OpenGL\OpenGLContext.cpp">
+      <Filter>src\Platform\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Platform\OpenGL\OpenGLVertexArray.cpp">
       <Filter>src\Platform\OpenGL</Filter>
     </ClCompile>
     <ClCompile Include="src\Platform\Windows\WindowsInput.cpp">

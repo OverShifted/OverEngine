@@ -10,7 +10,6 @@ namespace OverEngine {
 
 	Layer::~Layer()
 	{
-
 	}
 
 }

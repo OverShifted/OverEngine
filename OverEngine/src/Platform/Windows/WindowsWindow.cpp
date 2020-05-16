@@ -5,6 +5,8 @@
 #include "OverEngine/Events/MouseEvent.h"
 #include "OverEngine/Events/KeyEvent.h"
 
+#include "OverEngine/Application.h"
+
 #include "Platform/OpenGL/OpenGLContext.h"
 #include <glad/glad.h>
 
@@ -34,9 +36,10 @@ namespace OverEngine {
 
 	void WindowsWindow::Init(const WindowProps& props)
 	{
-		m_Data.Title = props.Title;
-		m_Data.Width = props.Width;
-		m_Data.Height = props.Height;
+		m_Data.Title          = props.Title;
+		m_Data.Width          = props.Width;
+		m_Data.Height         = props.Height;
+		m_Data.DoubleBuffered = props.DoubleBuffered;
 
 		OE_CORE_INFO("Creating window {0} ({1}, {2})", props.Title, props.Width, props.Height);
 
@@ -49,22 +52,33 @@ namespace OverEngine {
 			s_GLFWInitialized = true;
 		}
 
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+		if (!m_Data.DoubleBuffered)
+			glfwWindowHint(GLFW_DOUBLEBUFFER, false);
 
 		m_Window = glfwCreateWindow((int)props.Width, (int)props.Height, m_Data.Title.c_str(), nullptr, nullptr);
 		
 		m_Context = new OpenGLContext(m_Window);
 		m_Context->Init();
+		
+		////// Windows-only menubar ///////////////////////////////////////////
+		///// HWND _Win32Nativehandle = glfwGetWin32Window(m_Window);
+		///// HMENU hMenu = CreateMenu();
+		///// AppendMenu(hMenu, MF_STRING, NULL, L"FILE");
+		///// SetMenu(_Win32Nativehandle, hMenu);
+		///////////////////////////////////////////////////////////////////////
 
 		glfwSetWindowUserPointer(m_Window, &m_Data);
 		SetVSync(true);
 		
-		OE_INFO("OpenGL info");
-		OE_INFO("    Version : {0}" , glGetString(GL_VERSION));
-		OE_INFO("    Vendor : {0}"  , glGetString(GL_VENDOR));
-		OE_INFO("    Renderer : {0}", glGetString(GL_RENDERER));
+		OE_CORE_INFO("OpenGL info");
+		
+		OE_CORE_INFO("    Version  : {0}", GetRendererContext()->GetInfoVersion());
+		OE_CORE_INFO("    Vendor   : {0}"  , GetRendererContext()->GetInfoVendor());
+		OE_CORE_INFO("    Renderer : {0}", GetRendererContext()->GetInfoRenderer());
+
 
 		// Set GLFW callbacks
 		glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height)
@@ -189,7 +203,10 @@ namespace OverEngine {
 	void WindowsWindow::OnUpdate()
 	{
 		glfwPollEvents();
-		glfwSwapBuffers(m_Window);
+		if (m_Data.DoubleBuffered)
+			glfwSwapBuffers(m_Window);
+		else
+			glFlush();
 	}
 
 	void WindowsWindow::SetVSync(bool enabled)
@@ -205,6 +222,12 @@ namespace OverEngine {
 	bool WindowsWindow::IsVSync() const
 	{
 		return m_Data.VSync;
+	}
+
+
+	bool WindowsWindow::IsDoubleBuffered() const
+	{
+		return m_Data.DoubleBuffered;
 	}
 
 }

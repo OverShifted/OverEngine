@@ -24,7 +24,7 @@ namespace OverEngine
 		inline static float ClearColor[3] = { 0, 0, 0 };
 	private:
 		float m_Time = 0.0f;
-		const char* Themes[3] = { "Dark", "Light", "Classic" };
+		const char* Themes[5] = { "Dark", "Light", "Classic", "D1", "D2" };
 		int c = 0;
 	};
 }

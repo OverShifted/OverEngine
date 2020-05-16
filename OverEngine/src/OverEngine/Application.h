@@ -10,12 +10,16 @@
 #include "OverEngine/Events/Event.h"
 #include "OverEngine/Events/ApplicationEvent.h"
 
+#include "OverEngine/Renderer/Shader.h"
+#include "OverEngine/Renderer/Buffer.h"
+#include "OverEngine/Renderer/VertexArray.h"
+
 namespace OverEngine {
 
 	class OVER_API Application
 	{
 	public:
-		Application();
+		Application(std::string name = "OverEngine");
 		virtual ~Application();
 
 		void Run();
@@ -37,15 +41,13 @@ namespace OverEngine {
 		bool m_Minimized = false;
 		LayerStack m_LayerStack;
 
-		unsigned int m_VertexArray, m_VertexBuffer, m_IndexBuffer;
+		std::shared_ptr<Shader> m_Shader;
+		std::shared_ptr<VertexArray> m_VertexArray;
 
+		std::shared_ptr<Shader> m_BlueShader;
+		std::shared_ptr<VertexArray> m_SquareVA;
+	private:
 		static Application* m_Instance;
-
-		float vertices[3 * 3] = {
-			-0.5f, -0.5f, 0.0f,
-			 0.5f, -0.5f, 0.0f,
-			 0.0f,  0.5f, 0.0f
-		};
 	};
 
 	// To be defined in CLIENT

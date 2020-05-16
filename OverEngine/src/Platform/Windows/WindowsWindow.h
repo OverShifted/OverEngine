@@ -22,6 +22,7 @@ namespace OverEngine {
 		inline void SetEventCallback(const EventCallbackFn& callback) override { m_Data.EventCallback = callback; }
 		void SetVSync(bool enabled) override;
 		bool IsVSync() const override;
+		bool IsDoubleBuffered() const override;
 
 		inline virtual void* GetNativeWindow() const { return m_Window; }
 		inline virtual RendererContext* GetRendererContext() const { return m_Context; }
@@ -37,6 +38,7 @@ namespace OverEngine {
 			std::string Title;
 			unsigned int Width, Height;
 			bool VSync;
+			bool DoubleBuffered;
 
 			EventCallbackFn EventCallback;
 		};
