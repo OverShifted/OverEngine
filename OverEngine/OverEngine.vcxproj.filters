@@ -155,6 +155,9 @@
     <ClCompile Include="src\OverEngine\Renderer\Renderer.cpp">
       <Filter>src\OverEngine\Renderer</Filter>
     </ClCompile>
+    <ClCompile Include="src\OverEngine\Renderer\RendererContext.cpp">
+      <Filter>src\OverEngine\Renderer</Filter>
+    </ClCompile>
     <ClCompile Include="src\OverEngine\Renderer\Shader.cpp">
       <Filter>src\OverEngine\Renderer</Filter>
     </ClCompile>
@@ -182,6 +185,5 @@
     <ClCompile Include="src\pcheader.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\OverEngine\Renderer\RendererContext.cpp" />
   </ItemGroup>
 </Project>
