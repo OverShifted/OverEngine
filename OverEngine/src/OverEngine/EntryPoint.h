@@ -11,6 +11,7 @@ int OverMain(int argc, char** argv) // Platform agnostic entry point
 	auto app = OverEngine::CreateApplication();
 	app->Run();
 	delete app;
+
 	return 0;
 }
 

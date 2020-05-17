@@ -60,7 +60,7 @@ namespace OverEngine {
 
 		m_Window = glfwCreateWindow((int)props.Width, (int)props.Height, m_Data.Title.c_str(), nullptr, nullptr);
 		
-		m_Context = RendererContext::Create((void*)m_Window);
+		m_Context = RendererContext::Create(this);
 		m_Context->Init();
 		
 		////// Windows-only menubar ///////////////////////////////////////////
@@ -203,10 +203,7 @@ namespace OverEngine {
 	void WindowsWindow::OnUpdate()
 	{
 		glfwPollEvents();
-		if (m_Data.DoubleBuffered)
-			glfwSwapBuffers(m_Window);
-		else
-			glFlush();
+		m_Context->SwapBuffers();
 	}
 
 	void WindowsWindow::SetVSync(bool enabled)

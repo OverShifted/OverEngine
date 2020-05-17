@@ -2,6 +2,8 @@
 
 namespace OverEngine
 {
+	class Window; // Forward declaration
+
 	class RendererContext
 	{
 	public:
@@ -12,10 +14,10 @@ namespace OverEngine
 		virtual void BackupContext() = 0;
 		virtual void ApplyBackupedContext() = 0;
 
-		virtual const char* GetInfoVersion() = 0;
-		virtual const char* GetInfoVendor() = 0;
+		virtual const char* GetInfoVersion()  = 0;
+		virtual const char* GetInfoVendor()   = 0;
 		virtual const char* GetInfoRenderer() = 0;
 
-		static RendererContext* Create(void* handle);
+		static RendererContext* Create(Window* handle);
 	};
 }

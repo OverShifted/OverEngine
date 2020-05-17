@@ -1,16 +1,18 @@
 #include "pcheader.h"
 #include "OpenGLContext.h"
 
+#include "OverEngine/Window.h"
+
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
-#include <GL/GL.h>
 
 namespace OverEngine
 {
 
-	OpenGLContext::OpenGLContext(void* windowHandle)
-		: m_WindowHandle(static_cast<GLFWwindow*>(windowHandle)),
-		  m_WindowBackup(nullptr)
+	OpenGLContext::OpenGLContext(Window* windowHandle)
+		: m_WindowHandle(static_cast<GLFWwindow*>(windowHandle->GetNativeWindow())),
+		  m_WindowBackup(nullptr),
+		  m_GenericWindowHandle(windowHandle)
 	{
 		OE_CORE_ASSERT(windowHandle, "Window handle is null!")
 	}
@@ -24,7 +26,10 @@ namespace OverEngine
 
 	void OpenGLContext::SwapBuffers()
 	{
-		glfwSwapBuffers(m_WindowHandle);
+		if (m_GenericWindowHandle->IsDoubleBuffered())
+			glfwSwapBuffers(m_WindowHandle);
+		else
+			glFlush();
 	}
 
 	void OpenGLContext::SetViewport(int width, int height, int x, int y)

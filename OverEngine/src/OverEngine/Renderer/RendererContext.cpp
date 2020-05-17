@@ -3,11 +3,12 @@
 
 #include "Renderer.h"
 
+#include "OverEngine/Window.h"
 #include "Platform/OpenGL/OpenGLContext.h"
 
 namespace OverEngine
 {
-	RendererContext* RendererContext::Create(void* handle)
+	RendererContext* RendererContext::Create(Window* handle)
 	{
 		switch (Renderer::GetAPI())
 		{
