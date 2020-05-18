@@ -15,33 +15,23 @@ namespace OverEngine
 	Application::Application(std::string name) 
 	{
 		m_Instance = this;
+
 		WindowProps props = WindowProps(name, 1280, 720, true);
-		m_Windows[0] = std::unique_ptr<Window>(Window::Create(props));
-		m_Windows[0]->SetEventCallback(OE_BIND_EVENT_FN(Application::OnEvent));
+		m_Windows.push_back(std::unique_ptr<Window>(Window::Create(props)));
+		m_MainWindow = 0;
+
+		m_Windows[m_MainWindow]->SetEventCallback(OE_BIND_EVENT_FN(Application::OnEvent));
 
 		m_ImGuiLayer = new ImGuiLayer();
 		PushOverlay(m_ImGuiLayer);
 
 		m_VertexArray.reset(VertexArray::Create());
 
-		/*float vertices[3 * 7] = {
-			-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
-			 0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
-			 0.0f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f
-		};*/
-
 		float vertices[3 * 7] = {
 			-0.5f, -0.5f, 0.0f, 0.8f, 0.2f, 0.8f, 1.0f,
 			 0.5f, -0.5f, 0.0f, 0.2f, 0.3f, 0.8f, 1.0f,
 			 0.0f,  0.5f, 0.0f, 0.8f, 0.8f, 0.2f, 1.0f
 		};
-
-		// float vertices[4 * 7] = {
-		// 	-0.5f, -0.5f, 0.0f,   1.0f, 0.0f, 0.0f, 1.0f,
-		// 	 0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f, 1.0f,
-		// 	 0.5f,  0.5f, 0.0f,   0.0f, 0.0f, 1.0f, 1.0f,
-		// 	-0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f, 1.0f
-		// };
 
 		std::shared_ptr<VertexBuffer> vertexBuffer;
 		vertexBuffer.reset(VertexBuffer::Create(vertices, sizeof(vertices)));
@@ -146,10 +136,6 @@ namespace OverEngine
 		m_BlueShader.reset(new Shader(blueShaderVertexSrc, blueShaderFragmentSrc));
 	}
 
-	Application::~Application()
-	{
-	}
-
 	void Application::PushLayer(Layer* layer)
 	{
 		m_LayerStack.PushLayer(layer);
@@ -178,6 +164,7 @@ namespace OverEngine
 
 	void Application::Run()
 	{
+		// Game Loop
 		while (m_Running)
 		{
 			glClearColor(0.1f, 0.1f, 0.1f, 1);
@@ -186,7 +173,7 @@ namespace OverEngine
 			m_BlueShader->Bind();
 			m_SquareVA->Bind();
 			glDrawElements(GL_TRIANGLES, m_SquareVA->GetIndexBuffer()->GetCount(), GL_UNSIGNED_INT, nullptr);
-
+			
 			m_Shader->Bind();
 			m_VertexArray->Bind();
 			glDrawElements(GL_TRIANGLES, m_VertexArray->GetIndexBuffer()->GetCount(), GL_UNSIGNED_INT, nullptr);
@@ -198,9 +185,8 @@ namespace OverEngine
 			for (Layer* layer : m_LayerStack)
 				layer->OnImGuiRender();
 			m_ImGuiLayer->End();
-
+			
 			GetMainWindow().OnUpdate();
-
 		}
 	}
 

@@ -20,7 +20,7 @@ namespace OverEngine {
 	{
 	public:
 		Application(std::string name = "OverEngine");
-		virtual ~Application();
+		virtual ~Application() = default;
 
 		void Run();
 
@@ -34,12 +34,14 @@ namespace OverEngine {
 		bool OnWindowClose(WindowCloseEvent& e);
 		bool OnWindowResize(WindowResizeEvent& e);
 
-		std::unique_ptr<Window> m_Windows[1];
-		ImGuiLayer* m_ImGuiLayer;
-		int m_MainWindow = 0;
+		std::vector<std::unique_ptr<Window>> m_Windows;
+		int m_MainWindow;
+
 		bool m_Running = true;
 		bool m_Minimized = false;
+
 		LayerStack m_LayerStack;
+		ImGuiLayer* m_ImGuiLayer;
 
 		std::shared_ptr<Shader> m_Shader;
 		std::shared_ptr<VertexArray> m_VertexArray;
