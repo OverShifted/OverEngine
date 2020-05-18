@@ -24,7 +24,7 @@ public:
 		ImGuiStyle& style = ImGui::GetStyle();
 		static const char* Themes[5] = { "Dark", "Light", "Classic", "D1", "D2" };
 		static int c = 0;
-		// OE_INFO(io.KeysDown[(int)KeyCode::KEY_SPACE]); We should pull from this
+		// OE_INFO(io.KeysDown[(int)KeyCode::KEY_SPACE]); We should pool from this
 		/*
 		ImGui::Begin("Preferences");
 		if (ImGui::CollapsingHeader("User Interface"))
@@ -150,20 +150,17 @@ public:
 
 		ImGui::Begin("Renderer");
 		
-		std::stringstream* ss = new std::stringstream();
-		(*ss) << "Vendor: " << OverEngine::Application::Get().GetMainWindow().GetRendererContext()->GetInfoVendor();
-		ImGui::Text(ss->str().c_str());
-		delete ss;
+		std::stringstream ss = std::stringstream();
+		ss << "Vendor: " << OverEngine::Application::Get().GetMainWindow().GetRendererContext()->GetInfoVendor();
+		ImGui::Text(ss.str().c_str());
 
-		ss = new std::stringstream();
-		(*ss) << "Renderer: " << OverEngine::Application::Get().GetMainWindow().GetRendererContext()->GetInfoRenderer();
-		ImGui::Text(ss->str().c_str());
-		delete ss;
+		ss = std::stringstream();
+		ss << "Renderer: " << OverEngine::Application::Get().GetMainWindow().GetRendererContext()->GetInfoRenderer();
+		ImGui::Text(ss.str().c_str());
 
-		ss = new std::stringstream();
-		(*ss) << "Version: " << OverEngine::Application::Get().GetMainWindow().GetRendererContext()->GetInfoVersion();
-		ImGui::Text(ss->str().c_str());
-		delete ss;
+		ss = std::stringstream();
+		ss << "Version: " << OverEngine::Application::Get().GetMainWindow().GetRendererContext()->GetInfoVersion();
+		ImGui::Text(ss.str().c_str());
 
 		ImGui::End();
 	}

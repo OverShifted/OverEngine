@@ -11,7 +11,8 @@
 * Glm : [Github](https://github.com/g-truc/glm)
 
 ## IDE / platform / compiler support
-* Visual Studio 2019 / Windows / MSVC
+* Visual Studio 2019 / Windows / MSVC      
+_Also should work with 2017 and 2015_
 
 #### Also we are planning to support these:
 * Visual Studio 2019 / Linux / GCC
