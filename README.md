@@ -16,7 +16,4 @@ _Also should work with 2017 and 2015_
 
 #### Also we are planning to support these:
 * Visual Studio 2019 / Linux / GCC
-* Codelite / Linux / GCC
-* Codelite / Linux / Clang
-* Codelite / Windows / GCC
-* Codelite / Windows / Clang
+* Codelite          / Linux / GCC
