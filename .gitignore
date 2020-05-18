@@ -363,3 +363,7 @@ OverEditorExec/imgui.ini
 *.sln
 
 OverPlayerExec/imgui.ini
+
+OverEngine/vendor/Glad/bin/Debug-windows-x86_64/Glad/Glad.lib
+
+*.lib

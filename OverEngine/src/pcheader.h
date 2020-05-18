@@ -1,7 +1,5 @@
 #pragma once
 
-//#define _CRT_SECURE_NO_WARNINGS
-
 #include <iostream>
 #include <memory>
 #include <utility>
@@ -15,7 +13,7 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include "OverEngine/Log.h"
+#include "OverEngine/Core/Log.h"
 
 #ifdef OE_PLATFORM_WINDOWS
 #include <Windows.h>

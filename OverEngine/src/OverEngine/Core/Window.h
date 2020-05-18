@@ -1,9 +1,9 @@
 #pragma once
 
-#include "OverEngine/Core.h"
+#include "OverEngine/Core/Core.h"
 #include "OverEngine/Events/Event.h"
 
-#include "Renderer/RendererContext.h"
+#include "OverEngine/Renderer/RendererContext.h"
 
 namespace OverEngine {
 
