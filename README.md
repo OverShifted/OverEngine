@@ -1,6 +1,7 @@
 # OverEngine
 ## Opensource game engine under MIT license
 
+![OverPlayer](https://user-images.githubusercontent.com/53635046/82178251-d026d400-98f0-11ea-881f-b31376fbb959.PNG)
 
 ## Cool things in use:
 * Build system : [premake](https://github.com/premake/premake-core)
@@ -11,7 +12,8 @@
 * Glm : [Github](https://github.com/g-truc/glm)
 
 ## IDE / platform / compiler support
-* Visual Studio 2019 / Windows / MSVC      
+![WindowsBuilt](https://img.shields.io/badge/Windows-built-green?logo=windows)
+* Visual Studio 2019 / Windows / MSVC
 _Also should work with 2017 and 2015_
 
 #### Also we are planning to support these:
