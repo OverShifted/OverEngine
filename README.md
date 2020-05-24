@@ -11,6 +11,11 @@
 * UI : [DearImgui](https://github.com/ocornut/imgui)
 * Glm : [Github](https://github.com/g-truc/glm)
 
+##Build from sourcecode (windows only at the moment)
+1. Run _GenerateProjectFiles.bat_. it will generate project files for VS2019
+ _If you wanna target older VS IDE, edit that file_
+2. Open _OverEngine.sln_ and Hit the play button!
+
 ## IDE / platform / compiler support
 ![WindowsBuilt](https://img.shields.io/badge/Windows-built-green?logo=windows)
 * Visual Studio 2019 / Windows / MSVC
