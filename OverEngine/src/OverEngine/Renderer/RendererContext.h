@@ -11,8 +11,7 @@ namespace OverEngine
 		virtual void SwapBuffers() = 0;
 		virtual void SetViewport(int width, int height, int x = 0, int y = 0) = 0;
 
-		virtual void BackupContext() = 0;
-		virtual void ApplyBackupedContext() = 0;
+		virtual void Current() = 0;
 
 		virtual const char* GetInfoVersion()  = 0;
 		virtual const char* GetInfoVendor()   = 0;

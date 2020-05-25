@@ -15,8 +15,7 @@ namespace OverEngine {
 		virtual void SwapBuffers() override;
 		virtual void SetViewport(int width, int height, int x = 0, int y = 0) override;
 
-		virtual void BackupContext() override;
-		virtual void ApplyBackupedContext() override;
+		virtual void Current() override;
 
 		virtual const char* GetInfoVersion()  override;
 		virtual const char* GetInfoVendor()   override;
@@ -24,7 +23,6 @@ namespace OverEngine {
 	private:
 		Window*     m_GenericWindowHandle;
 		GLFWwindow* m_WindowHandle;
-		GLFWwindow* m_WindowBackup;
 	};
 
 }

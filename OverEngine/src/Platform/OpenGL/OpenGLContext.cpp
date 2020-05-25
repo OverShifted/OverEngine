@@ -11,7 +11,6 @@ namespace OverEngine
 
 	OpenGLContext::OpenGLContext(Window* windowHandle)
 		: m_WindowHandle(static_cast<GLFWwindow*>(windowHandle->GetNativeWindow())),
-		  m_WindowBackup(nullptr),
 		  m_GenericWindowHandle(windowHandle)
 	{
 		OE_CORE_ASSERT(windowHandle, "Window handle is null!")
@@ -37,14 +36,9 @@ namespace OverEngine
 		glViewport(x, y, width, height);
 	}
 
-	void OpenGLContext::BackupContext()
+	void OpenGLContext::Current()
 	{
-		m_WindowBackup = glfwGetCurrentContext();
-	}
-
-	void OpenGLContext::ApplyBackupedContext()
-	{
-		glfwMakeContextCurrent(m_WindowBackup);
+		glfwMakeContextCurrent(m_WindowHandle);
 	}
 
 	const char* OpenGLContext::GetInfoVersion()
