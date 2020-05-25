@@ -55,6 +55,10 @@ namespace OverEngine {
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+		// Anti aliasing
+		glfwWindowHint(GLFW_SAMPLES, 8);
+
 		if (!m_Data.DoubleBuffered)
 			glfwWindowHint(GLFW_DOUBLEBUFFER, false);
 
@@ -62,6 +66,9 @@ namespace OverEngine {
 		
 		m_Context = RendererContext::Create(this);
 		m_Context->Init();
+
+		// Anti aliasing
+		glEnable(GL_MULTISAMPLE);
 		
 		////// Windows-only menubar ///////////////////////////////////////////
 		///// HWND _Win32Nativehandle = glfwGetWin32Window(m_Window);
