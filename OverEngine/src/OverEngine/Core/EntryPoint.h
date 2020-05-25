@@ -1,12 +1,14 @@
 #pragma once
-#include"pcheader.h"
+
+#include "pcheader.h"
+
+#include "Init.h"
 
 extern OverEngine::Application* OverEngine::CreateApplication();
 
 int OverMain(int argc, char** argv) // Platform agnostic entry point
 {
-	OverEngine::Log::Init();
-	OE_CORE_INFO("OverEngine v0.0");
+	OverEngine::Initialize();
 
 	auto app = OverEngine::CreateApplication();
 	app->Run();
