@@ -12,14 +12,14 @@ namespace OverEngine
 	{
 		auto window = static_cast<GLFWwindow*>(Application::Get().GetMainWindow().GetNativeWindow());
 		auto state = glfwGetKey(window, (int)keycode);
-		return state == GLFW_PRESS || state == GLFW_REPEAT;
+		return state == (int)KeyTrigger::Press;
 	}
 
 	bool WindowsInput::IsMouseButtonPressedImpl(KeyCode button)
 	{
 		auto window = static_cast<GLFWwindow*>(Application::Get().GetMainWindow().GetNativeWindow());
 		auto state = glfwGetMouseButton(window, (int)button);
-		return state == GLFW_PRESS;
+		return state == (int)KeyTrigger::Press;
 	}
 
 	std::pair<float, float> WindowsInput::GetMousePositionImpl()

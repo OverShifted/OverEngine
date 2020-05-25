@@ -13,6 +13,7 @@ namespace OverEngine
 	public:
 		Input(const Input&) = delete;
 		Input& operator=(const Input&) = delete;
+	public:
 		inline static bool IsKeyPressed(KeyCode keycode) { return s_Instance->IsKeyPressedImpl(keycode); }
 
 		inline static bool IsMouseButtonPressed(KeyCode button) { return s_Instance->IsMouseButtonPressedImpl(button); }
