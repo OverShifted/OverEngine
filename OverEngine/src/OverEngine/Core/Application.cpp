@@ -105,7 +105,7 @@ namespace OverEngine
 			}
 		)";
 		
-		m_Shader.reset(new Shader(vertexSrc, fragmentSrc));
+		m_Shader.reset(Shader::Create(vertexSrc, fragmentSrc));
 
 		String blueShaderVertexSrc = R"(
 			#version 330 core
@@ -134,7 +134,7 @@ namespace OverEngine
 			}
 		)";
 
-		m_BlueShader.reset(new Shader(blueShaderVertexSrc, blueShaderFragmentSrc));
+		m_BlueShader.reset(Shader::Create(blueShaderVertexSrc, blueShaderFragmentSrc));
 
 		m_InputMap = std::make_shared<InputActionMap>();
 			m_InputAction = std::make_shared<InputAction>();
