@@ -57,6 +57,8 @@ group "Dependencies"
 	end
 group ""
 
+-- include "OverDocs_premake5.lua"
+
 include "OverEngine_premake5.lua"
 include "OverPlayerExec_premake5.lua"
 
