@@ -5,7 +5,8 @@
 
 #include "Platform/OpenGL/OpenGLBuffer.h"
 
-namespace OverEngine {
+namespace OverEngine
+{
 
 	VertexBuffer* VertexBuffer::Create(float* vertices, uint32_t size)
 	{
