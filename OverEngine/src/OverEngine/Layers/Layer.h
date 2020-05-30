@@ -8,7 +8,7 @@ namespace OverEngine {
 	class OVER_API Layer
 	{
 	public:
-		Layer(const std::string& name = "Layer");
+		Layer(const String& name = "Layer");
 		virtual ~Layer();
 
 		virtual void OnAttach() {}
@@ -17,9 +17,9 @@ namespace OverEngine {
 		virtual void OnImGuiRender() {}
 		virtual void OnEvent(Event& event) {}
 
-		inline const std::string& GetName() const { return m_DebugName; }
+		inline const String& GetName() const { return m_DebugName; }
 	protected:
-		std::string m_DebugName;
+		String m_DebugName;
 	};
 
 }

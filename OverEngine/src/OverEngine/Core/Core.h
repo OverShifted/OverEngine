@@ -1,5 +1,8 @@
 #pragma once
 
+#include <memory>
+#include <vector>
+#include <string>
 
 #ifdef OE_PLATFORM_WINDOWS
 	#ifdef OE_BUILD_SHARED
@@ -51,3 +54,17 @@
 #define BIT(x) (1 << x)
 
 #define OE_BIND_EVENT_FN(fn) std::bind(&fn, this, std::placeholders::_1)
+
+namespace OverEngine
+{
+	template<typename T>
+	using Scope = std::unique_ptr<T>;
+
+	template<typename T>
+	using Ref = std::shared_ptr<T>;
+
+	template<typename T>
+	using Vector = std::vector<T>;
+
+	using String = std::string;
+}

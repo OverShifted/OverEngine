@@ -25,7 +25,7 @@ namespace OverEngine {
 
 		inline int GetRepeatCount() const { return m_RepeatCount; }
 
-		std::string ToString() const override
+		String ToString() const override
 		{
 			std::stringstream ss;
 			ss << "KeyPressedEvent: " << m_KeyCode << " (" << m_RepeatCount << " repeats)";
@@ -43,7 +43,7 @@ namespace OverEngine {
 		KeyReleasedEvent(int keycode)
 			: KeyEvent(keycode) {}
 
-		std::string ToString() const override
+		String ToString() const override
 		{
 			std::stringstream ss;
 			ss << "KeyReleasedEvent: " << m_KeyCode;
@@ -59,7 +59,7 @@ namespace OverEngine {
 		KeyTypedEvent(int keycode)
 			: KeyEvent(keycode) {}
 
-		std::string ToString() const override
+		String ToString() const override
 		{
 			std::stringstream ss;
 			ss << "KeyTypedEvent: " << m_KeyCode;

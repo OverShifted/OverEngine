@@ -9,12 +9,12 @@ namespace OverEngine {
 
 	struct WindowProps
 	{
-		std::string Title;
+		String Title;
 		unsigned int Width;
 		unsigned int Height;
 		bool DoubleBuffered;
 
-		WindowProps(const std::string& title = "OverEngine",
+		WindowProps(const String& title = "OverEngine",
 			        unsigned int width = 1280,
 			        unsigned int height = 720,
 			        bool doubleBuffered = true)

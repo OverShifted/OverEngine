@@ -22,7 +22,7 @@ namespace OverEngine {
 		inline unsigned int GetWidth() const { return m_Width; }
 		inline unsigned int GetHeight() const { return m_Height; }
 
-		std::string ToString() const override
+		String ToString() const override
 		{
 			std::stringstream ss;
 			ss << "WindowResizeEvent: " << m_Width << ", " << m_Height;
@@ -62,7 +62,7 @@ namespace OverEngine {
 		inline unsigned int GetX() const { return m_WindowX; }
 		inline unsigned int GetY() const { return m_WindowY; }
 
-		std::string ToString() const override
+		String ToString() const override
 		{
 			std::stringstream ss;
 			ss << "WindowMovedEvent: " << m_WindowX << ", " << m_WindowY;

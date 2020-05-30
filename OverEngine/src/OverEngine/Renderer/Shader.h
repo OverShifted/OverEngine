@@ -5,7 +5,7 @@ namespace OverEngine
 	class Shader
 	{
 	public:
-		Shader(std::string& vertexSrc, std::string& fragmentSrc);
+		Shader(String& vertexSrc, String& fragmentSrc);
 		~Shader();
 
 		void Bind() const;
