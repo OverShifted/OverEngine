@@ -7,9 +7,13 @@ namespace OverEngine
 {
 	void Initialize()
 	{
-		OverEngine::    Log    ::Init();
+		OverEngine::Log::Init();
 		// OverEngine::InputSystem::Init();
 
-		OE_CORE_INFO("OverEngine v0.0");
+		#ifdef _MSC_VER
+			OE_CORE_INFO("OverEngine v0.0 [MSC {0}]", _MSC_VER);
+		#else
+			OE_CORE_INFO("OverEngine v0.0");
+		#endif
 	}
 }
