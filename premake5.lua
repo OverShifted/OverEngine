@@ -57,14 +57,14 @@ group "Dependencies"
 	end
 group ""
 
--- include "OverDocs_premake5.lua"
+-- include "docs"
 
-include "OverEngine_premake5.lua"
-include "OverPlayerExec_premake5.lua"
+include "OverEngine.lua"
+include "OverPlayerExec.lua"
 
 if (IncludeEditor) then
 	group "Editor"
-		include "OverEditor_premake5.lua"
-		include "OverEditorExec_premake5.lua"
+		include "OverEditor.lua"
+		include "OverEditorExec.lua"
 	group ""
 end
