@@ -14,12 +14,14 @@
 #include "OverEngine/Renderer/Buffer.h"
 #include "OverEngine/Renderer/VertexArray.h"
 
+#include "OverEngine/Input/InputSystem.h"
+
 namespace OverEngine {
 
 	class OVER_API Application
 	{
 	public:
-		Application(std::string name = "OverEngine");
+		Application(String name = "OverEngine");
 		virtual ~Application() = default;
 
 		void Run();
@@ -30,24 +32,31 @@ namespace OverEngine {
 		void PushOverlay(Layer* layer);
 		inline static Application& Get() { return *m_Instance; }
 		inline Window& GetMainWindow() { return *m_Windows[m_MainWindow]; }
+
+		void InputSystemTestCallBack(InputAction::TriggerInfo& triggerInfo);
 	private:
 		bool OnWindowClose(WindowCloseEvent& e);
 		bool OnWindowResize(WindowResizeEvent& e);
 
-		std::vector<std::unique_ptr<Window>> m_Windows;
+		Vector<Scope<Window>> m_Windows;
 		int m_MainWindow;
 
 		bool m_Running = true;
 		bool m_Minimized = false;
 
-		LayerStack m_LayerStack;
-		ImGuiLayer* m_ImGuiLayer;
+		LayerStack        m_LayerStack;
+		ImGuiLayer*       m_ImGuiLayer;
 
-		std::shared_ptr<Shader> m_Shader;
-		std::shared_ptr<VertexArray> m_VertexArray;
+		Ref<Shader> m_Shader;
+		Ref<VertexArray> m_VertexArray;
 
-		std::shared_ptr<Shader> m_BlueShader;
-		std::shared_ptr<VertexArray> m_SquareVA;
+		Ref<Shader> m_BlueShader;
+		Ref<VertexArray> m_SquareVA;
+
+		Ref<InputActionMap> m_InputMap;
+		Ref<InputAction>    m_InputAction;
+		Ref<InputBinding>   m_InputBinding;
+
 	private:
 		static Application* m_Instance;
 	};

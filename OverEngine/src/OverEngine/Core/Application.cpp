@@ -3,6 +3,7 @@
 
 #include "OverEngine/Core/Log.h"
 #include "OverEngine/Input/Input.h"
+#include "OverEngine/Input/InputSystem.h"
 
 #include "OverEngine/ImGui/ImGuiLayer.h"
 
@@ -12,12 +13,12 @@ namespace OverEngine
 {
 	Application* Application::m_Instance = nullptr;
 
-	Application::Application(std::string name) 
+	Application::Application(String name) 
 	{
 		m_Instance = this;
 
 		WindowProps props = WindowProps(name, 1280, 720, true);
-		m_Windows.push_back(std::unique_ptr<Window>(Window::Create(props)));
+		m_Windows.push_back(Scope<Window>(Window::Create(props)));
 		m_MainWindow = 0;
 
 		m_Windows[m_MainWindow]->SetEventCallback(OE_BIND_EVENT_FN(Application::OnEvent));
@@ -33,7 +34,7 @@ namespace OverEngine
 			 0.0f,  0.5f, 0.0f, 0.8f, 0.8f, 0.2f, 1.0f
 		};
 
-		std::shared_ptr<VertexBuffer> vertexBuffer;
+		Ref<VertexBuffer> vertexBuffer;
 		vertexBuffer.reset(VertexBuffer::Create(vertices, sizeof(vertices)));
 
 		BufferLayout layout = {
@@ -45,7 +46,7 @@ namespace OverEngine
 		m_VertexArray->AddVertexBuffer(vertexBuffer);
 
 		uint32_t indices[3] = { 0, 1, 2 };
-		std::shared_ptr<IndexBuffer> indexBuffer;
+		Ref<IndexBuffer> indexBuffer;
 		indexBuffer.reset(IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t)));
 		m_VertexArray->SetIndexBuffer(indexBuffer);
 
@@ -58,7 +59,7 @@ namespace OverEngine
 			-0.75f,  0.75f, 0.0f
 		};
 
-		std::shared_ptr<VertexBuffer> squareVB;
+		Ref<VertexBuffer> squareVB;
 		squareVB.reset(VertexBuffer::Create(squareVertices, sizeof(squareVertices)));
 
 		squareVB->SetLayout({
@@ -68,11 +69,11 @@ namespace OverEngine
 		m_SquareVA->AddVertexBuffer(squareVB);
 
 		uint32_t squareIndices[6] = { 0, 1, 2, 2, 3, 0 };
-		std::shared_ptr<IndexBuffer> squareIB;
+		Ref<IndexBuffer> squareIB;
 		squareIB.reset(IndexBuffer::Create(squareIndices, sizeof(squareIndices) / sizeof(uint32_t)));
 		m_SquareVA->SetIndexBuffer(squareIB);
 
-		std::string vertexSrc = R"(
+		String vertexSrc = R"(
 			#version 330 core
 			
 			layout(location = 0) in vec3 a_Position;
@@ -89,7 +90,7 @@ namespace OverEngine
 			}
 		)";
 
-		std::string fragmentSrc = R"(
+		String fragmentSrc = R"(
 			#version 330 core
 			
 			layout(location = 0) out vec4 color;
@@ -106,7 +107,7 @@ namespace OverEngine
 		
 		m_Shader.reset(new Shader(vertexSrc, fragmentSrc));
 
-		std::string blueShaderVertexSrc = R"(
+		String blueShaderVertexSrc = R"(
 			#version 330 core
 			
 			layout(location = 0) in vec3 a_Position;
@@ -120,7 +121,7 @@ namespace OverEngine
 			}
 		)";
 
-		std::string blueShaderFragmentSrc = R"(
+		String blueShaderFragmentSrc = R"(
 			#version 330 core
 			
 			layout(location = 0) out vec4 color;
@@ -134,6 +135,14 @@ namespace OverEngine
 		)";
 
 		m_BlueShader.reset(new Shader(blueShaderVertexSrc, blueShaderFragmentSrc));
+
+		m_InputMap = std::make_shared<InputActionMap>();
+			m_InputAction = std::make_shared<InputAction>();
+				m_InputBinding = std::make_shared<InputBinding>(InputTrigger(KeyCode::KEY_SPACE, true, false));
+				m_InputAction->AddBinding(m_InputBinding);
+				m_InputAction->AddCallBack(OE_BIND_INPUT_ACTION_CALLBACK_FN(Application::InputSystemTestCallBack));
+			m_InputMap->AddAction(m_InputAction);
+		InputSystem::AddInputActionMap(m_InputMap);
 	}
 
 	void Application::PushLayer(Layer* layer)
@@ -148,10 +157,16 @@ namespace OverEngine
 		layer->OnAttach();
 	}
 
+
+	void Application::InputSystemTestCallBack(InputAction::TriggerInfo& triggerInfo)
+	{
+		OE_CORE_INFO("We shot the shirf!");
+	}
+
 	void Application::OnEvent(Event& e)
 	{
 		EventDispatcher dispatcher(e);
-		dispatcher.Dispatch<WindowCloseEvent>(OE_BIND_EVENT_FN(Application::OnWindowClose));
+		dispatcher.Dispatch<WindowCloseEvent> (OE_BIND_EVENT_FN(Application::OnWindowClose));
 		dispatcher.Dispatch<WindowResizeEvent>(OE_BIND_EVENT_FN(Application::OnWindowResize));
 
 		for (auto it = m_LayerStack.end(); it != m_LayerStack.begin(); )
@@ -186,7 +201,8 @@ namespace OverEngine
 				layer->OnImGuiRender();
 			m_ImGuiLayer->End();
 			
-			GetMainWindow().OnUpdate();
+			GetMainWindow().OnUpdate(); // Poll Events Here // Events Generates Here
+			InputSystem::OnUpdate();
 		}
 	}
 
