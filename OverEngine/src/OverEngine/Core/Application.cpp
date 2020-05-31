@@ -136,25 +136,24 @@ namespace OverEngine
 
 		m_BlueShader.reset(Shader::Create(blueShaderVertexSrc, blueShaderFragmentSrc));
 
-		m_InputMap = std::make_shared<InputActionMap>();
-			m_InputAction = std::make_shared<InputAction>();
-				m_InputBinding = std::make_shared<InputBinding>(InputTrigger(KeyCode::KEY_SPACE, true, false));
-				m_InputAction->AddBinding(m_InputBinding);
-				m_InputAction->AddCallBack(OE_BIND_INPUT_ACTION_CALLBACK_FN(Application::InputSystemTestCallBack));
-			m_InputMap->AddAction(m_InputAction);
+		m_InputMap     = std::make_shared<InputActionMap>();
+		m_InputAction  = std::make_shared<InputAction>();
+		m_InputBinding = std::make_shared<InputBinding>(InputTrigger(KeyCode::KEY_SPACE, true, false));
+
+		m_InputAction->AddBinding(m_InputBinding);
+		m_InputAction->AddCallBack(OE_BIND_INPUT_ACTION_CALLBACK_FN(Application::InputSystemTestCallBack));
+		m_InputMap->AddAction(m_InputAction);
 		InputSystem::AddInputActionMap(m_InputMap);
 	}
 
 	void Application::PushLayer(Layer* layer)
 	{
 		m_LayerStack.PushLayer(layer);
-		layer->OnAttach();
 	}
 
 	void Application::PushOverlay(Layer* layer)
 	{
 		m_LayerStack.PushOverlay(layer);
-		layer->OnAttach();
 	}
 
 
