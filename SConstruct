@@ -1,27 +1,40 @@
+env = Environment()
+
+env.Append( CPPPATH=[
+    '.',
+    'OverEngine/vendor/Glad/include',
+    'OverEngine/vendor/GLFW/include',
+    'OverEngine/vendor/glm',
+    'OverEngine/vendor/imgui',
+    'OverEngine/vendor/spdlog/include',
+    'OverEngine/src'
+])
+env.Append(CPPDEFINES = ['OE_PLATFORM_WINDOWS']) 
+
 BuildEditor = False
 
 OverEngineFiles = [
-    Glob('OverEngine/src/**.cpp'),
-    Glob('OverEngine/src/**.h')
+    Glob('OverEngine/src/**/*.cpp'),
+    Glob('OverEngine/src/**/*.h')
 ]
-StaticLibrary('OverEngine', OverEngineFiles)
+env.StaticLibrary('OverEngine', OverEngineFiles)
 
 OverPlayerExecFiles = [
-    Glob('OverPlayerExec/src/**.cpp'),
-    Glob('OverPlayerExec/src/**.h')
+    Glob('OverPlayerExec/src/**/*.cpp'),
+    Glob('OverPlayerExec/src/**/*.h')
 ]
-Program('OverPlayerExec', OverPlayerExecFiles, LIBS=['OverEngine'], LIBPATH='.', INCPATH='OverEngine/vendor/spdlog/include')
+env.Program('OverPlayerExec', OverPlayerExecFiles, LIBS=['OverEngine'], LIBPATH='.')
 
 
 if BuildEditor:
     OverEditorFiles = [
-        Glob('OverEditor/src/**.cpp'),
-        Glob('OverEditor/src/**.h')
+        Glob('OverEditor/src/**/*.cpp'),
+        Glob('OverEditor/src/**/*.h')
     ]
-    StaticLibrary('OverEditor', OverEditorFiles)
+    env.StaticLibrary('OverEditor', OverEditorFiles)
 
     OverEditodExecFiles = [
-        Glob('OverEditodExec/src/**.cpp'),
-        Glob('OverEditodExec/src/**.h')
+        Glob('OverEditodExec/src/**/*.cpp'),
+        Glob('OverEditodExec/src/**/*.h')
     ]
-    Program('OverEditodExec', OverEditodExecFiles)
+    env.Program('OverEditodExec', OverEditodExecFiles)
