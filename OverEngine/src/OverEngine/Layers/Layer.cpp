@@ -8,8 +8,4 @@ namespace OverEngine {
 	{
 	}
 
-	Layer::~Layer()
-	{
-	}
-
 }

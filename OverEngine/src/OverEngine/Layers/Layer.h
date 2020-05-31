@@ -9,7 +9,7 @@ namespace OverEngine {
 	{
 	public:
 		Layer(const String& name = "Layer");
-		virtual ~Layer();
+		virtual ~Layer() = default;
 
 		virtual void OnAttach() {}
 		virtual void OnDetach() {}
