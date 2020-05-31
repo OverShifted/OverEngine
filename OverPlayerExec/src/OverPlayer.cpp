@@ -1,15 +1,14 @@
-﻿#include <OverEngine.h>
+﻿#define OE_CLIENT_INCLUDE_ENTRY_POINT
+#include <OverEngine.h>
 
-#include "imgui/imgui.h"
-
-#include "ExampleLayer.h"
+#include "GameLayer.h"
 
 class OverPlayer : public OverEngine::Application
 {
 public:
 	OverPlayer()
 	{
-		PushLayer(new ExampleLayer());
+		PushLayer(new GameLayer());
 	}
 
 	~OverPlayer()
