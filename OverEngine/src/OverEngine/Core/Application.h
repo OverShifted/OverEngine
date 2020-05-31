@@ -16,7 +16,8 @@
 
 #include "OverEngine/Input/InputSystem.h"
 
-namespace OverEngine {
+namespace OverEngine
+{
 
 	class OVER_API Application
 	{
@@ -32,8 +33,6 @@ namespace OverEngine {
 		void PushOverlay(Layer* layer);
 		inline static Application& Get() { return *m_Instance; }
 		inline Window& GetMainWindow() { return *m_Windows[m_MainWindow]; }
-
-		void InputSystemTestCallBack(InputAction::TriggerInfo& triggerInfo);
 	private:
 		bool OnWindowClose(WindowCloseEvent& e);
 		bool OnWindowResize(WindowResizeEvent& e);
@@ -46,17 +45,6 @@ namespace OverEngine {
 
 		LayerStack        m_LayerStack;
 		ImGuiLayer*       m_ImGuiLayer;
-
-		Ref<Shader> m_Shader;
-		Ref<VertexArray> m_VertexArray;
-
-		Ref<Shader> m_BlueShader;
-		Ref<VertexArray> m_SquareVA;
-
-		Ref<InputActionMap> m_InputMap;
-		Ref<InputAction>    m_InputAction;
-		Ref<InputBinding>   m_InputBinding;
-
 	private:
 		static Application* m_Instance;
 	};
