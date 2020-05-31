@@ -13,7 +13,10 @@
 #include <unordered_map>
 #include <unordered_set>
 
+
+#include "OverEngine/Core/Math/Math.h"
 #include "OverEngine/Core/Log.h"
+#include "OverEngine/Core/Core.h"
 
 #ifdef OE_PLATFORM_WINDOWS
 #include <Windows.h>
