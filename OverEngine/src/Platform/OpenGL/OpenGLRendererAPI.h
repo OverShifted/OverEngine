@@ -8,7 +8,8 @@ namespace OverEngine
 	{
 	public:
 		virtual void SetClearColor(const Color& color) override;
-		virtual void Clear() override;
+		virtual void SetClearDepth(float depth) override;
+		virtual void Clear(bool clearColorBuffer, bool clearDepthBuffer) override;
 
 		virtual void DrawIndexed(const Ref<VertexArray>& vertexArray) override;
 	};
