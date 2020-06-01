@@ -8,7 +8,6 @@ namespace OverEngine
 	void Initialize()
 	{
 		OverEngine::Log::Init();
-		// OverEngine::InputSystem::Init();
 
 		#ifdef _MSC_VER
 			OE_CORE_INFO("OverEngine v0.0 [MSC {0}]", _MSC_VER);
