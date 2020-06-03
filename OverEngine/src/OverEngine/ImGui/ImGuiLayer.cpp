@@ -1,12 +1,12 @@
 #include "pcheader.h"
 #include "ImGuiLayer.h"
 
-#include "imgui.h"
+#include "imgui/imgui.h"
 
 #include "fonts/Roboto.h"
 
-#include "examples/imgui_impl_glfw.h"
-#include "examples/imgui_impl_opengl3.h"
+#include "imgui/examples/imgui_impl_glfw.h"
+#include "imgui/examples/imgui_impl_opengl3.h"
 
 #include "OverEngine/Core/Application.h"
 #include "OverEngine/Input/Input.h"
