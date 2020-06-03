@@ -33,7 +33,7 @@ namespace OverEngine
 
 	float WindowsInput::GetMouseXImpl()
 	{
-		auto [x, y] = GetMousePositionImpl();
+		auto [x, y] = GetMousePositionImpl(); // language feature 'structured bindings'
 		return x;
 	}
 
