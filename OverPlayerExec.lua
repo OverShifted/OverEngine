@@ -22,6 +22,7 @@ project "OverPlayerExec"
 	includedirs
 	{
 		"OverEngine/src",
+		"OverEngine/res",
 		"OverEngine/vendor",
 		"%{IncludeDir.spdlog}",
 		"%{IncludeDir.glm}"

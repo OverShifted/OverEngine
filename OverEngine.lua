@@ -23,7 +23,7 @@ project "OverEngine"
         "%{prj.name}/src/**.cpp",
 
         -- Resources
-        "%{prj.name}/resources/**.h",
+        "%{prj.name}/res/**.h",
      }
 
     includedirs
