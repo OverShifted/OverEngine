@@ -44,7 +44,6 @@ project "OverEngine"
             "GLFW",
             "Glad",
             "ImGui",
-            "opengl32.lib"
         }
     end
     

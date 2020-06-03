@@ -37,7 +37,6 @@ project "OverPlayerExec"
             "GLFW",
 	    	"Glad",
 	    	"ImGui",
-	    	"opengl32.lib"
         }
         defines "OE_BUILD_STATIC"
     end
