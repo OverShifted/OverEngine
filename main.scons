@@ -1,0 +1,30 @@
+from glob import glob
+
+env = Environment()
+
+env.Append( CPPPATH=[
+    '.',
+    'OverEngine/vendor',
+    'OverEngine/vendor/Glad/include',
+    'OverEngine/vendor/GLFW/include',
+    'OverEngine/vendor/glm',
+    'OverEngine/vendor/imgui',
+    'OverEngine/vendor/spdlog/include',
+    'OverEngine/src',
+    'OverEngine/res'
+])
+env.Append(CPPDEFINES = ['OE_PLATFORM_WINDOWS', 'GLFW_INCLUDE_NONE']) 
+
+OverEngineFiles = [
+    glob('OverEngine/src/**/*.cpp', recursive=True),
+    # glob('OverEngine/src/**/*.h', recursive=True)
+]
+env.StaticLibrary('OverEngine', OverEngineFiles, CCFLAGS='/std:c++17')
+
+# OverPlayerExecFiles = [
+#     glob('OverPlayerExec/src/**/*.cpp', recursive=True),
+#     # glob('OverPlayerExec/src/**/*.h', recursive=True)
+# ]
+# env.Program('OverPlayerExec', OverPlayerExecFiles, LIBS=['OverEngine'], LIBPATH='.', CCFLAGS='/std:c++17')
+
+print(env['PLATFORM'])
