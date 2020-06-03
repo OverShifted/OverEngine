@@ -29,7 +29,8 @@ project "OverEngine"
     includedirs
     {
         "%{prj.name}/src",
-        "%{prj.name}/resources",
+        "%{prj.name}/res",
+        "%{prj.name}/vendor",
         "%{IncludeDir.spdlog}",
         "%{IncludeDir.GLFW}",
         "%{IncludeDir.Glad}",
