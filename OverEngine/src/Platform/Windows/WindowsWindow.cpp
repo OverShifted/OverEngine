@@ -205,8 +205,8 @@ namespace OverEngine {
 	void WindowsWindow::Shutdown()
 	{
 		glfwDestroyWindow(m_Window);
-		
-		if (s_WindowCount-- == 0)
+
+		if (--s_WindowCount == 0)
 			glfwTerminate();
 	}
 
