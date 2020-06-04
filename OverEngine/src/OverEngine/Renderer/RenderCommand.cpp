@@ -5,17 +5,20 @@
 
 namespace OverEngine
 {
-	static RendererAPI* CreateRendererAPI()
+	namespace Renderer
 	{
-		switch (RendererAPI::GetAPI())
+		static RendererAPI* CreateRendererAPI()
 		{
-		case RendererAPI::API::None:    OE_CORE_ASSERT(false, "RendererAPI::None is currently not supported!"); return nullptr;
-		case RendererAPI::API::OpenGL:  return new OpenGLRendererAPI();
+			switch (RendererAPI::GetAPI())
+			{
+			case RendererAPI::API::None:    OE_CORE_ASSERT(false, "RendererAPI::None is currently not supported!"); return nullptr;
+			case RendererAPI::API::OpenGL:  return new OpenGLRendererAPI();
+			}
+
+			OE_CORE_ASSERT(false, "Unknown RendererAPI!");
+			return nullptr;
 		}
 
-		OE_CORE_ASSERT(false, "Unknown RendererAPI!");
-		return nullptr;
+		RendererAPI* RenderCommand::s_RendererAPI = CreateRendererAPI();
 	}
-
-	RendererAPI* RenderCommand::s_RendererAPI = CreateRendererAPI();
 }

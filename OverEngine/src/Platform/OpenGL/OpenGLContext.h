@@ -4,25 +4,27 @@
 
 struct GLFWwindow;
 
-namespace OverEngine {
-
-	class OpenGLContext : public RendererContext
+namespace OverEngine
+{
+	namespace Renderer
 	{
-	public:
-		OpenGLContext(Window* windowHandle);
+		class OpenGLContext : public RendererContext
+		{
+		public:
+			OpenGLContext(Window* windowHandle);
 
-		virtual void Init() override;
-		virtual void SwapBuffers() override;
-		virtual void SetViewport(int width, int height, int x = 0, int y = 0) override;
+			virtual void Init() override;
+			virtual void SwapBuffers() override;
+			virtual void SetViewport(int width, int height, int x = 0, int y = 0) override;
 
-		virtual void Current() override;
+			virtual void Current() override;
 
-		virtual const char* GetInfoVersion()  override;
-		virtual const char* GetInfoVendor()   override;
-		virtual const char* GetInfoRenderer() override;
-	private:
-		Window*     m_GenericWindowHandle;
-		GLFWwindow* m_WindowHandle;
-	};
-
+			virtual const char* GetInfoVersion()  override;
+			virtual const char* GetInfoVendor()   override;
+			virtual const char* GetInfoRenderer() override;
+		private:
+			Window* m_GenericWindowHandle;
+			GLFWwindow* m_WindowHandle;
+		};
+	}
 }

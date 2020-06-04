@@ -64,7 +64,7 @@ namespace OverEngine {
 		m_Window = glfwCreateWindow((int)props.Width, (int)props.Height, m_Data.Title.c_str(), nullptr, nullptr);
 		s_WindowCount++;
 		
-		m_Context = RendererContext::Create(this);
+		m_Context = Renderer::RendererContext::Create(this);
 		m_Context->Init();
 
 		// Anti aliasing

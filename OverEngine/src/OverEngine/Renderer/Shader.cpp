@@ -7,17 +7,18 @@
 
 namespace OverEngine
 {
-
-	OverEngine::Shader* Shader::Create(String& vertexSrc, String& fragmentSrc)
+	namespace Renderer
 	{
-		switch (RendererAPI::GetAPI())
+		Shader* Shader::Create(String& vertexSrc, String& fragmentSrc)
 		{
-		case RendererAPI::API::None:    OE_CORE_ASSERT(false, "RendererAPI::None is currently not supported!"); return nullptr;
-		case RendererAPI::API::OpenGL:  return new OpenGLShader(vertexSrc, fragmentSrc);
+			switch (RendererAPI::GetAPI())
+			{
+			case RendererAPI::API::None:    OE_CORE_ASSERT(false, "RendererAPI::None is currently not supported!"); return nullptr;
+			case RendererAPI::API::OpenGL:  return new OpenGLShader(vertexSrc, fragmentSrc);
+			}
+
+			OE_CORE_ASSERT(false, "Unknown RendererAPI!");
+			return nullptr;
 		}
-
-		OE_CORE_ASSERT(false, "Unknown RendererAPI!");
-		return nullptr;
 	}
-
 }

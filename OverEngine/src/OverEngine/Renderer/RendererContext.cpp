@@ -8,15 +8,18 @@
 
 namespace OverEngine
 {
-	RendererContext* RendererContext::Create(Window* handle)
+	namespace Renderer
 	{
-		switch (RendererAPI::GetAPI())
+		RendererContext* RendererContext::Create(Window* handle)
 		{
-		case RendererAPI::API::None:    OE_CORE_ASSERT(false, "RendererAPI::None is currently not supported!"); return nullptr;
-		case RendererAPI::API::OpenGL:  return new OpenGLContext(handle);
-		}
+			switch (RendererAPI::GetAPI())
+			{
+			case RendererAPI::API::None:    OE_CORE_ASSERT(false, "RendererAPI::None is currently not supported!"); return nullptr;
+			case RendererAPI::API::OpenGL:  return new OpenGLContext(handle);
+			}
 
-		OE_CORE_ASSERT(false, "Unknown RendererAPI!");
-		return nullptr;
+			OE_CORE_ASSERT(false, "Unknown RendererAPI!");
+			return nullptr;
+		}
 	}
 }

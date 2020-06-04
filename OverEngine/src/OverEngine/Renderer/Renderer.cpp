@@ -3,19 +3,20 @@
 
 namespace OverEngine
 {
-
-	void Renderer::BeginScene()
+	namespace Renderer
 	{
-	}
+		void Renderer::BeginScene()
+		{
+		}
 
-	void Renderer::EndScene()
-	{
-	}
+		void Renderer::EndScene()
+		{
+		}
 
-	void Renderer::Submit(const Ref<VertexArray>& vertexArray)
-	{
-		vertexArray->Bind();
-		RenderCommand::DrawIndexed(vertexArray);
+		void Renderer::Submit(const Ref<VertexArray>& vertexArray)
+		{
+			vertexArray->Bind();
+			RenderCommand::DrawIndexed(vertexArray);
+		}
 	}
-
 }

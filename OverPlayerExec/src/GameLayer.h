@@ -14,9 +14,9 @@ public:
 private:
 	OverEngine::String vendorInfo, rendererInfo, versionInfo;
 
-	OverEngine::Ref<OverEngine::Shader> m_Shader;
-	OverEngine::Ref<OverEngine::VertexArray> m_VertexArray;
+	OverEngine::Ref<OverEngine::Renderer::Shader> m_Shader;
+	OverEngine::Ref<OverEngine::Renderer::VertexArray> m_VertexArray;
 
-	OverEngine::Ref<OverEngine::Shader> m_BlueShader;
-	OverEngine::Ref<OverEngine::VertexArray> m_SquareVA;
+	OverEngine::Ref<OverEngine::Renderer::Shader> m_BlueShader;
+	OverEngine::Ref<OverEngine::Renderer::VertexArray> m_SquareVA;
 };

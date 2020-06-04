@@ -4,19 +4,23 @@ namespace OverEngine
 {
 	class Window; // Forward declaration
 
-	class RendererContext
+	namespace Renderer
 	{
-	public:
-		virtual void Init() = 0;
-		virtual void SwapBuffers() = 0;
-		virtual void SetViewport(int width, int height, int x = 0, int y = 0) = 0;
 
-		virtual void Current() = 0;
+		class RendererContext
+		{
+		public:
+			virtual void Init() = 0;
+			virtual void SwapBuffers() = 0;
+			virtual void SetViewport(int width, int height, int x = 0, int y = 0) = 0;
 
-		virtual const char* GetInfoVersion()  = 0;
-		virtual const char* GetInfoVendor()   = 0;
-		virtual const char* GetInfoRenderer() = 0;
+			virtual void Current() = 0;
 
-		static RendererContext* Create(Window* handle);
-	};
+			virtual const char* GetInfoVersion() = 0;
+			virtual const char* GetInfoVendor() = 0;
+			virtual const char* GetInfoRenderer() = 0;
+
+			static RendererContext* Create(Window* handle);
+		};
+	}
 }

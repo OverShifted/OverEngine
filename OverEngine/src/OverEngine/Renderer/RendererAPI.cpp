@@ -3,5 +3,8 @@
 
 namespace OverEngine
 {
-	RendererAPI::API RendererAPI::s_API = RendererAPI::API::OpenGL;
+	namespace Renderer
+	{
+		RendererAPI::API RendererAPI::s_API = RendererAPI::API::OpenGL;
+	}
 }

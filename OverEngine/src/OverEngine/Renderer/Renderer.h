@@ -4,12 +4,15 @@
 
 namespace OverEngine
 {
-	class Renderer
+	namespace Renderer
 	{
-	public:
-		static void BeginScene();
-		static void EndScene();
+		class Renderer
+		{
+		public:
+			static void BeginScene();
+			static void EndScene();
 
-		static void Submit(const Ref<VertexArray>& vertexArray);
-	};
+			static void Submit(const Ref<VertexArray>& vertexArray);
+		};
+	}
 }

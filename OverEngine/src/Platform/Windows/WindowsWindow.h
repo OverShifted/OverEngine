@@ -25,7 +25,7 @@ namespace OverEngine {
 		bool IsDoubleBuffered() const override;
 
 		inline virtual void* GetNativeWindow() const { return m_Window; }
-		inline virtual RendererContext* GetRendererContext() const { return m_Context; }
+		inline virtual Renderer::RendererContext* GetRendererContext() const { return m_Context; }
 	private:
 		virtual void Init(const WindowProps& props);
 		virtual void Shutdown();
@@ -33,7 +33,7 @@ namespace OverEngine {
 		static uint32_t s_WindowCount;
 	private:
 		GLFWwindow* m_Window;
-		RendererContext* m_Context;
+		Renderer::RendererContext* m_Context;
 
 		struct WindowData
 		{

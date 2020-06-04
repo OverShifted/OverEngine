@@ -6,17 +6,18 @@
 
 namespace OverEngine
 {
-
-	VertexArray* VertexArray::Create()
+	namespace Renderer
 	{
-		switch (RendererAPI::GetAPI())
+		VertexArray* VertexArray::Create()
 		{
-		case RendererAPI::API::None:    OE_CORE_ASSERT(false, "RendererAPI::None is currently not supported!"); return nullptr;
-		case RendererAPI::API::OpenGL:  return new OpenGLVertexArray();
+			switch (RendererAPI::GetAPI())
+			{
+			case RendererAPI::API::None:    OE_CORE_ASSERT(false, "RendererAPI::None is currently not supported!"); return nullptr;
+			case RendererAPI::API::OpenGL:  return new OpenGLVertexArray();
+			}
+
+			OE_CORE_ASSERT(false, "Unknown RendererAPI!");
+			return nullptr;
 		}
-
-		OE_CORE_ASSERT(false, "Unknown RendererAPI!");
-		return nullptr;
 	}
-
 }
