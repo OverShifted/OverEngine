@@ -16,7 +16,10 @@ project "OverPlayerExec"
 	files
 	{
 		"%{prj.name}/src/**.h",
-		"%{prj.name}/src/**.cpp"
+		"%{prj.name}/src/**.cpp",
+
+		-- Resources
+        "%{prj.name}/res/**.rc",
 	}
 
 	includedirs
