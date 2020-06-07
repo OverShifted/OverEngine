@@ -20,8 +20,8 @@
 #include "OverEngine/Input/InputSystem.h"
 // -----------------------------------
 
-#ifdef OE_CLIENT_INCLUDE_ENTRY_POINT
 // ------- Entry Point ---------------
+#ifdef OE_CLIENT_INCLUDE_ENTRY_POINT
 #include "OverEngine/Core/EntryPoint.h"
-//------------------------------------
 #endif
+//------------------------------------

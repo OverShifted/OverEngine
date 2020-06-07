@@ -1,3 +1,4 @@
+#define OE_CLIENT_INCLUDE_ENTRY_POINT
 #include <OverEngine.h>
 
 #include "EditorLayer.h"
