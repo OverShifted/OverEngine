@@ -16,6 +16,8 @@
 
 #include "OverEngine/Input/InputSystem.h"
 
+#include "OverEngine/Core/Structs/List.h"
+
 namespace OverEngine
 {
 
@@ -47,6 +49,7 @@ namespace OverEngine
 		ImGuiLayer*       m_ImGuiLayer;
 	private:
 		static Application* m_Instance;
+		Structs::List<int> m_list;
 	};
 
 	// To be defined in CLIENT
