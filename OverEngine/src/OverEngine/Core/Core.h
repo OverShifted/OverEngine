@@ -3,6 +3,7 @@
 #include <memory>
 #include <vector>
 #include <string>
+#include "OverEngine/Core/Structs/List.h"
 
 #ifdef OE_PLATFORM_WINDOWS
 	#ifdef OE_BUILD_SHARED
@@ -57,15 +58,17 @@
 
 namespace OverEngine
 {
+	// Scope ////////////////////////////////////////////////////////////////////
 	template<typename T>
 	using Scope = std::unique_ptr<T>;
+
 	template<typename T, typename ... Args>
-	
 	constexpr Scope<T> CreateScope(Args&& ... args)
 	{
 		return std::make_unique<T>(std::forward<Args>(args)...);
 	}
-
+	
+	// Ref //////////////////////////////////////////////////////////////////////
 	template<typename T>
 	using Ref = std::shared_ptr<T>;
 
@@ -75,8 +78,14 @@ namespace OverEngine
 		return std::make_shared<T>(std::forward<Args>(args)...);
 	}
 
+	// Vector ///////////////////////////////////////////////////////////////////
 	template<typename T>
 	using Vector = std::vector<T>;
 
+	// String ///////////////////////////////////////////////////////////////////
 	using String = std::string;
+
+	// List /////////////////////////////////////////////////////////////////////
+	template<typename T>
+	using List = Structs::List<T>;
 }

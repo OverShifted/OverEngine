@@ -25,13 +25,6 @@ namespace OverEngine
 
 		m_ImGuiLayer = new ImGuiLayer();
 		PushOverlay(m_ImGuiLayer);
-
-		m_list.Append(1);
-		m_list.Append(3);
-		m_list.Append(2);
-		m_list.Pop(2);
-
-		OE_CORE_INFO("{} {}", m_list[0], m_list[1]);
 	}
 
 	void Application::PushLayer(Layer* layer)

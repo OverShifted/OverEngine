@@ -49,7 +49,6 @@ namespace OverEngine
 		ImGuiLayer*       m_ImGuiLayer;
 	private:
 		static Application* m_Instance;
-		Structs::List<int> m_list;
 	};
 
 	// To be defined in CLIENT
