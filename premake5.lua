@@ -3,15 +3,16 @@ _32BitSupport = false
 -- Windows only. for Linux, "on" is hardcoded
 StaticRuntime = "on"
 
+SandboxHideConsole        = false
 DynamicLink               = false
-OverPlayerExecHideConsole = false
 OverEditorExecHideConsole = false
+EditorDynamicLink         = false
 
-IncludeEditor          = false
-IncludeFontFormatter   = false
+IncludeEditor        = true
+IncludeFontFormatter = false
 
 workspace "OverEngine"
-	startproject "OverPlayerExec"
+	startproject "Sandbox"
 
 	configurations
 	{
@@ -59,12 +60,12 @@ group ""
 
 -- include "docs"
 
-include "OverEngine.lua"
-include "OverPlayerExec.lua"
+include "OverEngineLib.lua"
+include "OverSandbox.lua"
 
 if (IncludeEditor) then
 	group "Editor"
-		include "OverEditor.lua"
+		include "OverEditorLib.lua"
 		include "OverEditorExec.lua"
 	group ""
 end

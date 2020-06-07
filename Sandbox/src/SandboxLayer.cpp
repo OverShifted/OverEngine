@@ -1,9 +1,9 @@
-#include "GameLayer.h"
+#include "SandboxLayer.h"
 
 #include "imgui/imgui.h"
 
-GameLayer::GameLayer()
-	: Layer("GameLayer")
+SandboxLayer::SandboxLayer()
+	: Layer("SandboxLayer")
 {
 	m_VertexArray.reset(OverEngine::Renderer::VertexArray::Create());
 
@@ -116,7 +116,7 @@ GameLayer::GameLayer()
 	m_BlueShader.reset(OverEngine::Renderer::Shader::Create(blueShaderVertexSrc, blueShaderFragmentSrc));
 }
 
-void GameLayer::OnAttach()
+void SandboxLayer::OnAttach()
 {
 	std::stringstream ss = std::stringstream();
 	ss << "Vendor: " << OverEngine::Application::Get().GetMainWindow().GetRendererContext()->GetInfoVendor();
@@ -131,7 +131,7 @@ void GameLayer::OnAttach()
 	versionInfo = ss.str();
 }
 
-void GameLayer::OnUpdate() 
+void SandboxLayer::OnUpdate() 
 {
 	OverEngine::Renderer::RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });
 	OverEngine::Renderer::RenderCommand::Clear();
@@ -147,7 +147,7 @@ void GameLayer::OnUpdate()
 	OverEngine::Renderer::Renderer::EndScene();
 }
 
-void GameLayer::OnImGuiRender() 
+void SandboxLayer::OnImGuiRender() 
 {
 	static bool show = true;
 	if (show)
@@ -162,6 +162,6 @@ void GameLayer::OnImGuiRender()
 	ImGui::End();
 }
 
-void GameLayer::OnEvent(OverEngine::Event& event) 
+void SandboxLayer::OnEvent(OverEngine::Event& event) 
 {
 }

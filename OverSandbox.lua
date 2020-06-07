@@ -1,11 +1,11 @@
-project "OverPlayerExec"
-    location "OverPlayerExec"
-    
-	if (OverPlayerExecHideConsole) then
-        kind "WindowedApp"
-    else
-        kind "ConsoleApp"
-    end
+project "Sandbox"
+	location "Sandbox"
+		
+	if (SandboxHideConsole) then
+		kind "WindowedApp"
+	else
+		kind "ConsoleApp"
+	end
 
 	language "C++"
 	cppdialect "C++17"
@@ -19,7 +19,7 @@ project "OverPlayerExec"
 		"%{prj.name}/src/**.cpp",
 
 		-- Resources
-        "%{prj.name}/res/**.rc",
+		"%{prj.name}/res/**.rc",
 	}
 
 	includedirs
@@ -29,31 +29,38 @@ project "OverPlayerExec"
 		"OverEngine/vendor",
 		"%{IncludeDir.spdlog}",
 		"%{IncludeDir.glm}"
-    }
+	}
 	
+	if (IncludeTinyFileDialogs) then
+		includedirs "%{IncludeDir.TFD}"
+		if not (DynamicLink) then
+			links "TinyFileDialogs"
+		end
+	end
+
 	links "OverEngine"
-    if (DynamicLink) then
-        defines "OE_BUILD_SHARED"
-    else
-	    links
-	    {
-            "GLFW",
-	    	"Glad",
-	    	"ImGui",
-        }
-        defines "OE_BUILD_STATIC"
-    end
-    
+	if (DynamicLink) then
+		defines "OE_BUILD_SHARED"
+	else
+		links
+		{
+			"GLFW",
+			"Glad",
+			"ImGui",
+		}
+		defines "OE_BUILD_STATIC"
+	end
+		
 	filter "system:windows"
 		systemversion "latest"
-        defines "OE_PLATFORM_WINDOWS"
-        staticruntime (StaticRuntime)
-        
-    filter "system:linux"
-        pic "on"
-        systemversion "latest"
-        defines "OE_PLATFORM_LINUX"
-        staticruntime "on"
+		defines "OE_PLATFORM_WINDOWS"
+		staticruntime (StaticRuntime)
+		
+	filter "system:linux"
+		pic "on"
+		systemversion "latest"
+		defines "OE_PLATFORM_LINUX"
+		staticruntime "on"
 
 	filter "configurations:Debug"
 		defines "OE_DEBUG"

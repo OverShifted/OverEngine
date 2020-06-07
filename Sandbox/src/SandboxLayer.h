@@ -2,10 +2,10 @@
 
 #include <OverEngine.h>
 
-class GameLayer : public OverEngine::Layer
+class SandboxLayer : public OverEngine::Layer
 {
 public:
-	GameLayer();
+	SandboxLayer();
 
 	void OnAttach() override;
 	void OnUpdate() override;
