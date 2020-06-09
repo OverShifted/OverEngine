@@ -62,13 +62,6 @@ namespace OverEngine {
 		
 		m_Context = Renderer::RendererContext::Create(this);
 		m_Context->Init();
-		
-		////// Windows-only menubar ///////////////////////////////////////////
-		///// HWND _Win32Nativehandle = glfwGetWin32Window(m_Window);
-		///// HMENU hMenu = CreateMenu();
-		///// AppendMenu(hMenu, MF_STRING, NULL, L"FILE");
-		///// SetMenu(_Win32Nativehandle, hMenu);
-		///////////////////////////////////////////////////////////////////////
 
 		glfwSetWindowUserPointer(m_Window, &m_Data);
 		SetVSync(true);
