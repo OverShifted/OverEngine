@@ -14,7 +14,7 @@ namespace OverEngine
 			{
 			}
 
-			void Append(T item)
+			void Append(T& item)
 			{
 				if (m_Length == 0)
 				{
@@ -58,9 +58,9 @@ namespace OverEngine
 			template<typename T>
 			struct Element
 			{
-				Element(T val) : value(val), next(nullptr) {}
+				Element(T& val) : value(val), next(nullptr) {}
 				Element<T>* next;
-				T value;
+				T& value;
 			};
 
 			Element<T>* m_firstElement;
