@@ -4,7 +4,7 @@
 #include "OverEngine/Core/Window.h"
 
 #include <GLFW/glfw3.h>
-#include <glad/glad.h>
+#include <glad/gl.h>
 
 namespace OverEngine
 {
@@ -20,7 +20,7 @@ namespace OverEngine
 		void OpenGLContext::Init()
 		{
 			glfwMakeContextCurrent(m_WindowHandle);
-			int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+			int status = gladLoadGL(glfwGetProcAddress);
 			OE_CORE_ASSERT(status, "Failed to initialize Glad!");
 		}
 

@@ -8,7 +8,6 @@
 #include "OverEngine/Core/Application.h"
 
 #include "OverEngine/Renderer/RendererContext.h"
-#include <glad/glad.h>
 
 namespace OverEngine {
 	
@@ -55,9 +54,6 @@ namespace OverEngine {
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-		// Anti aliasing
-		glfwWindowHint(GLFW_SAMPLES, 8);
-
 		if (!m_Data.DoubleBuffered)
 			glfwWindowHint(GLFW_DOUBLEBUFFER, false);
 
@@ -66,9 +62,6 @@ namespace OverEngine {
 		
 		m_Context = Renderer::RendererContext::Create(this);
 		m_Context->Init();
-
-		// Anti aliasing
-		glEnable(GL_MULTISAMPLE);
 		
 		////// Windows-only menubar ///////////////////////////////////////////
 		///// HWND _Win32Nativehandle = glfwGetWin32Window(m_Window);

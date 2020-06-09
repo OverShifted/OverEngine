@@ -1,7 +1,7 @@
 #include "pcheader.h"
 #include "OpenGLVertexArray.h"
 
-#include <glad/glad.h>
+#include <glad/gl.h>
 
 namespace OverEngine
 {

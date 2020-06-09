@@ -1,7 +1,7 @@
 #include "pcheader.h"
 #include "OpenGLShader.h"
 
-#include <glad/glad.h>
+#include <glad/gl.h>
 
 namespace OverEngine
 {
