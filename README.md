@@ -26,7 +26,8 @@ python3 build.py -b
 ```
 
 ## IDE / Build tool - platform - compiler support
-![WindowsBuilt](https://img.shields.io/badge/Windows-built-green?logo=windows)
-![LinuxBuilt](https://img.shields.io/badge/Windows-built-green?logo=Linux)
 * Visual Studio 2019 - Windows - MSVC
 * Makefile - Linux - GCC / G++
+
+![WindowsBuilt](https://img.shields.io/badge/Windows-built-green?logo=windows)
+![LinuxBuilt](https://img.shields.io/badge/Linux-built-green?logo=Linux)
