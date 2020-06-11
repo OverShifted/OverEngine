@@ -16,10 +16,7 @@ project "Sandbox"
 	files
 	{
 		"%{prj.name}/src/**.h",
-		"%{prj.name}/src/**.cpp",
-
-		-- Resources
-		"%{prj.name}/res/**.rc",
+		"%{prj.name}/src/**.cpp"
 	}
 
 	includedirs
@@ -55,12 +52,14 @@ project "Sandbox"
 		systemversion "latest"
 		defines "OE_PLATFORM_WINDOWS"
 		staticruntime (StaticRuntime)
+		files "%{prj.name}/res/**.rc"
 		
 	filter "system:linux"
 		pic "on"
 		systemversion "latest"
 		defines "OE_PLATFORM_LINUX"
 		staticruntime "on"
+		links { "dl", "pthread" }
 
 	filter "configurations:Debug"
 		defines "OE_DEBUG"

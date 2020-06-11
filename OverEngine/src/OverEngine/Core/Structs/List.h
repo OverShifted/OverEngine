@@ -55,12 +55,12 @@ namespace OverEngine
 				return GetNthElementPointer(idx)->value;
 			}
 		private:
-			template<typename T>
+			template<typename _T>
 			struct Element
 			{
-				Element(T& val) : value(val), next(nullptr) {}
-				Element<T>* next;
-				T& value;
+				Element(_T& val) : value(val), next(nullptr) {}
+				Element<_T>* next;
+				_T& value;
 			};
 
 			Element<T>* m_firstElement;
