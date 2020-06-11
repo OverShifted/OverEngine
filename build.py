@@ -17,7 +17,7 @@ WannaBuild = "-b" in sys.argv[1:] or "--b" in sys.argv[1:] or "--build" in sys.a
 premakeCommand = "vendor/bin/premake/premake5"
 buildCommand = ""
 if systemInfo == SYSTEM_WINDOWS:
-    premakeCommand += ".exe vs2019"
+    premakeCommand = "vendor\\bin\\premake\\premake5.exe vs2019"
     buildCommand = "msbuild"
 elif systemInfo == SYSTEM_LINUX:
     premakeCommand += " gmake2"
