@@ -14,16 +14,19 @@
 * UI : [DearImgui](https://github.com/ocornut/imgui)
 * Glm : [Github](https://github.com/g-truc/glm)
 
-## Build from sourcecode (windows only at the moment)
-1. Run _GenerateProjectFiles.bat_. it will generate project files for VS2019
- _If you wanna target older VS IDE, edit that file_
-2. Open _OverEngine.sln_ and Hit the play button!
+## Build from sourcecode
+Windows (Python3):
+```
+python build.py -b
+```
 
-## IDE / platform / compiler support
+Linux :
+```
+python3 build.py -b
+```
+
+## IDE / Build tool - platform - compiler support
 ![WindowsBuilt](https://img.shields.io/badge/Windows-built-green?logo=windows)
-* Visual Studio 2019 / Windows / MSVC
-_Also should work with 2017 and 2015_
-
-#### Also we are planning to support these:
-* Visual Studio 2019 / Linux / GCC
-* Codelite          / Linux / GCC
+![LinuxBuilt](https://img.shields.io/badge/Windows-built-green?logo=Linux)
+* Visual Studio 2019 - Windows - MSVC
+* Makefile - Linux - GCC / G++
