@@ -10,7 +10,7 @@ project "OverEngine"
 	language "C++"
 	cppdialect "C++17"
 
-	targetname "LibOverEngine"
+	targetname "OverEngine"
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir("bin-int/" .. outputdir .. "/%{prj.name}")
 
@@ -44,7 +44,7 @@ project "OverEngine"
 		"%{IncludeDir.ImGui}",
 		"%{IncludeDir.glm}",
 	}
-		
+
 	if (DynamicLink) then
 		links
 		{
@@ -53,7 +53,7 @@ project "OverEngine"
 			"ImGui",
 		}
 	end
-		
+
 	if (IncludeTinyFileDialogs) then
 		includedirs "%{IncludeDir.TFD}"
 		if (DynamicLink) then
@@ -66,7 +66,7 @@ project "OverEngine"
 		"GLFW_INCLUDE_NONE",
 		"_CRT_SECURE_NO_WARNINGS"
 	}
-		
+
 	if (DynamicLink) then
 		defines
 		{
@@ -108,7 +108,7 @@ project "OverEngine"
 			"%{prj.name}/src/Platform/Linux/**.h",
 			"%{prj.name}/src/Platform/Linux/**.cpp"
 	 	}
-		
+
 	filter "configurations:Debug"
 		defines "OE_DEBUG"
 		runtime "Debug"

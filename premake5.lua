@@ -6,7 +6,6 @@ StaticRuntime = "on"
 SandboxHideConsole        = false
 DynamicLink               = false
 OverEditorExecHideConsole = false
-EditorDynamicLink         = false
 
 IncludeEditor        = true
 IncludeFontFormatter = false
@@ -35,7 +34,7 @@ workspace "OverEngine"
 	{
 		"MultiProcessorCompile"
 	}
-	
+
 
 --            configurations       OS              x86_64
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
@@ -60,12 +59,9 @@ group ""
 
 -- include "docs"
 
-include "OverEngineLib.lua"
+include "OverEngine.lua"
 include "OverSandbox.lua"
 
 if (IncludeEditor) then
-	group "Editor"
-		include "OverEditorLib.lua"
-		include "OverEditorExec.lua"
-	group ""
+	include "OverEditor.lua"
 end

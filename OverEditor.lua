@@ -1,5 +1,5 @@
-project "OverEditorExec"
-	location "OverEditorExec"
+project "OverEditor"
+	location "OverEditor"
 
 	if (OverEditorExecHideConsole) then
 		kind "WindowedApp"
@@ -30,11 +30,7 @@ project "OverEditorExec"
 		"%{IncludeDir.glm}"
 	}
 
-	links
-	{
-		"OverEngine",
-		"OverEditor"
-	}
+	links "OverEngine"
 
 	if (DynamicLink) then
 		defines "OE_BUILD_SHARED"
