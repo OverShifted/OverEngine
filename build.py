@@ -14,13 +14,13 @@ else:
 
 WannaBuild = "-b" in sys.argv[1:] or "--b" in sys.argv[1:] or "--build" in sys.argv[1:] or "-build" in sys.argv[1:]
 
-premakeCommand = "vendor\\bin\\premake\\premake5.exe "
+premakeCommand = "vendor/bin/premake/premake5"
 buildCommand = ""
 if systemInfo == SYSTEM_WINDOWS:
-    premakeCommand += "vs2019"
+    premakeCommand += ".exe vs2019"
     buildCommand = "msbuild"
 elif systemInfo == SYSTEM_LINUX:
-    premakeCommand += "gmake2"
+    premakeCommand += " gmake2"
     buildCommand = "make"
 
 print("Generating project files\n")

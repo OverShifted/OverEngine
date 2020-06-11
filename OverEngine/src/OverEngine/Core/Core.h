@@ -5,6 +5,10 @@
 #include <string>
 #include "OverEngine/Core/Structs/List.h"
 
+#if defined(OE_PLATFORM_LINUX) || defined(OE_PLATFORM_MACOS)
+	#define OE_PLATFORM_UNIX_BASE
+#endif
+
 #ifdef OE_PLATFORM_WINDOWS
 	#ifdef OE_BUILD_SHARED
 		#ifdef OE_PROJECT_BUILD_SHARED
@@ -17,7 +21,7 @@
 	#endif // OE_BUILD_SHARED
 #endif // OE_PLATFORM_WINDOWS
 
-#ifdef OE_PLATFORM_LINIUX
+#ifdef OE_PLATFORM_UNIX_BASE
 	#ifdef OE_BUILD_SHARED
 		#ifdef OE_PROJECT_BUILD_SHARED
 			#define OVER_API __attribute__((visibility("default")))
@@ -67,7 +71,7 @@ namespace OverEngine
 	{
 		return std::make_unique<T>(std::forward<Args>(args)...);
 	}
-	
+
 	// Ref //////////////////////////////////////////////////////////////////////
 	template<typename T>
 	using Ref = std::shared_ptr<T>;

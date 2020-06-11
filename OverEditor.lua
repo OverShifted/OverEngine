@@ -48,6 +48,13 @@ project "OverEditor"
 		systemversion "latest"
 		defines "OE_PLATFORM_WINDOWS"
 
+	filter "system:linux"
+		pic "on"
+		systemversion "latest"
+		defines "OE_PLATFORM_LINUX"
+		staticruntime "on"
+		links { "dl", "pthread" }
+		
 	filter "configurations:Debug"
 		defines "OE_DEBUG"
 		runtime "Debug"

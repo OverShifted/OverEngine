@@ -25,3 +25,10 @@ int main(int argc, char** argv)
 	return OverMain(argc, argv);
 }
 #endif // OE_PLATFORM_WINDOWS
+
+#ifdef OE_PLATFORM_UNIX_BASE
+int main(int argc, char** argv)
+{
+	return OverMain(argc, argv);
+}
+#endif // OE_PLATFORM_UNIX_BASE
