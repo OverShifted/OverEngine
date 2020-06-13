@@ -18,10 +18,9 @@ namespace OverEngine
 		m_Instance = this;
 
 		WindowProps props = WindowProps(name, 1280, 720, true);
-		m_Windows.push_back(Scope<Window>(Window::Create(props)));
-		m_MainWindow = 0;
+		m_Window = Scope<Window>(Window::Create(props));
 
-		m_Windows[m_MainWindow]->SetEventCallback(OE_BIND_EVENT_FN(Application::OnEvent));
+		m_Window->SetEventCallback(OE_BIND_EVENT_FN(Application::OnEvent));
 
 		m_ImGuiLayer = new ImGuiLayer();
 		PushOverlay(m_ImGuiLayer);

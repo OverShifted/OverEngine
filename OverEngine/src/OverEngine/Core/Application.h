@@ -34,13 +34,12 @@ namespace OverEngine
 		void PushLayer(Layer* layer);
 		void PushOverlay(Layer* layer);
 		inline static Application& Get() { return *m_Instance; }
-		inline Window& GetMainWindow() { return *m_Windows[m_MainWindow]; }
+		inline Window& GetMainWindow() { return *m_Window; }
 	private:
 		bool OnWindowClose(WindowCloseEvent& e);
 		bool OnWindowResize(WindowResizeEvent& e);
 
-		Vector<Scope<Window>> m_Windows;
-		int m_MainWindow;
+		Scope<Window> m_Window;
 
 		bool m_Running = true;
 		bool m_Minimized = false;
