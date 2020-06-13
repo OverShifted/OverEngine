@@ -14,6 +14,8 @@ namespace OverEngine
 
 			virtual void Bind() const override;
 			virtual void Unbind() const override;
+
+			virtual void UploadUniform(const String& name, const Math::Mat4x4& matrix);
 		private:
 			uint32_t m_RendererID;
 		};

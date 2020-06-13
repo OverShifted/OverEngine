@@ -19,7 +19,7 @@ namespace OverEngine
 
 		void OpenGLRendererAPI::Clear(bool clearColorBuffer, bool clearDepthBuffer)
 		{
-			uint32_t mask = 0;
+			GLbitfield mask = 0;
 			if (clearColorBuffer)
 				mask |= GL_COLOR_BUFFER_BIT;
 			if (clearDepthBuffer)

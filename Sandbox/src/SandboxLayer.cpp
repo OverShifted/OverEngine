@@ -2,8 +2,12 @@
 
 #include "imgui/imgui.h"
 
+#include <OverEngine/Core/Core.h>
+#include <OverEngine/Core/Math/Math.h>
+
 SandboxLayer::SandboxLayer()
-	: Layer("SandboxLayer")
+	: Layer("SandboxLayer"),
+	  m_Camera(OverEngine::CreateRef<OverEngine::Renderer::OrthographicCamera>(1.0f, 16.0f/9.0f))
 {
 	m_VertexArray.reset(OverEngine::Renderer::VertexArray::Create());
 
@@ -53,65 +57,69 @@ SandboxLayer::SandboxLayer()
 	m_SquareVA->SetIndexBuffer(squareIB);
 
 	OverEngine::String vertexSrc = R"(
-			#version 330 core
-			
-			layout(location = 0) in vec3 a_Position;
-			layout(location = 1) in vec4 a_Color;
+		#version 330 core
+		
+		layout(location = 0) in vec3 a_Position;
+		layout(location = 1) in vec4 a_Color;
 
-			out vec3 v_Position;
-			out vec4 v_Color;
+		// out vec3 v_Position;
+		out vec4 v_Color;
 
-			void main()
-			{
-				v_Position = a_Position;
-				v_Color = a_Color;
-				gl_Position = vec4(a_Position, 1.0);	
-			}
-		)";
+		uniform mat4 u_ViewProjMatrix;
+
+		void main()
+		{
+			// v_Position = a_Position;
+			v_Color = a_Color;
+			gl_Position = u_ViewProjMatrix * vec4(a_Position, 1.0);	
+		}
+	)";
 
 	OverEngine::String fragmentSrc = R"(
-			#version 330 core
-			
-			layout(location = 0) out vec4 color;
+		#version 330 core
+		
+		layout(location = 0) out vec4 color;
 
-			in vec3 v_Position;
-			in vec4 v_Color;
+		in vec3 v_Position;
+		in vec4 v_Color;
 
-			void main()
-			{
-				//color = vec4(v_Position * 0.5 + 0.5, 1.0);
-				color = v_Color;
-			}
-		)";
+		void main()
+		{
+			// color = vec4(v_Position * 0.5 + 0.5, 1.0);
+			color = v_Color;
+		}
+	)";
 
 	m_Shader.reset(OverEngine::Renderer::Shader::Create(vertexSrc, fragmentSrc));
 
 	OverEngine::String blueShaderVertexSrc = R"(
-			#version 330 core
-			
-			layout(location = 0) in vec3 a_Position;
+		#version 330 core
+		
+		layout(location = 0) in vec3 a_Position;
 
-			out vec3 v_Position;
+		out vec3 v_Position;
 
-			void main()
-			{
-				v_Position = a_Position;
-				gl_Position = vec4(a_Position, 1.0);	
-			}
-		)";
+		uniform mat4 u_ViewProjMatrix;
+
+		void main()
+		{
+			v_Position = a_Position;
+			gl_Position = u_ViewProjMatrix * vec4(a_Position, 1.0);	
+		}
+	)";
 
 	OverEngine::String blueShaderFragmentSrc = R"(
-			#version 330 core
-			
-			layout(location = 0) out vec4 color;
+		#version 330 core
+		
+		layout(location = 0) out vec4 color;
 
-			in vec3 v_Position;
+		in vec3 v_Position;
 
-			void main()
-			{
-				color = vec4(0.2, 0.3, 0.8, 1.0);
-			}
-		)";
+		void main()
+		{
+			color = vec4(0.2, 0.3, 0.8, 1.0);
+		}
+	)";
 
 	m_BlueShader.reset(OverEngine::Renderer::Shader::Create(blueShaderVertexSrc, blueShaderFragmentSrc));
 }
@@ -136,20 +144,18 @@ void SandboxLayer::OnUpdate()
 	OverEngine::Renderer::RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });
 	OverEngine::Renderer::RenderCommand::Clear();
 
-	OverEngine::Renderer::Renderer::BeginScene();
+	OverEngine::Renderer::Renderer::BeginScene(m_Camera);
 
-	m_BlueShader->Bind();
-	OverEngine::Renderer::Renderer::Submit(m_SquareVA);
+	OverEngine::Renderer::Renderer::Submit(m_BlueShader, m_SquareVA);
 
-	m_Shader->Bind();
-	OverEngine::Renderer::Renderer::Submit(m_VertexArray);
+	OverEngine::Renderer::Renderer::Submit(m_Shader, m_VertexArray);
 
 	OverEngine::Renderer::Renderer::EndScene();
 }
 
 void SandboxLayer::OnImGuiRender() 
 {
-	static bool show = true;
+	static bool show = false;
 	if (show)
 		ImGui::ShowDemoWindow(&show);
 
@@ -164,4 +170,19 @@ void SandboxLayer::OnImGuiRender()
 
 void SandboxLayer::OnEvent(OverEngine::Event& event) 
 {
+	OverEngine::EventDispatcher dispatcher(event);
+	dispatcher.Dispatch<OverEngine::WindowResizeEvent>(OE_BIND_EVENT_FN(SandboxLayer::OnWindowResizeEvent));
+	dispatcher.Dispatch<OverEngine::MouseScrolledEvent>(OE_BIND_EVENT_FN(SandboxLayer::OnMouseScrolledEvent));
+}
+
+bool SandboxLayer::OnWindowResizeEvent(OverEngine::WindowResizeEvent& event)
+{
+	m_Camera->SetAspectRatio((float)event.GetWidth() / (float)event.GetHeight());
+	return false;
+}
+
+bool SandboxLayer::OnMouseScrolledEvent(OverEngine::MouseScrolledEvent& event)
+{
+	m_Camera->SetOrthographicSize(m_Camera->GetOrthographicSize() - (float)event.GetYOffset() / 2.0f);
+	return false;
 }

@@ -125,5 +125,12 @@ namespace OverEngine
 		{
 			glUseProgram(0);
 		}
+
+		void OpenGLShader::UploadUniform(const String& name, const Math::Mat4x4& matrix)
+		{
+			GLint uniformLocation = glGetUniformLocation(m_RendererID, name.c_str());
+			glUniformMatrix4fv(uniformLocation, 1, GL_FALSE, glm::value_ptr(matrix));
+		}
+
 	}
 }
