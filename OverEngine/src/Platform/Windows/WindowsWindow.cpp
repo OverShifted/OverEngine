@@ -11,7 +11,7 @@
 
 namespace OverEngine {
 	
-	uint32_t WindowsWindow::s_WindowCount = 0;
+	unsigned int WindowsWindow::s_WindowCount = 0;
 
 	static void GLFWErrorCallback(int error, const char* description)
 	{
