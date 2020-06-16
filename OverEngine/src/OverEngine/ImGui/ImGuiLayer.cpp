@@ -5,10 +5,9 @@
 
 #include "fonts/Roboto.h"
 
-#include "imgui/examples/imgui_impl_glfw.h"
-
 #define IMGUI_IMPL_OPENGL_LOADER_CUSTOM
 #include "imgui/examples/imgui_impl_opengl3.h"
+#include "imgui/examples/imgui_impl_glfw.h"
 
 #include "OverEngine/Core/Application.h"
 #include "OverEngine/Input/Input.h"
@@ -96,11 +95,9 @@ namespace OverEngine
 
 		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 		{
-			//GLFWwindow* backup_current_context = glfwGetCurrentContext();
 			ImGui::UpdatePlatformWindows();
 			ImGui::RenderPlatformWindowsDefault();
 			Application::Get().GetMainWindow().GetRendererContext()->Current();
-			//glfwMakeContextCurrent(backup_current_context);
 		}
 	}
 
