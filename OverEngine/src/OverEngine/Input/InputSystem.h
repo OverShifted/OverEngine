@@ -15,7 +15,7 @@ namespace OverEngine
 	{
 	public:
 		InputTrigger()
-			: m_Key(KeyCode::KEY_NONE), m_ActivePress(false), m_ActiveRelease(false), m_ActiveRepeat(false),
+			: m_Key(KeyCode::None), m_ActivePress(false), m_ActiveRelease(false), m_ActiveRepeat(false),
 				m_PressedThisFrame(false), m_PressedLastFrame(false)
 		{
 		}
