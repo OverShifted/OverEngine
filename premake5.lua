@@ -57,8 +57,6 @@ group "Dependencies"
 	end
 group ""
 
--- include "docs"
-
 include "OverEngine.lua"
 include "OverSandbox.lua"
 
