@@ -6,9 +6,15 @@
 #include <OverEngine/Core/Math/Math.h>
 
 SandboxLayer::SandboxLayer()
-	: Layer("SandboxLayer"),
-	  m_Camera(OverEngine::CreateRef<OverEngine::Renderer::OrthographicCamera>(1.0f, 16.0f/9.0f))
+	: Layer("SandboxLayer")
 {
+	OverEngine::Application& app = OverEngine::Application::Get();
+
+	m_Camera.reset(new OverEngine::Renderer::OrthographicCamera(1.0f, (float)app.GetMainWindow().GetWidth() / (float)app.GetMainWindow().GetHeight()));
+
+	// m_Camera.reset(new OverEngine::Renderer::PerspectiveCamera(60.0f, (float)app.GetMainWindow().GetWidth() / (float)app.GetMainWindow().GetHeight()));
+	// m_Camera->SetPosition({ 0.0f, 0.0f, 10.0f });
+
 	m_VertexArray.reset(OverEngine::Renderer::VertexArray::Create());
 
 	float vertices[3 * 7] = {
@@ -141,6 +147,18 @@ void SandboxLayer::OnAttach()
 
 void SandboxLayer::OnUpdate() 
 {
+	OverEngine::Math::Vector3 offset(0.0f);
+	if (OverEngine::Input::IsKeyPressed(OverEngine::KeyCode::W))
+		offset.y += m_CameraSpeed;
+	if (OverEngine::Input::IsKeyPressed(OverEngine::KeyCode::S))
+		offset.y -= m_CameraSpeed;
+	if (OverEngine::Input::IsKeyPressed(OverEngine::KeyCode::D))
+		offset.x += m_CameraSpeed;
+	if (OverEngine::Input::IsKeyPressed(OverEngine::KeyCode::A))
+		offset.x -= m_CameraSpeed;
+
+	m_Camera->SetPosition(m_Camera->GetPosition() + offset);
+
 	OverEngine::Renderer::RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });
 	OverEngine::Renderer::RenderCommand::Clear();
 
@@ -183,6 +201,8 @@ bool SandboxLayer::OnWindowResizeEvent(OverEngine::WindowResizeEvent& event)
 
 bool SandboxLayer::OnMouseScrolledEvent(OverEngine::MouseScrolledEvent& event)
 {
-	m_Camera->SetOrthographicSize(m_Camera->GetOrthographicSize() - (float)event.GetYOffset() / 2.0f);
+	float newSize = m_Camera->GetOrthographicSize() - (float)event.GetYOffset() / 4.0f;
+	if (newSize > 0)
+		m_Camera->SetOrthographicSize(newSize);
 	return false;
 }

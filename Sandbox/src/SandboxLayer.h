@@ -19,11 +19,10 @@ public:
 private:
 	OverEngine::String vendorInfo, rendererInfo, versionInfo;
 
-	OverEngine::Ref<OverEngine::Renderer::Shader> m_Shader;
-	OverEngine::Ref<OverEngine::Renderer::VertexArray> m_VertexArray;
+	OverEngine::Ref<OverEngine::Renderer::Shader> m_Shader, m_BlueShader;
+	OverEngine::Ref<OverEngine::Renderer::VertexArray> m_VertexArray, m_SquareVA;
 
-	OverEngine::Ref<OverEngine::Renderer::Shader> m_BlueShader;
-	OverEngine::Ref<OverEngine::Renderer::VertexArray> m_SquareVA;
+	OverEngine::Ref<OverEngine::Renderer::Camera> m_Camera;
 
-	OverEngine::Ref<OverEngine::Renderer::OrthographicCamera> m_Camera;
+	float m_CameraSpeed = 0.04f;
 };
