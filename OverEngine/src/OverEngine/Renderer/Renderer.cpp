@@ -19,7 +19,7 @@ namespace OverEngine
 		void Renderer::Submit(const Ref<Shader>& shader, const Ref<VertexArray>& vertexArray)
 		{
 			shader->Bind();
-			shader->UploadUniform("u_ViewProjMatrix", s_SceneData->ViewProjectionMatrix);
+			shader->UploadUniformMat4("u_ViewProjMatrix", s_SceneData->ViewProjectionMatrix);
 			vertexArray->Bind();
 			RenderCommand::DrawIndexed(vertexArray);
 		}
