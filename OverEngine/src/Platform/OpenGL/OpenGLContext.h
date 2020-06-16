@@ -25,6 +25,8 @@ namespace OverEngine
 		private:
 			Window* m_GenericWindowHandle;
 			GLFWwindow* m_WindowHandle;
+
+			static unsigned int s_ContextCount;
 		};
 	}
 }

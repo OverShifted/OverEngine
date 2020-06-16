@@ -10,6 +10,8 @@ namespace OverEngine
 {
 	namespace Renderer
 	{
+		unsigned int OpenGLContext::s_ContextCount = 0;
+
 		OpenGLContext::OpenGLContext(Window* windowHandle)
 			: m_WindowHandle(static_cast<GLFWwindow*>(windowHandle->GetNativeWindow())),
 			m_GenericWindowHandle(windowHandle)
@@ -20,8 +22,12 @@ namespace OverEngine
 		void OpenGLContext::Init()
 		{
 			glfwMakeContextCurrent(m_WindowHandle);
-			int status = gladLoadGL(glfwGetProcAddress);
-			OE_CORE_ASSERT(status, "Failed to initialize Glad!");
+			if (s_ContextCount == 0)
+			{
+				int status = gladLoadGL(glfwGetProcAddress);
+				OE_CORE_ASSERT(status, "Failed to initialize Glad!");
+			}
+			s_ContextCount++;
 		}
 
 		void OpenGLContext::SwapBuffers()
