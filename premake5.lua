@@ -57,9 +57,9 @@ group "Dependencies"
 	end
 group ""
 
-include "OverEngine.lua"
-include "OverSandbox.lua"
+include "OverEngine"
+include "Sandbox"
 
 if (IncludeEditor) then
-	include "OverEditor.lua"
+	include "OverEditor"
 end

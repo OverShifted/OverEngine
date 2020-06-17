@@ -1,6 +1,4 @@
 project "OverEngine"
-	location "OverEngine"
-
 	if (DynamicLink) then
 		kind "SharedLib"
 	else
@@ -11,38 +9,38 @@ project "OverEngine"
 	cppdialect "C++17"
 
 	targetname "OverEngine"
-	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
-	objdir("bin-int/" .. outputdir .. "/%{prj.name}")
+	targetdir ("../bin/" .. outputdir .. "/%{prj.name}")
+	objdir("../bin-int/" .. outputdir .. "/%{prj.name}")
 
 	pchheader "pcheader.h"
-	pchsource "OverEngine/src/pcheader.cpp"
+	pchsource "src/pcheader.cpp"
 
 	files
 	{
 		-- Source Files
-		"%{prj.name}/src/*.h",
-		"%{prj.name}/src/*.cpp",
-		"%{prj.name}/src/OverEngine/**.h",
-		"%{prj.name}/src/OverEngine/**.cpp",
+		"src/*.h",
+		"src/*.cpp",
+		"src/OverEngine/**.h",
+		"src/OverEngine/**.cpp",
 
 		-- Resources
-		"%{prj.name}/res/**.h",
+		"res/**.h",
 
 		-- RendererAPI Files
-		"%{prj.name}/src/Platform/OpenGL/**.h",
-		"%{prj.name}/src/Platform/OpenGL/**.cpp",
+		"src/Platform/OpenGL/**.h",
+		"src/Platform/OpenGL/**.cpp",
 	 }
 
 	includedirs
 	{
-		"%{prj.name}/src",
-		"%{prj.name}/res",
-		"%{prj.name}/vendor",
-		"%{IncludeDir.spdlog}",
-		"%{IncludeDir.GLFW}",
-		"%{IncludeDir.Glad}",
-		"%{IncludeDir.ImGui}",
-		"%{IncludeDir.glm}",
+		"src",
+		"res",
+		"vendor",
+		"../%{IncludeDir.spdlog}",
+		"../%{IncludeDir.GLFW}",
+		"../%{IncludeDir.Glad}",
+		"../%{IncludeDir.ImGui}",
+		"../%{IncludeDir.glm}",
 	}
 
 	if (DynamicLink) then
@@ -55,7 +53,7 @@ project "OverEngine"
 	end
 
 	if (IncludeTinyFileDialogs) then
-		includedirs "%{IncludeDir.TFD}"
+		includedirs "../%{IncludeDir.TFD}"
 		if (DynamicLink) then
 			links "TinyFileDialogs"
 		end
@@ -83,17 +81,17 @@ project "OverEngine"
 		staticruntime (StaticRuntime)
 
 		if (DynamicLink) then
-			postbuildcommands ("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/OverPlayerExec")
+			postbuildcommands ("{COPY} %{cfg.buildtarget.relpath} .../bin/" .. outputdir .. "/Sandbox")
 			if (IncludeEditor) then
-				postbuildcommands ("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/OverEditorExec")
+				postbuildcommands ("{COPY} %{cfg.buildtarget.relpath} .../bin/" .. outputdir .. "/OverEditor")
 			end
 		end
 
 		files
 		{
 			-- Platform Files
-			"%{prj.name}/src/Platform/Windows/**.h",
-			"%{prj.name}/src/Platform/Windows/**.cpp"
+			"src/Platform/Windows/**.h",
+			"src/Platform/Windows/**.cpp"
 	 	}
 
 	filter "system:linux"
@@ -105,8 +103,8 @@ project "OverEngine"
 		files
 		{
 			-- Platform Files
-			"%{prj.name}/src/Platform/Linux/**.h",
-			"%{prj.name}/src/Platform/Linux/**.cpp"
+			"src/Platform/Linux/**.h",
+			"src/Platform/Linux/**.cpp"
 	 	}
 
 	filter "configurations:Debug"

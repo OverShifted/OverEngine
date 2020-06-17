@@ -1,6 +1,4 @@
-project "Sandbox"
-	location "Sandbox"
-		
+project "Sandbox"		
 	if (SandboxHideConsole) then
 		kind "WindowedApp"
 	else
@@ -10,26 +8,26 @@ project "Sandbox"
 	language "C++"
 	cppdialect "C++17"
 
-	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
-	objdir("bin-int/" .. outputdir .. "/%{prj.name}")
+	targetdir ("../bin/" .. outputdir .. "/%{prj.name}")
+	objdir("../bin-int/" .. outputdir .. "/%{prj.name}")
 
 	files
 	{
-		"%{prj.name}/src/**.h",
-		"%{prj.name}/src/**.cpp"
+		"src/**.h",
+		"src/**.cpp"
 	}
 
 	includedirs
 	{
-		"OverEngine/src",
-		"OverEngine/res",
-		"OverEngine/vendor",
-		"%{IncludeDir.spdlog}",
-		"%{IncludeDir.glm}"
+		"../OverEngine/src",
+		"../OverEngine/res",
+		"../OverEngine/vendor",
+		"../%{IncludeDir.spdlog}",
+		"../%{IncludeDir.glm}"
 	}
 	
 	if (IncludeTinyFileDialogs) then
-		includedirs "%{IncludeDir.TFD}"
+		includedirs "../%{IncludeDir.TFD}"
 		if not (DynamicLink) then
 			links "TinyFileDialogs"
 		end
@@ -52,7 +50,7 @@ project "Sandbox"
 		systemversion "latest"
 		defines "OE_PLATFORM_WINDOWS"
 		staticruntime (StaticRuntime)
-		files "%{prj.name}/res/**.rc"
+		files "res/**.rc"
 		
 	filter "system:linux"
 		pic "on"
