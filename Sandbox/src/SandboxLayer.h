@@ -10,7 +10,7 @@ public:
 	SandboxLayer();
 
 	void OnAttach() override;
-	void OnUpdate() override;
+	void OnUpdate(OverEngine::TimeStep DeltaTime) override;
 	void OnImGuiRender() override;
 	void OnEvent(OverEngine::Event& event) override;
 
@@ -24,5 +24,5 @@ private:
 
 	OverEngine::Ref<OverEngine::Renderer::Camera> m_Camera;
 
-	float m_CameraSpeed = 0.04f;
+	float m_CameraSpeed = 2.4f;
 };

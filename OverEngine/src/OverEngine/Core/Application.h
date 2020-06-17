@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Core.h"
-
-#include "Window.h"
+#include "OverEngine/Core/Core.h"
+#include "OverEngine/Core/Window.h"
+#include "OverEngine/Core/Time/Time.h"
 
 #include "OverEngine/ImGui/ImGuiLayer.h"
 
@@ -13,10 +13,6 @@
 #include "OverEngine/Renderer/Shader.h"
 #include "OverEngine/Renderer/Buffer.h"
 #include "OverEngine/Renderer/VertexArray.h"
-
-#include "OverEngine/Input/InputSystem.h"
-
-#include "OverEngine/Core/Structs/List.h"
 
 namespace OverEngine
 {

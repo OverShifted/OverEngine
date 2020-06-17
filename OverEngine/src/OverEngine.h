@@ -1,8 +1,9 @@
 #pragma once
 
-// To be used in OverPlayer
+// To be used in OverApps
 #include "OverEngine/Core/Application.h"
 #include "OverEngine/Core/Log.h"
+#include "OverEngine/Core/Time/Time.h"
 #include "OverEngine/Layers/Layer.h"
 
 #include "OverEngine/ImGui/ImGuiLayer.h"

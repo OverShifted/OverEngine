@@ -2,6 +2,7 @@
 
 #include "OverEngine/Core/Core.h"
 #include "OverEngine/Events/Event.h"
+#include "OverEngine/Core/Time/Time.h"
 
 namespace OverEngine {
 
@@ -13,7 +14,7 @@ namespace OverEngine {
 
 		virtual void OnAttach() {}
 		virtual void OnDetach() {}
-		virtual void OnUpdate() {}
+		virtual void OnUpdate(TimeStep DeltaTime) {}
 		virtual void OnImGuiRender() {}
 		virtual void OnEvent(Event& event) {}
 

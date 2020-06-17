@@ -145,17 +145,17 @@ void SandboxLayer::OnAttach()
 	versionInfo = ss.str();
 }
 
-void SandboxLayer::OnUpdate() 
+void SandboxLayer::OnUpdate(OverEngine::TimeStep DeltaTime)
 {
 	OverEngine::Math::Vector3 offset(0.0f);
 	if (OverEngine::Input::IsKeyPressed(OverEngine::KeyCode::W))
-		offset.y += m_CameraSpeed;
+		offset.y += m_CameraSpeed * DeltaTime.GetSeconds();
 	if (OverEngine::Input::IsKeyPressed(OverEngine::KeyCode::S))
-		offset.y -= m_CameraSpeed;
+		offset.y -= m_CameraSpeed * DeltaTime.GetSeconds();
 	if (OverEngine::Input::IsKeyPressed(OverEngine::KeyCode::D))
-		offset.x += m_CameraSpeed;
+		offset.x += m_CameraSpeed * DeltaTime.GetSeconds();
 	if (OverEngine::Input::IsKeyPressed(OverEngine::KeyCode::A))
-		offset.x -= m_CameraSpeed;
+		offset.x -= m_CameraSpeed * DeltaTime.GetSeconds();
 
 	m_Camera->SetPosition(m_Camera->GetPosition() + offset);
 

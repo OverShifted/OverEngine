@@ -56,7 +56,7 @@ namespace OverEngine
 		while (m_Running)
 		{	
 			for (Layer* layer : m_LayerStack)
-				layer->OnUpdate();
+				layer->OnUpdate(Time::GetDeltaTime());
 
 			m_ImGuiLayer->Begin();
 			for (Layer* layer : m_LayerStack)
@@ -64,6 +64,7 @@ namespace OverEngine
 			m_ImGuiLayer->End();
 			
 			GetMainWindow().OnUpdate(); // Poll Events Here // Events Here
+			Time::RecalculateDeltaTime();
 			InputSystem::OnUpdate();
 		}
 	}
