@@ -10,12 +10,12 @@ SandboxLayer::SandboxLayer()
 {
 	OverEngine::Application& app = OverEngine::Application::Get();
 
-	m_Camera.reset(new OverEngine::Renderer::OrthographicCamera(1.0f, (float)app.GetMainWindow().GetWidth() / (float)app.GetMainWindow().GetHeight()));
+	m_Camera.reset(new OverEngine::OrthographicCamera(1.0f, (float)app.GetMainWindow().GetWidth() / (float)app.GetMainWindow().GetHeight()));
 
-	// m_Camera.reset(new OverEngine::Renderer::PerspectiveCamera(60.0f, (float)app.GetMainWindow().GetWidth() / (float)app.GetMainWindow().GetHeight()));
+	// m_Camera.reset(new OverEngine::PerspectiveCamera(60.0f, (float)app.GetMainWindow().GetWidth() / (float)app.GetMainWindow().GetHeight()));
 	// m_Camera->SetPosition({ 0.0f, 0.0f, 10.0f });
 
-	m_VertexArray.reset(OverEngine::Renderer::VertexArray::Create());
+	m_VertexArray.reset(OverEngine::VertexArray::Create());
 
 	float vertices[3 * 7] = {
 		-0.5f, -0.5f, 0.0f, 0.8f, 0.2f, 0.8f, 1.0f,
@@ -23,23 +23,23 @@ SandboxLayer::SandboxLayer()
 		 0.0f,  0.5f, 0.0f, 0.8f, 0.8f, 0.2f, 1.0f
 	};
 
-	OverEngine::Ref<OverEngine::Renderer::VertexBuffer> vertexBuffer;
-	vertexBuffer.reset(OverEngine::Renderer::VertexBuffer::Create(vertices, sizeof(vertices)));
+	OverEngine::Ref<OverEngine::VertexBuffer> vertexBuffer;
+	vertexBuffer.reset(OverEngine::VertexBuffer::Create(vertices, sizeof(vertices)));
 
-	OverEngine::Renderer::BufferLayout layout = {
-		{ OverEngine::Renderer::ShaderDataType::Float3, "a_Position" },
-		{ OverEngine::Renderer::ShaderDataType::Float4, "a_Color" }
+	OverEngine::BufferLayout layout = {
+		{ OverEngine::ShaderDataType::Float3, "a_Position" },
+		{ OverEngine::ShaderDataType::Float4, "a_Color" }
 	};
 
 	vertexBuffer->SetLayout(layout);
 	m_VertexArray->AddVertexBuffer(vertexBuffer);
 
 	uint32_t indices[3] = { 0, 1, 2 };
-	OverEngine::Ref<OverEngine::Renderer::IndexBuffer> indexBuffer;
-	indexBuffer.reset(OverEngine::Renderer::IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t)));
+	OverEngine::Ref<OverEngine::IndexBuffer> indexBuffer;
+	indexBuffer.reset(OverEngine::IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t)));
 	m_VertexArray->SetIndexBuffer(indexBuffer);
 
-	m_SquareVA.reset(OverEngine::Renderer::VertexArray::Create());
+	m_SquareVA.reset(OverEngine::VertexArray::Create());
 
 	float squareVertices[3 * 4] = {
 		-0.75f, -0.75f, 0.0f,
@@ -48,18 +48,18 @@ SandboxLayer::SandboxLayer()
 		-0.75f,  0.75f, 0.0f
 	};
 
-	OverEngine::Ref<OverEngine::Renderer::VertexBuffer> squareVB;
-	squareVB.reset(OverEngine::Renderer::VertexBuffer::Create(squareVertices, sizeof(squareVertices)));
+	OverEngine::Ref<OverEngine::VertexBuffer> squareVB;
+	squareVB.reset(OverEngine::VertexBuffer::Create(squareVertices, sizeof(squareVertices)));
 
 	squareVB->SetLayout({
-		{ OverEngine::Renderer::ShaderDataType::Float3, "a_Position" }
+		{ OverEngine::ShaderDataType::Float3, "a_Position" }
 		});
 
 	m_SquareVA->AddVertexBuffer(squareVB);
 
 	uint32_t squareIndices[6] = { 0, 1, 2, 2, 3, 0 };
-	OverEngine::Ref<OverEngine::Renderer::IndexBuffer> squareIB;
-	squareIB.reset(OverEngine::Renderer::IndexBuffer::Create(squareIndices, sizeof(squareIndices) / sizeof(uint32_t)));
+	OverEngine::Ref<OverEngine::IndexBuffer> squareIB;
+	squareIB.reset(OverEngine::IndexBuffer::Create(squareIndices, sizeof(squareIndices) / sizeof(uint32_t)));
 	m_SquareVA->SetIndexBuffer(squareIB);
 
 	OverEngine::String vertexSrc = R"(
@@ -96,7 +96,7 @@ SandboxLayer::SandboxLayer()
 		}
 	)";
 
-	m_Shader.reset(OverEngine::Renderer::Shader::Create(vertexSrc, fragmentSrc));
+	m_Shader.reset(OverEngine::Shader::Create(vertexSrc, fragmentSrc));
 
 	OverEngine::String blueShaderVertexSrc = R"(
 		#version 330 core
@@ -127,7 +127,7 @@ SandboxLayer::SandboxLayer()
 		}
 	)";
 
-	m_BlueShader.reset(OverEngine::Renderer::Shader::Create(blueShaderVertexSrc, blueShaderFragmentSrc));
+	m_BlueShader.reset(OverEngine::Shader::Create(blueShaderVertexSrc, blueShaderFragmentSrc));
 }
 
 void SandboxLayer::OnAttach()
@@ -159,16 +159,16 @@ void SandboxLayer::OnUpdate(OverEngine::TimeStep DeltaTime)
 
 	m_Camera->SetPosition(m_Camera->GetPosition() + offset);
 
-	OverEngine::Renderer::RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });
-	OverEngine::Renderer::RenderCommand::Clear();
+	OverEngine::RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });
+	OverEngine::RenderCommand::Clear();
 
-	OverEngine::Renderer::Renderer::BeginScene(m_Camera);
+	OverEngine::Renderer::BeginScene(m_Camera);
 
-	OverEngine::Renderer::Renderer::Submit(m_BlueShader, m_SquareVA);
+	OverEngine::Renderer::Submit(m_BlueShader, m_SquareVA);
 
-	OverEngine::Renderer::Renderer::Submit(m_Shader, m_VertexArray);
+	OverEngine::Renderer::Submit(m_Shader, m_VertexArray);
 
-	OverEngine::Renderer::Renderer::EndScene();
+	OverEngine::Renderer::EndScene();
 }
 
 void SandboxLayer::OnImGuiRender() 

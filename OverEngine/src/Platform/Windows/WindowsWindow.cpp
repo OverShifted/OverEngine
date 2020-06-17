@@ -44,7 +44,6 @@ namespace OverEngine {
 
 		if (s_WindowCount == 0)
 		{
-			// TODO: glfwTerminate on system shutdown
 			int success = glfwInit();
 			OE_CORE_ASSERT(success, "Could not initialize GLFW!");
 			glfwSetErrorCallback(GLFWErrorCallback);
@@ -60,7 +59,7 @@ namespace OverEngine {
 		m_Window = glfwCreateWindow((int)props.Width, (int)props.Height, m_Data.Title.c_str(), nullptr, nullptr);
 		s_WindowCount++;
 		
-		m_Context = Renderer::RendererContext::Create(this);
+		m_Context = RendererContext::Create(this);
 		m_Context->Init();
 
 		glfwSetWindowUserPointer(m_Window, &m_Data);
@@ -69,7 +68,7 @@ namespace OverEngine {
 		OE_CORE_INFO("OpenGL info");
 		
 		OE_CORE_INFO("    Version  : {0}", GetRendererContext()->GetInfoVersion());
-		OE_CORE_INFO("    Vendor   : {0}"  , GetRendererContext()->GetInfoVendor());
+		OE_CORE_INFO("    Vendor   : {0}", GetRendererContext()->GetInfoVendor());
 		OE_CORE_INFO("    Renderer : {0}", GetRendererContext()->GetInfoRenderer());
 
 

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <OverEngine.h>
-
 #include <OverEngine/Renderer/Camera.h>
 
 class SandboxLayer : public OverEngine::Layer
@@ -19,10 +18,10 @@ public:
 private:
 	OverEngine::String vendorInfo, rendererInfo, versionInfo;
 
-	OverEngine::Ref<OverEngine::Renderer::Shader> m_Shader, m_BlueShader;
-	OverEngine::Ref<OverEngine::Renderer::VertexArray> m_VertexArray, m_SquareVA;
+	OverEngine::Ref<OverEngine::Shader> m_Shader, m_BlueShader;
+	OverEngine::Ref<OverEngine::VertexArray> m_VertexArray, m_SquareVA;
 
-	OverEngine::Ref<OverEngine::Renderer::Camera> m_Camera;
+	OverEngine::Ref<OverEngine::Camera> m_Camera;
 
 	float m_CameraSpeed = 2.4f;
 };

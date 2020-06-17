@@ -6,22 +6,19 @@
 
 namespace OverEngine
 {
-	namespace Renderer
+	class Renderer
 	{
-		class Renderer
+	public:
+		static void BeginScene(const Ref<Camera>& camera);
+		static void EndScene();
+
+		static void Submit(const Ref<Shader>& shader, const Ref<VertexArray>& vertexArray);
+	private:
+		struct SceneData
 		{
-		public:
-			static void BeginScene(const Ref<Camera>& camera);
-			static void EndScene();
-
-			static void Submit(const Ref<Shader>& shader, const Ref<VertexArray>& vertexArray);
-		private:
-			struct SceneData
-			{
-				glm::mat4 ViewProjectionMatrix;
-			};
-
-			static SceneData* s_SceneData;
+			glm::mat4 ViewProjectionMatrix;
 		};
-	}
+
+		static SceneData* s_SceneData;
+	};
 }

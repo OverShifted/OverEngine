@@ -3,25 +3,22 @@
 
 namespace OverEngine
 {
-	namespace Renderer
+	Renderer::SceneData* Renderer::s_SceneData = new Renderer::SceneData;
+
+	void Renderer::BeginScene(const Ref<Camera>& camera)
 	{
-		Renderer::SceneData* Renderer::s_SceneData = new Renderer::SceneData;
+		s_SceneData->ViewProjectionMatrix = camera->GetViewProjectionMatrix();
+	}
 
-		void Renderer::BeginScene(const Ref<Camera>& camera)
-		{
-			s_SceneData->ViewProjectionMatrix = camera->GetViewProjectionMatrix();
-		}
+	void Renderer::EndScene()
+	{
+	}
 
-		void Renderer::EndScene()
-		{
-		}
-
-		void Renderer::Submit(const Ref<Shader>& shader, const Ref<VertexArray>& vertexArray)
-		{
-			shader->Bind();
-			shader->UploadUniformMat4("u_ViewProjMatrix", s_SceneData->ViewProjectionMatrix);
-			vertexArray->Bind();
-			RenderCommand::DrawIndexed(vertexArray);
-		}
+	void Renderer::Submit(const Ref<Shader>& shader, const Ref<VertexArray>& vertexArray)
+	{
+		shader->Bind();
+		shader->UploadUniformMat4("u_ViewProjMatrix", s_SceneData->ViewProjectionMatrix);
+		vertexArray->Bind();
+		RenderCommand::DrawIndexed(vertexArray);
 	}
 }
