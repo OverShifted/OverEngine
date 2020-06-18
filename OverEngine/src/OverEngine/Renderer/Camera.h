@@ -22,8 +22,8 @@ namespace OverEngine
 		inline void SetProjectionMatrix(const Math::Mat4x4& projMatrix) { m_ProjectionMatrix = projMatrix; RecalculateProjectionMatrix(); }
 
 		inline const CameraType GetType() { return m_Type; }
-		inline const bool IsOrthographic() { return m_Type == CameraType::Orthographic; }
-		inline const bool IsPrespective() { return m_Type == CameraType::Prespective; }
+		inline const bool IsOrthographic() const { return m_Type == CameraType::Orthographic; }
+		inline const bool IsPrespective() const { return m_Type == CameraType::Prespective; }
 
 		inline const Math::Vector3& GetPosition() const { return m_Position; }
 		inline const Math::Vector3& GetRotation() const { return m_Rotation; }
@@ -32,13 +32,13 @@ namespace OverEngine
 		inline void SetRotation(const Math::Vector3& rotation) { m_Rotation = rotation; RecalculateViewMatrix(); }
 
 		inline void SetAspectRatio(float aspectRatio) { m_AspectRatio = aspectRatio; RecalculateProjectionMatrix(); }
-		inline const float& GetAspectRatio() { return m_AspectRatio; }
+		inline const float& GetAspectRatio() const { return m_AspectRatio; }
 
 		inline void SetOrthographicSize(float orthographicSize) { m_OrthographicSize = orthographicSize; RecalculateProjectionMatrix(); }
-		inline const float& GetOrthographicSize() { return m_OrthographicSize; }
+		inline const float& GetOrthographicSize() const { return m_OrthographicSize; }
 
 		inline void SetFieldOfView(float fov) { m_FieldOfView = fov; RecalculateProjectionMatrix(); }
-		inline const float& GetFieldOfView() { return m_FieldOfView; }
+		inline const float& GetFieldOfView() const { return m_FieldOfView; }
 	protected:
 		void RecalculateViewProjectionMatrix();
 		void RecalculateViewMatrix();
