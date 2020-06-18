@@ -7,7 +7,7 @@ namespace OverEngine
 	/// Camera /////////////////////////////////////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	Camera::Camera(Math::Mat4x4 viewMat, Math::Mat4x4 projMat, CameraType type,
+	Camera::Camera(const Math::Mat4x4& viewMat, const Math::Mat4x4& projMat, CameraType type,
 				   float aspectRatio, float orthoSizeOrFov)
 		: m_ViewMatrix(viewMat), m_ProjectionMatrix(projMat),
 		  m_ViewProjectionMatrix(m_ProjectionMatrix * m_ViewMatrix),

@@ -10,7 +10,7 @@ namespace OverEngine
 	class Camera
 	{
 	protected:
-		Camera(Math::Mat4x4 viewMat, Math::Mat4x4 projMat, CameraType type, float aspectRatio, float orthoSizeOrFov);
+		Camera(const Math::Mat4x4& viewMat, const Math::Mat4x4& projMat, CameraType type, float aspectRatio, float orthoSizeOrFov);
 		~Camera() = default;
 
 	public:
