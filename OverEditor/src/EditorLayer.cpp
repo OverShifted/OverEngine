@@ -26,7 +26,7 @@ namespace OverEditor
 		versionInfo = ss.str();
 	}
 
-	void EditorLayer::OnUpdate()
+	void EditorLayer::OnUpdate(OverEngine::TimeStep DeltaTime)
 	{
 	}
 

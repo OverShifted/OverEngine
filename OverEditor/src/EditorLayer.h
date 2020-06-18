@@ -12,7 +12,7 @@ namespace OverEditor
 		EditorLayer();
 		
 		void OnAttach() override;
-		void OnUpdate() override;
+		void OnUpdate(OverEngine::TimeStep DeltaTime) override;
 		void OnImGuiRender() override;
 		void OnEvent(OverEngine::Event& event) override;
 
