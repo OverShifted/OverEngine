@@ -2,9 +2,6 @@
 
 #include "imgui/imgui.h"
 
-#include <OverEngine/Core/Core.h>
-#include <OverEngine/Core/Math/Math.h>
-
 SandboxLayer::SandboxLayer()
 	: Layer("SandboxLayer")
 {
@@ -15,12 +12,18 @@ SandboxLayer::SandboxLayer()
 	// m_Camera.reset(new OverEngine::PerspectiveCamera(60.0f, (float)app.GetMainWindow().GetWidth() / (float)app.GetMainWindow().GetHeight()));
 	// m_Camera->SetPosition({ 0.0f, 0.0f, 10.0f });
 
+	m_SquareTransform = OverEngine::CreateRef<OverEngine::Transform>();
+	m_SquareTransform->SetPosition({ 2.0f, 3.0f, 0.0f });
+	m_SquareTransform->SetScale({ 5.0f, 5.0f, 1.0f });
+
+	m_TriangleTransform = OverEngine::CreateRef<OverEngine::Transform>();
+
 	m_VertexArray.reset(OverEngine::VertexArray::Create());
 
 	float vertices[3 * 7] = {
-		-0.5f, -0.5f, 0.0f, 0.8f, 0.2f, 0.8f, 1.0f,
-		 0.5f, -0.5f, 0.0f, 0.2f, 0.3f, 0.8f, 1.0f,
-		 0.0f,  0.5f, 0.0f, 0.8f, 0.8f, 0.2f, 1.0f
+		-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+		 0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+		 0.0f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f
 	};
 
 	OverEngine::Ref<OverEngine::VertexBuffer> vertexBuffer;
@@ -42,10 +45,10 @@ SandboxLayer::SandboxLayer()
 	m_SquareVA.reset(OverEngine::VertexArray::Create());
 
 	float squareVertices[3 * 4] = {
-		-0.75f, -0.75f, 0.0f,
-		 0.75f, -0.75f, 0.0f,
-		 0.75f,  0.75f, 0.0f,
-		-0.75f,  0.75f, 0.0f
+		-0.5f, -0.5f, 0.0f,
+		 0.5f, -0.5f, 0.0f,
+		 0.5f,  0.5f, 0.0f,
+		-0.5f,  0.5f, 0.0f
 	};
 
 	OverEngine::Ref<OverEngine::VertexBuffer> squareVB;
@@ -53,7 +56,7 @@ SandboxLayer::SandboxLayer()
 
 	squareVB->SetLayout({
 		{ OverEngine::ShaderDataType::Float3, "a_Position" }
-		});
+	});
 
 	m_SquareVA->AddVertexBuffer(squareVB);
 
@@ -72,12 +75,13 @@ SandboxLayer::SandboxLayer()
 		out vec4 v_Color;
 
 		uniform mat4 u_ViewProjMatrix;
+		uniform mat4 u_TransformationMatrix;
 
 		void main()
 		{
 			// v_Position = a_Position;
 			v_Color = a_Color;
-			gl_Position = u_ViewProjMatrix * vec4(a_Position, 1.0);	
+			gl_Position = u_ViewProjMatrix * u_TransformationMatrix * vec4(a_Position, 1.0);	
 		}
 	)";
 
@@ -106,28 +110,31 @@ SandboxLayer::SandboxLayer()
 		out vec3 v_Position;
 
 		uniform mat4 u_ViewProjMatrix;
+		uniform mat4 u_TransformationMatrix;
 
 		void main()
 		{
 			v_Position = a_Position;
-			gl_Position = u_ViewProjMatrix * vec4(a_Position, 1.0);	
+			gl_Position = u_ViewProjMatrix * u_TransformationMatrix * vec4(a_Position, 1.0);	
 		}
 	)";
 
-	OverEngine::String blueShaderFragmentSrc = R"(
+	OverEngine::String flatColorFragmentShaderSrc = R"(
 		#version 330 core
 		
 		layout(location = 0) out vec4 color;
 
 		in vec3 v_Position;
 
+		uniform vec4 u_Color;
+
 		void main()
 		{
-			color = vec4(0.2, 0.3, 0.8, 1.0);
+			color = u_Color;
 		}
 	)";
 
-	m_BlueShader.reset(OverEngine::Shader::Create(blueShaderVertexSrc, blueShaderFragmentSrc));
+	m_FlatColorFragmentShader.reset(OverEngine::Shader::Create(blueShaderVertexSrc, flatColorFragmentShaderSrc));
 }
 
 void SandboxLayer::OnAttach()
@@ -148,25 +155,54 @@ void SandboxLayer::OnAttach()
 void SandboxLayer::OnUpdate(OverEngine::TimeStep DeltaTime)
 {
 	OverEngine::Math::Vector3 offset(0.0f);
+	float rotationOffset = 0.0f;
+
 	if (OverEngine::Input::IsKeyPressed(OverEngine::KeyCode::W))
-		offset.y += m_CameraSpeed * DeltaTime.GetSeconds();
+		offset.y += m_CameraSpeed * DeltaTime;
 	if (OverEngine::Input::IsKeyPressed(OverEngine::KeyCode::S))
-		offset.y -= m_CameraSpeed * DeltaTime.GetSeconds();
+		offset.y -= m_CameraSpeed * DeltaTime;
 	if (OverEngine::Input::IsKeyPressed(OverEngine::KeyCode::D))
-		offset.x += m_CameraSpeed * DeltaTime.GetSeconds();
+		offset.x += m_CameraSpeed * DeltaTime;
 	if (OverEngine::Input::IsKeyPressed(OverEngine::KeyCode::A))
-		offset.x -= m_CameraSpeed * DeltaTime.GetSeconds();
+		offset.x -= m_CameraSpeed * DeltaTime;
+
+	if (OverEngine::Input::IsKeyPressed(OverEngine::KeyCode::Q))
+		rotationOffset -= 100 * DeltaTime;
+	if (OverEngine::Input::IsKeyPressed(OverEngine::KeyCode::E))
+		rotationOffset += 100 * DeltaTime;
+
+	if (OverEngine::Input::IsKeyPressed(OverEngine::KeyCode::Escape))
+	{
+		m_Camera->SetPosition({ 0.0f, 0.0f, 0.0f });
+		m_Camera->SetRotation({ 0.0f, 0.0f, 0.0f });
+		m_Camera->SetOrthographicSize(1.0f);
+	}
 
 	m_Camera->SetPosition(m_Camera->GetPosition() + offset);
+	m_Camera->SetRotation({ 0.0f, 0.0f, m_Camera->GetRotation().z + rotationOffset });
 
 	OverEngine::RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });
 	OverEngine::RenderCommand::Clear();
 
-	OverEngine::Renderer::BeginScene(m_Camera);
+	OverEngine::Renderer::BeginScene(*m_Camera);
 
-	OverEngine::Renderer::Submit(m_BlueShader, m_SquareVA);
+	for (int x = 0; x <= 20; x++)
+	{
+		for (int y = 0; y <= 20; y++)
+		{
+			OverEngine::Transform t;
+			t.SetPosition({ x * 0.11f + 0.3f, y * 0.11f, 0.0f });
+			t.SetRotation(OverEngine::Math::QuaternionEuler({ 0.0f, 0.0f, 0.0f }));
+			t.SetScale(OverEngine::Math::Vector3(0.1f));
 
-	OverEngine::Renderer::Submit(m_Shader, m_VertexArray);
+			if (x % 2 == 0)
+				m_FlatColorFragmentShader->UploadUniformFloat4("u_Color", OverEngine::Math::Color{ 1.0f, 0.0f, 0.0f, 1.0f });
+			else
+				m_FlatColorFragmentShader->UploadUniformFloat4("u_Color", OverEngine::Math::Color{ 0.0f, 1.0f, 0.0f, 1.0f });
+			OverEngine::Renderer::Submit(m_FlatColorFragmentShader, m_SquareVA, t);
+		}
+	}
+	OverEngine::Renderer::Submit(m_Shader, m_VertexArray, *m_TriangleTransform);
 
 	OverEngine::Renderer::EndScene();
 }

@@ -4,6 +4,7 @@
 #include "OverEngine/Core/Application.h"
 #include "OverEngine/Core/Log.h"
 #include "OverEngine/Core/Time/Time.h"
+#include "OverEngine/Core/Math/Math.h"
 #include "OverEngine/Layers/Layer.h"
 
 #include "OverEngine/ImGui/ImGuiLayer.h"
@@ -14,6 +15,7 @@
 #include "OverEngine/Renderer/Buffer.h"
 #include "OverEngine/Renderer/Shader.h"
 #include "OverEngine/Renderer/VertexArray.h"
+#include "OverEngine/Renderer/Camera.h"
 // -----------------------------------
 
 // ------- Input ---------------------
