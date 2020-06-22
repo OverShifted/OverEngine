@@ -46,6 +46,11 @@ IncludeDir["Glad"]    = "OverEngine/vendor/Glad/include"
 IncludeDir["spdlog"]  = "OverEngine/vendor/spdlog/include"
 IncludeDir["ImGui"]   = "OverEngine/vendor/imgui"
 IncludeDir["glm"]     = "OverEngine/vendor/glm"
+LinkLibs = {
+	"GLFW",
+	"Glad",
+	"ImGui",
+}
 
 group "Dependencies"
 	include "OverEngine/vendor/GLFW"

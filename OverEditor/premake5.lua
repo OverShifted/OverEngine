@@ -31,12 +31,7 @@ project "OverEditor"
 	if (DynamicLink) then
 		defines "OE_BUILD_SHARED"
 	else
-		links
-		{
-			"GLFW",
-			"Glad",
-			"ImGui",
-		}
+		links (LinkLibs)
 		defines "OE_BUILD_STATIC"
 	end
 

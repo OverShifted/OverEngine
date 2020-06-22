@@ -44,12 +44,7 @@ project "OverEngine"
 	}
 
 	if (DynamicLink) then
-		links
-		{
-			"GLFW",
-			"Glad",
-			"ImGui",
-		}
+		links (LinkLibs)
 	end
 
 	if (IncludeTinyFileDialogs) then
