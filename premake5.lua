@@ -7,8 +7,8 @@ SandboxHideConsole        = false
 DynamicLink               = false
 OverEditorExecHideConsole = false
 
-IncludeEditor        = true
-IncludeFontFormatter = false
+IncludeEditor = true
+IncludeLua    = true
 
 workspace "OverEngine"
 	startproject "Sandbox"
@@ -46,19 +46,21 @@ IncludeDir["Glad"]    = "OverEngine/vendor/Glad/include"
 IncludeDir["spdlog"]  = "OverEngine/vendor/spdlog/include"
 IncludeDir["ImGui"]   = "OverEngine/vendor/imgui"
 IncludeDir["glm"]     = "OverEngine/vendor/glm"
+IncludeDir["lua"]     = "OverEngine/vendor/lua/src"
+
 LinkLibs = {
 	"GLFW",
 	"Glad",
 	"ImGui",
+	"Lua"
 }
 
 group "Dependencies"
 	include "OverEngine/vendor/GLFW"
 	include "OverEngine/vendor/Glad"
 	include "OverEngine/vendor/imgui"
-
-	if (IncludeFontFormatter) then
-		include "FontFormatter_premake5.lua"
+	if (IncludeLua) then
+		include "OverEngine/vendor/lua"
 	end
 group ""
 
