@@ -1,5 +1,7 @@
 #pragma once
 
+#include "OverEngine/Core/Math/Math.h"
+
 namespace OverEngine
 {
 	enum class CameraType
@@ -52,7 +54,7 @@ namespace OverEngine
 		Math::Vector3 m_Rotation;
 
 		CameraType m_Type;
-		float m_AspectRatio, m_FieldOfView, m_OrthographicSize;
+		float m_AspectRatio;
 		union { float m_FieldOfView, m_OrthographicSize; };
 	};
 
