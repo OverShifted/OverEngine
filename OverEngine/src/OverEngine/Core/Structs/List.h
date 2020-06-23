@@ -14,7 +14,7 @@ namespace OverEngine
 			{
 			}
 
-			void Append(T& item)
+			void Append(const T& item)
 			{
 				if (m_Length == 0)
 				{
@@ -22,12 +22,14 @@ namespace OverEngine
 				}
 				else
 				{
-					GetNthElementPointer(-1)->next = new Element<T>(item);
+					T* l = malloc(sizeof(T));
+					memcpy(l, static_cast<const void*>(item), sizeof(T));
+					GetNthElementPointer(-1)->next = new Element<T>(l);
 				}
 				m_Length++;
 			}
 
-			T Pop(int idx)
+			void Remove(int idx)
 			{
 				if (idx == 0)
 				{
@@ -52,15 +54,15 @@ namespace OverEngine
 
 			T& operator[] (int idx)
 			{
-				return GetNthElementPointer(idx)->value;
+				return *GetNthElementPointer(idx)->value;
 			}
 		private:
 			template<typename _T>
 			struct Element
 			{
-				Element(_T& val) : value(val), next(nullptr) {}
+				Element(_T* val) : value(val), next(nullptr) {}
 				Element<_T>* next;
-				_T& value;
+				_T* value;
 			};
 
 			Element<T>* m_firstElement;
