@@ -5,7 +5,7 @@
 
 namespace OverEngine
 {
-	void OpenGLRendererAPI::SetClearColor(const Color& color)
+	void OpenGLRendererAPI::SetClearColor(const Math::Color& color)
 	{
 		glClearColor(color.r, color.g, color.b, color.a);
 	}

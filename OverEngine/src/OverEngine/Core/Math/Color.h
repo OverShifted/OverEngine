@@ -2,5 +2,8 @@
 
 namespace OverEngine
 {
-	using Color = glm::vec4;
+	namespace Math
+	{
+		using Color = glm::vec4;
+	}
 }

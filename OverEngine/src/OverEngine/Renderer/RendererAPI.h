@@ -12,7 +12,7 @@ namespace OverEngine
 			None = 0, OpenGL = 1
 		};
 	public:
-		virtual void SetClearColor(const Color& color) = 0;
+		virtual void SetClearColor(const Math::Color& color) = 0;
 		virtual void SetClearDepth(float depth) = 0;
 		virtual void Clear(bool clearColorBuffer, bool clearDepthBuffer) = 0;
 
