@@ -9,7 +9,7 @@ namespace OverEngine
 	class Renderer
 	{
 	public:
-		static void BeginScene(const Ref<Camera>& camera);
+		static void BeginScene(const Camera& camera);
 		static void EndScene();
 
 		static void Submit(const Ref<Shader>& shader, const Ref<VertexArray>& vertexArray);
