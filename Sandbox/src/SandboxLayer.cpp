@@ -75,13 +75,13 @@ SandboxLayer::SandboxLayer()
 		out vec4 v_Color;
 
 		uniform mat4 u_ViewProjMatrix;
-		uniform mat4 u_TransformationMatrix;
+		uniform mat4 u_Transform;
 
 		void main()
 		{
 			// v_Position = a_Position;
 			v_Color = a_Color;
-			gl_Position = u_ViewProjMatrix * u_TransformationMatrix * vec4(a_Position, 1.0);	
+			gl_Position = u_ViewProjMatrix * u_Transform * vec4(a_Position, 1.0);	
 		}
 	)";
 
@@ -110,12 +110,12 @@ SandboxLayer::SandboxLayer()
 		out vec3 v_Position;
 
 		uniform mat4 u_ViewProjMatrix;
-		uniform mat4 u_TransformationMatrix;
+		uniform mat4 u_Transform;
 
 		void main()
 		{
 			v_Position = a_Position;
-			gl_Position = u_ViewProjMatrix * u_TransformationMatrix * vec4(a_Position, 1.0);	
+			gl_Position = u_ViewProjMatrix * u_Transform * vec4(a_Position, 1.0);	
 		}
 	)";
 
@@ -199,10 +199,10 @@ void SandboxLayer::OnUpdate(OverEngine::TimeStep DeltaTime)
 				m_FlatColorFragmentShader->UploadUniformFloat4("u_Color", OverEngine::Math::Color{ 1.0f, 0.0f, 0.0f, 1.0f });
 			else
 				m_FlatColorFragmentShader->UploadUniformFloat4("u_Color", OverEngine::Math::Color{ 0.0f, 1.0f, 0.0f, 1.0f });
-			OverEngine::Renderer::Submit(m_FlatColorFragmentShader, m_SquareVA, t);
+			OverEngine::Renderer::Submit(m_FlatColorFragmentShader, m_SquareVA, t.GetTransformationMatrix());
 		}
 	}
-	OverEngine::Renderer::Submit(m_Shader, m_VertexArray, *m_TriangleTransform);
+	OverEngine::Renderer::Submit(m_Shader, m_VertexArray, m_TriangleTransform->GetTransformationMatrix());
 
 	OverEngine::Renderer::EndScene();
 }
