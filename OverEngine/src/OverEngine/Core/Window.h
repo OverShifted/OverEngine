@@ -15,8 +15,8 @@ namespace OverEngine {
 		bool DoubleBuffered;
 
 		WindowProps(const String& title = "OverEngine",
-			        unsigned int width = 1280,
-			        unsigned int height = 720,
+			        unsigned int width = 800,
+			        unsigned int height = 600,
 			        bool doubleBuffered = true)
 			: Title(title), Width(width), Height(height), DoubleBuffered(doubleBuffered)
 		{
