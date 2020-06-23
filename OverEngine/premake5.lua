@@ -41,6 +41,7 @@ project "OverEngine"
 		"../%{IncludeDir.Glad}",
 		"../%{IncludeDir.ImGui}",
 		"../%{IncludeDir.glm}",
+		"../%{IncludeDir.lua}",
 	}
 
 	if (DynamicLink) then
