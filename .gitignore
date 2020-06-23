@@ -31,8 +31,12 @@ mono_crash.*
 #[Ll]og/ 
 #[Ll]ogs/
 
-bin/   
-bin-int/
+/bin/
+/bin-int/
+/OverEngine/vendor/Glad/bin/
+/OverEngine/vendor/Glad/bin-int/
+/OverEngine/vendor/Lua/bin/
+/OverEngine/vendor/Lua/bin-int/
 /OverEngine.sln
 **.vcxproj
 **.vcxproj.filters
