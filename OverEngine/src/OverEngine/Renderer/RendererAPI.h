@@ -16,7 +16,7 @@ namespace OverEngine
 		virtual void SetClearDepth(float depth) = 0;
 		virtual void Clear(bool clearColorBuffer, bool clearDepthBuffer) = 0;
 
-		virtual void DrawIndexed(const Ref<VertexArray>& vertexArray) = 0;
+		virtual void DrawIndexed(const VertexArray& vertexArray) = 0;
 
 		inline static API GetAPI() { return s_API; }
 	private:
