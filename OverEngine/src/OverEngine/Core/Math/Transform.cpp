@@ -5,8 +5,8 @@
 namespace OverEngine
 {
 	Transform::Transform(
-		const Math::Vector3& Position,
-		const Math::Quaternion& Rotation,
+		const Math::Vector3& Position /*= Math::Vector3(0.0f)*/,
+		const Math::Quaternion& Rotation /*= Math::Quaternion(1.0, 0.0, 0.0, 0.0)*/,
 		const Math::Vector3& Scale /*= Math::Vector3(1.0f) */)
 		: m_Position(Position), m_Rotation(Rotation), m_Scale(Scale)
 	{
