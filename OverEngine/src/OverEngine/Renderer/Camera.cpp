@@ -11,8 +11,8 @@ namespace OverEngine
 				   float aspectRatio, float orthoSizeOrFov)
 		: m_ViewMatrix(viewMat), m_ProjectionMatrix(projMat),
 		  m_ViewProjectionMatrix(m_ProjectionMatrix * m_ViewMatrix),
-		  m_Type(type), m_Position(Math::Vector3(0.0f)), m_Rotation(Math::Vector3(0.0f)),
-		  m_AspectRatio(aspectRatio), m_FieldOfView(orthoSizeOrFov), m_OrthographicSize(orthoSizeOrFov)
+		  m_Position(Math::Vector3(0.0f)), m_Rotation(Math::Vector3(0.0f)), m_Type(type),
+		  m_AspectRatio(aspectRatio), m_FieldOfView(orthoSizeOrFov)
 	{
 	}
 
