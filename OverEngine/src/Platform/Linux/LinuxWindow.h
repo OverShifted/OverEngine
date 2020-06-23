@@ -33,7 +33,7 @@ namespace OverEngine {
 		static uint32_t s_WindowCount;
 	private:
 		GLFWwindow* m_Window;
-		Renderer::RendererContext* m_Context;
+		RendererContext* m_Context;
 
 		struct WindowData
 		{
