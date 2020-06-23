@@ -1,3 +1,5 @@
+#pragma once
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>
@@ -16,5 +18,17 @@ namespace OverEngine
 
 		using Mat3x3 = glm::mat3;
 		using Mat4x4 = glm::mat4;
+
+		using Quaternion = glm::quat;
+
+		inline Quaternion QuaternionEuler(Vector3 rot)
+		{
+			return
+				glm::angleAxis(glm::radians(rot.x), Vector3{ 1, 0, 0 }) *
+				glm::angleAxis(glm::radians(rot.y), Vector3{ 0, 1, 0 }) *
+				glm::angleAxis(glm::radians(rot.z), Vector3{ 0, 0, 1 });
+		}
+
+		inline Vector3 QuaternionEulerAngles(Quaternion rot) { return glm::eulerAngles(rot); }
 	}
 }
