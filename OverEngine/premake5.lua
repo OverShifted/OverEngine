@@ -23,6 +23,10 @@ project "OverEngine"
 		"src/OverEngine/**.h",
 		"src/OverEngine/**.cpp",
 
+		-- stb_image
+		"vendor/stb_image/stb_image.h",
+		"vendor/stb_image/stb_image.cpp",
+
 		-- Resources
 		"res/**.h",
 
@@ -42,6 +46,7 @@ project "OverEngine"
 		"../%{IncludeDir.ImGui}",
 		"../%{IncludeDir.glm}",
 		"../%{IncludeDir.lua}",
+		"../%{IncludeDir.stb_image}",
 	}
 
 	if (DynamicLink) then

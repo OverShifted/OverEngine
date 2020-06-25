@@ -86,6 +86,10 @@ namespace OverEngine
 	template<typename T>
 	using Vector = std::vector<T>;
 
+	// UnorderedMap /////////////////////////////////////////////////////////////
+	template<typename T, typename U>
+	using UnorderedMap = std::unordered_map<T, U>;
+
 	// String ///////////////////////////////////////////////////////////////////
 	using String = std::string;
 

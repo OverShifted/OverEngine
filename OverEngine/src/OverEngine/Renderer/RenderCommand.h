@@ -7,6 +7,11 @@ namespace OverEngine
 	class RenderCommand
 	{
 	public:
+		inline static void Init()
+		{
+			s_RendererAPI->Init();
+		}
+
 		inline static void SetClearColor(const Math::Color& color)
 		{
 			s_RendererAPI->SetClearColor(color);

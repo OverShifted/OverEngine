@@ -12,12 +12,6 @@ SandboxLayer::SandboxLayer()
 	// m_Camera.reset(new OverEngine::PerspectiveCamera(60.0f, (float)app.GetMainWindow().GetWidth() / (float)app.GetMainWindow().GetHeight()));
 	// m_Camera->SetPosition({ 0.0f, 0.0f, 10.0f });
 
-	m_SquareTransform = OverEngine::CreateRef<OverEngine::Transform>();
-	m_SquareTransform->SetPosition({ 2.0f, 3.0f, 0.0f });
-	m_SquareTransform->SetScale({ 5.0f, 5.0f, 1.0f });
-
-	m_TriangleTransform = OverEngine::CreateRef<OverEngine::Transform>();
-
 	m_VertexArray.reset(OverEngine::VertexArray::Create());
 
 	float vertices[3 * 7] = {
@@ -44,18 +38,19 @@ SandboxLayer::SandboxLayer()
 
 	m_SquareVA.reset(OverEngine::VertexArray::Create());
 
-	float squareVertices[3 * 4] = {
-		-0.5f, -0.5f, 0.0f,
-		 0.5f, -0.5f, 0.0f,
-		 0.5f,  0.5f, 0.0f,
-		-0.5f,  0.5f, 0.0f
+	float squareVertices[5 * 4] = {
+		-0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
+		 0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
+		 0.5f,  0.5f, 0.0f, 1.0f, 1.0f,
+		-0.5f,  0.5f, 0.0f, 0.0f, 1.0f
 	};
 
 	OverEngine::Ref<OverEngine::VertexBuffer> squareVB;
 	squareVB.reset(OverEngine::VertexBuffer::Create(squareVertices, sizeof(squareVertices)));
 
 	squareVB->SetLayout({
-		{ OverEngine::ShaderDataType::Float3, "a_Position" }
+		{ OverEngine::ShaderDataType::Float3, "a_Position" },
+		{ OverEngine::ShaderDataType::Float2, "a_TexCoord" }
 	});
 
 	m_SquareVA->AddVertexBuffer(squareVB);
@@ -102,7 +97,7 @@ SandboxLayer::SandboxLayer()
 
 	m_Shader.reset(OverEngine::Shader::Create(vertexSrc, fragmentSrc));
 
-	OverEngine::String blueShaderVertexSrc = R"(
+	OverEngine::String flatColorShaderVertexSrc = R"(
 		#version 330 core
 		
 		layout(location = 0) in vec3 a_Position;
@@ -119,7 +114,7 @@ SandboxLayer::SandboxLayer()
 		}
 	)";
 
-	OverEngine::String flatColorFragmentShaderSrc = R"(
+	OverEngine::String flatColorShaderFragmentSrc = R"(
 		#version 330 core
 		
 		layout(location = 0) out vec4 color;
@@ -134,7 +129,15 @@ SandboxLayer::SandboxLayer()
 		}
 	)";
 
-	m_FlatColorFragmentShader.reset(OverEngine::Shader::Create(blueShaderVertexSrc, flatColorFragmentShaderSrc));
+	m_FlatColorFragmentShader.reset(OverEngine::Shader::Create(flatColorShaderVertexSrc, flatColorShaderFragmentSrc));
+
+	m_TextureShader.reset(OverEngine::Shader::Create("assets/shaders/TextureShader.glsl"));
+	m_TextureShader->UploadUniformInt("u_Texture", 0);
+
+	m_BreadTexture.reset(OverEngine::Texture2D::Create("assets/textures/Checkerboard.png"));
+	m_BreadTexture->SetMagFilter(OverEngine::Texture::Filtering::Nearest);
+
+	m_ChernoLogoTexture.reset(OverEngine::Texture2D::Create("assets/textures/OELogo.png"));
 }
 
 void SandboxLayer::OnAttach()
@@ -186,6 +189,9 @@ void SandboxLayer::OnUpdate(OverEngine::TimeStep DeltaTime)
 
 	OverEngine::Renderer::BeginScene(*m_Camera);
 
+	m_FlatColorFragmentShader->Bind();
+	m_FlatColorFragmentShader->UploadUniformFloat4("u_Color", OverEngine::Math::Color(0.2, 0.3, 0.8, 1.0));
+
 	for (int x = 0; x <= 20; x++)
 	{
 		for (int y = 0; y <= 20; y++)
@@ -194,15 +200,19 @@ void SandboxLayer::OnUpdate(OverEngine::TimeStep DeltaTime)
 			t.SetPosition({ x * 0.11f + 0.3f, y * 0.11f, 0.0f });
 			t.SetRotation(OverEngine::Math::QuaternionEuler({ 0.0f, 0.0f, 0.0f }));
 			t.SetScale(OverEngine::Math::Vector3(0.1f));
-
-			if (x % 2 == 0)
-				m_FlatColorFragmentShader->UploadUniformFloat4("u_Color", OverEngine::Math::Color{ 1.0f, 0.0f, 0.0f, 1.0f });
-			else
-				m_FlatColorFragmentShader->UploadUniformFloat4("u_Color", OverEngine::Math::Color{ 0.0f, 1.0f, 0.0f, 1.0f });
+			
 			OverEngine::Renderer::Submit(m_FlatColorFragmentShader, m_SquareVA, t.GetTransformationMatrix());
 		}
 	}
-	OverEngine::Renderer::Submit(m_Shader, m_VertexArray, m_TriangleTransform->GetTransformationMatrix());
+
+	m_BreadTexture->Bind();
+	OverEngine::Renderer::Submit(m_TextureShader, m_SquareVA, m_SquareTransform.GetTransformationMatrix());
+
+	m_ChernoLogoTexture->Bind();
+	OverEngine::Renderer::Submit(m_TextureShader, m_SquareVA, m_SquareTransform.GetTransformationMatrix());
+
+	// Triangle
+	// OverEngine::Renderer::Submit(m_Shader, m_VertexArray, m_TriangleTransform.GetTransformationMatrix());
 
 	OverEngine::Renderer::EndScene();
 }

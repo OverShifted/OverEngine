@@ -16,6 +16,7 @@
 
 #include "OverEngine/Renderer/Buffer.h"
 #include "OverEngine/Renderer/Shader.h"
+#include "OverEngine/Renderer/Texture.h"
 #include "OverEngine/Renderer/VertexArray.h"
 #include "OverEngine/Renderer/Camera.h"
 // -----------------------------------

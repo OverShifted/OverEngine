@@ -7,6 +7,8 @@ namespace OverEngine
 	class OpenGLRendererAPI : public RendererAPI
 	{
 	public:
+		virtual void Init() override;
+
 		virtual void SetClearColor(const Math::Color& color) override;
 		virtual void SetClearDepth(float depth) override;
 		virtual void Clear(bool clearColorBuffer, bool clearDepthBuffer) override;
