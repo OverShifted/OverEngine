@@ -28,7 +28,7 @@ namespace OverEngine
 		lastSlash = lastSlash == String::npos ? 0 : lastSlash + 1;
 		auto lastDot = filePath.rfind('.');
 		auto count = lastDot == String::npos ? filePath.size() - lastSlash : lastDot - lastSlash;
-		filePath.substr(lastSlash, count);
+		m_Name = filePath.substr(lastSlash, count);
 	}
 
 	OpenGLShader::OpenGLShader(const String& name, const String& vertexSrc, const String& fragmentSrc)
