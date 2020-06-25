@@ -59,10 +59,13 @@ namespace OverEngine
 			for (Layer* layer : m_LayerStack)
 				layer->OnUpdate(Time::GetDeltaTime());
 
-			m_ImGuiLayer->Begin();
-			for (Layer* layer : m_LayerStack)
-				layer->OnImGuiRender();
-			m_ImGuiLayer->End();
+			if (m_ImGuiEnabled)
+			{
+				m_ImGuiLayer->Begin();
+				for (Layer* layer : m_LayerStack)
+					layer->OnImGuiRender();
+				m_ImGuiLayer->End();
+			}
 			
 			GetMainWindow().OnUpdate(); // Poll Events Here // Events Here
 			Time::RecalculateDeltaTime();

@@ -37,8 +37,9 @@ namespace OverEngine
 
 		Scope<Window> m_Window;
 
-		bool m_Running = true;
-		bool m_Minimized = false;
+		bool m_Running      = true;
+		bool m_Minimized    = false;
+		bool m_ImGuiEnabled = false;
 
 		LayerStack        m_LayerStack;
 		ImGuiLayer*       m_ImGuiLayer;
