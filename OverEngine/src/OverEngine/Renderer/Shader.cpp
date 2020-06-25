@@ -1,8 +1,9 @@
 #include "pcheader.h"
 #include "Shader.h"
 
-#include "RendererAPI.h"
+#include "OverEngine/Core/Core.h"
 
+#include "RendererAPI.h"
 #include "Platform/OpenGL/OpenGLShader.h"
 #include "Platform/OpenGL/OpenGLIntermediateShader.h"
 
@@ -12,36 +13,36 @@ namespace OverEngine
 	// Shader ///////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////
 
-	Shader* Shader::Create(const String& filePath)
+	Ref<Shader> Shader::Create(const String& filePath)
 	{
 		switch (RendererAPI::GetAPI())
 		{
 		case RendererAPI::API::None:    OE_CORE_ASSERT(false, "RendererAPI::None is currently not supported!"); return nullptr;
-		case RendererAPI::API::OpenGL:  return new OpenGLShader(filePath);
+		case RendererAPI::API::OpenGL:  return CreateRef<OpenGLShader>(filePath);
 		}
 
 		OE_CORE_ASSERT(false, "Unknown RendererAPI!");
 		return nullptr;
 	}
 
-	Shader* Shader::Create(const String& name, const String& vertexSrc, const String& fragmentSrc)
+	Ref<Shader> Shader::Create(const String& name, const String& vertexSrc, const String& fragmentSrc)
 	{
 		switch (RendererAPI::GetAPI())
 		{
 		case RendererAPI::API::None:    OE_CORE_ASSERT(false, "RendererAPI::None is currently not supported!"); return nullptr;
-		case RendererAPI::API::OpenGL:  return new OpenGLShader(name, vertexSrc, fragmentSrc);
+		case RendererAPI::API::OpenGL:  return CreateRef<OpenGLShader>(name, vertexSrc, fragmentSrc);
 		}
 
 		OE_CORE_ASSERT(false, "Unknown RendererAPI!");
 		return nullptr;
 	}
 
-	Shader* Shader::Create(const String& name, Ref<IntermediateShader>& vertexShader, const Ref<IntermediateShader>& fragmentShader)
+	Ref<Shader> Shader::Create(const String& name, Ref<IntermediateShader>& vertexShader, const Ref<IntermediateShader>& fragmentShader)
 	{
 		switch (RendererAPI::GetAPI())
 		{
 		case RendererAPI::API::None:    OE_CORE_ASSERT(false, "RendererAPI::None is currently not supported!"); return nullptr;
-		case RendererAPI::API::OpenGL:  return new OpenGLShader(name, vertexShader, fragmentShader);
+		case RendererAPI::API::OpenGL:  return CreateRef<OpenGLShader>(name, vertexShader, fragmentShader);
 		}
 
 		OE_CORE_ASSERT(false, "Unknown RendererAPI!");
@@ -82,16 +83,14 @@ namespace OverEngine
 
 	Ref<Shader> ShaderLibrary::Load(const String& filePath)
 	{
-		Ref<Shader> shader;
-		shader.reset(Shader::Create(filePath));
+		Ref<Shader> shader = Shader::Create(filePath);
 		Add(shader);
 		return shader;
 	}
 
 	Ref<Shader> ShaderLibrary::Load(const String& name, const String& filePath)
 	{
-		Ref<Shader> shader;
-		shader.reset(Shader::Create(filePath));
+		Ref<Shader> shader = Shader::Create(filePath);
 		Add(name, shader);
 		return shader;
 	}

@@ -7,12 +7,10 @@ SandboxLayer::SandboxLayer()
 {
 	OverEngine::Application& app = OverEngine::Application::Get();
 
-	m_Camera.reset(new OverEngine::OrthographicCamera(1.0f, (float)app.GetMainWindow().GetWidth() / (float)app.GetMainWindow().GetHeight()));
+	float aspectRatio = (float)app.GetMainWindow().GetWidth() / (float)app.GetMainWindow().GetHeight();
+	m_Camera = OverEngine::OrthographicCamera(1.0f, aspectRatio);
 
-	// m_Camera.reset(new OverEngine::PerspectiveCamera(60.0f, (float)app.GetMainWindow().GetWidth() / (float)app.GetMainWindow().GetHeight()));
-	// m_Camera->SetPosition({ 0.0f, 0.0f, 10.0f });
-
-	m_VertexArray.reset(OverEngine::VertexArray::Create());
+	m_VertexArray = OverEngine::VertexArray::Create();
 
 	float vertices[3 * 7] = {
 		-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
@@ -21,7 +19,7 @@ SandboxLayer::SandboxLayer()
 	};
 
 	OverEngine::Ref<OverEngine::VertexBuffer> vertexBuffer;
-	vertexBuffer.reset(OverEngine::VertexBuffer::Create(vertices, sizeof(vertices)));
+	vertexBuffer = OverEngine::VertexBuffer::Create(vertices, sizeof(vertices));
 
 	OverEngine::BufferLayout layout = {
 		{ OverEngine::ShaderDataType::Float3, "a_Position" },
@@ -33,10 +31,10 @@ SandboxLayer::SandboxLayer()
 
 	uint32_t indices[3] = { 0, 1, 2 };
 	OverEngine::Ref<OverEngine::IndexBuffer> indexBuffer;
-	indexBuffer.reset(OverEngine::IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t)));
+	indexBuffer = OverEngine::IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t));
 	m_VertexArray->SetIndexBuffer(indexBuffer);
 
-	m_SquareVA.reset(OverEngine::VertexArray::Create());
+	m_SquareVA = OverEngine::VertexArray::Create();
 
 	float squareVertices[5 * 4] = {
 		-0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
@@ -46,7 +44,7 @@ SandboxLayer::SandboxLayer()
 	};
 
 	OverEngine::Ref<OverEngine::VertexBuffer> squareVB;
-	squareVB.reset(OverEngine::VertexBuffer::Create(squareVertices, sizeof(squareVertices)));
+	squareVB = OverEngine::VertexBuffer::Create(squareVertices, sizeof(squareVertices));
 
 	squareVB->SetLayout({
 		{ OverEngine::ShaderDataType::Float3, "a_Position" },
@@ -57,7 +55,7 @@ SandboxLayer::SandboxLayer()
 
 	uint32_t squareIndices[6] = { 0, 1, 2, 2, 3, 0 };
 	OverEngine::Ref<OverEngine::IndexBuffer> squareIB;
-	squareIB.reset(OverEngine::IndexBuffer::Create(squareIndices, sizeof(squareIndices) / sizeof(uint32_t)));
+	squareIB = OverEngine::IndexBuffer::Create(squareIndices, sizeof(squareIndices) / sizeof(uint32_t));
 	m_SquareVA->SetIndexBuffer(squareIB);
 
 	OverEngine::String vertexSrc = R"(
@@ -95,49 +93,16 @@ SandboxLayer::SandboxLayer()
 		}
 	)";
 
-	m_Shader.reset(OverEngine::Shader::Create("VertexColor", vertexSrc, fragmentSrc));
+	m_Shader = OverEngine::Shader::Create("VertexColor", vertexSrc, fragmentSrc);
 
-	OverEngine::String flatColorShaderVertexSrc = R"(
-		#version 330 core
-		
-		layout(location = 0) in vec3 a_Position;
+	auto textureShader = OverEngine::Renderer::GetShaderLibrary().Load("assets/shaders/Texture.glsl");
+	textureShader->UploadUniformInt("u_Textuer", 0);
 
-		out vec3 v_Position;
+	OverEngine::Renderer::GetShaderLibrary().Load("assets/shaders/FlatColor.glsl");
 
-		uniform mat4 u_ViewProjMatrix;
-		uniform mat4 u_Transform;
+	m_OELogoTexture = OverEngine::Texture2D::Create("assets/textures/OELogo.png");
 
-		void main()
-		{
-			v_Position = a_Position;
-			gl_Position = u_ViewProjMatrix * u_Transform * vec4(a_Position, 1.0);	
-		}
-	)";
-
-	OverEngine::String flatColorShaderFragmentSrc = R"(
-		#version 330 core
-		
-		layout(location = 0) out vec4 color;
-
-		in vec3 v_Position;
-
-		uniform vec4 u_Color;
-
-		void main()
-		{
-			color = u_Color;
-		}
-	)";
-
-	m_FlatColorFragmentShader.reset(OverEngine::Shader::Create("FlatColor", flatColorShaderVertexSrc, flatColorShaderFragmentSrc));
-
-	m_TextureShader.reset(OverEngine::Shader::Create("assets/shaders/TextureShader.glsl"));
-	m_TextureShader->UploadUniformInt("u_Texture", 0);
-
-	m_BreadTexture.reset(OverEngine::Texture2D::Create("assets/textures/Checkerboard.png"));
-	m_BreadTexture->SetMagFilter(OverEngine::Texture::Filtering::Nearest);
-
-	m_ChernoLogoTexture.reset(OverEngine::Texture2D::Create("assets/textures/OELogo.png"));
+	m_CheckerBoardTexture = OverEngine::Texture2D::Create("assets/textures/Checkerboard.png", OverEngine::Texture::Filtering::Linear, OverEngine::Texture::Filtering::Nearest);
 }
 
 void SandboxLayer::OnAttach()
@@ -176,21 +141,22 @@ void SandboxLayer::OnUpdate(OverEngine::TimeStep DeltaTime)
 
 	if (OverEngine::Input::IsKeyPressed(OverEngine::KeyCode::Escape))
 	{
-		m_Camera->SetPosition({ 0.0f, 0.0f, 0.0f });
-		m_Camera->SetRotation({ 0.0f, 0.0f, 0.0f });
-		m_Camera->SetOrthographicSize(1.0f);
+		m_Camera.SetPosition({ 0.0f, 0.0f, 0.0f });
+		m_Camera.SetRotation({ 0.0f, 0.0f, 0.0f });
+		m_Camera.SetOrthographicSize(1.0f);
 	}
 
-	m_Camera->SetPosition(m_Camera->GetPosition() + offset);
-	m_Camera->SetRotation({ 0.0f, 0.0f, m_Camera->GetRotation().z + rotationOffset });
+	m_Camera.SetPosition(m_Camera.GetPosition() + offset);
+	m_Camera.SetRotation({ 0.0f, 0.0f, m_Camera.GetRotation().z + rotationOffset });
 
 	OverEngine::RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });
 	OverEngine::RenderCommand::Clear();
 
-	OverEngine::Renderer::BeginScene(*m_Camera);
+	OverEngine::Renderer::BeginScene(m_Camera);
 
-	m_FlatColorFragmentShader->Bind();
-	m_FlatColorFragmentShader->UploadUniformFloat4("u_Color", OverEngine::Math::Color(0.2, 0.3, 0.8, 1.0));
+	auto flatColorShader = OverEngine::Renderer::GetShaderLibrary().Get("FlatColor");
+	flatColorShader->Bind();
+	flatColorShader->UploadUniformFloat4("u_Color", OverEngine::Math::Color(0.2, 0.3, 0.8, 1.0));
 
 	for (int x = 0; x <= 20; x++)
 	{
@@ -201,15 +167,17 @@ void SandboxLayer::OnUpdate(OverEngine::TimeStep DeltaTime)
 			t.SetRotation(OverEngine::Math::QuaternionEuler({ 0.0f, 0.0f, 0.0f }));
 			t.SetScale(OverEngine::Math::Vector3(0.1f));
 			
-			OverEngine::Renderer::Submit(m_FlatColorFragmentShader, m_SquareVA, t.GetTransformationMatrix());
+			OverEngine::Renderer::Submit(flatColorShader, m_SquareVA, t.GetTransformationMatrix());
 		}
 	}
 
-	m_BreadTexture->Bind();
-	OverEngine::Renderer::Submit(m_TextureShader, m_SquareVA, m_SquareTransform.GetTransformationMatrix());
+	auto textureShader = OverEngine::Renderer::GetShaderLibrary().Get("Texture");
 
-	m_ChernoLogoTexture->Bind();
-	OverEngine::Renderer::Submit(m_TextureShader, m_SquareVA, m_SquareTransform.GetTransformationMatrix());
+	m_CheckerBoardTexture->Bind();
+	OverEngine::Renderer::Submit(textureShader, m_SquareVA, m_SquareTransform.GetTransformationMatrix());
+
+	m_OELogoTexture->Bind();
+	OverEngine::Renderer::Submit(textureShader, m_SquareVA, m_SquareTransform.GetTransformationMatrix());
 
 	// Triangle
 	// OverEngine::Renderer::Submit(m_Shader, m_VertexArray, m_TriangleTransform.GetTransformationMatrix());
@@ -241,14 +209,14 @@ void SandboxLayer::OnEvent(OverEngine::Event& event)
 
 bool SandboxLayer::OnWindowResizeEvent(OverEngine::WindowResizeEvent& event)
 {
-	m_Camera->SetAspectRatio((float)event.GetWidth() / (float)event.GetHeight());
+	m_Camera.SetAspectRatio((float)event.GetWidth() / (float)event.GetHeight());
 	return false;
 }
 
 bool SandboxLayer::OnMouseScrolledEvent(OverEngine::MouseScrolledEvent& event)
 {
-	float newSize = m_Camera->GetOrthographicSize() - (float)event.GetYOffset() / 4.0f;
+	float newSize = m_Camera.GetOrthographicSize() - (float)event.GetYOffset() / 4.0f;
 	if (newSize > 0)
-		m_Camera->SetOrthographicSize(newSize);
+		m_Camera.SetPosition({ 0.0f, 0.0f, 0.0f });
 	return false;
 }

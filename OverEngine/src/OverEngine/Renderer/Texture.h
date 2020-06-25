@@ -29,6 +29,6 @@ namespace OverEngine
 	class Texture2D : public Texture
 	{
 	public:
-		static Texture2D* Create(const String& path, Filtering minFilter = Filtering::Linear, Filtering magFilter = Filtering::Linear);
+		static Ref<Texture2D> Create(const String& path, Filtering minFilter = Filtering::Linear, Filtering magFilter = Filtering::Linear);
 	};
 }

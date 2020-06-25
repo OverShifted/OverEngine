@@ -16,12 +16,15 @@ namespace OverEngine
 		static void EndScene();
 
 		static void Submit(const Ref<Shader>& shader, const Ref<VertexArray>& vertexArray, const Math::Mat4x4& transform = Math::Mat4x4(1.0f));
+
+		inline static ShaderLibrary& GetShaderLibrary() { return s_ShaderLibrary; }
 	private:
 		struct SceneData
 		{
-			glm::mat4 ViewProjectionMatrix;
+			Math::Mat4x4 ViewProjectionMatrix;
 		};
-
 		static SceneData* s_SceneData;
+
+		static ShaderLibrary s_ShaderLibrary;
 	};
 }

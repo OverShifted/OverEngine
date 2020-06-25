@@ -11,7 +11,7 @@ namespace OverEngine
 
 	class Camera
 	{
-	protected:
+	public:
 		Camera(const Math::Mat4x4& viewMat, const Math::Mat4x4& projMat, CameraType type, float aspectRatio, float orthoSizeOrFov);
 		~Camera() = default;
 
@@ -61,7 +61,7 @@ namespace OverEngine
 	class OrthographicCamera : public Camera
 	{
 	public:
-		OrthographicCamera(float size, float aspectRatio, float zNear = -1.0f, float zFar = 1.0f);
+		OrthographicCamera(float size = 1.0f, float aspectRatio = 1.0f, float zNear = -1.0f, float zFar = 1.0f);
 		~OrthographicCamera() = default;
 	protected:
 		virtual void RecalculateProjectionMatrix() override;
@@ -70,7 +70,7 @@ namespace OverEngine
 	class PerspectiveCamera : public Camera
 	{
 	public:
-		PerspectiveCamera(float fov, float aspectRatio, float zNear = 0.05f, float zFar = 100.0f);
+		PerspectiveCamera(float fov = 60.0f, float aspectRatio = 1.0f, float zNear = 0.05f, float zFar = 100.0f);
 		~PerspectiveCamera() = default;
 	protected:
 		virtual void RecalculateProjectionMatrix() override;

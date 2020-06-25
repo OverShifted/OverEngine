@@ -1,5 +1,7 @@
 #pragma once
 
+#include "OverEngine/Core/Core.h"
+
 #include "OverEngine/Renderer/Buffer.h"
 
 namespace OverEngine
@@ -18,6 +20,6 @@ namespace OverEngine
 		virtual const Vector<Ref<VertexBuffer>>& GetVertexBuffers() const = 0;
 		virtual const Ref<IndexBuffer>& GetIndexBuffer() const = 0;
 
-		static VertexArray* Create();
+		static Ref<VertexArray> Create();
 	};
 }
