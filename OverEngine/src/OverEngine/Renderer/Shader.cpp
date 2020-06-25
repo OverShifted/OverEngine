@@ -8,6 +8,10 @@
 
 namespace OverEngine
 {
+	/////////////////////////////////////////////////////////////////////////////
+	// Shader ///////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////
+
 	Shader* Shader::Create(const String& filePath)
 	{
 		switch (RendererAPI::GetAPI())
@@ -20,29 +24,33 @@ namespace OverEngine
 		return nullptr;
 	}
 
-	Shader* Shader::Create(const String& vertexSrc, const String& fragmentSrc)
+	Shader* Shader::Create(const String& name, const String& vertexSrc, const String& fragmentSrc)
 	{
 		switch (RendererAPI::GetAPI())
 		{
 		case RendererAPI::API::None:    OE_CORE_ASSERT(false, "RendererAPI::None is currently not supported!"); return nullptr;
-		case RendererAPI::API::OpenGL:  return new OpenGLShader(vertexSrc, fragmentSrc);
+		case RendererAPI::API::OpenGL:  return new OpenGLShader(name, vertexSrc, fragmentSrc);
 		}
 
 		OE_CORE_ASSERT(false, "Unknown RendererAPI!");
 		return nullptr;
 	}
 
-	Shader* Shader::Create(const Ref<IntermediateShader>& vertexShader, const Ref<IntermediateShader>& fragmentShader)
+	Shader* Shader::Create(const String& name, Ref<IntermediateShader>& vertexShader, const Ref<IntermediateShader>& fragmentShader)
 	{
 		switch (RendererAPI::GetAPI())
 		{
 		case RendererAPI::API::None:    OE_CORE_ASSERT(false, "RendererAPI::None is currently not supported!"); return nullptr;
-		case RendererAPI::API::OpenGL:  return new OpenGLShader(vertexShader, fragmentShader);
+		case RendererAPI::API::OpenGL:  return new OpenGLShader(name, vertexShader, fragmentShader);
 		}
 
 		OE_CORE_ASSERT(false, "Unknown RendererAPI!");
 		return nullptr;
 	}
+
+	/////////////////////////////////////////////////////////////////////////////
+	// IntermediateShader ///////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////
 
 	IntermediateShader* IntermediateShader::Create(String& Source, Type type)
 	{
@@ -54,6 +62,49 @@ namespace OverEngine
 
 		OE_CORE_ASSERT(false, "Unknown RendererAPI!");
 		return nullptr;
+	}
+
+	/////////////////////////////////////////////////////////////////////////////
+	// ShaderLibrary ////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////
+
+	void ShaderLibrary::Add(const String& name, const Ref<Shader>& shader)
+	{
+		OE_CORE_ASSERT(!Exists(name), "Shader '{0}' already exists!", name);
+		m_Shaders[name] = shader;
+	}
+
+	void ShaderLibrary::Add(const Ref<Shader>& shader)
+	{
+		auto& name = shader->GetName();
+		Add(name, shader);
+	}
+
+	Ref<Shader> ShaderLibrary::Load(const String& filePath)
+	{
+		Ref<Shader> shader;
+		shader.reset(Shader::Create(filePath));
+		Add(shader);
+		return shader;
+	}
+
+	Ref<Shader> ShaderLibrary::Load(const String& name, const String& filePath)
+	{
+		Ref<Shader> shader;
+		shader.reset(Shader::Create(filePath));
+		Add(name, shader);
+		return shader;
+	}
+
+	Ref<Shader> ShaderLibrary::Get(const String& name)
+	{
+		OE_CORE_ASSERT(Exists(name), "Shader '{0}' not found!", name);
+		return m_Shaders[name];
+	}
+
+	bool ShaderLibrary::Exists(const String& name) const
+	{
+		return m_Shaders.find(name) != m_Shaders.end();
 	}
 
 }

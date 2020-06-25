@@ -16,16 +16,23 @@ namespace OverEngine
 		if (type == "fragment" || type == "pixel")
 			return GL_FRAGMENT_SHADER;
 
-		OE_CORE_ASSERT(false, "Unknown shader type {0} !", type);
+		OE_CORE_ASSERT(false, "Unknown shader type '{0}' !", type);
 		return 0;
 	}
 
 	OpenGLShader::OpenGLShader(const String& filePath)
 	{
 		Compile(PreProcess(FileSystem::ReadFile(filePath)));
+
+		auto lastSlash = filePath.find_last_of("/\\");
+		lastSlash = lastSlash == String::npos ? 0 : lastSlash + 1;
+		auto lastDot = filePath.rfind('.');
+		auto count = lastDot == String::npos ? filePath.size() - lastSlash : lastDot - lastSlash;
+		filePath.substr(lastSlash, count);
 	}
 
-	OpenGLShader::OpenGLShader(const String& vertexSrc, const String& fragmentSrc)
+	OpenGLShader::OpenGLShader(const String& name, const String& vertexSrc, const String& fragmentSrc)
+		: m_Name(name)
 	{
 		UnorderedMap<GLenum, String> sources;
 		sources[GL_VERTEX_SHADER] = vertexSrc;
@@ -33,7 +40,8 @@ namespace OverEngine
 		Compile(sources);
 	}
 
-	OpenGLShader::OpenGLShader(const Ref<IntermediateShader>& vertexShader, const Ref<IntermediateShader>& fragmentShader)
+	OpenGLShader::OpenGLShader(const String& name, const Ref<IntermediateShader>& vertexShader, const Ref<IntermediateShader>& fragmentShader)
+		: m_Name(name)
 	{
 		m_RendererID = glCreateProgram();
 

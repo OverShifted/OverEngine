@@ -95,7 +95,7 @@ SandboxLayer::SandboxLayer()
 		}
 	)";
 
-	m_Shader.reset(OverEngine::Shader::Create(vertexSrc, fragmentSrc));
+	m_Shader.reset(OverEngine::Shader::Create("VertexColor", vertexSrc, fragmentSrc));
 
 	OverEngine::String flatColorShaderVertexSrc = R"(
 		#version 330 core
@@ -129,7 +129,7 @@ SandboxLayer::SandboxLayer()
 		}
 	)";
 
-	m_FlatColorFragmentShader.reset(OverEngine::Shader::Create(flatColorShaderVertexSrc, flatColorShaderFragmentSrc));
+	m_FlatColorFragmentShader.reset(OverEngine::Shader::Create("FlatColor", flatColorShaderVertexSrc, flatColorShaderFragmentSrc));
 
 	m_TextureShader.reset(OverEngine::Shader::Create("assets/shaders/TextureShader.glsl"));
 	m_TextureShader->UploadUniformInt("u_Texture", 0);

@@ -10,12 +10,14 @@ namespace OverEngine
 	{
 	public:
 		OpenGLShader(const String& filePath);
-		OpenGLShader(const String& vertexSrc, const String& fragmentSrc);
-		OpenGLShader(const Ref<IntermediateShader>& vertexShader, const Ref<IntermediateShader>& fragmentShader);
+		OpenGLShader(const String& name, const String& vertexSrc, const String& fragmentSrc);
+		OpenGLShader(const String& name, const Ref<IntermediateShader>& vertexShader, const Ref<IntermediateShader>& fragmentShader);
 		virtual ~OpenGLShader();
 
 		virtual void Bind() const override;
 		virtual void Unbind() const override;
+
+		virtual const String& GetName() const override { return m_Name; }
 
 		virtual void UploadUniformInt(const String& name, int value) override;
 
@@ -31,5 +33,6 @@ namespace OverEngine
 		void Compile(const UnorderedMap<GLenum, String>& shaderSources);
 	private:
 		uint32_t m_RendererID;
+		String m_Name;
 	};
 }
