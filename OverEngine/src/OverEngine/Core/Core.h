@@ -45,12 +45,13 @@
 
 	#define OE_ENABLE_ASSERTS
 #else
+	#define OE_ENABLE_ASSERTS
 	#define OE_DEBUGBREAK
 #endif // OE_DEBUG
 
 #ifdef OE_ENABLE_ASSERTS
-	#define OE_ASSERT(x, ...) { if(!(x)) { OE_ERROR("Assertion Failed: {0}", __VA_ARGS__); OE_DEBUGBREAK; } }
-	#define OE_CORE_ASSERT(x, ...) { if(!(x)) { OE_CORE_ERROR("Assertion Failed: {0}", __VA_ARGS__); OE_DEBUGBREAK; } }
+	#define OE_ASSERT(x, ...) { if(!(x)) { OE_ERROR("Assertion Failed:"); OE_ERROR(__VA_ARGS__); OE_DEBUGBREAK; } }
+	#define OE_CORE_ASSERT(x, ...) { if(!(x)) { OE_CORE_ERROR("Assertion Failed:"); OE_CORE_ERROR(__VA_ARGS__); OE_DEBUGBREAK; } }
 #else
 	#define OE_ASSERT( ... )
 	#define OE_CORE_ASSERT( ... )
