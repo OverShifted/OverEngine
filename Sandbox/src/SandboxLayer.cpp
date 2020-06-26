@@ -18,8 +18,7 @@ SandboxLayer::SandboxLayer()
 		 0.0f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f
 	};
 
-	OverEngine::Ref<OverEngine::VertexBuffer> vertexBuffer;
-	vertexBuffer = OverEngine::VertexBuffer::Create(vertices, sizeof(vertices));
+	auto vertexBuffer = OverEngine::VertexBuffer::Create(vertices, sizeof(vertices));
 
 	OverEngine::BufferLayout layout = {
 		{ OverEngine::ShaderDataType::Float3, "a_Position" },
@@ -30,8 +29,7 @@ SandboxLayer::SandboxLayer()
 	m_VertexArray->AddVertexBuffer(vertexBuffer);
 
 	uint32_t indices[3] = { 0, 1, 2 };
-	OverEngine::Ref<OverEngine::IndexBuffer> indexBuffer;
-	indexBuffer = OverEngine::IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t));
+	auto indexBuffer = OverEngine::IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t));
 	m_VertexArray->SetIndexBuffer(indexBuffer);
 
 	m_SquareVA = OverEngine::VertexArray::Create();
@@ -43,8 +41,7 @@ SandboxLayer::SandboxLayer()
 		-0.5f,  0.5f, 0.0f, 0.0f, 1.0f
 	};
 
-	OverEngine::Ref<OverEngine::VertexBuffer> squareVB;
-	squareVB = OverEngine::VertexBuffer::Create(squareVertices, sizeof(squareVertices));
+	auto squareVB = OverEngine::VertexBuffer::Create(squareVertices, sizeof(squareVertices));
 
 	squareVB->SetLayout({
 		{ OverEngine::ShaderDataType::Float3, "a_Position" },
@@ -54,46 +51,10 @@ SandboxLayer::SandboxLayer()
 	m_SquareVA->AddVertexBuffer(squareVB);
 
 	uint32_t squareIndices[6] = { 0, 1, 2, 2, 3, 0 };
-	OverEngine::Ref<OverEngine::IndexBuffer> squareIB;
-	squareIB = OverEngine::IndexBuffer::Create(squareIndices, sizeof(squareIndices) / sizeof(uint32_t));
+	auto squareIB = OverEngine::IndexBuffer::Create(squareIndices, sizeof(squareIndices) / sizeof(uint32_t));
 	m_SquareVA->SetIndexBuffer(squareIB);
 
-	OverEngine::String vertexSrc = R"(
-		#version 330 core
-		
-		layout(location = 0) in vec3 a_Position;
-		layout(location = 1) in vec4 a_Color;
-
-		// out vec3 v_Position;
-		out vec4 v_Color;
-
-		uniform mat4 u_ViewProjMatrix;
-		uniform mat4 u_Transform;
-
-		void main()
-		{
-			// v_Position = a_Position;
-			v_Color = a_Color;
-			gl_Position = u_ViewProjMatrix * u_Transform * vec4(a_Position, 1.0);	
-		}
-	)";
-
-	OverEngine::String fragmentSrc = R"(
-		#version 330 core
-		
-		layout(location = 0) out vec4 color;
-
-		in vec3 v_Position;
-		in vec4 v_Color;
-
-		void main()
-		{
-			// color = vec4(v_Position * 0.5 + 0.5, 1.0);
-			color = v_Color;
-		}
-	)";
-
-	m_Shader = OverEngine::Shader::Create("VertexColor", vertexSrc, fragmentSrc);
+	m_Shader = OverEngine::Shader::Create("assets/shaders/VertexColor.glsl");
 
 	auto textureShader = OverEngine::Renderer::GetShaderLibrary().Load("assets/shaders/Texture.glsl");
 	textureShader->UploadUniformInt("u_Textuer", 0);
@@ -101,7 +62,6 @@ SandboxLayer::SandboxLayer()
 	OverEngine::Renderer::GetShaderLibrary().Load("assets/shaders/FlatColor.glsl");
 
 	m_OELogoTexture = OverEngine::Texture2D::Create("assets/textures/OELogo.png");
-
 	m_CheckerBoardTexture = OverEngine::Texture2D::Create("assets/textures/Checkerboard.png", OverEngine::Texture::Filtering::Linear, OverEngine::Texture::Filtering::Nearest);
 }
 
@@ -217,6 +177,6 @@ bool SandboxLayer::OnMouseScrolledEvent(OverEngine::MouseScrolledEvent& event)
 {
 	float newSize = m_Camera.GetOrthographicSize() - (float)event.GetYOffset() / 4.0f;
 	if (newSize > 0)
-		m_Camera.SetPosition({ 0.0f, 0.0f, 0.0f });
+		m_Camera.SetOrthographicSize(newSize);
 	return false;
 }
