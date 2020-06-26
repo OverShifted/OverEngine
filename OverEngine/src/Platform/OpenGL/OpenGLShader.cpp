@@ -16,7 +16,7 @@ namespace OverEngine
 		if (type == "fragment" || type == "pixel")
 			return GL_FRAGMENT_SHADER;
 
-		OE_CORE_ASSERT(false, "Unknown shader type '{0}' !", type);
+		OE_CORE_ASSERT(false, "Unknown shader type '{0}'!", type);
 		return 0;
 	}
 

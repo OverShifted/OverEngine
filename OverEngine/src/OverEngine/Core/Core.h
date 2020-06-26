@@ -34,7 +34,6 @@
 #endif // OE_PLATFORM_LINIUX
 
 #ifdef OE_DEBUG
-
 	// debugbreak
 	#ifdef OE_PLATFORM_WINDOWS
 		#define OE_DEBUGBREAK __debugbreak()

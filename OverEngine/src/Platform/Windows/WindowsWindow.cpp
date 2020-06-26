@@ -66,7 +66,6 @@ namespace OverEngine {
 		SetVSync(true);
 		
 		OE_CORE_INFO("OpenGL info");
-		
 		OE_CORE_INFO("    Version  : {0}", GetRendererContext()->GetInfoVersion());
 		OE_CORE_INFO("    Vendor   : {0}", GetRendererContext()->GetInfoVendor());
 		OE_CORE_INFO("    Renderer : {0}", GetRendererContext()->GetInfoRenderer());
