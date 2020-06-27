@@ -16,6 +16,7 @@ workspace "OverEngine"
 	configurations
 	{
 		"Debug",
+		"DebugOptimized",
 		"Release",
 		"Dist"
 	}
