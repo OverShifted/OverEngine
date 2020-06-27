@@ -30,5 +30,15 @@ namespace OverEngine
 		}
 
 		inline Vector3 QuaternionEulerAngles(Quaternion rot) { return glm::eulerAngles(rot); }
+
+		template<typename T>
+		T Clamp(T val, T min, T max)
+		{
+			if (val > max)
+				return max;
+			if (val < min)
+				return min;
+			return val;
+		}
 	}
 }
