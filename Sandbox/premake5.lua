@@ -59,6 +59,12 @@ project "Sandbox"
 		runtime "Debug"
 		symbols "on"
 
+	filter "configurations:DebugOptimized"
+		defines "OE_DEBUG"
+		runtime "Debug"
+		symbols "on"
+		optimize "on"
+
 	filter "configurations:Release"
 		defines "OE_RELEASE"
 		runtime "Release"

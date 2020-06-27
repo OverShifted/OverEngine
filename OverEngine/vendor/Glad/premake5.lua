@@ -30,6 +30,11 @@ project "Glad"
         runtime "Debug"
         symbols "on"
 
+    filter "configurations:DebugOptimized"
+		runtime "Debug"
+		symbols "on"
+		optimize "on"
+
     filter "configurations:Release"
         runtime "Release"
         optimize "on"

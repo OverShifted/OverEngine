@@ -10,6 +10,14 @@ namespace OverEngine
 	{
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		GLint texture_units;
+		glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &texture_units);
+		OE_CORE_INFO("Maximum Texture Slots : {0}", texture_units);
+
+		GLint max_texture_size;
+		glGetIntegerv(GL_MAX_TEXTURE_SIZE, &max_texture_size);
+		OE_CORE_INFO("Maximum Texture Size : {0}", max_texture_size);
 	}
 
 	void OpenGLRendererAPI::SetClearColor(const Math::Color& color)
