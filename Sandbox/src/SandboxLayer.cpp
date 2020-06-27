@@ -2,8 +2,13 @@
 
 #include "imgui/imgui.h"
 
+void SandboxLayer::CameraMovementCallback(OverEngine::InputAction::TriggerInfo& info)
+{
+	m_CameraMovementDirection = { info.ReadValue<OverEngine::Math::Vector2>().x, info.ReadValue<OverEngine::Math::Vector2>().y };
+}
+
 SandboxLayer::SandboxLayer()
-	: Layer("SandboxLayer")
+	: Layer("SandboxLayer"), m_CameraMovementDirection(0.0f)
 {
 	OverEngine::Application& app = OverEngine::Application::Get();
 
@@ -63,6 +68,22 @@ SandboxLayer::SandboxLayer()
 
 	m_OELogoTexture = OverEngine::Texture2D::Create("assets/textures/OELogo.png");
 	m_CheckerBoardTexture = OverEngine::Texture2D::Create("assets/textures/Checkerboard.png", OverEngine::Texture::Filtering::Linear, OverEngine::Texture::Filtering::Nearest);
+
+	auto actionMap = OverEngine::InputActionMap::Create();
+
+	OverEngine::InputAction action(OverEngine::InputActionType::Button, {
+		{
+			{OverEngine::KeyCode::A}, {OverEngine::KeyCode::D},
+			{OverEngine::KeyCode::S}, {OverEngine::KeyCode::W}
+		},
+		{
+			{OverEngine::KeyCode::Left}, {OverEngine::KeyCode::Right},
+			{OverEngine::KeyCode::Down}, {OverEngine::KeyCode::Up}
+		}
+	});
+	action.AddCallBack(OE_BIND_EVENT_FN(SandboxLayer::CameraMovementCallback));
+
+	actionMap->AddAction(action);
 }
 
 void SandboxLayer::OnAttach()
@@ -82,17 +103,7 @@ void SandboxLayer::OnAttach()
 
 void SandboxLayer::OnUpdate(OverEngine::TimeStep DeltaTime)
 {
-	OverEngine::Math::Vector3 offset(0.0f);
 	float rotationOffset = 0.0f;
-
-	if (OverEngine::Input::IsKeyPressed(OverEngine::KeyCode::W))
-		offset.y += m_CameraSpeed * DeltaTime;
-	if (OverEngine::Input::IsKeyPressed(OverEngine::KeyCode::S))
-		offset.y -= m_CameraSpeed * DeltaTime;
-	if (OverEngine::Input::IsKeyPressed(OverEngine::KeyCode::D))
-		offset.x += m_CameraSpeed * DeltaTime;
-	if (OverEngine::Input::IsKeyPressed(OverEngine::KeyCode::A))
-		offset.x -= m_CameraSpeed * DeltaTime;
 
 	if (OverEngine::Input::IsKeyPressed(OverEngine::KeyCode::Q))
 		rotationOffset -= 100 * DeltaTime;
@@ -106,7 +117,9 @@ void SandboxLayer::OnUpdate(OverEngine::TimeStep DeltaTime)
 		m_Camera.SetOrthographicSize(1.0f);
 	}
 
-	m_Camera.SetPosition(m_Camera.GetPosition() + offset);
+	OverEngine::Math::Vector3 Offset(m_CameraMovementDirection.x, m_CameraMovementDirection.y, -0.0f);
+	m_Camera.SetPosition(m_Camera.GetPosition() + Offset * (m_CameraSpeed * DeltaTime * m_Camera.GetOrthographicSize()));
+
 	m_Camera.SetRotation({ 0.0f, 0.0f, m_Camera.GetRotation().z + rotationOffset });
 
 	OverEngine::RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });
