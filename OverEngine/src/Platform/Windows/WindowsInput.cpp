@@ -1,28 +1,26 @@
 #include "pcheader.h"
-#include "WindowsInput.h"
+#include "OverEngine/Input/Input.h"
 
 #include "OverEngine/Core/Application.h"
 #include <GLFW/glfw3.h>
 
 namespace OverEngine
 {
-	Input* Input::s_Instance = new WindowsInput();
-
-	bool WindowsInput::IsKeyPressedImpl(KeyCode keycode)
+	bool Input::IsKeyPressed(KeyCode keycode)
 	{
 		auto window = static_cast<GLFWwindow*>(Application::Get().GetMainWindow().GetNativeWindow());
 		auto state = glfwGetKey(window, (int)keycode);
 		return state == (int)KeyTrigger::Press;
 	}
 
-	bool WindowsInput::IsMouseButtonPressedImpl(KeyCode button)
+	bool Input::IsMouseButtonPressed(KeyCode button)
 	{
 		auto window = static_cast<GLFWwindow*>(Application::Get().GetMainWindow().GetNativeWindow());
 		auto state = glfwGetMouseButton(window, (int)button);
 		return state == (int)KeyTrigger::Press;
 	}
 
-	std::pair<float, float> WindowsInput::GetMousePositionImpl()
+	std::pair<float, float> Input::GetMousePosition()
 	{
 		auto window = static_cast<GLFWwindow*>(Application::Get().GetMainWindow().GetNativeWindow());
 		double xpos, ypos;
@@ -31,15 +29,15 @@ namespace OverEngine
 		return { (float)xpos, (float)ypos };
 	}
 
-	float WindowsInput::GetMouseXImpl()
+	float Input::GetMouseX()
 	{
-		auto [x, y] = GetMousePositionImpl(); // language feature 'structured bindings'
+		auto [x, y] = GetMousePosition(); // language feature 'structured bindings'
 		return x;
 	}
 
-	float WindowsInput::GetMouseYImpl()
+	float Input::GetMouseY()
 	{
-		auto [x, y] = GetMousePositionImpl();
+		auto [x, y] = GetMousePosition();
 		return y;
 	}
 }
