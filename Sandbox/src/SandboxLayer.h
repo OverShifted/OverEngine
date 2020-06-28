@@ -15,8 +15,6 @@ public:
 	bool OnWindowResizeEvent(OverEngine::WindowResizeEvent& event);
 	bool OnMouseScrolledEvent(OverEngine::MouseScrolledEvent& event);
 private:
-	void CameraMovementCallback(OverEngine::InputAction::TriggerInfo& info);
-private:
 	OverEngine::String vendorInfo, rendererInfo, versionInfo;
 
 	OverEngine::Ref<OverEngine::Shader> m_Shader;
@@ -31,5 +29,6 @@ private:
 	OverEngine::OrthographicCamera m_Camera;
 
 	float m_CameraSpeed = 1.0f;
+	float m_CameraRotationDirection = 0.0f;
 	OverEngine::Math::Vector2 m_CameraMovementDirection;
 };

@@ -23,12 +23,12 @@ namespace OverEngine
 	{
 	public:
 		InputTrigger()
-			: m_Key(KeyCode::None), m_ActivePress(true), m_ActiveRelease(true), m_ActiveRepeat(true),
+			: m_Key(KeyCode::None), m_ActivePress(true), m_ActiveRelease(true), m_ActiveRepeat(false),
 				m_PressedLastFrame(false)
 		{
 		}
 
-		InputTrigger(KeyCode key, bool activePress = true, bool activeRelease = true, bool activeRepeat = true)
+		InputTrigger(KeyCode key, bool activePress = true, bool activeRelease = true, bool activeRepeat = false)
 			: m_Key(key), m_ActivePress(activePress), m_ActiveRelease(activeRelease), m_ActiveRepeat(activeRepeat),
 				m_PressedLastFrame(false)
 		{

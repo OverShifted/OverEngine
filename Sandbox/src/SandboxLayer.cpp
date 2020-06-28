@@ -2,19 +2,16 @@
 
 #include "imgui/imgui.h"
 
-void SandboxLayer::CameraMovementCallback(OverEngine::InputAction::TriggerInfo& info)
-{
-	m_CameraMovementDirection = { info.ReadValue<OverEngine::Math::Vector2>().x, info.ReadValue<OverEngine::Math::Vector2>().y };
-}
-
 SandboxLayer::SandboxLayer()
 	: Layer("SandboxLayer"), m_CameraMovementDirection(0.0f)
 {
+	// Camera
 	OverEngine::Application& app = OverEngine::Application::Get();
 
 	float aspectRatio = (float)app.GetMainWindow().GetWidth() / (float)app.GetMainWindow().GetHeight();
 	m_Camera = OverEngine::OrthographicCamera(1.0f, aspectRatio);
 
+	// Vertex Arrays, Vertex Buffers, Index Buffers
 	m_VertexArray = OverEngine::VertexArray::Create();
 
 	float vertices[3 * 7] = {
@@ -59,6 +56,7 @@ SandboxLayer::SandboxLayer()
 	auto squareIB = OverEngine::IndexBuffer::Create(squareIndices, sizeof(squareIndices) / sizeof(uint32_t));
 	m_SquareVA->SetIndexBuffer(squareIB);
 
+	// Shaders
 	m_Shader = OverEngine::Shader::Create("assets/shaders/VertexColor.glsl");
 
 	auto textureShader = OverEngine::Renderer::GetShaderLibrary().Load("assets/shaders/Texture.glsl");
@@ -69,9 +67,10 @@ SandboxLayer::SandboxLayer()
 	m_OELogoTexture = OverEngine::Texture2D::Create("assets/textures/OELogo.png");
 	m_CheckerBoardTexture = OverEngine::Texture2D::Create("assets/textures/Checkerboard.png", OverEngine::Texture::Filtering::Linear, OverEngine::Texture::Filtering::Nearest);
 
+	// Input
 	auto actionMap = OverEngine::InputActionMap::Create();
 
-	OverEngine::InputAction action(OverEngine::InputActionType::Button, {
+	OverEngine::InputAction CameraMovement(OverEngine::InputActionType::Button, {
 		{
 			{OverEngine::KeyCode::A}, {OverEngine::KeyCode::D},
 			{OverEngine::KeyCode::S}, {OverEngine::KeyCode::W}
@@ -81,9 +80,28 @@ SandboxLayer::SandboxLayer()
 			{OverEngine::KeyCode::Down}, {OverEngine::KeyCode::Up}
 		}
 	});
-	action.AddCallBack(OE_BIND_EVENT_FN(SandboxLayer::CameraMovementCallback));
+	CameraMovement.AddCallBack([&](OverEngine::InputAction::TriggerInfo& info) {
+		m_CameraMovementDirection = info.ReadValue<OverEngine::Math::Vector2>();
+	});
+	actionMap->AddAction(CameraMovement);
 
-	actionMap->AddAction(action);
+	OverEngine::InputAction CameraRotation(OverEngine::InputActionType::Button, {
+		{ {OverEngine::KeyCode::Q}, {OverEngine::KeyCode::E} }
+	});
+	CameraRotation.AddCallBack([&](OverEngine::InputAction::TriggerInfo& info) {
+		m_CameraRotationDirection = info.x;
+	});
+	actionMap->AddAction(CameraRotation);
+
+	OverEngine::InputAction EscapeKeyAction(OverEngine::InputActionType::Button, {
+		{ {OverEngine::KeyCode::Escape, true, false} }
+	});
+	EscapeKeyAction.AddCallBack([&](OverEngine::InputAction::TriggerInfo& info) {
+		m_Camera.SetPosition({ 0.0f, 0.0f, 0.0f });
+		m_Camera.SetRotation({ 0.0f, 0.0f, 0.0f });
+		m_Camera.SetOrthographicSize(1.0f);
+	});
+	actionMap->AddAction(EscapeKeyAction);
 }
 
 void SandboxLayer::OnAttach()
@@ -103,25 +121,12 @@ void SandboxLayer::OnAttach()
 
 void SandboxLayer::OnUpdate(OverEngine::TimeStep DeltaTime)
 {
-	float rotationOffset = 0.0f;
-
-	if (OverEngine::Input::IsKeyPressed(OverEngine::KeyCode::Q))
-		rotationOffset -= 100 * DeltaTime;
-	if (OverEngine::Input::IsKeyPressed(OverEngine::KeyCode::E))
-		rotationOffset += 100 * DeltaTime;
-
-	if (OverEngine::Input::IsKeyPressed(OverEngine::KeyCode::Escape))
-	{
-		m_Camera.SetPosition({ 0.0f, 0.0f, 0.0f });
-		m_Camera.SetRotation({ 0.0f, 0.0f, 0.0f });
-		m_Camera.SetOrthographicSize(1.0f);
-	}
-
-	OverEngine::Math::Vector3 Offset(m_CameraMovementDirection.x, m_CameraMovementDirection.y, -0.0f);
+	// Update
+	OverEngine::Math::Vector3 Offset(m_CameraMovementDirection, 0.0f);
 	m_Camera.SetPosition(m_Camera.GetPosition() + Offset * (m_CameraSpeed * DeltaTime * m_Camera.GetOrthographicSize()));
+	m_Camera.SetRotation({ 0.0f, 0.0f, m_Camera.GetRotation().z + m_CameraRotationDirection * DeltaTime * 80.0f });
 
-	m_Camera.SetRotation({ 0.0f, 0.0f, m_Camera.GetRotation().z + rotationOffset });
-
+	// Render
 	OverEngine::RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });
 	OverEngine::RenderCommand::Clear();
 
