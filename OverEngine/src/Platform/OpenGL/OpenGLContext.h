@@ -13,7 +13,6 @@ namespace OverEngine
 
 		virtual void Init() override;
 		virtual void SwapBuffers() override;
-		virtual void SetViewport(int width, int height, int x = 0, int y = 0) override;
 
 		virtual void Current() override;
 

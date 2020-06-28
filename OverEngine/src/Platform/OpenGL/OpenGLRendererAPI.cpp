@@ -5,7 +5,6 @@
 
 namespace OverEngine
 {
-
 	void OpenGLRendererAPI::Init()
 	{
 		glEnable(GL_BLEND);
@@ -18,6 +17,11 @@ namespace OverEngine
 		GLint max_texture_size;
 		glGetIntegerv(GL_MAX_TEXTURE_SIZE, &max_texture_size);
 		OE_CORE_INFO("Maximum Texture Size : {0}", max_texture_size);
+	}
+
+	void OpenGLRendererAPI::SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
+	{
+		glViewport(x, y, width, height);
 	}
 
 	void OpenGLRendererAPI::SetClearColor(const Math::Color& color)

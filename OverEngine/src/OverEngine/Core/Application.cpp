@@ -87,8 +87,7 @@ namespace OverEngine
 			return false;
 		}
 
-		GetMainWindow().GetRendererContext()->SetViewport(e.GetWidth(), e.GetHeight());
-
+		Renderer::OnWindowResize(e.GetWidth(), e.GetHeight());
 		return false;
 	}
 }

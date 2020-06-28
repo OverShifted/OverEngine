@@ -12,6 +12,11 @@ namespace OverEngine
 			s_RendererAPI->Init();
 		}
 
+		inline static void SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
+		{
+			s_RendererAPI->SetViewport(x, y, width, height);
+		}
+
 		inline static void SetClearColor(const Math::Color& color)
 		{
 			s_RendererAPI->SetClearColor(color);

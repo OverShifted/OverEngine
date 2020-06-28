@@ -9,7 +9,6 @@ namespace OverEngine
 	public:
 		virtual void Init() = 0;
 		virtual void SwapBuffers() = 0;
-		virtual void SetViewport(int width, int height, int x = 0, int y = 0) = 0;
 
 		virtual void Current() = 0;
 

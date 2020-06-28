@@ -36,11 +36,6 @@ namespace OverEngine
 			glFlush();
 	}
 
-	void OpenGLContext::SetViewport(int width, int height, int x, int y)
-	{
-		glViewport(x, y, width, height);
-	}
-
 	void OpenGLContext::Current()
 	{
 		glfwMakeContextCurrent(m_WindowHandle);
