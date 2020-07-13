@@ -1,4 +1,5 @@
 [submodule "OverEngine/vendor/imgui"]
+	path = OverEngine/vendor/imgui
 	url = https://github.com/ocornut/imgui
 [submodule "OverEngine/vendor/spdlog"]
 	path = OverEngine/vendor/spdlog
