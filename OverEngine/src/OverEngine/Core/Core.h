@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include "OverEngine/Core/Structs/List.h"
+#include "OverEngine/Core/Memory/Allocator.h"
 
 #if defined(OE_PLATFORM_LINUX) || defined(OE_PLATFORM_MACOS)
 	#define OE_PLATFORM_UNIX_BASE
@@ -84,7 +85,7 @@ namespace OverEngine
 
 	// Vector ///////////////////////////////////////////////////////////////////
 	template<typename T>
-	using Vector = std::vector<T>;
+	using Vector = std::vector<T, OverEngine::Allocator<T>>;
 
 	// UnorderedMap /////////////////////////////////////////////////////////////
 	template<typename T, typename U>
