@@ -24,7 +24,7 @@ namespace OverEngine
 		{
 			Math::Mat4x4 ViewProjectionMatrix;
 		};
-		static SceneData* s_SceneData;
+		static Scope<SceneData> s_SceneData;
 
 		static ShaderLibrary s_ShaderLibrary;
 	};

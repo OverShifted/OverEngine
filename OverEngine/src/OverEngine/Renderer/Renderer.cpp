@@ -3,7 +3,7 @@
 
 namespace OverEngine
 {
-	Renderer::SceneData* Renderer::s_SceneData = new Renderer::SceneData;
+	Scope<Renderer::SceneData> Renderer::s_SceneData = CreateScope<Renderer::SceneData>();
 	ShaderLibrary Renderer::s_ShaderLibrary;
 
 	void Renderer::Init()
