@@ -1,25 +1,37 @@
 import platform, os, sys
 
-SYSTEM_LINUX   = 0
-SYSTEM_WINDOWS = 1
+SYSTEM_NONE    = 0
+SYSTEM_LINUX   = 1
+SYSTEM_WINDOWS = 2
 
-systemInfo = platform.system()
-if systemInfo == 'Linux':
-    systemInfo = SYSTEM_LINUX
-elif systemInfo == 'Windows':
-    systemInfo = SYSTEM_WINDOWS
-else:
-    print("Unknown OS")
-    quit()
+def DetectOperatingSystem():
+    systemInfo = platform.system()
+    if systemInfo == 'Linux':
+        return SYSTEM_LINUX
+    if systemInfo == 'Windows':
+        return SYSTEM_WINDOWS
+    return SYSTEM_NONE
 
-WannaBuild = "-b" in sys.argv[1:] or "--b" in sys.argv[1:] or "--build" in sys.argv[1:] or "-build" in sys.argv[1:]
+def HasFlag(flags):
+    for flag in flags:
+        if flag in sys.argv[1:]:
+            return True
+    return False
+
+buildFlags = [
+    "-b",
+    "--b",
+    "-build",
+    "--build"
+]
+WannaBuild = HasFlag(buildFlags)
 
 premakeCommand = "vendor/bin/premake/premake5"
 buildCommand = ""
-if systemInfo == SYSTEM_WINDOWS:
+if DetectOperatingSystem() == SYSTEM_WINDOWS:
     premakeCommand = "vendor\\bin\\premake\\premake5.exe vs2019"
     buildCommand = "msbuild"
-elif systemInfo == SYSTEM_LINUX:
+elif DetectOperatingSystem() == SYSTEM_LINUX:
     premakeCommand += " gmake2"
     buildCommand = "make"
 
