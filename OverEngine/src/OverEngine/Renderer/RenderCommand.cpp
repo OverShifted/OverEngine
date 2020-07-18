@@ -18,4 +18,7 @@ namespace OverEngine
 	}
 
 	RendererAPI* RenderCommand::s_RendererAPI = CreateRendererAPI();
+
+	uint32_t RenderCommand::s_MaxTextureSize = 0;
+	uint32_t RenderCommand::s_MaxTextureSlotCount = 0;
 }
