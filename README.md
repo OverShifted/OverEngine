@@ -3,17 +3,14 @@
 
 ![Logo](https://repository-images.githubusercontent.com/246120634/f6e9f080-a288-11ea-9a12-502646520a32)
 
-### what you should see:
-Use WASD keys to navigate and mouse scroll to zoom!
-![Sandbox](https://user-images.githubusercontent.com/53635046/84876410-70ad1700-b09c-11ea-9e07-3468256ea76c.PNG)
-
 ## Cool things in use:
-* Build system : [premake](https://github.com/premake/premake-core)
-* Logger : [spdlog](https://github.com/gabime/spdlog)
-* GLFW : [Website](https://www.glfw.org/) [Github](https://github.com/glfw/GLFW)
-* Glad : [OnlineGenerator](https://glad.dav1d.de/) [Github](https://github.com/Dav1dde/glad)
-* UI : [DearImgui](https://github.com/ocornut/imgui)
-* Glm : [Github](https://github.com/g-truc/glm)
+* [premake](https://github.com/premake/premake-core)
+* [spdlog](https://github.com/gabime/spdlog)
+* [GLFW](https://github.com/glfw/GLFW)
+* [Glad2](https://gen.glad.sh/)
+* [DearImgui](https://github.com/ocornut/imgui)
+* [glm](https://github.com/g-truc/glm)
+* [stb_image](https://github.com/nothings/stb/blob/master/stb_image.h)
 
 ## Build from sourcecode
 Windows (Python3):
