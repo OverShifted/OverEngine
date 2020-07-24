@@ -83,7 +83,6 @@ project "OverEngine"
 
 	filter "system:windows"
 		systemversion "latest"
-		defines "OE_PLATFORM_WINDOWS"
 		staticruntime (StaticRuntime)
 
 		if (DynamicLink) then
@@ -103,7 +102,6 @@ project "OverEngine"
 	filter "system:linux"
 		pic "on"
 		systemversion "latest"
-		defines "OE_PLATFORM_LINUX"
 		staticruntime "on"
 
 		files

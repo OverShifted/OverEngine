@@ -50,14 +50,12 @@ project "Sandbox"
 		
 	filter "system:windows"
 		systemversion "latest"
-		defines "OE_PLATFORM_WINDOWS"
 		staticruntime (StaticRuntime)
 		files "res/**.rc"
 		
 	filter "system:linux"
 		pic "on"
 		systemversion "latest"
-		defines "OE_PLATFORM_LINUX"
 		staticruntime "on"
 		links { "dl", "pthread" }
 
