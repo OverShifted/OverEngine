@@ -8,6 +8,7 @@
 #include "OverEngine/Core/Application.h"
 
 #include "OverEngine/Renderer/RendererContext.h"
+#include "OverEngine/Renderer/RendererAPI.h"
 
 namespace OverEngine {
 	
@@ -52,6 +53,11 @@ namespace OverEngine {
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+		#if defined(OE_DEBUG)
+			if (RendererAPI::GetAPI() == RendererAPI::API::OpenGL)
+				glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
+		#endif
 
 		if (!m_Data.DoubleBuffered)
 			glfwWindowHint(GLFW_DOUBLEBUFFER, false);
