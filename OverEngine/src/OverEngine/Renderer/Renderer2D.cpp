@@ -208,7 +208,6 @@ namespace OverEngine
 
 			// a_TextureFilter
 			s_Data->Vertices.push_back((float)texture->GetFilter());
-			OE_CORE_INFO((float)texture->GetFilter());
 
 			Ref<GAPI::Texture2D> textureToBind;
 
