@@ -8,12 +8,18 @@ extern OverEngine::Application* OverEngine::CreateApplication();
 
 int OverMain(int argc, char** argv) // Platform agnostic entry point
 {
+	OE_PROFILE_BEGIN_SESSION("StartUp", "OverEngineProfile-StartUp.json");
 	OverEngine::Initialize();
-
 	auto app = OverEngine::CreateApplication();
-	app->Run();
-	delete app;
+	OE_PROFILE_END_SESSION();
 
+	OE_PROFILE_BEGIN_SESSION("Runtime", "OverEngineProfile-Runtime.json");
+	app->Run();
+	OE_PROFILE_END_SESSION();
+
+	OE_PROFILE_BEGIN_SESSION("Shutdown", "OverEngineProfile-Shutdown.json");
+	delete app;
+	OE_PROFILE_END_SESSION();
 	return 0;
 }
 

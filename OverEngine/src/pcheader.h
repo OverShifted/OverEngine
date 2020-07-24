@@ -19,6 +19,8 @@
 #include "OverEngine/Core/Log.h"
 #include "OverEngine/Core/Core.h"
 
+#include "OverEngine/Debug/Instrumentor.h"
+
 #ifdef OE_PLATFORM_WINDOWS
 #include <Windows.h>
 #endif // OE_PLATFORM_WINDOWS

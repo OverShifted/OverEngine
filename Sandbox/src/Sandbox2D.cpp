@@ -7,6 +7,7 @@ using namespace OverEngine;
 Sandbox2D::Sandbox2D()
 	: Layer("Sandbox2D"), m_CameraMovementDirection(0.0f)
 {
+	OE_PROFILE_FUNCTION();
 #pragma region CameraSetup
 	Application& app = Application::Get();
 
@@ -73,6 +74,8 @@ static Vector<float> s_FPSSamples(200);
 
 void Sandbox2D::OnUpdate(TimeStep DeltaTime)
 {
+	OE_PROFILE_FUNCTION();
+
 	// Update
 	Vector3 offset(m_CameraMovementDirection, 0.0f);
 	offset = offset * (m_CameraSpeed * DeltaTime * m_Camera.GetOrthographicSize());
@@ -114,6 +117,8 @@ void Sandbox2D::OnUpdate(TimeStep DeltaTime)
 
 void Sandbox2D::OnImGuiRender()
 {
+	OE_PROFILE_FUNCTION();
+
 	ImGui::Begin("Camera");
 	ImGui::DragFloat2("Position", glm::value_ptr(const_cast<Vector3&>(m_Camera.GetPosition())), m_Camera.GetOrthographicSize() / 20);
 	// ImGui::DragFloat("Rotation", glm::value_ptr(const_cast<Vector3&>(m_Camera.GetRotation())));
@@ -158,6 +163,8 @@ void Sandbox2D::OnImGuiRender()
 
 void Sandbox2D::OnEvent(Event& event)
 {
+	OE_PROFILE_FUNCTION();
+
 	EventDispatcher dispatcher(event);
 	dispatcher.Dispatch<WindowResizeEvent>(OE_BIND_EVENT_FN(Sandbox2D::OnWindowResizeEvent));
 	dispatcher.Dispatch<MouseScrolledEvent>(OE_BIND_EVENT_FN(Sandbox2D::OnMouseScrolledEvent));
@@ -165,12 +172,16 @@ void Sandbox2D::OnEvent(Event& event)
 
 bool Sandbox2D::OnWindowResizeEvent(WindowResizeEvent& event)
 {
+	OE_PROFILE_FUNCTION();
+
 	m_Camera.SetAspectRatio((float)event.GetWidth() / (float)event.GetHeight());
 	return false;
 }
 
 bool Sandbox2D::OnMouseScrolledEvent(MouseScrolledEvent& event)
 {
+	OE_PROFILE_FUNCTION();
+
 	float newSize = m_Camera.GetOrthographicSize() - (float)event.GetYOffset() / 4.0f;
 	if (newSize > 0)
 		m_Camera.SetOrthographicSize(newSize);
