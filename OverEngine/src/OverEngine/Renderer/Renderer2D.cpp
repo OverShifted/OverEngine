@@ -105,6 +105,10 @@ namespace OverEngine
 		s_Statistics.DrawCalls++;
 	}
 
+	/////////////////////////////////////////////////////////
+	// FlatColor Quad ///////////////////////////////////////
+	/////////////////////////////////////////////////////////
+
 	void Renderer2D::DrawQuad(const Vector2& position, float rotation, const Vector2& size, const Color& color)
 	{
 		DrawQuad(Vector3(position, 0.0f), rotation, size, color);
@@ -112,11 +116,16 @@ namespace OverEngine
 
 	void Renderer2D::DrawQuad(const Vector3& position, float rotation, const Vector2& size, const Color& color)
 	{
-		Mat4x4 transformationMatrix =
+		Mat4x4 transform =
 			glm::translate(Mat4x4(1.0f), position) *
 			glm::rotate(Mat4x4(1.0f), rotation, Vector3(0, 0, 1)) *
 			glm::scale(Mat4x4(1.0f), Vector3(size, 1.0f));
 
+		DrawQuad(transform, rotation, size, color);
+	}
+
+	void Renderer2D::DrawQuad(const Mat4x4& transform, float rotation, const Vector2& size, const Color& color)
+	{
 		for (int i = 0; i < 4; i++)
 		{
 			Vector4 vertexPosition;
@@ -125,7 +134,7 @@ namespace OverEngine
 			vertexPosition.y = s_Data->QuadVertices[1 + 3 * i];
 			vertexPosition.z = s_Data->QuadVertices[2 + 3 * i];
 			vertexPosition.w = 1.0f;
-			vertexPosition = s_Data->ViewProjectionMatrix * transformationMatrix * vertexPosition;
+			vertexPosition = s_Data->ViewProjectionMatrix * transform * vertexPosition;
 
 			s_Data->Vertices.push_back(vertexPosition.x);
 			s_Data->Vertices.push_back(vertexPosition.y);
@@ -147,6 +156,10 @@ namespace OverEngine
 		s_Statistics.QuadCount++;
 	}
 
+	/////////////////////////////////////////////////////////
+	// Textured Quad ////////////////////////////////////////
+	/////////////////////////////////////////////////////////
+
 	void Renderer2D::DrawQuad(const Vector2& position, float rotation, const Vector2& size, Ref<Texture2D> texture, float tilingFactor /*= 1.0f*/, const Color& tint /*= white*/)
 	{
 		DrawQuad(Vector3(position, 0.0f), rotation, size, texture, tilingFactor, tint);
@@ -154,11 +167,16 @@ namespace OverEngine
 
 	void Renderer2D::DrawQuad(const Vector3& position, float rotation, const Vector2& size, Ref<Texture2D> texture, float tilingFactor /*= 1.0f*/, const Color& tint /*= white*/)
 	{
-		Mat4x4 transformationMatrix =
+		Mat4x4 transform =
 			glm::translate(Mat4x4(1.0f), position) *
 			glm::rotate(Mat4x4(1.0f), rotation, Vector3(0, 0, 1)) *
 			glm::scale(Mat4x4(1.0f), Vector3(size, 1.0f));
 
+		DrawQuad(transform, rotation, size, texture, tilingFactor, tint);
+	}
+
+	void Renderer2D::DrawQuad(const Mat4x4& transform, float rotation, const Vector2& size, Ref<Texture2D> texture, float tilingFactor /*= 1.0f*/, const Color& tint /*= Color(1.0f)*/)
+	{
 		for (int i = 0; i < 4; i++)
 		{
 			Vector4 vertexPosition;
@@ -167,7 +185,7 @@ namespace OverEngine
 			vertexPosition.y = s_Data->QuadVertices[1 + 3 * i];
 			vertexPosition.z = s_Data->QuadVertices[2 + 3 * i];
 			vertexPosition.w = 1.0f;
-			vertexPosition = s_Data->ViewProjectionMatrix * transformationMatrix * vertexPosition;
+			vertexPosition = s_Data->ViewProjectionMatrix * transform * vertexPosition;
 
 			// a_Position
 			s_Data->Vertices.push_back(vertexPosition.x);
@@ -190,6 +208,7 @@ namespace OverEngine
 
 			// a_TextureFilter
 			s_Data->Vertices.push_back((float)texture->GetFilter());
+			OE_CORE_INFO((float)texture->GetFilter());
 
 			Ref<GAPI::Texture2D> textureToBind;
 
@@ -265,5 +284,4 @@ namespace OverEngine
 
 		s_Statistics.QuadCount++;
 	}
-
 }

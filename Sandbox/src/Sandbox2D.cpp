@@ -56,6 +56,7 @@ Sandbox2D::Sandbox2D()
 	m_CheckerBoardTexture->SetSWrapping(TextureWrapping::ClampToBorder);
 	m_CheckerBoardTexture->SetTWrapping(TextureWrapping::ClampToBorder);
 	m_CheckerBoardTexture->SetBorderColor({ 0.0f, 1.0f, 1.0f, 1.0f });
+	m_CheckerBoardTexture->SetFilter(TextureFiltering::Nearest);
 
 	m_OELogoTexture = Texture2D::MasterFromFile("assets/textures/OELogo.png");
 
@@ -63,7 +64,7 @@ Sandbox2D::Sandbox2D()
 	m_SpriteSheet->SetSWrapping(TextureWrapping::ClampToBorder);
 	m_SpriteSheet->SetTWrapping(TextureWrapping::ClampToBorder);
 	m_SpriteSheet->SetBorderColor({ 0.0f, 1.0f, 1.0f, 1.0f });
-	//m_Sprite = Texture2D::SubTextureFromExistingOne(m_SpriteSheet, { 0, 0, 128, 128 });
+
 	m_Sprite = Texture2D::SubTextureFromExistingOne(m_SpriteSheet, { 128 * 10, 0, 128, 128 });
 #pragma endregion
 }

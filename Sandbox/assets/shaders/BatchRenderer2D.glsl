@@ -176,7 +176,7 @@ void main()
 {
 	if (v_UseTexture != 0)
 	{
-		if (v_TextureFilter == 1)
+		if (v_TextureFilter == 0)
 			o_Color = PointSampleFromAtlas(u_Slots[v_TextureSlot], v_TextureCoord * v_TextureTilingFactor, v_TextureRect, v_TextureSWrapping, v_TextureTWrapping) * v_Color;
 		else
 			o_Color = BiLinearSampleFromAtlas(u_Slots[v_TextureSlot], v_TextureCoord * v_TextureTilingFactor) * v_Color;

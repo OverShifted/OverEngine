@@ -19,9 +19,11 @@ namespace OverEngine
 
 		static void DrawQuad(const Vector2& position, float rotation, const Vector2& size, const Color& color);
 		static void DrawQuad(const Vector3& position, float rotation, const Vector2& size, const Color& color);
+		static void DrawQuad(const Mat4x4& transform, float rotation, const Vector2& size, const Color& color);
 
 		static void DrawQuad(const Vector2& position, float rotation, const Vector2& size, Ref<Texture2D> texture, float tilingFactor = 1.0f, const Color& tint = Color(1.0f));
 		static void DrawQuad(const Vector3& position, float rotation, const Vector2& size, Ref<Texture2D> texture, float tilingFactor = 1.0f, const Color& tint = Color(1.0f));
+		static void DrawQuad(const Mat4x4& transform, float rotation, const Vector2& size, Ref<Texture2D> texture, float tilingFactor = 1.0f, const Color& tint = Color(1.0f));
 
 		struct Statistics
 		{
