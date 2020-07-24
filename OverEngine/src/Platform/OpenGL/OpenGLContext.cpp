@@ -26,6 +26,17 @@ namespace OverEngine
 			OE_CORE_ASSERT(status, "Failed to initialize Glad!");
 		}
 		s_ContextCount++;
+
+		OE_CORE_INFO("OpenGL info");
+		OE_CORE_INFO("    Version  : {0}", GetInfoVersion());
+		OE_CORE_INFO("    Vendor   : {0}", GetInfoVendor());
+		OE_CORE_INFO("    Renderer : {0}", GetInfoRenderer());
+
+		int versionMajor;
+		int versionMinor;
+		glGetIntegerv(GL_MAJOR_VERSION, &versionMajor);
+		glGetIntegerv(GL_MINOR_VERSION, &versionMinor);
+		OE_CORE_ASSERT(versionMajor > 4 || (versionMajor == 4 && versionMinor >= 5), "OverEngine requires at least OpenGL version 4.5 but it got version {0}.{1}", versionMajor, versionMinor);
 	}
 
 	void OpenGLContext::SwapBuffers()

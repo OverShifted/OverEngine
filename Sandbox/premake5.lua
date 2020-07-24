@@ -14,7 +14,9 @@ project "Sandbox"
 	files
 	{
 		"src/**.h",
-		"src/**.cpp"
+		"src/**.cpp",
+
+		"assets/shaders/**.glsl"
 	}
 
 	includedirs
@@ -40,6 +42,11 @@ project "Sandbox"
 		links (LinkLibs)
 		defines "OE_BUILD_STATIC"
 	end
+
+	defines
+	{
+		"_CRT_SECURE_NO_WARNINGS"
+	}
 		
 	filter "system:windows"
 		systemversion "latest"

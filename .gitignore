@@ -12,7 +12,7 @@
 /OverEngine/vendor/*/bin-int/
 
 # Visual Studio project files
-*.sln
+*.sln*
 *.vcxproj*
 
 # MakeFiles

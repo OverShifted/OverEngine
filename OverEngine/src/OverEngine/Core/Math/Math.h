@@ -16,6 +16,8 @@ namespace OverEngine
 		using Vector3 = glm::vec3;
 		using Vector4 = glm::vec4;
 
+		using Rect = Vector4;
+
 		using Mat3x3 = glm::mat3;
 		using Mat4x4 = glm::mat4;
 
@@ -41,4 +43,5 @@ namespace OverEngine
 			return val;
 		}
 	}
+	using namespace Math;
 }

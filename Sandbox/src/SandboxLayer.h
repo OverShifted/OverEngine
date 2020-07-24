@@ -1,3 +1,4 @@
+#if 0
 #pragma once
 
 #include <OverEngine.h>
@@ -30,5 +31,6 @@ private:
 
 	float m_CameraSpeed = 1.0f;
 	float m_CameraRotationDirection = 0.0f;
-	OverEngine::Math::Vector2 m_CameraMovementDirection;
+	OverEngine::Vector2 m_CameraMovementDirection;
 };
+#endif

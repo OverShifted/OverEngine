@@ -7,9 +7,10 @@ class EditorApp : public OverEngine::Application
 {
 public:
 	EditorApp()
-		:Application("OverEditor")
+		:Application("OverEditor", false)
 	{
 		PushLayer(new OverEditor::EditorLayer());
+		m_ImGuiEnabled = true;
 	}
 
 	~EditorApp()

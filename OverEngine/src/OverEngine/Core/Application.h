@@ -10,18 +10,13 @@
 #include "OverEngine/Events/Event.h"
 #include "OverEngine/Events/ApplicationEvent.h"
 
-#include "OverEngine/Renderer/Shader.h"
-#include "OverEngine/Renderer/Buffer.h"
-#include "OverEngine/Renderer/VertexArray.h"
-
 namespace OverEngine
 {
-
 	class OVER_API Application
 	{
 	public:
-		Application(String name = "OverEngine");
-		virtual ~Application() = default;
+		Application(String name = "OverEngine", bool InitRenderer = true);
+		virtual ~Application();
 
 		void Run();
 
@@ -37,17 +32,18 @@ namespace OverEngine
 
 		Scope<Window> m_Window;
 
-		bool m_Running      = true;
-		bool m_Minimized    = false;
-		bool m_ImGuiEnabled = false;
+		bool m_Running   = true;
+		bool m_Minimized = false;
+		bool m_UseInternalRenderer = false;
 
 		LayerStack        m_LayerStack;
 		ImGuiLayer*       m_ImGuiLayer;
+	protected:
+		bool m_ImGuiEnabled = false;
 	private:
 		static Application* m_Instance;
 	};
 
 	// To be defined in CLIENT
 	Application* CreateApplication();
-
 }

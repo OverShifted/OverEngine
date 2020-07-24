@@ -1,18 +1,21 @@
+#if 0
 #include "SandboxLayer.h"
 
 #include "imgui/imgui.h"
+
+using namespace OverEngine;
 
 SandboxLayer::SandboxLayer()
 	: Layer("SandboxLayer"), m_CameraMovementDirection(0.0f)
 {
 	// Camera
-	OverEngine::Application& app = OverEngine::Application::Get();
+	Application& app = Application::Get();
 
 	float aspectRatio = (float)app.GetMainWindow().GetWidth() / (float)app.GetMainWindow().GetHeight();
-	m_Camera = OverEngine::OrthographicCamera(1.0f, aspectRatio);
+	m_Camera = OrthographicCamera(1.0f, aspectRatio);
 
 	// Vertex Arrays, Vertex Buffers, Index Buffers
-	m_VertexArray = OverEngine::VertexArray::Create();
+	m_VertexArray = VertexArray::Create();
 
 	float vertices[3 * 7] = {
 		-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
@@ -20,21 +23,21 @@ SandboxLayer::SandboxLayer()
 		 0.0f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f
 	};
 
-	auto vertexBuffer = OverEngine::VertexBuffer::Create(vertices, sizeof(vertices));
+	auto vertexBuffer = VertexBuffer::Create(vertices, sizeof(vertices));
 
-	OverEngine::BufferLayout layout = {
-		{ OverEngine::ShaderDataType::Float3, "a_Position" },
-		{ OverEngine::ShaderDataType::Float4, "a_Color" }
+	BufferLayout layout = {
+		{ ShaderDataType::Float3, "a_Position" },
+		{ ShaderDataType::Float4, "a_Color" }
 	};
 
 	vertexBuffer->SetLayout(layout);
 	m_VertexArray->AddVertexBuffer(vertexBuffer);
 
 	uint32_t indices[3] = { 0, 1, 2 };
-	auto indexBuffer = OverEngine::IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t));
+	auto indexBuffer = IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t));
 	m_VertexArray->SetIndexBuffer(indexBuffer);
 
-	m_SquareVA = OverEngine::VertexArray::Create();
+	m_SquareVA = VertexArray::Create();
 
 	float squareVertices[5 * 4] = {
 		-0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
@@ -43,60 +46,60 @@ SandboxLayer::SandboxLayer()
 		-0.5f,  0.5f, 0.0f, 0.0f, 1.0f
 	};
 
-	auto squareVB = OverEngine::VertexBuffer::Create(squareVertices, sizeof(squareVertices));
+	auto squareVB = VertexBuffer::Create(squareVertices, sizeof(squareVertices));
 
 	squareVB->SetLayout({
-		{ OverEngine::ShaderDataType::Float3, "a_Position" },
-		{ OverEngine::ShaderDataType::Float2, "a_TexCoord" }
+		{ ShaderDataType::Float3, "a_Position" },
+		{ ShaderDataType::Float2, "a_TexCoord" }
 	});
 
 	m_SquareVA->AddVertexBuffer(squareVB);
 
 	uint32_t squareIndices[6] = { 0, 1, 2, 2, 3, 0 };
-	auto squareIB = OverEngine::IndexBuffer::Create(squareIndices, sizeof(squareIndices) / sizeof(uint32_t));
+	auto squareIB = IndexBuffer::Create(squareIndices, sizeof(squareIndices) / sizeof(uint32_t));
 	m_SquareVA->SetIndexBuffer(squareIB);
 
 	// Shaders
-	m_Shader = OverEngine::Shader::Create("assets/shaders/VertexColor.glsl");
+	m_Shader = Shader::Create("assets/shaders/VertexColor.glsl");
 
-	auto textureShader = OverEngine::Renderer::GetShaderLibrary().Load("assets/shaders/Texture.glsl");
+	auto textureShader = Renderer::GetShaderLibrary().Load("assets/shaders/Texture.glsl");
 	textureShader->UploadUniformInt("u_Textuer", 0);
 
-	OverEngine::Renderer::GetShaderLibrary().Load("assets/shaders/FlatColor.glsl");
+	Renderer::GetShaderLibrary().Load("assets/shaders/FlatColor.glsl");
 
-	m_OELogoTexture = OverEngine::Texture2D::Create("assets/textures/OELogo.png");
-	m_CheckerBoardTexture = OverEngine::Texture2D::Create("assets/textures/Checkerboard.png", OverEngine::Texture::Filtering::Linear, OverEngine::Texture::Filtering::Nearest);
+	m_OELogoTexture = Texture2D::Create("assets/textures/OELogo.png");
+	m_CheckerBoardTexture = Texture2D::Create("assets/textures/Checkerboard.png", TextureFiltering::Linear, TextureFiltering::Nearest);
 
 	// Input
-	auto actionMap = OverEngine::InputActionMap::Create();
+	auto actionMap = InputActionMap::Create();
 
-	OverEngine::InputAction CameraMovement(OverEngine::InputActionType::Button, {
+	InputAction CameraMovement(InputActionType::Button, {
 		{
-			{OverEngine::KeyCode::A}, {OverEngine::KeyCode::D},
-			{OverEngine::KeyCode::S}, {OverEngine::KeyCode::W}
+			{KeyCode::A}, {KeyCode::D},
+			{KeyCode::S}, {KeyCode::W}
 		},
 		{
-			{OverEngine::KeyCode::Left}, {OverEngine::KeyCode::Right},
-			{OverEngine::KeyCode::Down}, {OverEngine::KeyCode::Up}
+			{KeyCode::Left}, {KeyCode::Right},
+			{KeyCode::Down}, {KeyCode::Up}
 		}
 	});
-	CameraMovement.AddCallBack([&](OverEngine::InputAction::TriggerInfo& info) {
-		m_CameraMovementDirection = info.ReadValue<OverEngine::Math::Vector2>();
+	CameraMovement.AddCallBack([&](InputAction::TriggerInfo& info) {
+		m_CameraMovementDirection = info.ReadValue<Vector2>();
 	});
 	actionMap->AddAction(CameraMovement);
 
-	OverEngine::InputAction CameraRotation(OverEngine::InputActionType::Button, {
-		{ {OverEngine::KeyCode::Q}, {OverEngine::KeyCode::E} }
+	InputAction CameraRotation(InputActionType::Button, {
+		{ {KeyCode::Q}, {KeyCode::E} }
 	});
-	CameraRotation.AddCallBack([&](OverEngine::InputAction::TriggerInfo& info) {
+	CameraRotation.AddCallBack([&](InputAction::TriggerInfo& info) {
 		m_CameraRotationDirection = info.x;
 	});
 	actionMap->AddAction(CameraRotation);
 
-	OverEngine::InputAction EscapeKeyAction(OverEngine::InputActionType::Button, {
-		{ {OverEngine::KeyCode::Escape, true, false} }
+	InputAction EscapeKeyAction(InputActionType::Button, {
+		{ {KeyCode::Escape, true, false} }
 	});
-	EscapeKeyAction.AddCallBack([&](OverEngine::InputAction::TriggerInfo& info) {
+	EscapeKeyAction.AddCallBack([&](InputAction::TriggerInfo& info) {
 		m_Camera.SetPosition({ 0.0f, 0.0f, 0.0f });
 		m_Camera.SetRotation({ 0.0f, 0.0f, 0.0f });
 		m_Camera.SetOrthographicSize(1.0f);
@@ -107,63 +110,66 @@ SandboxLayer::SandboxLayer()
 void SandboxLayer::OnAttach()
 {
 	std::stringstream ss = std::stringstream();
-	ss << "Vendor: " << OverEngine::Application::Get().GetMainWindow().GetRendererContext()->GetInfoVendor();
+	ss << "Vendor: " << Application::Get().GetMainWindow().GetRendererContext()->GetInfoVendor();
 	vendorInfo = ss.str();
 
 	ss = std::stringstream();
-	ss << "Renderer: " << OverEngine::Application::Get().GetMainWindow().GetRendererContext()->GetInfoRenderer();
+	ss << "Renderer: " << Application::Get().GetMainWindow().GetRendererContext()->GetInfoRenderer();
 	rendererInfo = ss.str();
 
 	ss = std::stringstream();
-	ss << "Version: " << OverEngine::Application::Get().GetMainWindow().GetRendererContext()->GetInfoVersion();
+	ss << "Version: " << Application::Get().GetMainWindow().GetRendererContext()->GetInfoVersion();
 	versionInfo = ss.str();
 }
 
-void SandboxLayer::OnUpdate(OverEngine::TimeStep DeltaTime)
+void SandboxLayer::OnUpdate(TimeStep DeltaTime)
 {
 	// Update
-	OverEngine::Math::Vector3 Offset(m_CameraMovementDirection, 0.0f);
-	m_Camera.SetPosition(m_Camera.GetPosition() + Offset * (m_CameraSpeed * DeltaTime * m_Camera.GetOrthographicSize()));
+	Vector3 offset(m_CameraMovementDirection, 0.0f);
+	offset = offset * (m_CameraSpeed * DeltaTime * m_Camera.GetOrthographicSize());
+	Mat4x4 rotationMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(m_Camera.GetRotation().z), Vector3(0, 0, 1));
+	m_Camera.SetPosition(Vector4(m_Camera.GetPosition(), 1.0f) + (rotationMatrix * Vector4(offset, 1.0f)));
+
 	m_Camera.SetRotation({ 0.0f, 0.0f, m_Camera.GetRotation().z + m_CameraRotationDirection * DeltaTime * 80.0f });
 
 	// Render
-	OverEngine::RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });
-	OverEngine::RenderCommand::Clear();
+	RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });
+	RenderCommand::Clear();
 
-	OverEngine::Renderer::BeginScene(m_Camera);
+	Renderer::BeginScene(m_Camera);
 
-	auto flatColorShader = OverEngine::Renderer::GetShaderLibrary().Get("FlatColor");
+	auto flatColorShader = Renderer::GetShaderLibrary().Get("FlatColor");
 	flatColorShader->Bind();
-	flatColorShader->UploadUniformFloat4("u_Color", OverEngine::Math::Color(0.2, 0.3, 0.8, 1.0));
+	flatColorShader->UploadUniformFloat4("u_Color", Color(0.2, 0.3, 0.8, 1.0));
 
 	for (int x = 0; x <= 20; x++)
 	{
 		for (int y = 0; y <= 20; y++)
 		{
-			OverEngine::Transform t;
+			Transform t;
 			t.SetPosition({ x * 0.11f + 0.3f, y * 0.11f, 0.0f });
-			t.SetRotation(OverEngine::Math::QuaternionEuler({ 0.0f, 0.0f, 0.0f }));
-			t.SetScale(OverEngine::Math::Vector3(0.1f));
-			
-			OverEngine::Renderer::Submit(flatColorShader, m_SquareVA, t.GetTransformationMatrix());
+			t.SetRotation(QuaternionEuler({ 0.0f, 0.0f, 0.0f }));
+			t.SetScale(Vector3(0.1f));
+
+			Renderer::Submit(flatColorShader, m_SquareVA, t.GetTransformationMatrix());
 		}
 	}
 
-	auto textureShader = OverEngine::Renderer::GetShaderLibrary().Get("Texture");
+	auto textureShader = Renderer::GetShaderLibrary().Get("Texture");
 
 	m_CheckerBoardTexture->Bind();
-	OverEngine::Renderer::Submit(textureShader, m_SquareVA, m_SquareTransform.GetTransformationMatrix());
+	Renderer::Submit(textureShader, m_SquareVA, m_SquareTransform.GetTransformationMatrix());
 
 	m_OELogoTexture->Bind();
-	OverEngine::Renderer::Submit(textureShader, m_SquareVA, m_SquareTransform.GetTransformationMatrix());
+	Renderer::Submit(textureShader, m_SquareVA, m_SquareTransform.GetTransformationMatrix());
 
 	// Triangle
-	// OverEngine::Renderer::Submit(m_Shader, m_VertexArray, m_TriangleTransform.GetTransformationMatrix());
+	// Renderer::Submit(m_Shader, m_VertexArray, m_TriangleTransform.GetTransformationMatrix());
 
-	OverEngine::Renderer::EndScene();
+	Renderer::EndScene();
 }
 
-void SandboxLayer::OnImGuiRender() 
+void SandboxLayer::OnImGuiRender()
 {
 	static bool show = false;
 	if (show)
@@ -178,23 +184,24 @@ void SandboxLayer::OnImGuiRender()
 	ImGui::End();
 }
 
-void SandboxLayer::OnEvent(OverEngine::Event& event) 
+void SandboxLayer::OnEvent(Event& event)
 {
-	OverEngine::EventDispatcher dispatcher(event);
-	dispatcher.Dispatch<OverEngine::WindowResizeEvent>(OE_BIND_EVENT_FN(SandboxLayer::OnWindowResizeEvent));
-	dispatcher.Dispatch<OverEngine::MouseScrolledEvent>(OE_BIND_EVENT_FN(SandboxLayer::OnMouseScrolledEvent));
+	EventDispatcher dispatcher(event);
+	dispatcher.Dispatch<WindowResizeEvent>(OE_BIND_EVENT_FN(SandboxLayer::OnWindowResizeEvent));
+	dispatcher.Dispatch<MouseScrolledEvent>(OE_BIND_EVENT_FN(SandboxLayer::OnMouseScrolledEvent));
 }
 
-bool SandboxLayer::OnWindowResizeEvent(OverEngine::WindowResizeEvent& event)
+bool SandboxLayer::OnWindowResizeEvent(WindowResizeEvent& event)
 {
 	m_Camera.SetAspectRatio((float)event.GetWidth() / (float)event.GetHeight());
 	return false;
 }
 
-bool SandboxLayer::OnMouseScrolledEvent(OverEngine::MouseScrolledEvent& event)
+bool SandboxLayer::OnMouseScrolledEvent(MouseScrolledEvent& event)
 {
 	float newSize = m_Camera.GetOrthographicSize() - (float)event.GetYOffset() / 4.0f;
 	if (newSize > 0)
 		m_Camera.SetOrthographicSize(newSize);
 	return false;
 }
+#endif

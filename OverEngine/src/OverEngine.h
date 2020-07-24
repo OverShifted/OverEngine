@@ -13,6 +13,7 @@
 
 // ------- Renderer ------------------
 #include "OverEngine/Renderer/Renderer.h"
+#include "OverEngine/Renderer/Renderer2D.h"
 
 #include "OverEngine/Renderer/Buffer.h"
 #include "OverEngine/Renderer/Shader.h"

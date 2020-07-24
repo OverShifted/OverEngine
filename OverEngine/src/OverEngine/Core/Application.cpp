@@ -8,12 +8,14 @@
 #include "OverEngine/ImGui/ImGuiLayer.h"
 
 #include "OverEngine/Renderer/Renderer.h"
+#include "OverEngine/Renderer/Renderer2D.h"
 
 namespace OverEngine
 {
 	Application* Application::m_Instance = nullptr;
 
-	Application::Application(String name) 
+	Application::Application(String name, bool useInternalRenderer)
+		: m_UseInternalRenderer(useInternalRenderer)
 	{
 		m_Instance = this;
 
@@ -21,10 +23,17 @@ namespace OverEngine
 		m_Window = Scope<Window>(Window::Create(props));
 		m_Window->SetEventCallback(OE_BIND_EVENT_FN(Application::OnEvent));
 
-		Renderer::Init();
+		if (m_UseInternalRenderer)
+			Renderer::Init();
 
 		m_ImGuiLayer = new ImGuiLayer();
 		PushOverlay(m_ImGuiLayer);
+	}
+
+	Application::~Application()
+	{
+		if (m_UseInternalRenderer)
+			Renderer::Shutdown();
 	}
 
 	void Application::PushLayer(Layer* layer)
@@ -55,7 +64,7 @@ namespace OverEngine
 	{
 		// Game Loop
 		while (m_Running)
-		{	
+		{
 			for (Layer* layer : m_LayerStack)
 				layer->OnUpdate(Time::GetDeltaTime());
 

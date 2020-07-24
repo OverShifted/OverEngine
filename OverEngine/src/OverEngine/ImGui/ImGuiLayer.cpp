@@ -32,7 +32,7 @@ namespace OverEngine
 		io.ConfigWindowsMoveFromTitleBarOnly = true;
 		//io.ConfigViewportsNoTaskBarIcon = true;
 		//io.ConfigViewportsNoAutoMerge = true;
-		//io.ConfigViewportsNoDecoration = false;
+		io.ConfigViewportsNoDecoration = false;
 
 		// Setup Dear ImGui style
 		ApplyTheme(ImguiThemes::DarkVariant3);
