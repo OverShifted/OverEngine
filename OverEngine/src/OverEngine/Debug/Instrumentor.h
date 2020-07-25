@@ -193,7 +193,12 @@ namespace OverEngine {
 	}
 }
 
-#define OE_PROFILE 1
+#ifdef OE_DEBUG
+	#define OE_PROFILE 1
+#else
+	#define OE_PROFILE 0
+#endif
+
 #if OE_PROFILE
 	// Resolve which function signature macro will be used. Note that this only
 	// is resolved when the (pre)compiler starts, so the syntax highlighting
