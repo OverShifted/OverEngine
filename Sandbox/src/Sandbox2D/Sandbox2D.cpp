@@ -1,3 +1,4 @@
+#if 0
 #include "Sandbox2D.h"
 
 #include "imgui/imgui.h"
@@ -187,3 +188,4 @@ bool Sandbox2D::OnMouseScrolledEvent(MouseScrolledEvent& event)
 		m_Camera.SetOrthographicSize(newSize);
 	return false;
 }
+#endif

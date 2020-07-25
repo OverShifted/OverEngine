@@ -4,10 +4,10 @@
 
 using namespace OverEngine;
 
-class Sandbox2D: public Layer
+class SandboxECS: public Layer
 {
 public:
-	Sandbox2D();
+	SandboxECS();
 
 	void OnAttach() override {};
 	void OnUpdate(TimeStep DeltaTime) override;
@@ -27,4 +27,6 @@ private:
 	Ref<Texture2D> m_OELogoTexture;
 	Ref<Texture2D> m_SpriteSheet;
 	Ref<Texture2D> m_Sprite;
+
+	Ref<Scene> m_Scene;
 };

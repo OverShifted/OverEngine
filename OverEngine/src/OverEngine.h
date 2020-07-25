@@ -22,6 +22,12 @@
 #include "OverEngine/Renderer/Camera.h"
 // -----------------------------------
 
+// ------- Scenes --------------------
+#include "OverEngine/Scene/Scene.h"
+#include "OverEngine/Scene/Entity.h"
+#include "OverEngine/Scene/Components.h"
+// -----------------------------------
+
 // ------- Input ---------------------
 #include "OverEngine/Input/Input.h"
 #include "OverEngine/Input/InputSystem.h"

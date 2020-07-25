@@ -5,9 +5,9 @@
 namespace OverEngine
 {
 	Transform::Transform(
-		const Math::Vector3& Position /*= Math::Vector3(0.0f)*/,
-		const Math::Quaternion& Rotation /*= Math::Quaternion(1.0, 0.0, 0.0, 0.0)*/,
-		const Math::Vector3& Scale /*= Math::Vector3(1.0f) */)
+		const Vector3& Position /*= Vector3(0.0f)*/,
+		const Quaternion& Rotation /*= Quaternion(1.0, 0.0, 0.0, 0.0)*/,
+		const Vector3& Scale /*= Vector3(1.0f) */)
 		: m_Position(Position), m_Rotation(Rotation), m_Scale(Scale)
 	{
 		RecalculateTransformationMatrix();
@@ -16,8 +16,8 @@ namespace OverEngine
 	void Transform::RecalculateTransformationMatrix()
 	{
 		m_TransformationMatrix =
-			glm::translate(glm::mat4(1.0), m_Position) *
+			glm::translate(Mat4x4(1.0), m_Position) *
 			glm::mat4_cast(m_Rotation) *
-			glm::scale(glm::mat4(1.0), m_Scale);
+			glm::scale(Mat4x4(1.0), m_Scale);
 	}
 }

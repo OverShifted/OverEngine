@@ -1,1 +1,1 @@
-{"otherData": {},"traceEvents":[{},{"cat":"function","dur":527383,"name":"Sandbox2D::Sandbox2D(void)","ph":"X","pid":0,"tid":21548,"ts":267989562386.800}]}
+{"otherData": {},"traceEvents":[{},{"cat":"function","dur":610464,"name":"SandboxECS::SandboxECS(void)","ph":"X","pid":0,"tid":12352,"ts":357280727032.200}]}

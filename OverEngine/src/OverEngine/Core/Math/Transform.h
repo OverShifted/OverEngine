@@ -8,30 +8,33 @@ namespace OverEngine
 	{
 	public:
 		Transform(
-			const Math::Vector3& Position = Math::Vector3(0.0f),
-			const Math::Quaternion& Rotation = Math::Quaternion(1.0, 0.0, 0.0, 0.0),
-			const Math::Vector3& Scale = Math::Vector3(1.0f)
+			const Vector3& Position = Vector3(0.0f),
+			const Quaternion& Rotation = Quaternion(1.0, 0.0, 0.0, 0.0),
+			const Vector3& Scale = Vector3(1.0f)
 		);
 
 		~Transform() = default;
 
-		inline const Math::Mat4x4& GetTransformationMatrix() const { return m_TransformationMatrix; }
-		inline void SetTransformationMatrix(const Math::Mat4x4& transformationMatrix) { m_TransformationMatrix = transformationMatrix; }
+		inline const Mat4x4& GetTransformationMatrix() const { return m_TransformationMatrix; }
+		inline void SetTransformationMatrix(const Mat4x4& transformationMatrix) { m_TransformationMatrix = transformationMatrix; }
 
-		inline const Math::Vector3& GetPosition() const { return m_Position; }
-		inline const Math::Quaternion& GetRotation() const { return m_Rotation; }
-		inline const Math::Vector3& GetScale() const { return m_Scale; }
+		inline const Vector3& GetPosition() const { return m_Position; }
+		inline const Quaternion& GetRotation() const { return m_Rotation; }
+		inline const Vector3& GetScale() const { return m_Scale; }
 
-		inline void SetPosition(const Math::Vector3& position) { m_Position = position; RecalculateTransformationMatrix(); }
-		inline void SetRotation(const Math::Quaternion& rotation) { m_Rotation = rotation; RecalculateTransformationMatrix(); }
-		inline void SetScale(const Math::Vector3& scale) { m_Scale = scale; RecalculateTransformationMatrix(); }
+		inline void SetPosition(const Vector3& position) { m_Position = position; RecalculateTransformationMatrix(); }
+		inline void SetRotation(const Quaternion& rotation) { m_Rotation = rotation; RecalculateTransformationMatrix(); }
+		inline void SetScale(const Vector3& scale) { m_Scale = scale; RecalculateTransformationMatrix(); }
+
+		operator Mat4x4& () { return m_TransformationMatrix; }
+		operator const Mat4x4& () const { return m_TransformationMatrix; }
 	private:
 		void RecalculateTransformationMatrix();
 	private:
-		Math::Mat4x4 m_TransformationMatrix;
+		Mat4x4 m_TransformationMatrix;
 
-		Math::Vector3 m_Position;
-		Math::Quaternion m_Rotation;
-		Math::Vector3 m_Scale;
+		Vector3 m_Position;
+		Quaternion m_Rotation;
+		Vector3 m_Scale;
 	};
 }

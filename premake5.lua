@@ -42,14 +42,15 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 -- include directories related to Solution folder
 IncludeDir = {}
-IncludeDir["GLFW"]       = "OverEngine/vendor/GLFW/include"
-IncludeDir["Glad"]       = "OverEngine/vendor/Glad/include"
-IncludeDir["spdlog"]     = "OverEngine/vendor/spdlog/include"
-IncludeDir["ImGui"]      = "OverEngine/vendor/imgui"
-IncludeDir["glm"]        = "OverEngine/vendor/glm"
-IncludeDir["lua"]        = "OverEngine/vendor/lua/src"
-IncludeDir["stb_image"]  = "OverEngine/vendor/stb_image"
+IncludeDir["GLFW"]          = "OverEngine/vendor/GLFW/include"
+IncludeDir["Glad"]          = "OverEngine/vendor/Glad/include"
+IncludeDir["spdlog"]        = "OverEngine/vendor/spdlog/include"
+IncludeDir["ImGui"]         = "OverEngine/vendor/imgui"
+IncludeDir["glm"]           = "OverEngine/vendor/glm"
+IncludeDir["lua"]           = "OverEngine/vendor/lua/src"
+IncludeDir["stb_image"]     = "OverEngine/vendor/stb_image"
 IncludeDir["stb_rectpack"]  = "OverEngine/vendor/stb_rectpack"
+IncludeDir["entt"]          = "OverEngine/vendor/entt/include"
 
 LinkLibs = {
 	"GLFW",

@@ -57,6 +57,8 @@ namespace OverEngine
 			{ ShaderDataType::Float, "a_TextureTWrapping" },
 			{ ShaderDataType::Float, "a_TextureFilter" },
 			{ ShaderDataType::Float, "a_TextureSlot" },
+			{ ShaderDataType::Float, "a_TextureFlipX" },
+			{ ShaderDataType::Float, "a_TextureFlipY" },
 			{ ShaderDataType::Float, "a_TextureTilingFactor" },
 			{ ShaderDataType::Float4, "a_TextureBorderColor" },
 			{ ShaderDataType::Float4, "a_TextureRect" },
@@ -121,10 +123,10 @@ namespace OverEngine
 			glm::rotate(Mat4x4(1.0f), rotation, Vector3(0, 0, 1)) *
 			glm::scale(Mat4x4(1.0f), Vector3(size, 1.0f));
 
-		DrawQuad(transform, rotation, size, color);
+		DrawQuad(transform, color);
 	}
 
-	void Renderer2D::DrawQuad(const Mat4x4& transform, float rotation, const Vector2& size, const Color& color)
+	void Renderer2D::DrawQuad(const Mat4x4& transform, const Color& color)
 	{
 		for (int i = 0; i < 4; i++)
 		{
@@ -146,7 +148,7 @@ namespace OverEngine
 			s_Data->Vertices.push_back(color.b);
 			s_Data->Vertices.push_back(color.a);
 
-			for (int i = 0; i < 18; i++)
+			for (int i = 0; i < 20; i++)
 				s_Data->Vertices.push_back(0.0f);
 		}
 
@@ -160,22 +162,22 @@ namespace OverEngine
 	// Textured Quad ////////////////////////////////////////
 	/////////////////////////////////////////////////////////
 
-	void Renderer2D::DrawQuad(const Vector2& position, float rotation, const Vector2& size, Ref<Texture2D> texture, float tilingFactor /*= 1.0f*/, const Color& tint /*= white*/)
+	void Renderer2D::DrawQuad(const Vector2& position, float rotation, const Vector2& size, Ref<Texture2D> texture, const TexturedQuadExtraData& extraData)
 	{
-		DrawQuad(Vector3(position, 0.0f), rotation, size, texture, tilingFactor, tint);
+		DrawQuad(Vector3(position, 0.0f), rotation, size, texture, extraData);
 	}
 
-	void Renderer2D::DrawQuad(const Vector3& position, float rotation, const Vector2& size, Ref<Texture2D> texture, float tilingFactor /*= 1.0f*/, const Color& tint /*= white*/)
+	void Renderer2D::DrawQuad(const Vector3& position, float rotation, const Vector2& size, Ref<Texture2D> texture, const TexturedQuadExtraData& extraData)
 	{
 		Mat4x4 transform =
 			glm::translate(Mat4x4(1.0f), position) *
 			glm::rotate(Mat4x4(1.0f), rotation, Vector3(0, 0, 1)) *
 			glm::scale(Mat4x4(1.0f), Vector3(size, 1.0f));
 
-		DrawQuad(transform, rotation, size, texture, tilingFactor, tint);
+		DrawQuad(transform, texture, extraData);
 	}
 
-	void Renderer2D::DrawQuad(const Mat4x4& transform, float rotation, const Vector2& size, Ref<Texture2D> texture, float tilingFactor /*= 1.0f*/, const Color& tint /*= Color(1.0f)*/)
+	void Renderer2D::DrawQuad(const Mat4x4& transform, Ref<Texture2D> texture, const TexturedQuadExtraData& extraData)
 	{
 		for (int i = 0; i < 4; i++)
 		{
@@ -194,17 +196,25 @@ namespace OverEngine
 			s_Data->Vertices.push_back(vertexPosition.w);
 
 			// a_Color
-			s_Data->Vertices.push_back(tint.r);
-			s_Data->Vertices.push_back(tint.g);
-			s_Data->Vertices.push_back(tint.b);
-			s_Data->Vertices.push_back(tint.a);
+			s_Data->Vertices.push_back(extraData.tint.r);
+			s_Data->Vertices.push_back(extraData.tint.g);
+			s_Data->Vertices.push_back(extraData.tint.b);
+			s_Data->Vertices.push_back(extraData.tint.a);
 
 			// a_UseTexture
 			s_Data->Vertices.push_back(1.0f);
 
 			// a_TextureSWrapping & a_TextureTWrapping
-			s_Data->Vertices.push_back((float)texture->GetSWrapping());
-			s_Data->Vertices.push_back((float)texture->GetTWrapping());
+			if (extraData.overrideSTextureWrapping != TextureWrapping::None)
+				s_Data->Vertices.push_back((float)extraData.overrideSTextureWrapping);
+			else
+				s_Data->Vertices.push_back((float)texture->GetSWrapping());
+
+			if (extraData.overrideTTextureWrapping != TextureWrapping::None)
+				s_Data->Vertices.push_back((float)extraData.overrideTTextureWrapping);
+			else
+				s_Data->Vertices.push_back((float)texture->GetTWrapping());
+
 
 			// a_TextureFilter
 			s_Data->Vertices.push_back((float)texture->GetFilter());
@@ -238,8 +248,12 @@ namespace OverEngine
 			// a_TextureSlot
 			s_Data->Vertices.push_back((float)textureSlot);
 
+			// a_TextureFlipX & a_TextureFlipY
+			s_Data->Vertices.push_back((float)extraData.flipX);
+			s_Data->Vertices.push_back((float)extraData.flipY);
+
 			// a_TextureTilingFactor
-			s_Data->Vertices.push_back(tilingFactor);
+			s_Data->Vertices.push_back(extraData.tilingFactor);
 
 			// a_TextureBorderColor
 			s_Data->Vertices.push_back(texture->GetBorderColor().x);

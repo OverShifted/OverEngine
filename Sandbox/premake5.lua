@@ -25,7 +25,8 @@ project "Sandbox"
 		"../OverEngine/res",
 		"../OverEngine/vendor",
 		"../%{IncludeDir.spdlog}",
-		"../%{IncludeDir.glm}"
+		"../%{IncludeDir.glm}",
+		"../%{IncludeDir.entt}",
 	}
 	
 	if (IncludeTinyFileDialogs) then

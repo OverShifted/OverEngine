@@ -8,6 +8,16 @@
 
 namespace OverEngine
 {
+	struct TexturedQuadExtraData
+	{
+		Color tint = Color(1.0f);
+		float tilingFactor = 1.0f;
+		bool flipX = false;
+		bool flipY = false;
+		TextureWrapping overrideSTextureWrapping = TextureWrapping::None;
+		TextureWrapping overrideTTextureWrapping = TextureWrapping::None;
+	};
+
 	class Renderer2D
 	{
 	public:
@@ -19,11 +29,11 @@ namespace OverEngine
 
 		static void DrawQuad(const Vector2& position, float rotation, const Vector2& size, const Color& color);
 		static void DrawQuad(const Vector3& position, float rotation, const Vector2& size, const Color& color);
-		static void DrawQuad(const Mat4x4& transform, float rotation, const Vector2& size, const Color& color);
+		static void DrawQuad(const Mat4x4& transform, const Color& color);
 
-		static void DrawQuad(const Vector2& position, float rotation, const Vector2& size, Ref<Texture2D> texture, float tilingFactor = 1.0f, const Color& tint = Color(1.0f));
-		static void DrawQuad(const Vector3& position, float rotation, const Vector2& size, Ref<Texture2D> texture, float tilingFactor = 1.0f, const Color& tint = Color(1.0f));
-		static void DrawQuad(const Mat4x4& transform, float rotation, const Vector2& size, Ref<Texture2D> texture, float tilingFactor = 1.0f, const Color& tint = Color(1.0f));
+		static void DrawQuad(const Vector2& position, float rotation, const Vector2& size, Ref<Texture2D> texture, const TexturedQuadExtraData& extraData);
+		static void DrawQuad(const Vector3& position, float rotation, const Vector2& size, Ref<Texture2D> texture, const TexturedQuadExtraData& extraData);
+		static void DrawQuad(const Mat4x4& transform, Ref<Texture2D> texture, const TexturedQuadExtraData& extraData);
 
 		struct Statistics
 		{

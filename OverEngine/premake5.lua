@@ -52,6 +52,7 @@ project "OverEngine"
 		"../%{IncludeDir.lua}",
 		"../%{IncludeDir.stb_image}",
 		"../%{IncludeDir.stb_rectpack}",
+		"../%{IncludeDir.entt}",
 	}
 
 	if (DynamicLink) then
