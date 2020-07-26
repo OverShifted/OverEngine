@@ -51,18 +51,21 @@ IncludeDir["lua"]           = "OverEngine/vendor/lua/src"
 IncludeDir["stb_image"]     = "OverEngine/vendor/stb_image"
 IncludeDir["stb_rectpack"]  = "OverEngine/vendor/stb_rectpack"
 IncludeDir["entt"]          = "OverEngine/vendor/entt/include"
+IncludeDir["Box2D"]         = "OverEngine/vendor/box2d/include"
 
 LinkLibs = {
 	"GLFW",
 	"Glad",
 	"ImGui",
-	"Lua"
+	"Lua",
+	"Box2D"
 }
 
 group "Dependencies"
 	include "OverEngine/vendor/GLFW"
 	include "OverEngine/vendor/Glad"
 	include "OverEngine/vendor/imgui"
+	include "OverEngine/vendor/box2d"
 	if (IncludeLua) then
 		include "OverEngine/vendor/lua"
 	end

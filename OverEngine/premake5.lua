@@ -53,6 +53,7 @@ project "OverEngine"
 		"../%{IncludeDir.stb_image}",
 		"../%{IncludeDir.stb_rectpack}",
 		"../%{IncludeDir.entt}",
+		"../%{IncludeDir.Box2D}",
 	}
 
 	if (DynamicLink) then
