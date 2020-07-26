@@ -17,3 +17,8 @@
 
 # MakeFiles
 MakeFile
+
+# Profiling files
+OverEngineProfile-StartUp.json
+OverEngineProfile-Runtime.json
+OverEngineProfile-Shutdown.json

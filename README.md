@@ -11,6 +11,9 @@
 * [DearImgui](https://github.com/ocornut/imgui)
 * [glm](https://github.com/g-truc/glm)
 * [stb_image](https://github.com/nothings/stb/blob/master/stb_image.h)
+* [stb_rect_pack](https://github.com/nothings/stb/blob/master/stb_rect_pack.h)
+* [EnTT](https://github.com/skypjack/entt)
+* [box2d](https://github.com/erincatto/box2d)
 
 ## Build from sourcecode
 Windows (Python3):
