@@ -24,7 +24,8 @@ project "OverEditor"
 		"../OverEditor/res",
 		"../OverEngine/vendor",
 		"../%{IncludeDir.spdlog}",
-		"../%{IncludeDir.glm}"
+		"../%{IncludeDir.glm}",
+		"../%{IncludeDir.entt}"
 	}
 
 	links "OverEngine"
@@ -37,7 +38,6 @@ project "OverEditor"
 
 	filter "system:windows"
 		systemversion "latest"
-		defines "OE_PLATFORM_WINDOWS"
 		staticruntime (StaticRuntime)
 		files "res/**.rc"
 
@@ -45,7 +45,6 @@ project "OverEditor"
 	filter "system:linux"
 		pic "on"
 		systemversion "latest"
-		defines "OE_PLATFORM_LINUX"
 		staticruntime "on"
 		links { "dl", "pthread" }
 		
