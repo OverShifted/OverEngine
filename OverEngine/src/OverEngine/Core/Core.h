@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 #include "OverEngine/Core/Structs/List.h"
-#include "OverEngine/Core/Memory/Allocator.h"
+// #include "OverEngine/Core/Memory/Allocator.h"
 
 // Platform detection using predefined macros
 #ifdef _WIN32
@@ -126,7 +126,8 @@ namespace OverEngine
 
 	// Vector ///////////////////////////////////////////////////////////////////
 	template<typename T>
-	using Vector = std::vector<T, OverEngine::Allocator<T>>;
+	using Vector = std::vector<T>;
+	//using Vector = std::vector<T, OverEngine::Allocator<T>>;
 
 	// UnorderedMap /////////////////////////////////////////////////////////////
 	template<typename T, typename U>
