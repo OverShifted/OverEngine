@@ -12,16 +12,16 @@
 
 namespace OverEngine {
 	
-	unsigned int WindowsWindow::s_WindowCount = 0;
+	uint32_t WindowsWindow::s_WindowCount = 0;
 
 	static void GLFWErrorCallback(int error, const char* description)
 	{
 		OE_CORE_ERROR("GLFW Error ({0}): {1}", error, description);
 	}
 
-	Window* Window::Create(const WindowProps& props)
+	Scope<Window> Window::Create(const WindowProps& props)
 	{
-		return new WindowsWindow(props);
+		return CreateScope<WindowsWindow>(props);
 	}
 
 	WindowsWindow::WindowsWindow(const WindowProps& props)

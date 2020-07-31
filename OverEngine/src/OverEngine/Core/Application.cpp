@@ -20,7 +20,7 @@ namespace OverEngine
 		m_Instance = this;
 
 		WindowProps props = WindowProps(name, 1280, 720, true);
-		m_Window = Scope<Window>(Window::Create(props));
+		m_Window = Window::Create(props);
 		m_Window->SetEventCallback(OE_BIND_EVENT_FN(Application::OnEvent));
 
 		if (m_UseInternalRenderer)

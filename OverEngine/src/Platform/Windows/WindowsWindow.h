@@ -30,7 +30,7 @@ namespace OverEngine {
 		virtual void Init(const WindowProps& props);
 		virtual void Shutdown();
 
-		static unsigned int s_WindowCount;
+		static uint32_t s_WindowCount;
 	private:
 		GLFWwindow* m_Window;
 		RendererContext* m_Context;
