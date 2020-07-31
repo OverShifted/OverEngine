@@ -8,14 +8,6 @@
 
 namespace OverEngine
 {
-	static bool AllPacked(stbrp_rect* rects, uint32_t rectCount)
-	{
-		for (uint32_t i = 0; i < rectCount; i++)
-			if (!rects[i].was_packed)
-				return false;
-		return true;
-	}
-
 	struct TextureManagerData
 	{
 		Vector<Ref<Texture2D>> MasterTextures;
@@ -51,6 +43,7 @@ namespace OverEngine
 		if (it != s_ManagerData->MasterTextures.end())
 		{
 			OE_CORE_WARN("Texture is already handeled by TextureManager!");
+			return;
 		}
 
 		// Now we should handle a new valid Texture
@@ -83,7 +76,7 @@ namespace OverEngine
 
 		// Loop through all GPUTextures to put our new Texture into them
 		uint32_t maxSize = RenderCommand::GetMaxTextureSize();
-		float wastedSpaceRatioIncrementValue = 0.05f;
+		float wastedSpaceRatioIncrementValue = 0.03f;
 
 		for (uint32_t tID = 0; tID < s_ManagerData->GPUTextures.size(); tID++)
 		{
@@ -133,10 +126,14 @@ namespace OverEngine
 			}
 
 			stbrp_init_target(currentContext, totalWidth, totalHeigth, s_ManagerData->NodeCache.data(), (int)s_ManagerData->NodeCache.size());
-			stbrp_pack_rects(currentContext, s_ManagerData->RectCache.data(), (int)s_ManagerData->RectCache.size());
+			bool allPacked = stbrp_pack_rects(currentContext, s_ManagerData->RectCache.data(), (int)s_ManagerData->RectCache.size());
 
 			bool textureOutOfSize = false;
-			while (!AllPacked(s_ManagerData->RectCache.data(), (uint32_t)s_ManagerData->RectCache.size()))
+
+			if (totalHeigth >= maxSize || totalWidth >= maxSize)
+				textureOutOfSize = true;
+
+			while (!allPacked)
 			{
 				wastedSpaceRatio += wastedSpaceRatioIncrementValue;
 
@@ -150,7 +147,7 @@ namespace OverEngine
 				}
 
 				stbrp_init_target(currentContext, totalWidth, totalHeigth, s_ManagerData->NodeCache.data(), (int)s_ManagerData->NodeCache.size());
-				stbrp_pack_rects(currentContext, s_ManagerData->RectCache.data(), (int)s_ManagerData->RectCache.size());
+				allPacked = stbrp_pack_rects(currentContext, s_ManagerData->RectCache.data(), (int)s_ManagerData->RectCache.size());
 			}
 
 			if (textureOutOfSize)
@@ -176,7 +173,6 @@ namespace OverEngine
 			}
 
 			texture->m_MasterTextureData.m_MappedTexture = currentGPUTexture;
-
 			return;
 		}
 
@@ -196,7 +192,7 @@ namespace OverEngine
 		currentGPUTexture->AllocateStorage(TextureFormat::RGBA, texture->GetWidth(), texture->GetHeight());
 		currentGPUTexture->SubImage(texture->GetPixels(), texture->GetWidth(), texture->GetHeight(), texture->GetFormat());
 		currentGPUTexture->GetMemberTextures().push_back(texture);
-		texture->m_MasterTextureData.m_MappedTexture = s_ManagerData->GPUTextures[0];
+		texture->m_MasterTextureData.m_MappedTexture = currentGPUTexture;
 		texture->m_MasterTextureData.m_MappedTextureRect = {
 			0, 0, texture->GetWidth(), texture->GetHeight()
 		};
