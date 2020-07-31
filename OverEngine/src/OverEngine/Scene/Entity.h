@@ -11,10 +11,19 @@ namespace OverEngine
 	public:
 		Entity() = default;
 		Entity(entt::entity handle, Scene * scene);
-		Entity(const Entity & other) = default;
+		Entity(const Entity& other) = default;
+
+		inline Scene* GetScene() const { return m_Scene; }
 
 		template<typename T, typename... Args>
-		T& AddComponent(Args &&... args)
+		T& AddComponent(Args&&... args)
+		{
+			OE_CORE_ASSERT(!HasComponent<T>(), "Entity already has component!");
+			return m_Scene->m_Registry.emplace<T>(m_EntityHandle, *this, std::forward<Args>(args)...);
+		}
+
+		template<typename T, typename... Args>
+		T& AddComponentDontPassEntity(Args&&... args)
 		{
 			OE_CORE_ASSERT(!HasComponent<T>(), "Entity already has component!");
 			return m_Scene->m_Registry.emplace<T>(m_EntityHandle, std::forward<Args>(args)...);
@@ -40,9 +49,11 @@ namespace OverEngine
 			m_Scene->m_Registry.remove<T>(m_EntityHandle);
 		}
 
-		operator bool() const { return (uint32_t)m_EntityHandle != 0; }
+		void SetParent(Entity& parent);
+
+		operator bool() const { return m_EntityHandle != entt::null; }
 	private:
-		entt::entity m_EntityHandle;
+		entt::entity m_EntityHandle{ entt::null };
 		Scene* m_Scene;
 	};
 }

@@ -59,7 +59,8 @@ namespace OverEngine
 			{ ShaderDataType::Float, "a_TextureSlot" },
 			{ ShaderDataType::Float, "a_TextureFlipX" },
 			{ ShaderDataType::Float, "a_TextureFlipY" },
-			{ ShaderDataType::Float, "a_TextureTilingFactor" },
+			{ ShaderDataType::Float, "a_TextureTilingFactorX" },
+			{ ShaderDataType::Float, "a_TextureTilingFactorY" },
 			{ ShaderDataType::Float4, "a_TextureBorderColor" },
 			{ ShaderDataType::Float4, "a_TextureRect" },
 			{ ShaderDataType::Float2, "a_TextureSize" },
@@ -148,7 +149,7 @@ namespace OverEngine
 			s_Data->Vertices.push_back(color.b);
 			s_Data->Vertices.push_back(color.a);
 
-			for (int i = 0; i < 20; i++)
+			for (int i = 0; i < 21; i++)
 				s_Data->Vertices.push_back(0.0f);
 		}
 
@@ -240,9 +241,9 @@ namespace OverEngine
 
 			if (!textureFound)
 			{
-				uint32_t size = (uint32_t)s_Data->TextureBindList.size();
-				s_Data->TextureBindList.push_back({ size, textureToBind });
-				textureSlot = size;
+				uint32_t slot = (uint32_t)s_Data->TextureBindList.size();
+				s_Data->TextureBindList.push_back({ slot, textureToBind });
+				textureSlot = slot;
 			}
 
 			// a_TextureSlot
@@ -252,8 +253,9 @@ namespace OverEngine
 			s_Data->Vertices.push_back((float)extraData.flipX);
 			s_Data->Vertices.push_back((float)extraData.flipY);
 
-			// a_TextureTilingFactor
-			s_Data->Vertices.push_back(extraData.tilingFactor);
+			// a_TextureTilingFactorX & a_TextureTilingFactorY
+			s_Data->Vertices.push_back(extraData.tilingFactorX);
+			s_Data->Vertices.push_back(extraData.tilingFactorY);
 
 			// a_TextureBorderColor
 			s_Data->Vertices.push_back(texture->GetBorderColor().x);

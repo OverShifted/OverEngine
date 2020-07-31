@@ -10,11 +10,12 @@ layout(location = 5) in float a_TextureFilter;
 layout(location = 6) in float a_TextureSlot;
 layout(location = 7) in float a_TextureFlipX;
 layout(location = 8) in float a_TextureFlipY;
-layout(location = 9) in float a_TextureTilingFactor;
-layout(location = 10) in vec4 a_TextureBorderColor;
-layout(location = 11) in vec4 a_TextureRect;
-layout(location = 12) in vec2 a_TextureSize;
-layout(location = 13) in vec2 a_TextureCoord;
+layout(location = 9)  in float a_TextureTilingFactorX;
+layout(location = 10) in float a_TextureTilingFactorY;
+layout(location = 11) in vec4 a_TextureBorderColor;
+layout(location = 12) in vec4 a_TextureRect;
+layout(location = 13) in vec2 a_TextureSize;
+layout(location = 14) in vec2 a_TextureCoord;
 
 out vec4 v_Color;
 flat out int v_UseTexture;
@@ -24,7 +25,8 @@ flat out int v_TextureFilter;
 flat out int v_TextureSlot;
 flat out int v_TextureFlipX;
 flat out int v_TextureFlipY;
-out float v_TextureTilingFactor;
+out float v_TextureTilingFactorX;
+out float v_TextureTilingFactorY;
 out vec4 v_TextureBorderColor;
 out vec4 v_TextureRect;
 out vec2 v_TextureSize;
@@ -41,7 +43,8 @@ void main()
 	v_TextureSlot = int(a_TextureSlot);
 	v_TextureFlipX = int(a_TextureFlipX);
 	v_TextureFlipY = int(a_TextureFlipY);
-	v_TextureTilingFactor = a_TextureTilingFactor;
+	v_TextureTilingFactorX = a_TextureTilingFactorX;
+	v_TextureTilingFactorY = a_TextureTilingFactorY;
 	v_TextureBorderColor = a_TextureBorderColor;
 	v_TextureRect = a_TextureRect;
 	v_TextureSize = a_TextureSize;
@@ -63,7 +66,8 @@ flat in int v_TextureFilter;
 flat in int v_TextureSlot;
 flat in int v_TextureFlipX;
 flat in int v_TextureFlipY;
-in float v_TextureTilingFactor;
+in float v_TextureTilingFactorX;
+in float v_TextureTilingFactorY;
 in vec4 v_TextureBorderColor;
 in vec4 v_TextureRect;
 in vec2 v_TextureSize;
@@ -193,9 +197,9 @@ void main()
 	if (v_UseTexture != 0)
 	{
 		if (v_TextureFilter == 0)
-			o_Color = PointSampleFromAtlas(u_Slots[v_TextureSlot], coord * v_TextureTilingFactor, v_TextureRect, v_TextureSWrapping, v_TextureTWrapping) * v_Color;
+			o_Color = PointSampleFromAtlas(u_Slots[v_TextureSlot], coord * vec2(v_TextureTilingFactorX, v_TextureTilingFactorY), v_TextureRect, v_TextureSWrapping, v_TextureTWrapping) * v_Color;
 		else
-			o_Color = BiLinearSampleFromAtlas(u_Slots[v_TextureSlot], coord * v_TextureTilingFactor) * v_Color;
+			o_Color = BiLinearSampleFromAtlas(u_Slots[v_TextureSlot], coord * vec2(v_TextureTilingFactorX, v_TextureTilingFactorY)) * v_Color;
 	}
 	else
 		o_Color = v_Color;

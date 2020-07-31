@@ -27,6 +27,7 @@ project "Sandbox"
 		"../%{IncludeDir.spdlog}",
 		"../%{IncludeDir.glm}",
 		"../%{IncludeDir.entt}",
+		"../%{IncludeDir.Box2D}",
 	}
 	
 	if (IncludeTinyFileDialogs) then

@@ -25,8 +25,11 @@ private:
 
 	Ref<Texture2D> m_CheckerBoardTexture;
 	Ref<Texture2D> m_OELogoTexture;
+
 	Ref<Texture2D> m_SpriteSheet;
 	Ref<Texture2D> m_Sprite;
+	Ref<Texture2D> m_ObstacleSprite;
 
 	Ref<Scene> m_Scene;
+	Entity m_Player;
 };

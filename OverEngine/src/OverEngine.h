@@ -11,21 +11,30 @@
 
 #include "OverEngine/ImGui/ImGuiLayer.h"
 
+// ------- Scenes --------------------
+#include "OverEngine/Scene/Scene.h"
+#include "OverEngine/Scene/Entity.h"
+#include "OverEngine/Scene/Components.h"
+// -----------------------------------
+
 // ------- Renderer ------------------
 #include "OverEngine/Renderer/Renderer.h"
 #include "OverEngine/Renderer/Renderer2D.h"
 
 #include "OverEngine/Renderer/Buffer.h"
 #include "OverEngine/Renderer/Shader.h"
+#include "OverEngine/Renderer/TextureManager.h"
 #include "OverEngine/Renderer/Texture.h"
 #include "OverEngine/Renderer/VertexArray.h"
 #include "OverEngine/Renderer/Camera.h"
 // -----------------------------------
 
-// ------- Scenes --------------------
-#include "OverEngine/Scene/Scene.h"
-#include "OverEngine/Scene/Entity.h"
-#include "OverEngine/Scene/Components.h"
+// ------- Physics -------------------
+#include "OverEngine/Physics/PhysicsWorld2D.h"
+#include "OverEngine/Physics/PhysicsBody2D.h"
+#include "OverEngine/Physics/PhysicsCollider2D.h"
+#include "OverEngine/Physics/PhysicsShape2D.h"
+#include "OverEngine/Physics/PhysicsMaterial2D.h"
 // -----------------------------------
 
 // ------- Input ---------------------

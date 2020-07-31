@@ -11,7 +11,8 @@ namespace OverEngine
 	struct TexturedQuadExtraData
 	{
 		Color tint = Color(1.0f);
-		float tilingFactor = 1.0f;
+		float tilingFactorX = 1.0f;
+		float tilingFactorY = 1.0f;
 		bool flipX = false;
 		bool flipY = false;
 		TextureWrapping overrideSTextureWrapping = TextureWrapping::None;
@@ -31,9 +32,9 @@ namespace OverEngine
 		static void DrawQuad(const Vector3& position, float rotation, const Vector2& size, const Color& color);
 		static void DrawQuad(const Mat4x4& transform, const Color& color);
 
-		static void DrawQuad(const Vector2& position, float rotation, const Vector2& size, Ref<Texture2D> texture, const TexturedQuadExtraData& extraData);
-		static void DrawQuad(const Vector3& position, float rotation, const Vector2& size, Ref<Texture2D> texture, const TexturedQuadExtraData& extraData);
-		static void DrawQuad(const Mat4x4& transform, Ref<Texture2D> texture, const TexturedQuadExtraData& extraData);
+		static void DrawQuad(const Vector2& position, float rotation, const Vector2& size, Ref<Texture2D> texture, const TexturedQuadExtraData& extraData = TexturedQuadExtraData());
+		static void DrawQuad(const Vector3& position, float rotation, const Vector2& size, Ref<Texture2D> texture, const TexturedQuadExtraData& extraData = TexturedQuadExtraData());
+		static void DrawQuad(const Mat4x4& transform, Ref<Texture2D> texture, const TexturedQuadExtraData& extraData = TexturedQuadExtraData());
 
 		struct Statistics
 		{
