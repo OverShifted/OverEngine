@@ -17,7 +17,7 @@ public:
 	bool OnWindowResizeEvent(WindowResizeEvent& event);
 	bool OnMouseScrolledEvent(MouseScrolledEvent& event);
 private:
-	OrthographicCamera m_Camera;
+	Camera m_Camera;
 
 	float m_CameraSpeed = 1.0f;
 	float m_CameraRotationDirection = 0.0f;

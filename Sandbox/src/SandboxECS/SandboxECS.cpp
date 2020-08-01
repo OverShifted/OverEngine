@@ -14,7 +14,7 @@ SandboxECS::SandboxECS()
 	Application& app = Application::Get();
 
 	float aspectRatio = (float)app.GetMainWindow().GetWidth() / (float)app.GetMainWindow().GetHeight();
-	m_Camera = OrthographicCamera(10.0f, aspectRatio);
+	m_Camera.MakeOrthographic(10.0f, aspectRatio, -1.0f, 1.0f);
 #pragma endregion
 
 #pragma region Input
