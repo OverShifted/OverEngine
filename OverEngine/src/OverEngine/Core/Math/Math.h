@@ -32,7 +32,13 @@ namespace OverEngine
 				glm::angleAxis(glm::radians(rot.z), Vector3{ 0, 0, 1 });
 		}
 
-		inline Vector3 QuaternionEulerAngles(Quaternion rot) { return glm::eulerAngles(rot); }
+		inline Vector3 QuaternionEulerAngles(Quaternion rot)
+		{
+			Vector3 val = glm::eulerAngles(rot);
+			return Vector3(glm::degrees(val.x), glm::degrees(val.y), glm::degrees(val.z));
+		}
+
+		inline Vector3 QuaternionEulerAnglesRadians(Quaternion rot) { return  glm::eulerAngles(rot); }
 
 		template<typename T>
 		T Clamp(T val, T min, T max)

@@ -17,7 +17,6 @@ public:
 	bool OnWindowResizeEvent(WindowResizeEvent& event);
 	bool OnMouseScrolledEvent(MouseScrolledEvent& event);
 private:
-	Camera m_Camera;
 
 	float m_CameraSpeed = 1.0f;
 	float m_CameraRotationDirection = 0.0f;
@@ -32,4 +31,7 @@ private:
 
 	Ref<Scene> m_Scene;
 	Entity m_Player;
+	Entity m_MainCamera;
+	TransformComponent* m_MainCameraTransform;
+	Camera* m_MainCameraCameraHandle;
 };

@@ -52,6 +52,8 @@ namespace OverEngine
 		bool Bullet;
 	};
 
+	class Scene;
+
 	class PhysicsBody2D
 	{
 	public:
@@ -65,8 +67,14 @@ namespace OverEngine
 
 		void AddCollider(const Ref<PhysicsCollider2D>& collider);
 		void RemoveCollider(const Ref<PhysicsCollider2D>& collider);
+		void ReloadCollider(const Ref<PhysicsCollider2D>& collider);
+
+		bool IsEnabled() const;
+		void SetEnabled(bool enabled);
 	private:
 		b2Body* m_BodyHandle;
 		UnorderedMap<Ref<PhysicsCollider2D>, b2Fixture*> m_ColliderToFixture;
+
+		friend class Scene;
 	};
 }

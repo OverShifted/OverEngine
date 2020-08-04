@@ -75,4 +75,20 @@ namespace OverEngine
 		m_ColliderToFixture.erase(collider);
 	}
 
+	void PhysicsBody2D::ReloadCollider(const Ref<PhysicsCollider2D>& collider)
+	{
+		RemoveCollider(collider);
+		AddCollider(collider);
+	}
+
+	bool PhysicsBody2D::IsEnabled() const
+	{
+		return m_BodyHandle->IsEnabled();
+	}
+
+	void PhysicsBody2D::SetEnabled(bool enabled)
+	{
+		m_BodyHandle->SetEnabled(enabled);
+	}
+
 }

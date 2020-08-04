@@ -50,7 +50,7 @@ namespace OverEngine
 			TextureWrapping m_SWrapping, m_TWrapping;
 			Color m_BorderColor;
 			TextureFormat m_Format;
-			uint32_t m_RendererID;
+			uint32_t m_RendererID = 0;
 			Vector<Ref<::OverEngine::Texture2D>> m_Members;
 		};
 	}

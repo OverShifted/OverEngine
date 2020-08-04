@@ -26,7 +26,8 @@ project "OverEditor"
 		"../%{IncludeDir.spdlog}",
 		"../%{IncludeDir.glm}",
 		"../%{IncludeDir.entt}",
-		"../%{IncludeDir.Box2D}"
+		"../%{IncludeDir.Box2D}",
+		"../%{IncludeDir.json}",
 	}
 
 	links "OverEngine"

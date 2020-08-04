@@ -1,0 +1,68 @@
+{
+	"Entities" : [
+		
+		{
+		
+			"Name" : "MainCamera",
+
+			"Family" : {
+				"Parent" : null,
+				"Children" : []
+			},
+
+			"Transform" : {
+				"Position" : { "x" : 0.0, "y" : 0.0, "z" : 0.0 },
+				"Rotation" : { "x" : 0.0, "y" : 0.0, "z" : 0.0, "w" : 0.0 },
+				"Scale"    : { "x" : 1.0, "y" : 1.0, "z" : 1.0 }
+			},
+			
+			"Components" : [
+				{
+					"TypeName" : "_CameraComponent",
+
+					"m_Type" : "Orthographic",
+					"m_OrthographicSize" : 10.0,
+					"m_ZNear" : -1.0,
+					"m_ZFar" : 1.0,
+					"m_IsClearingColor" : true,
+					"m_IsClearingDepth" : true,
+					"m_ClearColor" : { "r" : 0.0, "g" : 0.0, "b" : 0.0, "a" : 1.0 }
+				}
+			]
+		
+		},
+
+		{
+		
+			"Name" : "Quad",
+
+			"Family" : {
+				"Parent" : null,
+				"Children" : []
+			},
+
+			"Transform" : {
+				"Position" : { "x" : 0.0, "y" : 0.0, "z" : 0.0 },
+				"Rotation" : { "x" : 0.0, "y" : 0.0, "z" : 0.0, "w" : 0.0 },
+				"Scale"    : { "x" : 1.0, "y" : 1.0, "z" : 1.0 }
+			},
+			
+			"Components" : [
+				{
+					"TypeName" : "_SpriteRendererComponent",
+
+					"m_Sprite" : null,
+					"m_Tint" : { "r" : 1.0, "g" : 0.0, "b" : 0.0, "a" : 1.0 },
+					"m_TilingFactorX" : 1.0,
+					"m_TilingFactorY" : 1.0,
+					"m_FlipX" : false,
+					"m_FlipY" : false,
+					"m_OverrideSWrapping" : null,
+					"m_OverrideTWrapping" : null
+				}
+			]
+		
+		}
+
+	]
+}

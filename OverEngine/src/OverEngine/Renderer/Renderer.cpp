@@ -27,9 +27,19 @@ namespace OverEngine
 		RenderCommand::SetViewport(0, 0, width, height);
 	}
 
-	void Renderer::BeginScene(const Camera& camera)
+	void Renderer::BeginScene(const Mat4x4& viewProjectionMatrix)
 	{
-		s_SceneData->ViewProjectionMatrix = camera.GetViewProjectionMatrix();
+		s_SceneData->ViewProjectionMatrix = viewProjectionMatrix;
+	}
+
+	void Renderer::BeginScene(const Mat4x4& viewMatrix, const Camera& camera)
+	{
+		s_SceneData->ViewProjectionMatrix = viewMatrix * camera.GetProjectionMatrix();
+	}
+
+	void Renderer::BeginScene(const Mat4x4& viewMatrix, const Mat4x4& projectionMatrix)
+	{
+		s_SceneData->ViewProjectionMatrix = viewMatrix * projectionMatrix;
 	}
 
 	void Renderer::EndScene()

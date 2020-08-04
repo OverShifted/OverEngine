@@ -10,15 +10,22 @@
 #include "OverEngine/Physics/PhysicsBody2D.h"
 #include "OverEngine/Physics/PhysicsCollider2D.h"
 
+#include "OverEngine/Renderer/Camera.h"
+
 namespace OverEngine
 {
 	class Scene;
+
+	struct Component
+	{
+		bool Enabled;
+	};
 
 	////////////////////////////////////////////////////////
 	// Common Components ///////////////////////////////////
 	////////////////////////////////////////////////////////
 
-	struct NameComponent
+	struct NameComponent : public Component
 	{
 		String Name;
 
@@ -28,7 +35,7 @@ namespace OverEngine
 			: Name(name) {}
 	};
 
-	struct FamilyComponent
+	struct FamilyComponent : public Component
 	{
 		Entity* This;
 		Entity* Parent; // If Entity is root Entity, this value should be nullptr
@@ -49,7 +56,7 @@ namespace OverEngine
 		}
 	};
 
-	class TransformComponent
+	struct TransformComponent : public Component
 	{
 	public:
 		TransformComponent(
@@ -107,13 +114,14 @@ namespace OverEngine
 
 		inline bool IsChanged() { return m_Changed; }
 	private:
-		Mat4x4 m_TransformationMatrix;
 		Vector3 m_Position;
 		Quaternion m_Rotation;
 		Vector3 m_Scale;
 
+		// Runtime
 		bool m_Changed = true;
 		bool m_ChangedByPhysics = false;
+		Mat4x4 m_TransformationMatrix;
 
 		friend class Scene;
 	};
@@ -122,15 +130,15 @@ namespace OverEngine
 	// Renderer Components /////////////////////////////////
 	////////////////////////////////////////////////////////
 
-	struct SpriteRendererComponent
+	struct SpriteRendererComponent : public Component
 	{
 		Ref<Texture2D> Sprite;
 		Color Tint { 1.0f, 1.0f, 1.0f, 1.0f };
 		float TilingFactorX = 1.0f;
 		float TilingFactorY = 1.0f;
 		bool FlipX = false, FlipY = false;
-		TextureWrapping overrideSWrapping = TextureWrapping::None;
-		TextureWrapping overrideTWrapping = TextureWrapping::None;
+		TextureWrapping OverrideSWrapping = TextureWrapping::None;
+		TextureWrapping OverrideTWrapping = TextureWrapping::None;
 
 		SpriteRendererComponent() = default;
 		SpriteRendererComponent(const SpriteRendererComponent&) = default;
@@ -146,7 +154,7 @@ namespace OverEngine
 	// Physics Components //////////////////////////////////
 	////////////////////////////////////////////////////////
 
-	struct PhysicsBodyComponent
+	struct PhysicsBodyComponent : public Component
 	{
 		Ref<PhysicsBody2D> Body;
 
@@ -156,19 +164,19 @@ namespace OverEngine
 		PhysicsBodyComponent(Entity& entity, const PhysicsBodyProps& props);
 	};
 
-	struct PhysicsColliders2DComponent
+	struct PhysicsColliders2DComponent : public Component
 	{
 		Vector<Ref<PhysicsCollider2D>> Colliders;
-		PhysicsBodyComponent* AttachedBody;
+		Ref<PhysicsBody2D> AttachedBody;
 
 		PhysicsColliders2DComponent() = default;
 		PhysicsColliders2DComponent(const PhysicsColliders2DComponent&) = default;
 
 		PhysicsColliders2DComponent(Entity& entity)
 		{
-			PhysicsColliders2DComponent();
+			PhysicsColliders2DComponent(); // TODO: What is this?
 			if (entity.HasComponent<PhysicsBodyComponent>())
-				AttachedBody = &entity.GetComponent<PhysicsBodyComponent>();
+				AttachedBody = entity.GetComponent<PhysicsBodyComponent>().Body;
 			else
 				AttachedBody = nullptr;
 		}
@@ -178,7 +186,7 @@ namespace OverEngine
 			Colliders.push_back(collider);
 
 			if (AttachedBody)
-				AttachedBody->Body->AddCollider(collider);
+				AttachedBody->AddCollider(collider);
 		}
 
 		void RemoveCollider(const Ref<PhysicsCollider2D>& collider)
@@ -187,7 +195,7 @@ namespace OverEngine
 			if (it != Colliders.end())
 			{
 				if (AttachedBody)
-					AttachedBody->Body->RemoveCollider(collider);
+					AttachedBody->RemoveCollider(collider);
 				Colliders.erase(it);
 			}
 			else
@@ -198,6 +206,23 @@ namespace OverEngine
 		{
 			auto it = std::find(Colliders.begin(), Colliders.end(), collider);
 			return it != Colliders.end();
+		}
+	};
+
+	struct CameraComponent : public Component
+	{
+		OverEngine::Camera Camera;
+
+		CameraComponent() = default;
+		CameraComponent(const CameraComponent&) = default;
+
+		CameraComponent(Entity& entity, const OverEngine::Camera& camera)
+			: Camera(camera)
+		{
+		}
+
+		CameraComponent(Entity& entity)
+		{
 		}
 	};
 }

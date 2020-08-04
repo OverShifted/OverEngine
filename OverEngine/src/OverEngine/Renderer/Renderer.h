@@ -15,7 +15,9 @@ namespace OverEngine
 
 		static void OnWindowResize(uint32_t width, uint32_t height);
 
-		static void BeginScene(const Camera& camera);
+		static void BeginScene(const Mat4x4& viewProjectionMatrix);
+		static void BeginScene(const Mat4x4& viewMatrix, const Camera& camera);
+		static void BeginScene(const Mat4x4& viewMatrix, const Mat4x4& projectionMatrix);
 		static void EndScene();
 		static void Submit(const Ref<Shader>& shader, const Ref<VertexArray>& vertexArray, const Mat4x4& transform = Mat4x4(1.0f));
 

@@ -33,7 +33,7 @@ namespace OverEngine
 		UnorderedMap<GLenum, String> PreProcess(const String& source);
 		void Compile(const UnorderedMap<GLenum, String>& shaderSources);
 	private:
-		uint32_t m_RendererID;
+		uint32_t m_RendererID = 0;
 		String m_Name;
 	};
 }

@@ -52,6 +52,7 @@ IncludeDir["stb_image"]     = "OverEngine/vendor/stb_image"
 IncludeDir["stb_rectpack"]  = "OverEngine/vendor/stb_rectpack"
 IncludeDir["entt"]          = "OverEngine/vendor/entt/include"
 IncludeDir["Box2D"]         = "OverEngine/vendor/box2d/include"
+IncludeDir["json"]          = "OverEngine/vendor/json/include"
 
 LinkLibs = {
 	"GLFW",

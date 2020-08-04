@@ -13,7 +13,7 @@ public:
 		//PushLayer(new SandboxLayer());
 		//PushLayer(new Sandbox2D());
 		PushLayer(new SandboxECS());
-		//m_ImGuiEnabled = true;
+		m_ImGuiEnabled = true;
 	}
 
 	~SandboxApp()
@@ -22,7 +22,7 @@ public:
 	}
 };
 
-OverEngine::Application* OverEngine::CreateApplication()
+OverEngine::Application* OverEngine::CreateApplication(int argc, char** argv)
 {
 	return new SandboxApp();
 }

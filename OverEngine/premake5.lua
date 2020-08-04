@@ -31,6 +31,10 @@ project "OverEngine"
 		"vendor/stb_rectpack/stb_rectpack.h",
 		"vendor/stb_rectpack/stb_rectpack.cpp",
 
+		-- tinyfiledialogs
+		"vendor/tinyfiledialogs/tinyfiledialogs.h",
+		"vendor/tinyfiledialogs/tinyfiledialogsBuild.cpp",
+
 		-- Resources
 		"res/**.h",
 
@@ -54,6 +58,7 @@ project "OverEngine"
 		"../%{IncludeDir.stb_rectpack}",
 		"../%{IncludeDir.entt}",
 		"../%{IncludeDir.Box2D}",
+		"../%{IncludeDir.json}",
 	}
 
 	if (DynamicLink) then

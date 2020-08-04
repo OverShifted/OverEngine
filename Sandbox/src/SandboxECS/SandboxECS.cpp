@@ -10,12 +10,6 @@ SandboxECS::SandboxECS()
 	: Layer("SandboxECS"), m_CameraMovementDirection(0.0f)
 {
 	OE_PROFILE_FUNCTION();
-#pragma region CameraSetup
-	Application& app = Application::Get();
-
-	float aspectRatio = (float)app.GetMainWindow().GetWidth() / (float)app.GetMainWindow().GetHeight();
-	m_Camera.MakeOrthographic(10.0f, aspectRatio, -1.0f, 1.0f);
-#pragma endregion
 
 #pragma region Input
 	auto actionMap = InputActionMap::Create();
@@ -39,7 +33,7 @@ SandboxECS::SandboxECS()
 		{ {KeyCode::Q}, {KeyCode::E} }
 	});
 	CameraRotation.AddCallBack([&](InputAction::TriggerInfo& info) {
-		m_CameraRotationDirection = info.x;
+		m_CameraRotationDirection = -info.x;
 	});
 	actionMap->AddAction(CameraRotation);
 
@@ -47,9 +41,9 @@ SandboxECS::SandboxECS()
 		{ {KeyCode::Escape, true, false} }
 	});
 	EscapeKeyAction.AddCallBack([&](InputAction::TriggerInfo& info) {
-		m_Camera.SetPosition({ 0.0f, 0.0f, 0.0f });
-		m_Camera.SetRotation({ 0.0f, 0.0f, 0.0f });
-		m_Camera.SetOrthographicSize(10.0f);
+		m_MainCameraTransform->SetPosition({ 0.0f, 0.0f, 0.0f });
+		m_MainCameraTransform->SetRotation(QuaternionEuler({ 0.0f, 0.0f, 0.0f }));
+		m_MainCameraCameraHandle->SetOrthographicSize(10.0f);
 	});
 	actionMap->AddAction(EscapeKeyAction);
 #pragma endregion
@@ -76,7 +70,10 @@ SandboxECS::SandboxECS()
 #pragma region ECS
 	m_Scene = CreateRef<Scene>();
 
-	// Player
+	////////////////////////////////////////////////////////////////
+	// Player //////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////
+
 	m_Player = m_Scene->CreateEntity("Player");
 
 	// SpriteRenderer
@@ -91,16 +88,20 @@ SandboxECS::SandboxECS()
 	auto& playerColliderList = m_Player.AddComponent<PhysicsColliders2DComponent>();
 	auto playerCollider = CreateRef<PhysicsCollider2D>();
 	playerCollider->GetShape()->SetAsBox({ 1.0f, 1.0f });
+	playerCollider->GetMaterial().Bounciness = 0.9f;
 	playerColliderList.AddCollider(playerCollider);
 
-	// Obstacle
+	////////////////////////////////////////////////////////////////
+	// Obstacle ////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////
+
 	Entity obstacle = m_Scene->CreateEntity("Obstacle");
 
 	// SpriteRenderer
 	auto& spriteRenderer = obstacle.AddComponent<SpriteRendererComponent>(m_ObstacleSprite);
 	spriteRenderer.TilingFactorX = 4.0f;
-	spriteRenderer.overrideSWrapping = TextureWrapping::Repeat;
-	spriteRenderer.overrideTWrapping = TextureWrapping::Repeat;
+	spriteRenderer.OverrideSWrapping = TextureWrapping::Repeat;
+	spriteRenderer.OverrideTWrapping = TextureWrapping::Repeat;
 
 	// PhysicsBody2D
 	PhysicsBodyProps obstacleBodyProps;
@@ -110,7 +111,7 @@ SandboxECS::SandboxECS()
 	auto& obstacleTransform = obstacle.GetComponent<TransformComponent>();
 	obstacleTransform.SetPosition({ 0.0f, -2.0f, 0.0f });
 	obstacleTransform.SetScale({ 4.0f, 1.0f, 1.0f });
-	obstacleTransform.SetRotation(QuaternionEuler({ 0.0f, 0.0f, 10.0f }));
+	obstacleTransform.SetRotation(QuaternionEuler({ 0.0f, 0.0f, 90.0f }));
 
 	// PhysicsCollider2D
 	auto& colliderList = obstacle.AddComponent<PhysicsColliders2DComponent>();
@@ -118,14 +119,17 @@ SandboxECS::SandboxECS()
 	collider->GetShape()->SetAsBox({ 4.0f, 1.0f });
 	colliderList.AddCollider(collider);
 
-	// Obstacle2
+	////////////////////////////////////////////////////////////////
+	// Obstacle2 ///////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////
+
 	Entity obstacle2 = m_Scene->CreateEntity("Obstacle2");
 
 	// SpriteRenderer
 	auto& spriteRenderer2 = obstacle2.AddComponent<SpriteRendererComponent>(m_ObstacleSprite);
-	spriteRenderer2.TilingFactorX = 10.0f;
-	spriteRenderer2.overrideSWrapping = TextureWrapping::Repeat;
-	spriteRenderer2.overrideTWrapping = TextureWrapping::Repeat;
+	spriteRenderer2.TilingFactorX = 40.0f;
+	spriteRenderer2.OverrideSWrapping = TextureWrapping::Repeat;
+	spriteRenderer2.OverrideTWrapping = TextureWrapping::Repeat;
 
 	// PhysicsBody2D
 	PhysicsBodyProps obstacle2BodyProps;
@@ -134,14 +138,25 @@ SandboxECS::SandboxECS()
 
 
 	auto& obstacle2Transform = obstacle2.GetComponent<TransformComponent>();
-	obstacle2Transform.SetScale({ 10.0f, 1.0f, 1.0f });
-	obstacle2Transform.SetPosition({ -5.0f, -8.0f, 0.0f });
+	obstacle2Transform.SetScale({ 40.0f, 1.0f, 1.0f });
+	obstacle2Transform.SetPosition({ 0.0f, -8.0f, 0.0f });
+	//obstacle2Transform.SetRotation(QuaternionEuler({ 0.0f, 0.0f, 90.0f }));
 
 	// PhysicsCollider2D
 	auto& colliderList2 = obstacle2.AddComponent<PhysicsColliders2DComponent>();
 	auto collider2 = CreateRef<PhysicsCollider2D>();
-	collider2->GetShape()->SetAsBox({ 10.0f, 1.0f });
+	collider2->GetShape()->SetAsBox({ 40.0f, 1.0f });
 	colliderList2.AddCollider(collider2);
+
+	////////////////////////////////////////////////////////////////
+	// Main Camera /////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////
+
+	m_MainCamera = m_Scene->CreateEntity("MainCamera");
+	auto& app = Application::Get();
+	float aspectRatio = (float)app.GetMainWindow().GetWidth() / (float)app.GetMainWindow().GetHeight();
+	m_MainCameraCameraHandle = &m_MainCamera.AddComponent<CameraComponent>(Camera(CameraType::Orthographic, 10.0f, aspectRatio, -1.0f, 1.0f)).Camera;
+	m_MainCameraTransform = &m_MainCamera.GetComponent<TransformComponent>();
 #pragma endregion
 }
 
@@ -153,13 +168,16 @@ void SandboxECS::OnUpdate(TimeStep DeltaTime)
 {
 	OE_PROFILE_FUNCTION();
 
+	m_MainCameraCameraHandle = &m_MainCamera.GetComponent<CameraComponent>().Camera;
+	m_MainCameraTransform = &m_MainCamera.GetComponent<TransformComponent>();
+
 	// Update
 	Vector3 offset(m_CameraMovementDirection, 0.0f);
-	offset = offset * (m_CameraSpeed * DeltaTime * m_Camera.GetOrthographicSize());
-	Mat4x4 rotationMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(m_Camera.GetRotation().z), Vector3(0, 0, 1));
-	m_Camera.SetPosition(Vector4(m_Camera.GetPosition(), 1.0f) + (rotationMatrix * Vector4(offset, 1.0f)));
+	offset = offset * (m_CameraSpeed * DeltaTime * m_MainCameraCameraHandle->GetOrthographicSize());
+	Mat4x4 rotationMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(QuaternionEulerAngles(m_MainCameraTransform->GetRotation()).z), Vector3(0, 0, 1));
+	m_MainCameraTransform->SetPosition(Vector4(m_MainCameraTransform->GetPosition(), 0.0f) + (rotationMatrix * Vector4(offset, 1.0f)));
 
-	m_Camera.SetRotation({ 0.0f, 0.0f, m_Camera.GetRotation().z + m_CameraRotationDirection * DeltaTime * 80.0f });
+	m_MainCameraTransform->SetRotation(QuaternionEuler({ 0.0f, 0.0f, QuaternionEulerAngles(m_MainCameraTransform->GetRotation()).z + m_CameraRotationDirection * DeltaTime * 80.0f }));
 
 	for (uint32_t i = 0; i < (uint32_t)((int)s_FPSSamples.size() - 1); i++)
 	{
@@ -172,15 +190,8 @@ void SandboxECS::OnUpdate(TimeStep DeltaTime)
 	
 	sprintf(fpsText, "%i", (int)s_FPSSamples[(int)s_FPSSamples.size() - 1]);
 
-	// Render
-	RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });
-	RenderCommand::Clear();
-
-	Renderer2D::BeginScene(m_Camera);
 	
 	m_Scene->OnUpdate(DeltaTime);
-
-	Renderer2D::EndScene();
 }
 
 void SandboxECS::OnImGuiRender()
@@ -188,12 +199,12 @@ void SandboxECS::OnImGuiRender()
 	OE_PROFILE_FUNCTION();
 
 	ImGui::Begin("Camera");
-	ImGui::DragFloat2("Position", glm::value_ptr(const_cast<Vector3&>(m_Camera.GetPosition())), m_Camera.GetOrthographicSize() / 20);
+	ImGui::DragFloat2("Position", glm::value_ptr(const_cast<Vector3&>(m_MainCameraTransform->GetPosition())), m_MainCameraCameraHandle->GetOrthographicSize() / 20);
 	// ImGui::DragFloat("Rotation", glm::value_ptr(const_cast<Vector3&>(m_Camera.GetRotation())));
 	// ImGui::DragFloat("Size", &(const_cast<float&>(m_Camera.GetOrthographicSize())));
 	ImGui::End();
 
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
+	/*ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
 
 	ImGui::Begin("Texture Debugger1");
 
@@ -234,7 +245,7 @@ void SandboxECS::OnImGuiRender()
 	ImGui::Image((void*)2, ImGui::GetContentRegionAvail());
 	ImGui::End();
 
-	ImGui::PopStyleVar();
+	ImGui::PopStyleVar();*/
 
 	ImGui::Begin("Renderer2D Statistics");
 	
@@ -270,7 +281,7 @@ bool SandboxECS::OnWindowResizeEvent(WindowResizeEvent& event)
 {
 	OE_PROFILE_FUNCTION();
 
-	m_Camera.SetAspectRatio((float)event.GetWidth() / (float)event.GetHeight());
+	m_MainCameraCameraHandle->SetAspectRatio((float)event.GetWidth() / (float)event.GetHeight());
 	return false;
 }
 
@@ -278,8 +289,8 @@ bool SandboxECS::OnMouseScrolledEvent(MouseScrolledEvent& event)
 {
 	OE_PROFILE_FUNCTION();
 
-	float newSize = m_Camera.GetOrthographicSize() - (float)event.GetYOffset() / 4.0f;
+	float newSize = m_MainCameraCameraHandle->GetOrthographicSize() - (float)event.GetYOffset() / 4.0f;
 	if (newSize > 0)
-		m_Camera.SetOrthographicSize(newSize);
+		m_MainCameraCameraHandle->SetOrthographicSize(newSize);
 	return false;
 }

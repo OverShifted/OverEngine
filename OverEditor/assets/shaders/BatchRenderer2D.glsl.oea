@@ -1,0 +1,4 @@
+{
+    "TypeName" : "shader",
+    "file" : "BatchRenderer2D.glsl"
+}

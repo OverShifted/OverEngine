@@ -30,10 +30,18 @@ namespace OverEngine
 		Entity CreateEntity(const String& name = String());
 		Entity CreateEntity(Entity& parent, const String& name = String());
 
-		inline PhysicsWorld2D& GetPhysicsWorld() { return m_PhysicsWorld; }
+		inline PhysicsWorld2D& GetPhysicsWorld2D() { return m_PhysicsWorld2D; }
+
+		inline const Vector<Entity>& GetRootEntities() const { return m_RootEntities; }
+		inline Vector<Entity>& GetRootEntities() { return m_RootEntities; }
+	private:
+		void UpdatePhysicsAndTransform(TimeStep DeltaTime);
+		void Render();
 	private:
 		entt::registry m_Registry;
-		PhysicsWorld2D m_PhysicsWorld;
+		PhysicsWorld2D m_PhysicsWorld2D;
+
+		Vector<Entity> m_RootEntities;
 
 		friend class Entity;
 	};

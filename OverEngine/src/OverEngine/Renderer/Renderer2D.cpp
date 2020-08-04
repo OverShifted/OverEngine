@@ -83,14 +83,30 @@ namespace OverEngine
 		delete s_Data;
 	}
 
-	void Renderer2D::BeginScene(const Camera& camera)
+	void Renderer2D::Reset()
 	{
 		s_Data->Vertices.clear();
 		s_Data->Indices.clear();
-		
-		s_Statistics.Reset();
 
-		s_Data->ViewProjectionMatrix = camera.GetViewProjectionMatrix();
+		s_Statistics.Reset();
+	}
+
+	void Renderer2D::BeginScene(const Mat4x4& viewProjectionMatrix)
+	{
+		Reset();
+		s_Data->ViewProjectionMatrix = viewProjectionMatrix;
+	}
+
+	void Renderer2D::BeginScene(const Mat4x4& viewMatrix, const Camera& camera)
+	{
+		Reset();
+		s_Data->ViewProjectionMatrix = camera.GetProjectionMatrix() * viewMatrix;
+	}
+
+	void Renderer2D::BeginScene(const Mat4x4& viewMatrix, const Mat4x4& projectionMatrix)
+	{
+		Reset();
+		s_Data->ViewProjectionMatrix = projectionMatrix * viewMatrix;
 	}
 
 	void Renderer2D::EndScene()

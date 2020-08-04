@@ -3,14 +3,21 @@
 
 #include "EditorLayer.h"
 
-class EditorApp : public OverEngine::Application
+using namespace OverEngine;
+
+class EditorApp : public Application
 {
 public:
-	EditorApp()
-		:Application("OverEditor", false)
+	EditorApp(int argc, char** argv)
+		: Application("OverEditor", true)
 	{
-		PushLayer(new OverEditor::EditorLayer());
+		PushLayer(new EditorLayer());
 		m_ImGuiEnabled = true;
+
+		for (int i = 0; i < argc; i++)
+		{
+			OE_CORE_INFO(argv[i]);
+		}
 	}
 
 	~EditorApp()
@@ -19,7 +26,7 @@ public:
 	}
 };
 
-OverEngine::Application* OverEngine::CreateApplication()
+Application* OverEngine::CreateApplication(int argc, char** argv)
 {
-	return new EditorApp();
+	return new EditorApp(argc, argv);
 }

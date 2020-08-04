@@ -28,6 +28,7 @@ project "Sandbox"
 		"../%{IncludeDir.glm}",
 		"../%{IncludeDir.entt}",
 		"../%{IncludeDir.Box2D}",
+		"../%{IncludeDir.json}",
 	}
 	
 	if (IncludeTinyFileDialogs) then

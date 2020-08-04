@@ -4,14 +4,14 @@
 #include "OverEngine/Core/Window.h"
 #include "OverEngine/Core/Time/Time.h"
 
-#include "OverEngine/ImGui/ImGuiLayer.h"
-
 #include "OverEngine/Layers/LayerStack.h"
 #include "OverEngine/Events/Event.h"
 #include "OverEngine/Events/ApplicationEvent.h"
 
 namespace OverEngine
 {
+	class ImGuiLayer;
+
 	class OVER_API Application
 	{
 	public:
@@ -19,12 +19,15 @@ namespace OverEngine
 		virtual ~Application();
 
 		void Run();
+		inline void Close() { m_Running = false; }
 
 		void OnEvent(Event& e);
 
 		void PushLayer(Layer* layer);
 		void PushOverlay(Layer* layer);
+
 		inline static Application& Get() { return *m_Instance; }
+		ImGuiLayer* GetImGuiLayer() { return m_ImGuiLayer; }
 		inline Window& GetMainWindow() { return *m_Window; }
 	private:
 		bool OnWindowClose(WindowCloseEvent& e);
@@ -36,8 +39,8 @@ namespace OverEngine
 		bool m_Minimized = false;
 		bool m_UseInternalRenderer = false;
 
-		LayerStack        m_LayerStack;
-		ImGuiLayer*       m_ImGuiLayer;
+		LayerStack  m_LayerStack;
+		ImGuiLayer* m_ImGuiLayer;
 	protected:
 		bool m_ImGuiEnabled = false;
 	private:
@@ -45,5 +48,5 @@ namespace OverEngine
 	};
 
 	// To be defined in CLIENT
-	Application* CreateApplication();
+	Application* CreateApplication(int argc, char** argv);
 }

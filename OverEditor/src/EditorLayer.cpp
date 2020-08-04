@@ -1,248 +1,321 @@
 #include "pcheader.h"
 #include "EditorLayer.h"
 
+#include "SceneLoader.h"
+#include "GUI/OnEditorGUI.h"
+
 #include "imgui/imgui.h"
-#include <OverEngine.h>
 
-namespace OverEditor
+/*EditorLayer::EditorLayer()
+	: Layer("Editor Layer")
 {
-	EditorLayer::EditorLayer()
-		: Layer("Editor Layer")
-	{
-	}
+	FrameBufferProps fbProps;
+	fbProps.Width = 1280;
+	fbProps.Height = 720;
+	m_SceneFrameBuffer = FrameBuffer::Create(fbProps);
 
-	void EditorLayer::OnAttach()
-	{
-		std::stringstream ss = std::stringstream();
-		ss << "Vendor: " << OverEngine::Application::Get().GetMainWindow().GetRendererContext()->GetInfoVendor();
-		vendorInfo = ss.str();
+	m_GameScene = CreateRef<Scene>();
+
+	Entity cameraEntity = m_GameScene->CreateEntity("Main Camera");
+	auto& camera = cameraEntity.AddComponent<CameraComponent>(Camera(CameraType::Orthographic, 10.0f, 16.0f / 0.9f, -1.0f, 1.0f));
+	camera.Camera.SetClearColor(Color(1.0f, 0.0f, 1.0f, 1.0f));
+
+	Ref<Texture2D> playerSprite = Texture2D::MasterFromFile("assets/textures/Checkerboard.png");
+
+	Entity player = m_GameScene->CreateEntity("Player");
+	player.AddComponent<SpriteRendererComponent>(playerSprite);
+}
+
+void EditorLayer::OnAttach()
+{
+	std::stringstream ss = std::stringstream();
+	ss << "Vendor: " << OverEngine::Application::Get().GetMainWindow().GetRendererContext()->GetInfoVendor();
+	vendorInfo = ss.str();
 	
-		ss = std::stringstream();
-		ss << "Renderer: " << OverEngine::Application::Get().GetMainWindow().GetRendererContext()->GetInfoRenderer();
-		rendererInfo = ss.str();
+	ss = std::stringstream();
+	ss << "Renderer: " << OverEngine::Application::Get().GetMainWindow().GetRendererContext()->GetInfoRenderer();
+	rendererInfo = ss.str();
 	
-		ss = std::stringstream();
-		ss << "Version: " << OverEngine::Application::Get().GetMainWindow().GetRendererContext()->GetInfoVersion();
-		versionInfo = ss.str();
-	}
+	ss = std::stringstream();
+	ss << "Version: " << OverEngine::Application::Get().GetMainWindow().GetRendererContext()->GetInfoVersion();
+	versionInfo = ss.str();
+}
 
-	void EditorLayer::OnUpdate(OverEngine::TimeStep DeltaTime)
+void EditorLayer::OnUpdate(OverEngine::TimeStep DeltaTime)
+{
+	//m_SceneFrameBuffer->Resize((uint32_t)viewportPanelSize.x, (uint32_t)viewportPanelSize.y);
+	m_SceneFrameBuffer->Resize(512, 512);
+	m_SceneFrameBuffer->Bind();
+
+	m_GameScene->OnUpdate(DeltaTime);
+
+	m_SceneFrameBuffer->Unbind();
+}
+
+void EditorLayer::OnImGuiRender()
+{
+	MainMenuBar();
+	MainDockSpace();
+
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0.0f, 0.0f });
+
+	ImGui::Begin("Viewport");
+
+	ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
+	ImGui::Image((void*)(intptr_t)m_SceneFrameBuffer->GetColorAttachmentRendererID(), viewportPanelSize, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+
+	OE_CORE_INFO("{}, {}", m_SceneFrameBuffer->GetProps().Width, m_SceneFrameBuffer->GetProps().Height);
+
+	ImGui::End();
+	ImGui::PopStyleVar();
+}
+
+void EditorLayer::OnEvent(OverEngine::Event& event)
+{
+}
+*/
+
+EditorLayer::EditorLayer()
+	: Layer("EditorLayer"), m_CameraMovementDirection(0.0f)
+{
+	OE_PROFILE_FUNCTION();
+
+	#pragma region Input
+	auto actionMap = InputActionMap::Create();
+
+	InputAction CameraMovement(InputActionType::Button, {
+		{
+			{KeyCode::A}, {KeyCode::D},
+			{KeyCode::S}, {KeyCode::W}
+		},
+		{
+			{KeyCode::Left}, {KeyCode::Right},
+			{KeyCode::Down}, {KeyCode::Up}
+		}
+	});
+	CameraMovement.AddCallBack([&](InputAction::TriggerInfo& info) {
+		m_CameraMovementDirection = info.ReadValue<Vector2>();
+	});
+	actionMap->AddAction(CameraMovement);
+
+	InputAction CameraRotation(InputActionType::Button, {
+		{ {KeyCode::Q}, {KeyCode::E} }
+	});
+	CameraRotation.AddCallBack([&](InputAction::TriggerInfo& info) {
+		m_CameraRotationDirection = -info.x;
+	});
+	actionMap->AddAction(CameraRotation);
+
+	InputAction EscapeKeyAction(InputActionType::Button, {
+		{ {KeyCode::Escape, true, false} }
+	});
+	EscapeKeyAction.AddCallBack([&](InputAction::TriggerInfo& info) {
+		m_MainCameraTransform->SetPosition({ 0.0f, 0.0f, 0.0f });
+		m_MainCameraTransform->SetRotation(QuaternionEuler({ 0.0f, 0.0f, 0.0f }));
+		m_MainCameraCameraHandle->SetOrthographicSize(10.0f);
+	});
+	actionMap->AddAction(EscapeKeyAction);
+	#pragma endregion
+
+	#pragma region Textures
+	m_CheckerBoardTexture = Texture2D::MasterFromFile("assets/textures/Checkerboard.png");
+	m_CheckerBoardTexture->SetSWrapping(TextureWrapping::ClampToBorder);
+	m_CheckerBoardTexture->SetTWrapping(TextureWrapping::ClampToBorder);
+	m_CheckerBoardTexture->SetBorderColor({ 0.0f, 1.0f, 1.0f, 1.0f });
+	m_CheckerBoardTexture->SetFilter(TextureFiltering::Nearest);
+
+	m_OELogoTexture = Texture2D::MasterFromFile("assets/textures/OELogo.png");
+
+	m_SpriteSheet = Texture2D::MasterFromFile("assets/textures/platformPack_tilesheet@2.png");
+	m_SpriteSheet->SetSWrapping(TextureWrapping::ClampToBorder);
+	m_SpriteSheet->SetTWrapping(TextureWrapping::ClampToBorder);
+	m_SpriteSheet->SetBorderColor({ 0.0f, 1.0f, 1.0f, 1.0f });
+	m_SpriteSheet->SetFilter(TextureFiltering::Nearest);
+
+	m_Sprite = Texture2D::SubTextureFromExistingOne(m_SpriteSheet, { 128 * 4, 128 * 2, 128, 128 });
+	m_ObstacleSprite = Texture2D::SubTextureFromExistingOne(m_SpriteSheet, { 128 * 0, 128 * 0, 128, 128 });
+	#pragma endregion
+
+	#pragma region ECS
+	m_Scene = CreateRef<Scene>();
+
+	////////////////////////////////////////////////////////////////
+	// Player //////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////
+
+	m_Player = m_Scene->CreateEntity("Player");
+
+	// SpriteRenderer
+	m_Player.AddComponent<SpriteRendererComponent>(m_Sprite);
+
+	// PhysicsBody2D
+	PhysicsBodyProps props;
+	props.Type = PhysicsBodyType::Dynamic;
+	m_Player.AddComponent<PhysicsBodyComponent>(props);
+
+	// PhysicsCollider2D
+	auto& playerColliderList = m_Player.AddComponent<PhysicsColliders2DComponent>();
+	auto playerCollider = CreateRef<PhysicsCollider2D>();
+	playerCollider->GetShape()->SetAsBox({ 1.0f, 1.0f });
+	playerCollider->GetMaterial().Bounciness = 0.9f;
+	playerColliderList.AddCollider(playerCollider);
+
+	////////////////////////////////////////////////////////////////
+	// Obstacle ////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////
+
+	Entity obstacle = m_Scene->CreateEntity("Obstacle");
+
+	// SpriteRenderer
+	auto& spriteRenderer = obstacle.AddComponent<SpriteRendererComponent>(m_ObstacleSprite);
+	spriteRenderer.TilingFactorX = 4.0f;
+	spriteRenderer.OverrideSWrapping = TextureWrapping::Repeat;
+	spriteRenderer.OverrideTWrapping = TextureWrapping::Repeat;
+
+	// PhysicsBody2D
+	PhysicsBodyProps obstacleBodyProps;
+	obstacleBodyProps.Type = PhysicsBodyType::Static;
+	obstacle.AddComponent<PhysicsBodyComponent>(obstacleBodyProps);
+
+	auto& obstacleTransform = obstacle.GetComponent<TransformComponent>();
+	obstacleTransform.SetPosition({ 0.0f, -2.0f, 0.0f });
+	obstacleTransform.SetScale({ 4.0f, 1.0f, 1.0f });
+	obstacleTransform.SetRotation(QuaternionEuler({ 0.0f, 0.0f, 90.0f }));
+
+	// PhysicsCollider2D
+	auto& colliderList = obstacle.AddComponent<PhysicsColliders2DComponent>();
+	auto collider = CreateRef<PhysicsCollider2D>();
+	collider->GetShape()->SetAsBox({ 4.0f, 1.0f });
+	colliderList.AddCollider(collider);
+
+	////////////////////////////////////////////////////////////////
+	// Obstacle2 ///////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////
+
+	Entity obstacle2 = m_Scene->CreateEntity("Obstacle2");
+
+	// SpriteRenderer
+	auto& spriteRenderer2 = obstacle2.AddComponent<SpriteRendererComponent>(m_ObstacleSprite);
+	spriteRenderer2.TilingFactorX = 40.0f;
+	spriteRenderer2.OverrideSWrapping = TextureWrapping::Repeat;
+	spriteRenderer2.OverrideTWrapping = TextureWrapping::Repeat;
+
+	// PhysicsBody2D
+	PhysicsBodyProps obstacle2BodyProps;
+	obstacle2BodyProps.Type = PhysicsBodyType::Static;
+	obstacle2.AddComponent<PhysicsBodyComponent>(obstacle2BodyProps);
+
+
+	auto& obstacle2Transform = obstacle2.GetComponent<TransformComponent>();
+	obstacle2Transform.SetScale({ 40.0f, 1.0f, 1.0f });
+	obstacle2Transform.SetPosition({ 0.0f, -8.0f, 0.0f });
+	//obstacle2Transform.SetRotation(QuaternionEuler({ 0.0f, 0.0f, 90.0f }));
+
+	// PhysicsCollider2D
+	auto& colliderList2 = obstacle2.AddComponent<PhysicsColliders2DComponent>();
+	auto collider2 = CreateRef<PhysicsCollider2D>();
+	collider2->GetShape()->SetAsBox({ 40.0f, 1.0f });
+	colliderList2.AddCollider(collider2);
+
+	////////////////////////////////////////////////////////////////
+	// Main Camera /////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////
+
+	m_MainCamera = m_Scene->CreateEntity("MainCamera");
+	m_MainCameraCameraHandle = &m_MainCamera.AddComponent<CameraComponent>(Camera(CameraType::Orthographic, 10.0f, 16.0f / 9.0f, -1.0f, 1.0f)).Camera;
+	m_MainCameraTransform = &m_MainCamera.GetComponent<TransformComponent>();
+	#pragma endregion
+
+	FrameBufferProps fbProps;
+	fbProps.Width = 7680;
+	fbProps.Height = 6320;
+	m_SceneFrameBuffer = FrameBuffer::Create(fbProps);
+	
+	LoadSceneFromFile("");
+}
+
+static Vector<float> s_FPSSamples(200);
+static bool VSync = true;
+static char fpsText[32];
+
+void EditorLayer::OnUpdate(TimeStep DeltaTime)
+{
+	OE_PROFILE_FUNCTION();
+
+	m_MainCameraCameraHandle = &m_MainCamera.GetComponent<CameraComponent>().Camera;
+	m_MainCameraTransform = &m_MainCamera.GetComponent<TransformComponent>();
+
+	// UpdateO
+	Vector3 offset(m_CameraMovementDirection, 0.0f);
+	offset = offset * (m_CameraSpeed * DeltaTime * m_MainCameraCameraHandle->GetOrthographicSize());
+	Mat4x4 rotationMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(QuaternionEulerAngles(m_MainCameraTransform->GetRotation()).z), Vector3(0, 0, 1));
+	m_MainCameraTransform->SetPosition(Vector4(m_MainCameraTransform->GetPosition(), 0.0f) + (rotationMatrix * Vector4(offset, 1.0f)));
+
+	m_MainCameraTransform->SetRotation(QuaternionEuler({ 0.0f, 0.0f, QuaternionEulerAngles(m_MainCameraTransform->GetRotation()).z + m_CameraRotationDirection * DeltaTime * 80.0f }));
+
+	for (uint32_t i = 0; i < (uint32_t)((int)s_FPSSamples.size() - 1); i++)
 	{
+		s_FPSSamples[i] = s_FPSSamples[i + (uint32_t)1];
 	}
 
-	void EditorLayer::OnImGuiRender()
+	s_FPSSamples[(int)s_FPSSamples.size() - 1] = 1 / DeltaTime;
+	if (s_FPSSamples[(int)s_FPSSamples.size() - 1] > 10000)
+		s_FPSSamples[(int)s_FPSSamples.size() - 1] = 0;
+
+	sprintf_s(fpsText, "%i", (int)s_FPSSamples[(int)s_FPSSamples.size() - 1]);
+
+
+	if (FrameBufferProps props = m_SceneFrameBuffer->GetProps();
+		m_ViewportSize.x > 0.0f && m_ViewportSize.y > 0.0f && // zero sized framebuffer is invalid
+		(props.Width != m_ViewportSize.x || props.Height != m_ViewportSize.y))
 	{
-		static char Name[30];
-		static float Pos[3] = { 0, 0, 0 };
-		static float Rot[3] = { 0, 0, 0 };
-		static float Scl[3] = { 0, 0, 0 };
-		MainMenuBar();
-		MainDockSpace();
-
-		ImGui::Begin("Inspector");
-		ImGui::InputText("Entity Name", Name, 30 * sizeof(char));
-		if (ImGui::CollapsingHeader("Transform"))
-		{
-			ImGui::DragFloat3("Position", Pos);
-			ImGui::DragFloat3("Rotation", Rot);
-			ImGui::DragFloat3("Scale", Scl);
-		}
-
-		if (ImGui::Button("Add Component", ImVec2(ImGui::GetWindowSize().x, 45.0f)))
-		{
-		}
-
-		ImGui::End();
-
-		ImGui::Begin("Renderer");
-		ImGui::Text(vendorInfo.c_str());
-		ImGui::Text(rendererInfo.c_str());
-		ImGui::Text(versionInfo.c_str());
-		ImGui::End();
-
-		bool scene_open = true;
-		if (scene_open)
-		{
-			ImGui::Begin("Scene", &scene_open, ImGuiWindowFlags_MenuBar);
-
-			if (ImGui::BeginMenuBar())
-			{
-				if (ImGui::Button("Move")) {}
-				if (ImGui::Button("Rotate")) {}
-				if (ImGui::Button("Scale")) {}
-
-				ImGui::EndMenuBar();
-			}
-
-
-			static ImColor col1 = ImColor(1, 0, 0);
-			static ImU32 col = ImU32(col1);
-			ImGui::GetWindowDrawList()->AddRectFilled(
-				ImVec2(ImGui::GetCursorScreenPos()),
-				ImVec2(ImGui::GetCursorScreenPos().x + ImGui::GetWindowWidth() - 10,
-					ImGui::GetCursorScreenPos().y + ImGui::GetWindowHeight() - 90), col);
-
-			ImGui::End();
-		}
-
-		bool game_open = true;
-		if (game_open)
-		{
-			ImGui::Begin("Game", &game_open);
-
-			static ImColor col1 = ImColor(1, 0, 0);
-			static ImU32 col = ImU32(col1);
-			ImGui::GetWindowDrawList()->AddRectFilled(
-				ImVec2(ImGui::GetCursorScreenPos()),
-				ImVec2(ImGui::GetCursorScreenPos().x + ImGui::GetWindowWidth() - 16,
-					ImGui::GetCursorScreenPos().y + ImGui::GetWindowHeight() - 60), col);
-
-			ImGui::End();
-		}
+		m_SceneFrameBuffer->Resize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
+		m_MainCameraCameraHandle->SetAspectRatio(m_ViewportSize.x / m_ViewportSize.y);
 	}
 
-	void EditorLayer::OnEvent(OverEngine::Event& event)
-	{
-	}
+	RenderCommand::SetClearColor({ 0.0f, 0.0f, 0.0f, 1.0f });
+	RenderCommand::Clear();
 
-	void EditorLayer::MainDockSpace()
-	{
-		static bool* p_open = new bool(true);
-		static bool opt_fullscreen_persistant = true;
-		bool opt_fullscreen = opt_fullscreen_persistant;
-		static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
+	m_SceneFrameBuffer->Bind();
+	m_Scene->OnUpdate(DeltaTime);
+	m_SceneFrameBuffer->Unbind();
+}
 
-		// We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
-		// because it would be confusing to have two docking targets within each others.
-		ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDocking;
-		if (opt_fullscreen)
-		{
-			ImGuiViewport* viewport = ImGui::GetMainViewport();
-			ImGui::SetNextWindowPos(viewport->GetWorkPos());
-			ImGui::SetNextWindowSize(viewport->GetWorkSize());
-			ImGui::SetNextWindowViewport(viewport->ID);
-			ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-			ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-			window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
-			window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
-		}
+void EditorLayer::OnImGuiRender()
+{
+	OnMainMenubarGUI();
+	OnMainDockSpaceGUI();
 
-		// When using ImGuiDockNodeFlags_PassthruCentralNode, DockSpace() will render our background 
-		// and handle the pass-thru hole, so we ask Begin() to not render a background.
-		if (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode)
-			window_flags |= ImGuiWindowFlags_NoBackground;
+	OnToolbarGUI();
+	m_ViewportSize = OnViewportGUI(m_SceneFrameBuffer, m_MainCameraCameraHandle);
+	OnSceneGraphGUI(m_Scene);
+	OnAssetsGUI();
+	OnConsoleGUI();
+}
 
-		// Important: note that we proceed even if Begin() returns false (aka window is collapsed).
-		// This is because we want to keep our DockSpace() active. If a DockSpace() is inactive,
-		// all active windows docked into it will lose their parent and become undocked.
-		// We cannot preserve the docking relationship between an active window and an inactive docking, otherwise
-		// any change of dockspace/settings would lead to windows being stuck in limbo and never being visible.
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-		ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0, 0, 0, 255));
-		ImGui::Begin("DockSpace", p_open, window_flags);
-		ImGui::PopStyleVar();
-		if (opt_fullscreen)
-			ImGui::PopStyleVar(2);
+void EditorLayer::OnEvent(Event& event)
+{
+	OE_PROFILE_FUNCTION();
 
-		// DockSpace
-		ImGuiIO& io = ImGui::GetIO();
-		if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
-		{
-			ImGuiID dockspace_id = ImGui::GetID("MainDockSpace");
-			ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
-		}
+	EventDispatcher dispatcher(event);
+	dispatcher.Dispatch<WindowResizeEvent>(OE_BIND_EVENT_FN(EditorLayer::OnWindowResizeEvent));
+	dispatcher.Dispatch<MouseScrolledEvent>(OE_BIND_EVENT_FN(EditorLayer::OnMouseScrolledEvent));
+}
 
-		ImGui::End();
-		ImGui::PopStyleColor();
-	}
+bool EditorLayer::OnWindowResizeEvent(WindowResizeEvent& event)
+{
+	OE_PROFILE_FUNCTION();
 
-	void EditorLayer::MainMenuBar()
-	{
-		if (ImGui::BeginMainMenuBar())
-		{
-			if (ImGui::BeginMenu("File"))
-			{
-				ImGui::MenuItem("(dummy menu)", NULL, false, false);
-				if (ImGui::MenuItem("New")) {}
-				if (ImGui::MenuItem("Open", "Ctrl+O")) {}
-				if (ImGui::BeginMenu("Open Recent"))
-				{
-					ImGui::MenuItem("fish_hat.c");
-					ImGui::MenuItem("fish_hat.inl");
-					ImGui::MenuItem("fish_hat.h");
-					if (ImGui::BeginMenu("More.."))
-					{
-						ImGui::MenuItem("Hello");
-						ImGui::MenuItem("Sailor");
+	m_MainCameraCameraHandle->SetAspectRatio((float)event.GetWidth() / (float)event.GetHeight());
+	return false;
+}
 
-						ImGui::EndMenu();
-					}
-					ImGui::EndMenu();
-				}
-				if (ImGui::MenuItem("Save", "Ctrl+S")) {}
-				if (ImGui::MenuItem("Save As..")) {}
+bool EditorLayer::OnMouseScrolledEvent(MouseScrolledEvent& event)
+{
+	OE_PROFILE_FUNCTION();
 
-				ImGui::Separator();
-				if (ImGui::BeginMenu("Options"))
-				{
-					static bool enabled = true;
-					ImGui::MenuItem("Enabled", "", &enabled);
-					ImGui::BeginChild("child", ImVec2(0, 60), true);
-					for (int i = 0; i < 10; i++)
-						ImGui::Text("Scrolling Text %d", i);
-					ImGui::EndChild();
-					static float f = 0.5f;
-					static int n = 0;
-					ImGui::SliderFloat("Value", &f, 0.0f, 1.0f);
-					ImGui::InputFloat("Input", &f, 0.1f);
-					ImGui::Combo("Combo", &n, "Yes\0No\0Maybe\0\0");
-					ImGui::EndMenu();
-				}
-
-				if (ImGui::BeginMenu("Colors"))
-				{
-					float sz = ImGui::GetTextLineHeight();
-					for (int i = 0; i < ImGuiCol_COUNT; i++)
-					{
-						const char* name = ImGui::GetStyleColorName((ImGuiCol)i);
-						ImVec2 p = ImGui::GetCursorScreenPos();
-						ImGui::GetWindowDrawList()->AddRectFilled(p, ImVec2(p.x + sz, p.y + sz), ImGui::GetColorU32((ImGuiCol)i));
-						ImGui::Dummy(ImVec2(sz, sz));
-						ImGui::SameLine();
-						ImGui::MenuItem(name);
-					}
-					ImGui::EndMenu();
-				}
-
-				// Here we demonstrate appending again to the "Options" menu (which we already created above)
-				// Of course in this demo it is a little bit silly that this function calls BeginMenu("Options") twice.
-				// In a real code-base using it would make senses to use this feature from very different code locations.
-				if (ImGui::BeginMenu("Options")) // <-- Append!
-				{
-					static bool b = true;
-					ImGui::Checkbox("SomeOption", &b);
-					ImGui::EndMenu();
-				}
-
-				if (ImGui::BeginMenu("Disabled", false)) // Disabled
-				{
-					IM_ASSERT(0);
-				}
-				if (ImGui::MenuItem("Checked", NULL, true)) {}
-				if (ImGui::MenuItem("Quit", "Alt+F4")) {}
-				ImGui::EndMenu();
-			}
-			if (ImGui::BeginMenu("Edit"))
-			{
-				if (ImGui::MenuItem("Undo", "CTRL+Z")) {}
-				if (ImGui::MenuItem("Redo", "CTRL+Y", false, false)) {}  // Disabled item
-				ImGui::Separator();
-				if (ImGui::MenuItem("Cut", "CTRL+X")) {}
-				if (ImGui::MenuItem("Copy", "CTRL+C")) {}
-				if (ImGui::MenuItem("Paste", "CTRL+V")) {}
-				ImGui::EndMenu();
-			}
-			ImGui::EndMainMenuBar();
-		}
-	}
+	float newSize = m_MainCameraCameraHandle->GetOrthographicSize() - (float)event.GetYOffset() / 4.0f;
+	if (newSize > 0)
+		m_MainCameraCameraHandle->SetOrthographicSize(newSize);
+	return false;
 }

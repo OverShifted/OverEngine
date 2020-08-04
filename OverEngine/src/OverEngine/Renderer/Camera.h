@@ -12,7 +12,7 @@ namespace OverEngine
 	class Camera
 	{
 	public:
-		// Camera(const Math::Mat4x4& viewMat, const Math::Mat4x4& projMat, CameraType type, float aspectRatio, float orthoSizeOrFov);
+		// Camera(const Mat4x4& viewMat, const Mat4x4& projMat, CameraType type, float aspectRatio, float orthoSizeOrFov);
 		Camera(CameraType type, float orthoSizeOrFov, float aspectRatio, float zNear, float zFar);
 		Camera() = default;
 
@@ -21,22 +21,15 @@ namespace OverEngine
 		void MakeOrthographic(float size, float aspectRatio, float zNear = -1.0f, float zFar = 1.0f);
 		void MakePrespective(float fov, float aspectRatio, float zNear = 0.05f, float zFar = 100.0f);
 
-		inline const Math::Mat4x4& GetViewMatrix() const { return m_ViewMatrix; }
-		inline const Math::Mat4x4& GetProjectionMatrix() const { return m_ProjectionMatrix; }
-		inline const Math::Mat4x4& GetViewProjectionMatrix() const { return m_ViewProjectionMatrix; }
+		inline const Mat4x4& GetProjectionMatrix() const { return m_ProjectionMatrix; }
 
-		inline void SetViewMatrix(const Math::Mat4x4& viewMatrix) { m_ViewMatrix = viewMatrix; RecalculateViewMatrix(); }
-		inline void SetProjectionMatrix(const Math::Mat4x4& projMatrix) { m_ProjectionMatrix = projMatrix; RecalculateProjectionMatrix(); }
+		inline void SetProjectionMatrix(const Mat4x4& projMatrix) { m_ProjectionMatrix = projMatrix; RecalculateProjectionMatrix(); }
 
 		inline CameraType GetType() { return m_Type; }
+		inline void SetType(CameraType type) { m_Type = type; RecalculateProjectionMatrix(); }
+
 		inline bool IsOrthographic() const { return m_Type == CameraType::Orthographic; }
 		inline bool IsPrespective() const { return m_Type == CameraType::Prespective; }
-
-		inline const Math::Vector3& GetPosition() const { return m_Position; }
-		inline const Math::Vector3& GetRotation() const { return m_Rotation; }
-
-		inline void SetPosition(const Math::Vector3& position) { m_Position = position; RecalculateViewMatrix(); }
-		inline void SetRotation(const Math::Vector3& rotation) { m_Rotation = rotation; RecalculateViewMatrix(); }
 
 		inline void SetAspectRatio(float aspectRatio) { m_AspectRatio = aspectRatio; RecalculateProjectionMatrix(); }
 		inline float GetAspectRatio() const { return m_AspectRatio; }
@@ -52,21 +45,29 @@ namespace OverEngine
 
 		inline void SetZFar(float value) { m_ZFar = value; RecalculateProjectionMatrix(); }
 		inline float GetZFar() const { return m_ZFar; }
-	protected:
-		void RecalculateViewMatrix(bool recalculateViewProj = true);
-		void RecalculateProjectionMatrix(bool recalculateViewProj = true);
-		void RecalculateViewProjectionMatrix();
-	protected:
-		Math::Mat4x4 m_ViewMatrix;
-		Math::Mat4x4 m_ProjectionMatrix;
-		Math::Mat4x4 m_ViewProjectionMatrix;
 
-		Math::Vector3 m_Position;
-		Math::Vector3 m_Rotation;
+		inline void SetClearColor(const Color& color) { m_ClearColor = color; }
+		inline const Color& GetClearColor() { return m_ClearColor; }
 
+		inline void SetIsClearingColor(bool value) { m_IsClearingColor = value; }
+		inline bool GetIsClearingColor() { return m_IsClearingColor; }
+
+		inline void SetIsClearingDepth(bool value) { m_IsClearingDepth = value; }
+		inline bool GetIsClearingDepth() { return m_IsClearingDepth; }
+	protected:
+		void RecalculateProjectionMatrix();
+	protected:
+		// Projection Stuff
 		CameraType m_Type;
 		float m_AspectRatio;
 		float m_ZNear, m_ZFar;
 		union { float m_FieldOfView, m_OrthographicSize; };
+
+		// Runtime
+		Mat4x4 m_ProjectionMatrix;
+
+		bool m_IsClearingColor = true;
+		bool m_IsClearingDepth = true;
+		Color m_ClearColor = Color(0.0f, 0.0f, 0.0f, 1.0f);
 	};
 }
