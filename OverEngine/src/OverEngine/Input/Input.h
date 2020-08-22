@@ -13,7 +13,7 @@ namespace OverEngine
 	public:
 		static bool IsKeyPressed(KeyCode keycode);
 		static bool IsMouseButtonPressed(KeyCode button);
-		static std::pair<float, float> GetMousePosition();
+		static Vector2 GetMousePosition();
 		static float GetMouseX();
 		static float GetMouseY();
 	};

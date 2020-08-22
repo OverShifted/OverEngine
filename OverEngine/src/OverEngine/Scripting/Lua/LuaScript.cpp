@@ -9,8 +9,7 @@ namespace OverEngine
 {
 	namespace Scripting
 	{
-
-		LuaScript::LuaScript(String filePathOrCodeString, CodeLoadingMode codeLoadMode /*= CodeLoadingMode::File*/)
+		LuaScript::LuaScript(String filePathOrCodeString, CodeLoadingMode codeLoadMode)
 			: Script(Kind::Lua, codeLoadMode), m_State(luaL_newstate()), m_CodeOrPath(filePathOrCodeString)
 		{
 			luaopen_base(m_State);
@@ -33,6 +32,5 @@ namespace OverEngine
 				return luaL_dostring(m_State, m_CodeOrPath.c_str());
 
 		}
-
 	}
 }

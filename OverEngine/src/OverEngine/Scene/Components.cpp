@@ -3,7 +3,7 @@
 
 namespace OverEngine
 {
-	PhysicsBodyComponent::PhysicsBodyComponent(Entity& entity, const PhysicsBodyProps& props)
+	PhysicsBody2DComponent::PhysicsBody2DComponent(Entity& entity, const PhysicsBodyProps& props)
 		: Body(CreateRef<PhysicsBody2D>(entity.GetScene()->GetPhysicsWorld2D(), props))
 	{
 		if (entity.HasComponent<PhysicsColliders2DComponent>())

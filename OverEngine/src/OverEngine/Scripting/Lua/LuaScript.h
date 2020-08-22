@@ -14,7 +14,7 @@ namespace OverEngine
 			LuaScript(String filePathOrCodeString, CodeLoadingMode codeLoadMode = CodeLoadingMode::File);
 			~LuaScript();
 
-			int Run() override;
+			virtual int Run() override;
 
 			inline lua_State* GetLuaState() const { return m_State; }
 		private:

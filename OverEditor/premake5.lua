@@ -21,7 +21,7 @@ project "OverEditor"
 	includedirs
 	{
 		"../OverEngine/src",
-		"../OverEditor/res",
+		"../OverEditor/src",
 		"../OverEngine/vendor",
 		"../%{IncludeDir.spdlog}",
 		"../%{IncludeDir.glm}",

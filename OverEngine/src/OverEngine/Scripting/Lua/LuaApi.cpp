@@ -6,7 +6,6 @@
 
 namespace OverEngine
 {
-
 	int LuaApi::PrintInLua(lua_State* L)
 	{
 		int n = lua_gettop(L);  /* number of arguments */
@@ -69,5 +68,4 @@ namespace OverEngine
 		OE_CORE_ERROR("[LUA] {}", ss.str());
 		return 0;
 	}
-
 }

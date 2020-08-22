@@ -1,7 +1,7 @@
 // File: 'Roboto-Light.ttf' (170012 bytes)
 // Exported using binary_to_compressed_c.cpp
-static const unsigned int Roboto_compressed_size = 119016;
-static const unsigned int Roboto_compressed_data[119016/4] =
+static constexpr unsigned int Roboto_compressed_size = 119016;
+static constexpr unsigned int Roboto_compressed_data[119016/4] =
 {
     0x0000bc57, 0x00000000, 0x1c980200, 0x00000400, 0x00010025, 0x82120000, 0x043e0804, 0x44472000, 0x42b44645, 0x020082b0, 0x00005c22, 0x50476202, 
     0x1aff534f, 0x0200d712, 0x0000c024, 0x5347cc5d, 0x82eb4255, 0x020059e4, 0x00008c82, 0x534f9015, 0x1e97322f, 0x020091b1, 0x45825804, 0x6d63602c, 

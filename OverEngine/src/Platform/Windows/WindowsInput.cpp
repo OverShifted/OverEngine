@@ -20,7 +20,7 @@ namespace OverEngine
 		return state == (int)KeyTrigger::Press;
 	}
 
-	std::pair<float, float> Input::GetMousePosition()
+	Vector2 Input::GetMousePosition()
 	{
 		auto window = static_cast<GLFWwindow*>(Application::Get().GetMainWindow().GetNativeWindow());
 		double xpos, ypos;
@@ -31,13 +31,11 @@ namespace OverEngine
 
 	float Input::GetMouseX()
 	{
-		auto [x, y] = GetMousePosition(); // language feature 'structured bindings'
-		return x;
+		return GetMousePosition().x;
 	}
 
 	float Input::GetMouseY()
 	{
-		auto [x, y] = GetMousePosition();
-		return y;
+		return GetMousePosition().y;
 	}
 }

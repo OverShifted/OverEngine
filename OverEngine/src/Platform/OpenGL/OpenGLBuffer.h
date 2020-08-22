@@ -15,7 +15,7 @@ namespace OverEngine
 		virtual void Unbind() const override;
 
 		virtual void BufferData(float* vertices, uint32_t size, bool staticDraw = true) const override;
-		virtual void BufferSubData(uint32_t* vertices, uint32_t size, uint32_t offset = 0, bool staticDraw = true) const override;
+		virtual void BufferSubData(uint32_t* vertices, uint32_t size, uint32_t offset = 0) const override;
 		virtual void AllocateStorage(uint32_t size) const override;
 
 		virtual const BufferLayout& GetLayout() const override { return m_Layout; }
@@ -36,7 +36,7 @@ namespace OverEngine
 		virtual void Unbind() const override;
 
 		virtual void BufferData(uint32_t* indices, uint32_t count, bool staticDraw = true) const override;
-		virtual void BufferSubData(uint32_t* indices, uint32_t count, uint32_t offset = 0, bool staticDraw = true) const override;
+		virtual void BufferSubData(uint32_t* indices, uint32_t count, uint32_t offset = 0) const override;
 		virtual void AllocateStorage(uint32_t size) const override;
 
 		virtual uint32_t GetCount() const { return m_Count; }

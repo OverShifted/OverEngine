@@ -3,6 +3,8 @@
 #include <memory>
 #include <vector>
 #include <string>
+#include <unordered_map>
+#include <map>
 #include "OverEngine/Core/Structs/List.h"
 // #include "OverEngine/Core/Memory/Allocator.h"
 
@@ -124,6 +126,9 @@ namespace OverEngine
 		return std::make_shared<T>(std::forward<Args>(args)...);
 	}
 
+	// String ///////////////////////////////////////////////////////////////////
+	using String = std::string;
+
 	// Vector ///////////////////////////////////////////////////////////////////
 	template<typename T>
 	using Vector = std::vector<T>;
@@ -133,10 +138,20 @@ namespace OverEngine
 	template<typename T, typename U>
 	using UnorderedMap = std::unordered_map<T, U>;
 
-	// String ///////////////////////////////////////////////////////////////////
-	using String = std::string;
+	// Map //////////////////////////////////////////////////////////////////////
+	template<typename T, typename U>
+	using Map = std::map<T, U>;
 
 	// List /////////////////////////////////////////////////////////////////////
 	template<typename T>
 	using List = Structs::List<T>;
+
+	// TripleBinding ////////////////////////////////////////////////////////////
+	template<typename A, typename B, typename C>
+	struct TripleBinding
+	{
+		A first;
+		B middle;
+		C last;
+	};
 }

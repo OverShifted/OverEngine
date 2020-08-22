@@ -46,7 +46,7 @@ namespace OverEngine {
 		virtual bool IsDoubleBuffered() const = 0;
 
 		virtual void* GetNativeWindow() const = 0;
-		virtual RendererContext* GetRendererContext() const = 0;
+		virtual RendererContext& GetRendererContext() const = 0;
 
 		static Scope<Window> Create(const WindowProps& props = WindowProps());
 	};

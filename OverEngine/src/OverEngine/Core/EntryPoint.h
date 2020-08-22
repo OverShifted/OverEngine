@@ -3,6 +3,7 @@
 #include "pcheader.h"
 
 #include "Init.h"
+#include <fstream>
 
 extern OverEngine::Application* OverEngine::CreateApplication(int argc, char** argv);
 

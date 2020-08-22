@@ -193,7 +193,7 @@ namespace OverEngine
 		glUniform1i(location, value);
 	}
 
-	void OpenGLShader::UploadUniformIntArray(const String& name, int* value, int count)
+	void OpenGLShader::UploadUniformIntArray(const String& name, const int* value, int count)
 	{
 		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
 		glUniform1iv(location, count, value);

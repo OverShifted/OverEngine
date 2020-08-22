@@ -15,4 +15,13 @@ namespace OverEngine
 		m_WorldHandle.Step(ts, velocityIterations, positionIterations);
 	}
 
+	Vector2 PhysicsWorld2D::GetGravity() const
+	{
+		return { m_WorldHandle.GetGravity().x, m_WorldHandle.GetGravity().y };
+	}
+
+	void PhysicsWorld2D::SetGravity(const Vector2& gravity)
+	{
+		m_WorldHandle.SetGravity({ gravity.x, gravity.y });
+	}
 }

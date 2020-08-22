@@ -17,7 +17,7 @@ namespace OverEngine
 		virtual const String& GetName() const = 0;
 
 		virtual void UploadUniformInt(const String& name, int value) = 0;
-		virtual void UploadUniformIntArray(const String& name, int* value, int count) = 0;
+		virtual void UploadUniformIntArray(const String& name, const int* value, int count) = 0;
 
 		virtual void UploadUniformFloat(const String& name, float value) = 0;
 		virtual void UploadUniformFloat2(const String& name, const Math::Vector2& value) = 0;

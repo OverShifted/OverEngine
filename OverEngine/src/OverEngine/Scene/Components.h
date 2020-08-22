@@ -16,9 +16,23 @@ namespace OverEngine
 {
 	class Scene;
 
+	enum class ComponentType
+	{
+		NameComponent, FamilyComponent, TransformComponent,
+		CameraComponent, SpriteRendererComponent,
+		PhysicsBody2DComponent, PhysicsColliders2DComponent
+	};
+
+	#define COMPONENT_TYPE(type) static ComponentType GetStaticType() { return ComponentType::type; }\
+							virtual ComponentType GetComponentType() const override { return GetStaticType(); }\
+							virtual const char* GetName() const override { return #type; }
+
 	struct Component
 	{
-		bool Enabled;
+		bool Enabled = true;
+
+		virtual ComponentType GetComponentType() const = 0;
+		virtual const char* GetName() const = 0;
 	};
 
 	////////////////////////////////////////////////////////
@@ -33,27 +47,31 @@ namespace OverEngine
 		NameComponent(const NameComponent&) = default;
 		NameComponent(Entity& entity, const String& name)
 			: Name(name) {}
+
+		COMPONENT_TYPE(NameComponent)
 	};
 
 	struct FamilyComponent : public Component
 	{
-		Entity* This;
-		Entity* Parent; // If Entity is root Entity, this value should be nullptr
-		Vector<Entity*> Children;
+		Entity This;
+		Entity Parent; // If Entity is root Entity, this value should be nullptr
+		Vector<Entity> Children;
 
 		FamilyComponent() = default;
 		FamilyComponent(const FamilyComponent&) = default;
 
 		FamilyComponent(Entity& entity)
-			: This(&entity), Parent(nullptr)
+			: This(entity)
 		{
 		}
 
 		FamilyComponent(Entity& entity, Entity& parent)
-			: This(&entity), Parent(&parent)
+			: This(entity), Parent(parent)
 		{
 			parent.GetComponent<FamilyComponent>().Children.push_back(This);
 		}
+
+		COMPONENT_TYPE(FamilyComponent)
 	};
 
 	struct TransformComponent : public Component
@@ -85,9 +103,11 @@ namespace OverEngine
 		{
 			m_TransformationMatrix = transformationMatrix;
 			m_Changed = true;
+			m_ChangedByPhysics = false;
 		}
 
 		inline const Vector3& GetPosition() const { return m_Position; }
+		inline const Vector3& GetEulerAngles() const { return m_EulerAngles; }
 		inline const Quaternion& GetRotation() const { return m_Rotation; }
 		inline const Vector3& GetScale() const { return m_Scale; }
 
@@ -95,26 +115,41 @@ namespace OverEngine
 		{
 			m_Position = position;
 			m_Changed = true;
+			m_ChangedByPhysics = false;
 		}
 
 		inline void SetRotation(const Quaternion& rotation)
 		{
 			m_Rotation = rotation;
+			m_EulerAngles = QuaternionEulerAngles(m_Rotation);
 			m_Changed = true;
+			m_ChangedByPhysics = false;
+		}
+
+		inline void SetEulerAngles(const Vector3& rotation)
+		{
+			m_EulerAngles = rotation;
+			m_Rotation = QuaternionEuler(m_EulerAngles);
+			m_Changed = true;
+			m_ChangedByPhysics = false;
 		}
 
 		inline void SetScale(const Vector3& scale)
 		{
 			m_Scale = scale;
 			m_Changed = true;
+			m_ChangedByPhysics = false;
 		}
 
 		operator Mat4x4& () { return m_TransformationMatrix; }
 		operator const Mat4x4& () const { return m_TransformationMatrix; }
 
 		inline bool IsChanged() { return m_Changed; }
+
+		COMPONENT_TYPE(TransformComponent)
 	private:
 		Vector3 m_Position;
+		Vector3 m_EulerAngles;
 		Quaternion m_Rotation;
 		Vector3 m_Scale;
 
@@ -130,10 +165,29 @@ namespace OverEngine
 	// Renderer Components /////////////////////////////////
 	////////////////////////////////////////////////////////
 
+	struct CameraComponent : public Component
+	{
+		OverEngine::Camera Camera;
+
+		CameraComponent() = default;
+		CameraComponent(const CameraComponent&) = default;
+
+		CameraComponent(Entity& entity, const OverEngine::Camera& camera)
+			: Camera(camera)
+		{
+		}
+
+		CameraComponent(Entity& entity)
+		{
+		}
+
+		COMPONENT_TYPE(CameraComponent)
+	};
+
 	struct SpriteRendererComponent : public Component
 	{
 		Ref<Texture2D> Sprite;
-		Color Tint { 1.0f, 1.0f, 1.0f, 1.0f };
+		Color Tint{ 1.0f, 1.0f, 1.0f, 1.0f };
 		float TilingFactorX = 1.0f;
 		float TilingFactorY = 1.0f;
 		bool FlipX = false, FlipY = false;
@@ -148,20 +202,24 @@ namespace OverEngine
 
 		SpriteRendererComponent(Entity& entity, Ref<Texture2D> sprite, const Color& tint)
 			: Sprite(sprite), Tint(tint) {}
+
+		COMPONENT_TYPE(SpriteRendererComponent)
 	};
 
 	////////////////////////////////////////////////////////
 	// Physics Components //////////////////////////////////
 	////////////////////////////////////////////////////////
 
-	struct PhysicsBodyComponent : public Component
+	struct PhysicsBody2DComponent : public Component
 	{
 		Ref<PhysicsBody2D> Body;
 
-		PhysicsBodyComponent() = default;
-		PhysicsBodyComponent(const PhysicsBodyComponent&) = default;
+		PhysicsBody2DComponent() = default;
+		PhysicsBody2DComponent(const PhysicsBody2DComponent&) = default;
 
-		PhysicsBodyComponent(Entity& entity, const PhysicsBodyProps& props);
+		PhysicsBody2DComponent(Entity& entity, const PhysicsBodyProps& props);
+
+		COMPONENT_TYPE(PhysicsBody2DComponent)
 	};
 
 	struct PhysicsColliders2DComponent : public Component
@@ -175,8 +233,8 @@ namespace OverEngine
 		PhysicsColliders2DComponent(Entity& entity)
 		{
 			PhysicsColliders2DComponent(); // TODO: What is this?
-			if (entity.HasComponent<PhysicsBodyComponent>())
-				AttachedBody = entity.GetComponent<PhysicsBodyComponent>().Body;
+			if (entity.HasComponent<PhysicsBody2DComponent>())
+				AttachedBody = entity.GetComponent<PhysicsBody2DComponent>().Body;
 			else
 				AttachedBody = nullptr;
 		}
@@ -207,22 +265,7 @@ namespace OverEngine
 			auto it = std::find(Colliders.begin(), Colliders.end(), collider);
 			return it != Colliders.end();
 		}
-	};
 
-	struct CameraComponent : public Component
-	{
-		OverEngine::Camera Camera;
-
-		CameraComponent() = default;
-		CameraComponent(const CameraComponent&) = default;
-
-		CameraComponent(Entity& entity, const OverEngine::Camera& camera)
-			: Camera(camera)
-		{
-		}
-
-		CameraComponent(Entity& entity)
-		{
-		}
+		COMPONENT_TYPE(PhysicsColliders2DComponent)
 	};
 }

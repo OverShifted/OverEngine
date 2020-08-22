@@ -12,12 +12,12 @@
 
 namespace OverEngine
 {
-	Application* Application::m_Instance = nullptr;
+	Application* Application::s_Instance = nullptr;
 
 	Application::Application(String name, bool useInternalRenderer)
 		: m_UseInternalRenderer(useInternalRenderer)
 	{
-		m_Instance = this;
+		s_Instance = this;
 
 		WindowProps props = WindowProps(name, 1280, 720, true);
 		m_Window = Window::Create(props);
@@ -76,7 +76,7 @@ namespace OverEngine
 				m_ImGuiLayer->End();
 			}
 			
-			GetMainWindow().OnUpdate(); // Poll Events Here // Events Here
+			GetMainWindow().OnUpdate();
 			Time::RecalculateDeltaTime();
 			InputSystem::OnUpdate();
 		}

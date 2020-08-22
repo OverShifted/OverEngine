@@ -1,6 +1,8 @@
 #include "pcheader.h"
 #include "Renderer2D.h"
 
+#include "RendererAPi.h"
+
 #include "Texture.h"
 
 namespace OverEngine
@@ -9,27 +11,27 @@ namespace OverEngine
 
 	struct Renderer2DData
 	{
-		Ref<VertexArray> vertexArray;
-		Ref<VertexBuffer> vertexBuffer;
-		Ref<IndexBuffer> indexBuffer;
+		Ref<VertexArray> vertexArray = nullptr;
+		Ref<VertexBuffer> vertexBuffer = nullptr;
+		Ref<IndexBuffer> indexBuffer = nullptr;
 
-		Ref<Shader> BatchRenderer2DShader;
+		Ref<Shader> BatchRenderer2DShader = nullptr;
 
 		Vector<float> Vertices;
 		Vector<uint32_t> Indices;
 		Mat4x4 ViewProjectionMatrix;
-		uint32_t QuadCount;
+		uint32_t QuadCount = 0;
 
-		float QuadVertices[3 * 4] = {
+		static constexpr float QuadVertices[3 * 4] = {
 			-0.5f, -0.5f, 0.0f,
 			 0.5f, -0.5f, 0.0f,
 			 0.5f,  0.5f, 0.0f,
 			-0.5f,  0.5f, 0.0f
 		};
 
-		uint32_t QuadIndices[6] = { 0, 1, 2, 2, 3, 0 };
+		static constexpr uint32_t QuadIndices[6] = { 0, 1, 2, 2, 3, 0 };
 
-		int ShaderSampler2Ds[32] = {
+		static constexpr int ShaderSampler2Ds[32] = {
 			0, 1, 2, 3, 4, 5, 6, 7,
 			8, 9, 10, 11, 12, 13, 14, 15,
 			16, 17, 18, 19, 20, 21, 22, 23,
@@ -73,7 +75,7 @@ namespace OverEngine
 
 		s_Data->BatchRenderer2DShader = Shader::Create("assets/shaders/BatchRenderer2D.glsl");
 		s_Data->BatchRenderer2DShader->Bind();
-		s_Data->BatchRenderer2DShader->UploadUniformIntArray("u_Slots", s_Data->ShaderSampler2Ds, 32);
+		s_Data->BatchRenderer2DShader->UploadUniformIntArray("u_Slots", Renderer2DData::ShaderSampler2Ds, 32);
 
 		s_Statistics.Reset();
 	}
@@ -111,7 +113,7 @@ namespace OverEngine
 
 	void Renderer2D::EndScene()
 	{
-		s_Data->vertexBuffer->BufferData(s_Data->Vertices.data(), (uint32_t)s_Data->Vertices.size() * (uint32_t)sizeof(float), true);
+		s_Data->vertexBuffer->BufferData(s_Data->Vertices.data(), (uint32_t)(s_Data->Vertices.size() * sizeof(float)), true);
 		s_Data->indexBuffer->BufferData(s_Data->Indices.data(), (uint32_t)s_Data->Indices.size(), true);
 		
 		// Bind Textures
@@ -149,9 +151,9 @@ namespace OverEngine
 		{
 			Vector4 vertexPosition;
 
-			vertexPosition.x = s_Data->QuadVertices[0 + 3 * i];
-			vertexPosition.y = s_Data->QuadVertices[1 + 3 * i];
-			vertexPosition.z = s_Data->QuadVertices[2 + 3 * i];
+			vertexPosition.x = Renderer2DData::QuadVertices[0 + 3 * i];
+			vertexPosition.y = Renderer2DData::QuadVertices[1 + 3 * i];
+			vertexPosition.z = Renderer2DData::QuadVertices[2 + 3 * i];
 			vertexPosition.w = 1.0f;
 			vertexPosition = s_Data->ViewProjectionMatrix * transform * vertexPosition;
 
@@ -165,11 +167,11 @@ namespace OverEngine
 			s_Data->Vertices.push_back(color.b);
 			s_Data->Vertices.push_back(color.a);
 
-			for (int i = 0; i < 21; i++)
+			for (uint32_t i = 0; i < 21; i++)
 				s_Data->Vertices.push_back(0.0f);
 		}
 
-		for (uint32_t idx : s_Data->QuadIndices)
+		for (uint32_t idx : Renderer2DData::QuadIndices)
 			s_Data->Indices.push_back((uint32_t)(idx + 4 * s_Statistics.QuadCount));
 
 		s_Statistics.QuadCount++;
@@ -200,9 +202,9 @@ namespace OverEngine
 		{
 			Vector4 vertexPosition;
 
-			vertexPosition.x = s_Data->QuadVertices[0 + 3 * i];
-			vertexPosition.y = s_Data->QuadVertices[1 + 3 * i];
-			vertexPosition.z = s_Data->QuadVertices[2 + 3 * i];
+			vertexPosition.x = Renderer2DData::QuadVertices[0 + 3 * i];
+			vertexPosition.y = Renderer2DData::QuadVertices[1 + 3 * i];
+			vertexPosition.z = Renderer2DData::QuadVertices[2 + 3 * i];
 			vertexPosition.w = 1.0f;
 			vertexPosition = s_Data->ViewProjectionMatrix * transform * vertexPosition;
 
@@ -306,11 +308,11 @@ namespace OverEngine
 			s_Data->Vertices.push_back((float)textureToBind->GetHeight());
 
 			// a_TextureCoord
-			s_Data->Vertices.push_back(s_Data->QuadVertices[0 + 3 * i] > 0.0f ? 1.0f : 0.0f);
-			s_Data->Vertices.push_back(s_Data->QuadVertices[1 + 3 * i] > 0.0f ? 1.0f : 0.0f);
+			s_Data->Vertices.push_back(Renderer2DData::QuadVertices[0 + 3 * i] > 0.0f ? 1.0f : 0.0f);
+			s_Data->Vertices.push_back(Renderer2DData::QuadVertices[1 + 3 * i] > 0.0f ? 1.0f : 0.0f);
 		}
 
-		for (uint32_t idx : s_Data->QuadIndices)
+		for (uint32_t idx : Renderer2DData::QuadIndices)
 			s_Data->Indices.push_back((uint32_t)(idx + 4 * s_Statistics.QuadCount));
 
 		s_Statistics.QuadCount++;

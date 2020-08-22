@@ -41,7 +41,7 @@ namespace OverEngine
 		glBufferData(GL_ARRAY_BUFFER, size, vertices, staticDraw ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW);
 	}
 
-	void OpenGLVertexBuffer::BufferSubData(uint32_t* vertices, uint32_t size, uint32_t offset /*= 0*/, bool staticDraw /*= true*/) const
+	void OpenGLVertexBuffer::BufferSubData(uint32_t* vertices, uint32_t size, uint32_t offset /*= 0*/) const
 	{
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID);
 		glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, offset, size, vertices);
@@ -92,7 +92,7 @@ namespace OverEngine
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(uint32_t), indices, staticDraw ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW);
 	}
 
-	void OpenGLIndexBuffer::BufferSubData(uint32_t* indices, uint32_t count, uint32_t offset /*= 0*/, bool staticDraw /*= true*/) const
+	void OpenGLIndexBuffer::BufferSubData(uint32_t* indices, uint32_t count, uint32_t offset /*= 0*/) const
 	{
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID);
 		glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, offset, count * sizeof(uint32_t), indices);

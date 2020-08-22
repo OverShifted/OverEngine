@@ -82,7 +82,7 @@ SandboxECS::SandboxECS()
 	// PhysicsBody2D
 	PhysicsBodyProps props;
 	props.Type = PhysicsBodyType::Dynamic;
-	m_Player.AddComponent<PhysicsBodyComponent>(props);
+	m_Player.AddComponent<PhysicsBody2DComponent>(props);
 
 	// PhysicsCollider2D
 	auto& playerColliderList = m_Player.AddComponent<PhysicsColliders2DComponent>();
@@ -106,12 +106,12 @@ SandboxECS::SandboxECS()
 	// PhysicsBody2D
 	PhysicsBodyProps obstacleBodyProps;
 	obstacleBodyProps.Type = PhysicsBodyType::Static;
-	obstacle.AddComponent<PhysicsBodyComponent>(obstacleBodyProps);
+	obstacle.AddComponent<PhysicsBody2DComponent>(obstacleBodyProps);
 
 	auto& obstacleTransform = obstacle.GetComponent<TransformComponent>();
 	obstacleTransform.SetPosition({ 0.0f, -2.0f, 0.0f });
 	obstacleTransform.SetScale({ 4.0f, 1.0f, 1.0f });
-	obstacleTransform.SetRotation(QuaternionEuler({ 0.0f, 0.0f, 90.0f }));
+	obstacleTransform.SetRotation(QuaternionEuler({ 0.0f, 0.0f, 45.0f }));
 
 	// PhysicsCollider2D
 	auto& colliderList = obstacle.AddComponent<PhysicsColliders2DComponent>();
@@ -134,7 +134,7 @@ SandboxECS::SandboxECS()
 	// PhysicsBody2D
 	PhysicsBodyProps obstacle2BodyProps;
 	obstacle2BodyProps.Type = PhysicsBodyType::Static;
-	obstacle2.AddComponent<PhysicsBodyComponent>(obstacle2BodyProps);
+	obstacle2.AddComponent<PhysicsBody2DComponent>(obstacle2BodyProps);
 
 
 	auto& obstacle2Transform = obstacle2.GetComponent<TransformComponent>();
@@ -191,7 +191,7 @@ void SandboxECS::OnUpdate(TimeStep DeltaTime)
 	sprintf(fpsText, "%i", (int)s_FPSSamples[(int)s_FPSSamples.size() - 1]);
 
 	
-	m_Scene->OnUpdate(DeltaTime);
+	m_Scene->OnUpdate(DeltaTime, {m_MainCameraCameraHandle->GetAspectRatio(), 1});
 }
 
 void SandboxECS::OnImGuiRender()

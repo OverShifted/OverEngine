@@ -26,7 +26,7 @@ namespace OverEngine
 		void PushLayer(Layer* layer);
 		void PushOverlay(Layer* layer);
 
-		inline static Application& Get() { return *m_Instance; }
+		inline static Application& Get() { return *s_Instance; }
 		ImGuiLayer* GetImGuiLayer() { return m_ImGuiLayer; }
 		inline Window& GetMainWindow() { return *m_Window; }
 	private:
@@ -44,7 +44,7 @@ namespace OverEngine
 	protected:
 		bool m_ImGuiEnabled = false;
 	private:
-		static Application* m_Instance;
+		static Application* s_Instance;
 	};
 
 	// To be defined in CLIENT

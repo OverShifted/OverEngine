@@ -184,6 +184,13 @@ vec4 PointSampleFromAtlas(sampler2D slot, vec2 coord, vec4 subTextureRect, int S
 	return texture(slot, vec2(subTextureRect.x + coord.x * subTextureRect.z, subTextureRect.y + coord.y * subTextureRect.w));
 }
 
+vec4 Sample(sampler2D slot, vec2 coord)
+{
+	if (v_TextureFilter == 0)
+			return PointSampleFromAtlas(slot, coord * vec2(v_TextureTilingFactorX, v_TextureTilingFactorY), v_TextureRect, v_TextureSWrapping, v_TextureTWrapping) * v_Color;
+	return BiLinearSampleFromAtlas(slot, coord * vec2(v_TextureTilingFactorX, v_TextureTilingFactorY)) * v_Color;
+}
+
 void main()
 {
 	vec2 coord = v_TextureCoord;
@@ -196,11 +203,44 @@ void main()
 
 	if (v_UseTexture != 0)
 	{
-		if (v_TextureFilter == 0)
-			o_Color = PointSampleFromAtlas(u_Slots[v_TextureSlot], coord * vec2(v_TextureTilingFactorX, v_TextureTilingFactorY), v_TextureRect, v_TextureSWrapping, v_TextureTWrapping) * v_Color;
-		else
-			o_Color = BiLinearSampleFromAtlas(u_Slots[v_TextureSlot], coord * vec2(v_TextureTilingFactorX, v_TextureTilingFactorY)) * v_Color;
+		switch (v_TextureSlot)
+		{
+			case 0: o_Color = Sample(u_Slots[0], coord); break;
+			case 1: o_Color = Sample(u_Slots[1], coord); break;
+			case 2: o_Color = Sample(u_Slots[2], coord); break;
+			case 3: o_Color = Sample(u_Slots[3], coord); break;
+			case 4: o_Color = Sample(u_Slots[4], coord); break;
+			case 5: o_Color = Sample(u_Slots[5], coord); break;
+			case 6: o_Color = Sample(u_Slots[6], coord); break;
+			case 7: o_Color = Sample(u_Slots[7], coord); break;
+			case 8: o_Color = Sample(u_Slots[8], coord); break;
+			case 9: o_Color = Sample(u_Slots[9], coord); break;
+			case 10: o_Color = Sample(u_Slots[10], coord); break;
+			case 11: o_Color = Sample(u_Slots[11], coord); break;
+			case 12: o_Color = Sample(u_Slots[12], coord); break;
+			case 13: o_Color = Sample(u_Slots[13], coord); break;
+			case 14: o_Color = Sample(u_Slots[14], coord); break;
+			case 15: o_Color = Sample(u_Slots[15], coord); break;
+			case 16: o_Color = Sample(u_Slots[16], coord); break;
+			case 17: o_Color = Sample(u_Slots[17], coord); break;
+			case 18: o_Color = Sample(u_Slots[18], coord); break;
+			case 19: o_Color = Sample(u_Slots[19], coord); break;
+			case 20: o_Color = Sample(u_Slots[20], coord); break;
+			case 21: o_Color = Sample(u_Slots[21], coord); break;
+			case 22: o_Color = Sample(u_Slots[22], coord); break;
+			case 23: o_Color = Sample(u_Slots[23], coord); break;
+			case 24: o_Color = Sample(u_Slots[24], coord); break;
+			case 25: o_Color = Sample(u_Slots[25], coord); break;
+			case 26: o_Color = Sample(u_Slots[26], coord); break;
+			case 27: o_Color = Sample(u_Slots[27], coord); break;
+			case 28: o_Color = Sample(u_Slots[28], coord); break;
+			case 29: o_Color = Sample(u_Slots[29], coord); break;
+			case 30: o_Color = Sample(u_Slots[30], coord); break;
+			case 31: o_Color = Sample(u_Slots[31], coord); break;
+		}
 	}
 	else
+	{
 		o_Color = v_Color;
+	}
 }

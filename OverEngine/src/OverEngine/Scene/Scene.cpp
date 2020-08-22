@@ -9,8 +9,8 @@
 
 namespace OverEngine
 {
-	Scene::Scene(const SceneSettings& settings /*= SceneSettings()*/)
-		: m_PhysicsWorld2D(settings.physics2DSettings.gravity)
+	Scene::Scene(const SceneSettings& settings)
+		: m_PhysicsWorld2D(settings.physics2DSettings.gravity) // TODO: Move to OnScenePlay()
 	{
 	}
 
@@ -25,6 +25,7 @@ namespace OverEngine
 		entity.AddComponent<FamilyComponent>();
 		entity.AddComponent<TransformComponent>();
 		m_RootEntities.push_back(entity);
+		m_Entities.push_back(entity);
 		return entity;
 	}
 
@@ -34,10 +35,11 @@ namespace OverEngine
 		entity.AddComponent<TransformComponent>();
 		entity.AddComponent<NameComponent>(name.empty() ? "Entity" : name);
 		entity.AddComponent<FamilyComponent>(parent);
+		m_Entities.push_back(entity);
 		return entity;
 	}
 
-	void Scene::UpdatePhysicsAndTransform(TimeStep DeltaTime)
+	void Scene::OnPhysicsUpdate(TimeStep DeltaTime)
 	{
 		/////////////////////////////////////////////////////
 		// Physics & Transform //////////////////////////////
@@ -65,6 +67,32 @@ namespace OverEngine
 		m_PhysicsWorld2D.OnUpdate(DeltaTime, 8, 3);
 
 		{
+			auto group = m_Registry.group<PhysicsBody2DComponent>(entt::get<TransformComponent>);
+			for (auto entity : group)
+			{
+				auto& body2D = group.get<PhysicsBody2DComponent>(entity);
+				auto& transform = group.get<TransformComponent>(entity);
+
+				if (body2D.Enabled)
+				{
+					if (!transform.m_ChangedByPhysics && transform.m_Changed)
+					{
+						body2D.Body->SetPosition({ transform.GetPosition().x, transform.GetPosition().y });
+						body2D.Body->SetRotation(QuaternionEulerAnglesRadians(transform.GetRotation()).z);
+						transform.m_ChangedByPhysics = false;
+					}
+				
+					transform.SetPosition(Vector3(body2D.Body->GetPosition(), 0));
+					transform.SetRotation(QuaternionEuler(Vector3(0.0f, 0.0f, glm::degrees(body2D.Body->GetRotation()))));
+					transform.m_ChangedByPhysics = true;
+				}
+			}
+		}
+	}
+
+	void Scene::OnTransformUpdate()
+	{
+		{
 			auto view = m_Registry.view<TransformComponent>();
 			for (auto entity : view)
 			{
@@ -74,40 +102,12 @@ namespace OverEngine
 					continue;
 
 				transform.m_Changed = false;
-
 				transform.RecalculateTransformationMatrix();
-
-				if (!transform.m_ChangedByPhysics && m_Registry.has<PhysicsBodyComponent>(entity))
-				{
-					auto& body = m_Registry.get<PhysicsBodyComponent>(entity);
-					if (body.Enabled)
-					{
-						body.Body->SetPosition({ transform.GetPosition().x, transform.GetPosition().y });
-						body.Body->SetRotation(QuaternionEulerAnglesRadians(transform.GetRotation()).z);
-						transform.m_ChangedByPhysics = false;
-					}
-				}
-			}
-		}
-
-		{
-			auto group = m_Registry.group<PhysicsBodyComponent>(entt::get<TransformComponent>);
-			for (auto entity : group)
-			{
-				auto& body = group.get<PhysicsBodyComponent>(entity);
-				if (body.Enabled)
-				{
-					auto& transform = group.get<TransformComponent>(entity);
-
-					transform.SetPosition(Vector3(body.Body->GetPosition(), 0));
-					transform.SetRotation(QuaternionEuler(Vector3(0.0f, 0.0f, glm::degrees(body.Body->GetRotation()))));
-					transform.m_ChangedByPhysics = true;
-				}
 			}
 		}
 	}
 
-	void Scene::Render()
+	void Scene::OnRender(Vector2 renderSurface)
 	{
 		/////////////////////////////////////////////////////
 		// Render ///////////////////////////////////////////
@@ -121,6 +121,8 @@ namespace OverEngine
 
 			if (!camera.Enabled)
 				continue;
+
+			camera.Camera.SetAspectRatio(renderSurface.x / renderSurface.y);
 
 			RenderCommand::SetClearColor(camera.Camera.GetClearColor());
 			RenderCommand::Clear(camera.Camera.GetIsClearingColor(), camera.Camera.GetIsClearingDepth());
@@ -161,9 +163,10 @@ namespace OverEngine
 		}
 	}
 
-	void Scene::OnUpdate(TimeStep DeltaTime)
+	void Scene::OnUpdate(TimeStep deltaTime, Vector2 renderSurface)
 	{
-		UpdatePhysicsAndTransform(DeltaTime); // TODO: use a FixedUpdate (just like Unity)
-		Render();
+		OnPhysicsUpdate(deltaTime); // TODO: use a FixedUpdate (just like Unity)
+		OnTransformUpdate();
+		OnRender(renderSurface);
 	}
 }

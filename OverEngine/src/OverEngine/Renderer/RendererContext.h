@@ -16,6 +16,6 @@ namespace OverEngine
 		virtual const char* GetInfoVendor() = 0;
 		virtual const char* GetInfoRenderer() = 0;
 
-		static RendererContext* Create(Window* handle);
+		static Scope<RendererContext> Create(Window* handle);
 	};
 }

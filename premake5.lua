@@ -11,7 +11,7 @@ IncludeEditor = true
 IncludeLua    = true
 
 workspace "OverEngine"
-	startproject "Sandbox"
+	startproject "OverEditor"
 
 	configurations
 	{
