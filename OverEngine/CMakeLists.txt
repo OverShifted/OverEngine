@@ -185,7 +185,6 @@ include_directories(
 )
 
 add_compile_definitions(
-	"OE_PLATFORM_WINDOWS"
 	"_CRT_SECURE_NO_WARNINGS"
 	"GLFW_INCLUDE_NONE"
 )

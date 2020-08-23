@@ -7,7 +7,7 @@ add_subdirectory(OverEngine/vendor/GLFW)
 add_subdirectory(OverEngine/vendor/Glad)
 add_subdirectory(OverEngine/vendor/imgui)
 add_subdirectory(OverEngine/vendor/lua)
-set(BOX2D_BUILD_TESTBED 0)
+set(BOX2D_BUILD_TESTBED false)
 add_subdirectory(OverEngine/vendor/box2d)
 
 # OverEngine
