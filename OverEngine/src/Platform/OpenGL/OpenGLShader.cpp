@@ -34,7 +34,15 @@ namespace OverEngine
 	OpenGLShader::OpenGLShader(const String& name, const String& vertexSrc, const String& fragmentSrc)
 		: m_Name(name)
 	{
-		UnorderedMap<GLenum, String> sources;
+		UnorderedMap<GLenum, const char*> sources;
+		sources[GL_VERTEX_SHADER] = vertexSrc.c_str();
+		sources[GL_FRAGMENT_SHADER] = fragmentSrc.c_str();
+		Compile(sources);
+	}
+
+	OpenGLShader::OpenGLShader(const String& name, const char* vertexSrc, const char* fragmentSrc)
+	{
+		UnorderedMap<GLenum, const char*> sources;
 		sources[GL_VERTEX_SHADER] = vertexSrc;
 		sources[GL_FRAGMENT_SHADER] = fragmentSrc;
 		Compile(sources);
@@ -105,6 +113,13 @@ namespace OverEngine
 
 	void OpenGLShader::Compile(const UnorderedMap<GLenum, String>& shaderSources)
 	{
+		UnorderedMap<GLenum, const char*> sources;
+		for (auto& src : shaderSources)
+			sources[src.first] = src.second.c_str();
+	}
+
+	void OpenGLShader::Compile(const UnorderedMap<GLenum, const char*>& shaderSources)
+	{
 		GLuint program = glCreateProgram();
 
 		OE_CORE_ASSERT(shaderSources.size() <= 2, "{0} shader sources got but 2 is maximim", shaderSources.size());
@@ -115,12 +130,11 @@ namespace OverEngine
 		for (auto& src : shaderSources)
 		{
 			GLenum type = src.first;
-			const String& source = src.second;
+			const char* source = src.second;
 
 			GLuint shader = glCreateShader(type);
 
-			const GLchar* sourceCStr = source.c_str();
-			glShaderSource(shader, 1, &sourceCStr, 0);
+			glShaderSource(shader, 1, &source, 0);
 
 			glCompileShader(shader);
 
@@ -142,7 +156,7 @@ namespace OverEngine
 			}
 
 			glAttachShader(program, shader);
-			
+
 			glShaderIDs[glShaderIdIndex++] = shader;
 		}
 

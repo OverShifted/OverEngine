@@ -11,6 +11,7 @@ namespace OverEngine
 	public:
 		OpenGLShader(const String& filePath);
 		OpenGLShader(const String& name, const String& vertexSrc, const String& fragmentSrc);
+		OpenGLShader(const String& name, const char* vertexSrc, const char* fragmentSrc);
 		OpenGLShader(const String& name, const Ref<IntermediateShader>& vertexShader, const Ref<IntermediateShader>& fragmentShader);
 		virtual ~OpenGLShader();
 
@@ -32,6 +33,7 @@ namespace OverEngine
 	private:
 		UnorderedMap<GLenum, String> PreProcess(const String& source);
 		void Compile(const UnorderedMap<GLenum, String>& shaderSources);
+		void Compile(const UnorderedMap<GLenum, const char*>& shaderSources);
 	private:
 		uint32_t m_RendererID = 0;
 		String m_Name;

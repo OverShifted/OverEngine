@@ -29,6 +29,7 @@ namespace OverEngine
 
 		static Ref<Shader> Create(const String& filePath);
 		static Ref<Shader> Create(const String& name, const String& vertexSrc, const String& fragmentSrc);
+		static Ref<Shader> Create(const String& name, const char* vertexSrc, const char* fragmentSrc);
 		static Ref<Shader> Create(const String& name, Ref<IntermediateShader>& vertexShader ,const Ref<IntermediateShader>& fragmentShader);
 	};
 
