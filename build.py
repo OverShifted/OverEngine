@@ -26,10 +26,10 @@ buildFlags = [
 ]
 WannaBuild = HasFlag(buildFlags)
 
-premakeCommand = "vendor/bin/premake/premake5"
+premakeCommand = "vendor/premake/bin/premake5"
 buildCommand = ""
 if DetectOperatingSystem() == SYSTEM_WINDOWS:
-    premakeCommand = "vendor\\bin\\premake\\premake5.exe vs2019"
+    premakeCommand = premakeCommand.replace('/', '\\') + ".exe vs2019"
     buildCommand = "msbuild"
 elif DetectOperatingSystem() == SYSTEM_LINUX:
     premakeCommand += " gmake2"
