@@ -45,8 +45,8 @@ namespace OverEngine
 	{
 		m_RendererID = glCreateProgram();
 
-		uint32_t vsID = (uint32_t)(intptr_t)(vertexShader->GetRendererID());
-		uint32_t fsID = (uint32_t)(intptr_t)(fragmentShader->GetRendererID());
+		uint32_t vsID = vertexShader->GetRendererID();
+		uint32_t fsID = fragmentShader->GetRendererID();
 
 		glAttachShader(m_RendererID, vsID);
 		glAttachShader(m_RendererID, fsID);

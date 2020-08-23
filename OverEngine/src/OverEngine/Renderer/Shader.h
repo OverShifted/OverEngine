@@ -37,7 +37,7 @@ namespace OverEngine
 	public:
 		enum class Type { Vertex, Fragment };
 	public:
-		virtual void* GetRendererID() const = 0;
+		virtual uint32_t GetRendererID() const = 0;
 	public:
 		static IntermediateShader* Create(String& Source, Type type);
 	};

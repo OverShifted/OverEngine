@@ -12,7 +12,7 @@ namespace OverEngine
 		OpenGLIntermediateShader(String& Source, Type type);
 		virtual ~OpenGLIntermediateShader();
 
-		virtual void* GetRendererID() const override { return (void*)(intptr_t)m_RendererID; }
+		virtual uint32_t GetRendererID() const override { return m_RendererID; }
 	private:
 		uint32_t m_RendererID;
 	};
