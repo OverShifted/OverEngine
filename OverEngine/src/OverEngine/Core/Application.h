@@ -12,7 +12,7 @@ namespace OverEngine
 {
 	class ImGuiLayer;
 
-	class OVER_API Application
+	class Application
 	{
 	public:
 		Application(String name = "OverEngine", bool InitRenderer = true);

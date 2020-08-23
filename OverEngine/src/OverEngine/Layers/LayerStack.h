@@ -7,7 +7,7 @@
 
 namespace OverEngine {
 
-	class OVER_API LayerStack
+	class LayerStack
 	{
 	public:
 		LayerStack();

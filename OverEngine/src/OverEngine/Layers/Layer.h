@@ -6,7 +6,7 @@
 
 namespace OverEngine {
 
-	class OVER_API Layer
+	class Layer
 	{
 	public:
 		Layer(const String& name = "Layer");

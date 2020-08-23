@@ -27,7 +27,7 @@ namespace OverEngine {
 	 * Interface representing a desktop system based Window
 	 * Use Windows::Create to create a window
 	 */
-	class OVER_API Window
+	class Window
 	{
 	public:
 		using EventCallbackFn = std::function<void(Event&)>;

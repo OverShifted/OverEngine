@@ -6,6 +6,7 @@
 # OverEngine Binaries
 /bin/
 /bin-int/
+/build/
 
 # Vendor Binaries
 /OverEngine/vendor/*/bin/

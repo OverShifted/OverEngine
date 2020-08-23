@@ -6,7 +6,7 @@
 
 namespace OverEngine
 {
-	class OVER_API Input
+	class Input
 	{
 	protected:
 		Input() = delete;

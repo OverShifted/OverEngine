@@ -1,9 +1,5 @@
 project "OverEngine"
-	if (DynamicLink) then
-		kind "SharedLib"
-	else
-		kind "StaticLib"
-	end
+	kind "StaticLib"
 
 	language "C++"
 	cppdialect "C++17"
@@ -61,43 +57,14 @@ project "OverEngine"
 		"../%{IncludeDir.json}",
 	}
 
-	if (DynamicLink) then
-		links (LinkLibs)
-	end
-
-	if (IncludeTinyFileDialogs) then
-		includedirs "../%{IncludeDir.TFD}"
-		if (DynamicLink) then
-			links "TinyFileDialogs"
-		end
-	end
-
 	defines
 	{
 		"GLFW_INCLUDE_NONE",
-		"_CRT_SECURE_NO_WARNINGS"
 	}
-
-	if (DynamicLink) then
-		defines
-		{
-			"OE_PROJECT_BUILD_SHARED",
-			"OE_BUILD_SHARED",
-		}
-	else
-		defines "OE_BUILD_STATIC"
-	end
 
 	filter "system:windows"
 		systemversion "latest"
 		staticruntime (StaticRuntime)
-
-		if (DynamicLink) then
-			postbuildcommands ("{COPY} %{cfg.buildtarget.relpath} .../bin/" .. outputdir .. "/Sandbox")
-			if (IncludeEditor) then
-				postbuildcommands ("{COPY} %{cfg.buildtarget.relpath} .../bin/" .. outputdir .. "/OverEditor")
-			end
-		end
 
 		files
 		{

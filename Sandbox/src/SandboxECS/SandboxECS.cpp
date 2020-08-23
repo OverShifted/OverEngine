@@ -188,7 +188,7 @@ void SandboxECS::OnUpdate(TimeStep DeltaTime)
 	if (s_FPSSamples[(int)s_FPSSamples.size() - 1] > 10000)
 		s_FPSSamples[(int)s_FPSSamples.size() - 1] = 0;
 	
-	sprintf(fpsText, "%i", (int)s_FPSSamples[(int)s_FPSSamples.size() - 1]);
+	sprintf_s(fpsText, 32, "%i", (int)s_FPSSamples[(int)s_FPSSamples.size() - 1]);
 
 	
 	m_Scene->OnUpdate(DeltaTime, {m_MainCameraCameraHandle->GetAspectRatio(), 1});

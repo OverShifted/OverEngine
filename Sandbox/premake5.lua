@@ -22,35 +22,18 @@ project "Sandbox"
 	includedirs
 	{
 		"../OverEngine/src",
-		"../OverEngine/res",
 		"../OverEngine/vendor",
 		"../%{IncludeDir.spdlog}",
+		"../%{IncludeDir.ImGui}",
 		"../%{IncludeDir.glm}",
 		"../%{IncludeDir.entt}",
 		"../%{IncludeDir.Box2D}",
 		"../%{IncludeDir.json}",
 	}
-	
-	if (IncludeTinyFileDialogs) then
-		includedirs "../%{IncludeDir.TFD}"
-		if not (DynamicLink) then
-			links "TinyFileDialogs"
-		end
-	end
 
 	links "OverEngine"
-	if (DynamicLink) then
-		defines "OE_BUILD_SHARED"
-	else
-		links (LinkLibs)
-		defines "OE_BUILD_STATIC"
-	end
+	links (LinkLibs)
 
-	defines
-	{
-		"_CRT_SECURE_NO_WARNINGS"
-	}
-		
 	filter "system:windows"
 		systemversion "latest"
 		staticruntime (StaticRuntime)

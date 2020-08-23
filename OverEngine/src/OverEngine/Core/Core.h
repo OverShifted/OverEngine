@@ -53,30 +53,6 @@
 	#define OE_PLATFORM_UNIX_BASE
 #endif
 
-#ifdef OE_PLATFORM_WINDOWS
-	#ifdef OE_BUILD_SHARED
-		#ifdef OE_PROJECT_BUILD_SHARED
-			#define OVER_API __declspec(dllexport)
-		#else
-			#define OVER_API __declspec(dllimport)
-		#endif // OE_BUILD_DYNAMIC
-	#else
-		#define OVER_API
-	#endif // OE_BUILD_SHARED
-#endif // OE_PLATFORM_WINDOWS
-
-#ifdef OE_PLATFORM_UNIX_BASE
-	#ifdef OE_BUILD_SHARED
-		#ifdef OE_PROJECT_BUILD_SHARED
-			#define OVER_API __attribute__((visibility("default")))
-		#else
-			#define OVER_API
-		#endif // OE_BUILD_DYNAMIC
-	#else
-		#define OVER_API
-	#endif // OE_BUILD_SHARED
-#endif // OE_PLATFORM_LINIUX
-
 #ifdef OE_DEBUG
 	// debugbreak
 	#ifdef OE_PLATFORM_WINDOWS

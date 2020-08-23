@@ -1,5 +1,5 @@
 project "OverEditor"
-	if (OverEditorExecHideConsole) then
+	if (OverEditorHideConsole) then
 		kind "WindowedApp"
 	else
 		kind "ConsoleApp"
@@ -8,22 +8,23 @@ project "OverEditor"
 	language "C++"
 	cppdialect "C++17"
 
-	targetname "OverEditor"
 	targetdir ("../bin/" .. outputdir .. "/%{prj.name}")
 	objdir("../bin-int/" .. outputdir .. "/%{prj.name}")
 
 	files
 	{
 		"src/**.h",
-		"src/**.cpp"
+		"src/**.cpp",
+
+		"assets/shaders/**.glsl"
 	}
 
 	includedirs
 	{
 		"../OverEngine/src",
-		"../OverEditor/src",
 		"../OverEngine/vendor",
 		"../%{IncludeDir.spdlog}",
+		"../%{IncludeDir.ImGui}",
 		"../%{IncludeDir.glm}",
 		"../%{IncludeDir.entt}",
 		"../%{IncludeDir.Box2D}",
@@ -31,18 +32,12 @@ project "OverEditor"
 	}
 
 	links "OverEngine"
-	if (DynamicLink) then
-		defines "OE_BUILD_SHARED"
-	else
-		links (LinkLibs)
-		defines "OE_BUILD_STATIC"
-	end
+	links (LinkLibs)
 
 	filter "system:windows"
 		systemversion "latest"
 		staticruntime (StaticRuntime)
 		files "res/**.rc"
-
 
 	filter "system:linux"
 		pic "on"

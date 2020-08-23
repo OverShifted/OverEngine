@@ -3,12 +3,8 @@ _32BitSupport = false
 -- Windows only. for Linux, "on" is hardcoded
 StaticRuntime = "on"
 
-SandboxHideConsole        = false
-DynamicLink               = false
-OverEditorExecHideConsole = false
-
-IncludeEditor = true
-IncludeLua    = true
+SandboxHideConsole    = false
+OverEditorHideConsole = false
 
 workspace "OverEngine"
 	startproject "OverEditor"
@@ -67,14 +63,9 @@ group "Dependencies"
 	include "OverEngine/vendor/Glad"
 	include "OverEngine/vendor/imgui"
 	include "OverEngine/vendor/box2d"
-	if (IncludeLua) then
-		include "OverEngine/vendor/lua"
-	end
+	include "OverEngine/vendor/lua"
 group ""
 
 include "OverEngine"
+include "OverEditor"
 include "Sandbox"
-
-if (IncludeEditor) then
-	include "OverEditor"
-end
