@@ -38,9 +38,40 @@ Ref<Scene> LoadSceneFromFile(const String& path)
 	settings.physics2DSettings.gravity.y = Physics2DGravityJson["y"];
 	Ref<Scene> scene = CreateRef<Scene>(settings);
 
+	Vector<Entity> entities;
+	Map<uint32_t, uint32_t> entityParentAssignList;
+	uint32_t i = 0;
 	for (auto& entityJson : sceneJson["Entities"])
 	{
 		Entity entity = scene->CreateEntity(entityJson["Name"]);
+		entities.push_back(entity);
+
+		Vector<Map<uint32_t, uint32_t>::iterator> entityParentAssignEraseList;
+		for (auto& parentAssignCommand : entityParentAssignList)
+		{
+			if (parentAssignCommand.second <= i)
+			{
+				entities[parentAssignCommand.first].SetParent(entities[parentAssignCommand.second]);
+				auto it = std::find(entityParentAssignList.begin(), entityParentAssignList.end(), parentAssignCommand);
+				OE_CORE_ASSERT(it != entityParentAssignList.end(), "Parent not found!");
+				entityParentAssignEraseList.push_back(it);
+			}
+		}
+
+		for (const auto& it : entityParentAssignEraseList)
+			entityParentAssignList.erase(it);
+
+		// Family
+		auto family = entity.GetComponent<FamilyComponent>();
+
+		auto parentJson = entityJson["Family"]["Parent"];
+		if (!parentJson.is_null())
+		{
+			if (parentJson < i)
+				entity.SetParent(entities[parentJson]);
+			else
+				entityParentAssignList[i] = parentJson.get<uint32_t>();
+		}
 
 		// Transform
 		auto& transform = entity.GetComponent<TransformComponent>();
@@ -99,6 +130,7 @@ Ref<Scene> LoadSceneFromFile(const String& path)
 				});
 			}
 		}
+		i++;
 	}
 
 	return scene;
@@ -116,7 +148,14 @@ void SaveSceneToFile(const String& path, Ref<Scene> scene)
 		{ "y", Physics2DGravity.y }
 	};
 
+	Vector<uint32_t> entityIDs;
 	Vector<nlohmann::json> entitiesJson;
+	size_t size = scene->GetEntities().size();
+	entityIDs.reserve(size);
+	entitiesJson.reserve(size);
+
+	for (auto& entity : scene->GetEntities())
+		entityIDs.push_back(entity.GetID());
 
 	uint32_t i = 0;
 	for (auto& entity : scene->GetEntities())
@@ -130,8 +169,18 @@ void SaveSceneToFile(const String& path, Ref<Scene> scene)
 		entityJson["Name"] = entity.GetComponent<NameComponent>().Name;
 
 		// Family
-		entityJson["Family"]["Parent"]   = nullptr; // TODO: do something
-		entityJson["Family"]["Children"] = {};		// TODO: do something
+		auto& family = entity.GetComponent<FamilyComponent>();
+		if (!family.Parent)
+		{
+			entityJson["Family"]["Parent"] = nullptr;
+		}
+		else
+		{
+			auto it = std::find(entityIDs.begin(), entityIDs.end(), family.Parent.GetID());
+			OE_CORE_ASSERT(it != entityIDs.end(), "Parent not found!");
+			entityJson["Family"]["Parent"] = it - entityIDs.begin();
+
+		}
 
 		// Transform
 		if (entity.HasComponent<TransformComponent>())

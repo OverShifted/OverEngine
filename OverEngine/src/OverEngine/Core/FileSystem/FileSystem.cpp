@@ -31,6 +31,31 @@ namespace OverEngine
 		return std::filesystem::exists(path);
 	}
 
+	bool FileSystem::FileExists(const std::filesystem::path& path)
+	{
+		return std::filesystem::exists(path);
+	}
+
+	bool FileSystem::IsFile(const String& path)
+	{
+		return !IsDirectory(path);
+	}
+
+	bool FileSystem::IsFile(const std::filesystem::path& path)
+	{
+		return !IsDirectory(path);
+	}
+
+	bool FileSystem::IsDirectory(const String& path)
+	{
+		return std::filesystem::is_directory(path);
+	}
+
+	bool FileSystem::IsDirectory(const std::filesystem::path& path)
+	{
+		return std::filesystem::is_directory(path);
+	}
+
 	String FileSystem::FixFileSystemPath(String path)
 	{
 		size_t backSlash = path.find_first_of('\\');
@@ -72,5 +97,12 @@ namespace OverEngine
 		auto lastSlash = path->find_last_of("/\\");
 		lastSlash = lastSlash == String::npos ? 0 : lastSlash + 1;
 		(*path) = path->substr(lastSlash, path->size() - lastSlash);
+	}
+
+	String FileSystem::ExtractFileExtentionFromName(const String& name)
+	{
+		auto lastDot = name.rfind('.');
+		lastDot = lastDot == String::npos ? 0 : lastDot + 1;
+		return name.substr(lastDot, name.size() - lastDot);
 	}
 }

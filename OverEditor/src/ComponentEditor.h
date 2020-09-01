@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <OverEngine/Scene/Components.h>
 #include <imgui/imgui.h>
@@ -220,6 +220,13 @@ void ComponentEditor<SpriteRendererComponent>(Entity entity, uint32_t typeID)
 			ImGui::NextColumn();
 			ImGui::PushItemWidth(-1);
 			ImGui::ColorEdit4("##Tint", &spriteRenderer.Tint.r);
+			ImGui::PopItemWidth();
+			ImGui::NextColumn();
+
+			ImGui::TextUnformatted("Sprite");
+			ImGui::NextColumn();
+			ImGui::PushItemWidth(-1);
+			ImGui::TextDisabled("None (Texture2DAsset)");
 			ImGui::PopItemWidth();
 
 			ImGui::Columns(1);

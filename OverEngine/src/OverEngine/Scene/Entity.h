@@ -7,6 +7,17 @@
 namespace OverEngine
 {
 	template<typename T>
+	struct ComponentRef
+	{
+		ComponentRef(Entity entity) : AttachedEntity(entity) {}
+		Entity AttachedEntity;
+
+		operator T& () { return AttachedEntity.GetComponent<T>(); }
+		T* operator ->() { return &AttachedEntity.GetComponent<T>(); }
+		T& operator *() { return AttachedEntity.GetComponent<T>(); }
+	};
+
+	template<typename T>
 	uint32_t GetComponentTypeID()
 	{
 		return entt::type_info<T>::id();
@@ -16,7 +27,7 @@ namespace OverEngine
 	{
 	public:
 		Entity() = default;
-		Entity(entt::entity handle, Scene * scene);
+		Entity(entt::entity handle, Scene* scene);
 		Entity(const Entity& other) = default;
 
 		inline Scene* GetScene() const { return m_Scene; }
@@ -45,6 +56,13 @@ namespace OverEngine
 		}
 
 		template<typename T>
+		ComponentRef<T> GetComponentRef()
+		{
+			OE_CORE_ASSERT(HasComponent<T>(), "Entity does not have component!");
+			return ComponentRef<T>(*this);
+		}
+
+		template<typename T>
 		bool HasComponent()
 		{
 			return m_Scene->m_Registry.has<T>(m_EntityHandle);
@@ -55,7 +73,7 @@ namespace OverEngine
 		{
 			OE_CORE_ASSERT(HasComponent<T>(), "Entity does not have component!");
 			m_Scene->m_Registry.remove<T>(m_EntityHandle);
-			
+
 			auto& componentList = m_Scene->m_EntitiesComponentsTypeIDList[m_EntityHandle];
 			auto it = std::find(componentList.begin(), componentList.end(), entt::type_info<T>::id());
 			if (it != componentList.end())
@@ -65,13 +83,25 @@ namespace OverEngine
 		const Vector<uint32_t>& GetEntitiesComponentsTypeIDList() const { return m_Scene->m_EntitiesComponentsTypeIDList[m_EntityHandle]; }
 		Vector<uint32_t>& GetEntitiesComponentsTypeIDList() { return m_Scene->m_EntitiesComponentsTypeIDList[m_EntityHandle]; }
 
+		// Sets entity parent to scene
+		void ClearParent();
 		void SetParent(Entity parent);
 		void Destroy();
 
-		inline uint32_t GetID() { OE_CORE_ASSERT(m_EntityHandle != entt::null, "Entity handle is null!"); return (uint32_t)m_EntityHandle; }
+		inline uint32_t GetID() const { OE_CORE_ASSERT(m_EntityHandle != entt::null, "Entity handle is null!"); return (uint32_t)m_EntityHandle; }
 
 		operator bool() const { return m_EntityHandle != entt::null; }
-		bool operator==(const Entity& other) const { return m_EntityHandle == other.m_EntityHandle; }
+		operator uint32_t() const { return GetID(); }
+
+		bool operator==(const Entity& other) const
+		{
+			return m_EntityHandle == other.m_EntityHandle && m_Scene == other.m_Scene;
+		}
+	
+		bool operator!=(const Entity& other) const
+		{
+			return !(*this == other);
+		}
 	private:
 		entt::entity m_EntityHandle{ entt::null };
 		Scene* m_Scene;

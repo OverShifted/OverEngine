@@ -25,8 +25,8 @@ namespace OverEngine
 			return FileSystem::FileExists(path);
 		}
 
-		std::vector<String> dirs = SplitString(path, '/');
-		const String& virtualDir = dirs.front();
+		auto dirs = SplitString(path, '/');
+		const String& virtualDir = dirs->front();
 
 		if (m_MountPoints.find(virtualDir) == m_MountPoints.end() || m_MountPoints[virtualDir].empty())
 			return false;

@@ -78,7 +78,16 @@
 
 #define BIT(x) (1 << x)
 
-#define OE_BIND_EVENT_FN(fn) [this](auto&&... args) -> decltype(auto) { return this->fn(std::forward<decltype(args)>(args)...); }
+#define BIND_FN(fn) [this](auto&&... args) -> decltype(auto) { return this->fn(std::forward<decltype(args)>(args)...); }
+
+#define NULL_REF(T) (*(T*)nullptr)
+
+#define CAPITAL_A_ASCII 65
+#define SMALL_A_ASCII 97
+#define CHAR_1_ASCII 49
+#define CHAR_0_ASCII 48
+
+#define DIGIT_TO_CHAR(digit) ((char)(digit + CHAR_0_ASCII))
 
 namespace OverEngine
 {

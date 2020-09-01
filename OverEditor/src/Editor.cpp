@@ -5,6 +5,7 @@
 
 #include <OverEngine/ImGui/ExtraImGui.h>
 #include <OverEngine/Core/FileSystem/FileSystem.h>
+#include <OverEngine/Core/Extentions.h>
 
 #include <imgui/imgui.h>
 #include <tinyfiledialogs/tinyfiledialogs.h>
@@ -19,8 +20,9 @@ Ref<EditorProject> NewProject(const String& name, String directoryPath)
 		return nullptr;
 
 	nlohmann::json json;
-	json["name"] = name;
-	json["assets"] = "assets.oea";
+	json["Name"] = name;
+	json["Assets"] = String("assets.") + OE_ASSET_MANIFEST_FILE_EXTENSION;
+	json["AssetsRoot"] = "Assets";
 
 	FileSystem::FixFileSystemPath(&directoryPath);
 
@@ -29,39 +31,58 @@ Ref<EditorProject> NewProject(const String& name, String directoryPath)
 	if (directoryPath[directoryPath.size() - 1] == '/')
 	{
 		std::filesystem::create_directory(directoryPath + name);
-		projectFile.open(directoryPath + name + "/project.oep", std::ios::out);
+		projectFile.open(directoryPath + name + "/project." + OE_PROJECT_FILE_EXTENSION, std::ios::out);
 		projectRoot = directoryPath + name;
 	}
 	else
 	{
 		std::filesystem::create_directory(directoryPath + '/' + name);
-		projectFile.open(directoryPath + '/' + name + "/project.oep", std::ios::out);
+		projectFile.open(directoryPath + '/' + name + "/project." + OE_PROJECT_FILE_EXTENSION, std::ios::out);
 		projectRoot = directoryPath + '/' + name;
 	}
 
-	projectFile << json;
+	projectFile << json.dump(1, '\t');
 
 	std::filesystem::create_directory(projectRoot + "/Assets");
-	json.clear();
-	json["root"] = "Assets";
-	json["assets"] = {};
+	json = nlohmann::json::array();
 
-	std::ofstream assetFile;
-	assetFile.open(projectRoot + "/assets.oea", std::ios::out);
-
+	std::ofstream assetFile(projectRoot + "/assets." + OE_ASSET_MANIFEST_FILE_EXTENSION);
 	assetFile << json;
+	assetFile.flush();
+	assetFile.close();
 
-	return CreateRef<EditorProject>(projectRoot + "/project.oep");
+	return CreateRef<EditorProject>(projectRoot + "/project." + OE_PROJECT_FILE_EXTENSION);
 }
 
 ////////////////////////////////////////////////////////////
 // EditorProject ///////////////////////////////////////////
 ////////////////////////////////////////////////////////////
 
-EditorProject::EditorProject(const String& rootPath)
-	: m_OepPath(rootPath)
+EditorProject::EditorProject(const String& path)
+	: m_ProjectFilePath(path)
 {
-	m_RootPath = m_OepPath.substr(0, m_OepPath.size() - 12); // "/project.oep" -> 12
+	auto lastSlash = path.find_last_of("/\\");
+	lastSlash = lastSlash == String::npos ? path.size() : lastSlash;
+	m_RootPath = path.substr(0, lastSlash);
+
+	nlohmann::json projectJson;
+	std::ifstream projectFile(path);
+	projectFile >> projectJson;
+	projectFile.close();
+
+	m_Name = projectJson["Name"];
+	m_AssetsDirectoryPath = m_RootPath + "/" + projectJson["AssetsRoot"].get<String>();
+
+	nlohmann::json assetsManifestJson;
+	std::ifstream assetsManifestFile(m_RootPath + "/" + projectJson["AssetsManifest"].get<String>());
+	assetsManifestFile >> assetsManifestJson;
+	assetsManifestFile.close();
+	m_Resources.InitFromJson(assetsManifestJson, m_AssetsDirectoryPath);
+}
+
+String EditorProject::ResolvePhysicalAssetPath(const String& virtualPath)
+{
+	return m_AssetsDirectoryPath + "/" + virtualPath.substr(9, virtualPath.size());
 }
 
 ////////////////////////////////////////////////////////////
@@ -71,8 +92,8 @@ EditorProject::EditorProject(const String& rootPath)
 Editor::Editor()
 {
 	FrameBufferProps fbProps;
-	fbProps.Width = 7680;
-	fbProps.Height = 6320;
+	fbProps.Width = 720;
+	fbProps.Height = 1280;
 	m_ViewportFrameBuffer = FrameBuffer::Create(fbProps);
 }
 
@@ -233,7 +254,9 @@ void Editor::OnProjectManagerGUI()
 
 			if (ImGui::Button("Open Project"))
 			{
-				const char* filters[] = { "*.oep" };
+				std::stringstream extension;
+				extension << "*." << OE_PROJECT_FILE_EXTENSION;
+				const char* filters[] = { extension.str().c_str() };
 				if (char* filePath = const_cast<char*>(tinyfd_openFileDialog("Open Project", "", 1, filters, "OverEngine Project", 0)))
 				{
 					FileSystem::FixFileSystemPath(filePath);
@@ -249,8 +272,10 @@ void Editor::OnProjectManagerGUI()
 			{
 				if (ImGui::Button("Create Scene"))
 				{
-					const char* filters[] = { "*.oes" };
-					if (auto scenePath = tinyfd_saveFileDialog("Create Scene", (m_EditingProject->GetRootPath() + "/Assets/Scene.oes").c_str(), 1, filters, "OverEngine Scene"))
+					std::stringstream extension;
+					extension << "*." << OE_SCENE_FILE_EXTENSION;
+					const char* filters[] = { extension.str().c_str() };
+					if (auto scenePath = tinyfd_saveFileDialog("Create Scene", "", 1, filters, "OverEngine Scene"))
 					{
 						EditScene(CreateSceneOnDisk(scenePath), scenePath);
 					}
@@ -348,7 +373,7 @@ static Entity SceneGraphTreeViewRecursive(Entity parentEntity, int* selection_ma
 		if (ImGui::BeginDragDropSource())
 		{
 			ImGui::SetDragDropPayload("_SCENE_GRAPH_ENTITY_DRAG", &entity, sizeof(Entity));
-			ImGui::Text(name);
+			ImGui::TextUnformatted(name);
 			ImGui::EndDragDropSource();
 		}
 		ImGui::PopStyleVar();
@@ -360,6 +385,7 @@ static Entity SceneGraphTreeViewRecursive(Entity parentEntity, int* selection_ma
 				Entity* otherEntity = static_cast<Entity*>(payload->Data);
 				otherEntity->SetParent(entity);
 			}
+			ImGui::EndDragDropTarget();
 		}
 
 		if (ImGui::IsItemClicked())
@@ -433,6 +459,18 @@ void Editor::OnSceneGraphGUI()
 		}
 		ImGui::PopStyleVar();
 
+		ImGui::BeginChild("Root Drag Drop Target");
+		ImGui::EndChild();
+
+		if (ImGui::BeginDragDropTarget())
+		{
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("_SCENE_GRAPH_ENTITY_DRAG"))
+			{
+				Entity* otherEntity = static_cast<Entity*>(payload->Data);
+				otherEntity->ClearParent();
+			}
+			ImGui::EndDragDropTarget();
+		}
 
 		ImGui::End();
 		ImGui::PopStyleVar();
@@ -536,9 +574,10 @@ void Editor::OnInspectorGUI()
 // Assets ///////////////////////////////////
 /////////////////////////////////////////////
 
-static TripleBinding<bool, uint32_t, String> DirectoryTreeViewRecursive(Editor* editor, const std::filesystem::path& path, uint32_t* count, int* selection_mask)
+#if 0
+static TripleBinding<bool, uint32_t, String> DirectoryTreeViewRecursive(Editor* editor, const std::filesystem::path& path, uint32_t* count, int* selection_mask, bool drawFiles)
 {
-	ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_SpanFullWidth;
+	static ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_SpanFullWidth;
 
 	bool any_node_clicked = false;
 	uint32_t node_clicked = 0;
@@ -549,15 +588,16 @@ static TripleBinding<bool, uint32_t, String> DirectoryTreeViewRecursive(Editor* 
 	{
 		pathString = entry.path().string();
 		name = FileSystem::ExtractFileNameFromPath(pathString);
-		bool entryIsFile = !std::filesystem::is_directory(entry.path());
+		bool entryIsFile = FileSystem::IsFile(entry.path());
 
 		if (entryIsFile)
 		{
-			auto lastDot = name.rfind('.');
-			lastDot = lastDot == String::npos ? 0 : lastDot + 1;
-			format = name.substr(lastDot, name.size() - lastDot);
+			if (!drawFiles)
+				continue;
 
-			if (format == "oeam")
+			format = FileSystem::ExtractFileExtentionFromName(name);
+
+			if (format == OE_RESOURCE_DEFENITION_FILE_EXTENSION)
 			{
 				(*count)--;
 				continue;
@@ -578,7 +618,7 @@ static TripleBinding<bool, uint32_t, String> DirectoryTreeViewRecursive(Editor* 
 		{
 			if (entryIsFile && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
 			{
-				if (format == "oes")
+				if (format == OE_SCENE_FILE_EXTENSION)
 					editor->EditScene(LoadSceneFromFile(pathString), pathString);
 			}
 
@@ -593,7 +633,7 @@ static TripleBinding<bool, uint32_t, String> DirectoryTreeViewRecursive(Editor* 
 		{
 			if (node_open)
 			{
-				auto clickState = DirectoryTreeViewRecursive(editor, entry.path(), count, selection_mask);
+				auto clickState = DirectoryTreeViewRecursive(editor, entry.path(), count, selection_mask, drawFiles);
 
 				if (!any_node_clicked && clickState.first)
 				{
@@ -617,26 +657,57 @@ static TripleBinding<bool, uint32_t, String> DirectoryTreeViewRecursive(Editor* 
 
 void Editor::OnAssetsGUI()
 {
+	bool is_root_clicked = false;
+	static int selection_mask = 0;
+
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 0.0f, 0.0f });
-
 	ImGui::Begin("Assets");
+	ImGui::PopStyleVar();
 
-	ImGui::Columns(2);
-	if (ImGui::TreeNodeEx("##AssetsRootTreeNode", ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_SpanFullWidth, "assets://"))
+	if (!m_AssetBrowserOneColumnView)
+		ImGui::Columns(2);
+
+	if (ImGui::Button("Settings"))
+		ImGui::OpenPopup("SettingsPopup##AssetBrowser");
+	if (ImGui::BeginPopup("SettingsPopup##AssetBrowser"))
 	{
-		ImGui::Indent(15.0f);
+		ImGui::Checkbox("One Column View", &m_AssetBrowserOneColumnView);
+		ImGui::EndPopup();
+	}
 
-		String assetsPath = m_EditingProject->GetRootPath() + "/Assets";
+	ImGuiTreeNodeFlags root_node_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_SpanFullWidth;
+
+	if (m_IsAssetRootSelected)
+		root_node_flags |= ImGuiTreeNodeFlags_Selected;
+	
+	if (ImGui::TreeNodeEx("##AssetsRootTreeNode", root_node_flags, "assets://"))
+	{
+		if (ImGui::IsItemClicked())
+			is_root_clicked = true;
+
+		String assetsPath = m_EditingProject->GetAssetsDirectoryPath();
 
 		uint32_t count = 0;
 		for (const auto& entry : std::filesystem::recursive_directory_iterator(assetsPath))
 			count++;
 
-		static int selection_mask = 0;
 
-		auto clickState = DirectoryTreeViewRecursive(this, assetsPath, &count, &selection_mask);
+		auto clickState = DirectoryTreeViewRecursive(this, assetsPath, &count, &selection_mask, m_AssetBrowserOneColumnView);
 
-		if (clickState.first)
+		if (is_root_clicked)
+		{
+			if (ImGui::GetIO().KeyCtrl)
+			{
+				m_IsAssetRootSelected = !m_IsAssetRootSelected;
+			}
+			else
+			{
+				m_IsAssetRootSelected = true;
+				selection_mask = 0;
+				m_SelectedAssetFiles.clear();
+			}
+		}
+		else if (clickState.first)
 		{
 			// Update selection state
 			// (process outside of tree loop to avoid visual inconsistencies during the clicking frame)
@@ -652,24 +723,37 @@ void Editor::OnAssetsGUI()
 			else
 			{
 				selection_mask = BIT(clickState.middle);           // Click to single-select
+				m_IsAssetRootSelected = false;
 				m_SelectedAssetFiles.clear();
 				m_SelectedAssetFiles.push_back(clickState.last);
 			}
 		}
 
-		ImGui::Unindent(15.0f);
-
 		ImGui::TreePop();
 	}
-	ImGui::NextColumn();
 
+	if (!m_AssetBrowserOneColumnView)
+		ImGui::NextColumn();
+
+	if (!m_AssetBrowserOneColumnView)
 	{
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 10, 10 });
+		ImGui::PushItemWidth(-1);
+		ImGui::SliderInt("##Thumbnail Size", &m_AssetThumbnailSize, m_AssetThumbnailSizeMin, m_AssetThumbnailSizeMax, "Thumbnail Size : %d px");
+		ImGui::PopItemWidth();
+
+		if (m_SelectedAssetFiles.size() > 1 || m_SelectedAssetFiles.size() == 1 && m_IsAssetRootSelected)
+			ImGui::TextUnformatted("Showing multiple files and folders");
+		else if (m_SelectedAssetFiles.size() == 1)
+			ImGui::TextUnformatted(FileSystem::FixFileSystemPath(m_SelectedAssetFiles[0]).c_str());
+		else
+			ImGui::TextUnformatted(FileSystem::FixFileSystemPath(m_EditingProject->GetAssetsDirectoryPath()).c_str());
+
 		ImGui::BeginChild("##ThumbnailView", { 0, 0 }, false, ImGuiWindowFlags_AlwaysUseWindowPadding);
+
 		uint32_t count = 0;
 		for (const auto& p : m_SelectedAssetFiles)
 		{
-			if (std::filesystem::is_directory(p))
+			if (FileSystem::IsDirectory(p))
 				for (const auto& entry : std::filesystem::directory_iterator(p))
 					count++;
 			else
@@ -680,17 +764,33 @@ void Editor::OnAssetsGUI()
 		ImGuiStyle& style = ImGui::GetStyle();
 		float window_visible_x2 = ImGui::GetWindowPos().x + ImGui::GetWindowContentRegionMax().x;
 
-		ImGui::PushItemWidth(-1);
-		ImGui::SliderInt("##Thumbnail Size", &m_AssetThumbnailSize, m_AssetThumbnailSizeMin, m_AssetThumbnailSizeMax, "Thumbnail Size : %d px");
-		ImGui::PopItemWidth();
-
-		if (m_SelectedAssetFiles.size() > 1)
-			ImGui::Text("Showing multiple files and folders");
-
 		uint32_t n = 0;
+		if (m_IsAssetRootSelected)
+		{
+			auto assetsPath = m_EditingProject->GetAssetsDirectoryPath();
+
+			for (const auto& entry : std::filesystem::directory_iterator(assetsPath))
+				count++;
+
+			for (const auto& entry : std::filesystem::directory_iterator(assetsPath))
+			{
+				ImGui::PushID(n);
+
+				String name = FileSystem::ExtractFileNameFromPath(entry.path().string());
+
+				ImGui::Button(name.c_str(), thumbnailSize);
+				float last_button_x2 = ImGui::GetItemRectMax().x;
+				float next_button_x2 = last_button_x2 + style.ItemSpacing.x + thumbnailSize.x; // Expected position if next button was on same line
+				if (n + 1 < count && next_button_x2 < window_visible_x2)
+					ImGui::SameLine();
+				ImGui::PopID();
+				n++;
+			}
+		}
+
 		for (const auto& p : m_SelectedAssetFiles)
 		{
-			if (std::filesystem::is_directory(p))
+			if (FileSystem::IsDirectory(p))
 			{
 				for (const auto& entry : std::filesystem::directory_iterator(p))
 				{
@@ -707,11 +807,219 @@ void Editor::OnAssetsGUI()
 					n++;
 				}
 			}
+		}
+		ImGui::EndChild();
+	}
+
+	if (!m_AssetBrowserOneColumnView)
+		ImGui::Columns(1);
+
+	ImGui::End();
+}
+#endif
+
+static TripleBinding<bool, uint32_t, String> DirectoryTreeViewRecursive(Editor* editor, const std::filesystem::path& path, uint32_t* count, int* selection_mask, bool drawFiles)
+{
+	static ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_SpanFullWidth;
+
+	bool any_node_clicked = false;
+	uint32_t node_clicked = 0;
+	String clickedNodePath;
+	String pathString, name, format;
+
+	for (const auto& entry : std::filesystem::directory_iterator(path))
+	{
+		pathString = entry.path().string();
+		name = FileSystem::ExtractFileNameFromPath(pathString);
+		bool entryIsFile = FileSystem::IsFile(entry.path());
+
+		if (entryIsFile)
+		{
+			if (!drawFiles)
+				continue;
+
+			format = FileSystem::ExtractFileExtentionFromName(name);
+
+			if (format == OE_RESOURCE_DEFENITION_FILE_EXTENSION)
+			{
+				(*count)--;
+				continue;
+			}
+		}
+
+		ImGuiTreeNodeFlags node_flags = base_flags;
+		const bool is_selected = (*selection_mask & BIT(*count)) != 0;
+		if (is_selected)
+			node_flags |= ImGuiTreeNodeFlags_Selected;
+
+		if (entryIsFile)
+			node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
+
+		bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)(*count), node_flags, name.c_str());
+
+		if (ImGui::IsItemClicked())
+		{
+			if (entryIsFile && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+			{
+				if (format == OE_SCENE_FILE_EXTENSION)
+					editor->EditScene(LoadSceneFromFile(pathString), pathString);
+			}
+
+			node_clicked = *count;
+			any_node_clicked = true;
+			clickedNodePath = pathString;
+		}
+
+		(*count)--;
+
+		if (!entryIsFile)
+		{
+			if (node_open)
+			{
+				auto clickState = DirectoryTreeViewRecursive(editor, entry.path(), count, selection_mask, drawFiles);
+
+				if (!any_node_clicked && clickState.first)
+				{
+					any_node_clicked = clickState.first;
+					node_clicked = clickState.middle;
+					clickedNodePath = clickState.last;
+				}
+
+				ImGui::TreePop();
+			}
 			else
+			{
+				for (const auto& e : std::filesystem::recursive_directory_iterator(entry.path()))
+					(*count)--;
+			}
+		}
+	}
+
+	return { any_node_clicked, node_clicked, clickedNodePath };
+}
+
+void Editor::OnAssetsGUI()
+{
+	bool is_root_clicked = false;
+	static int selection_mask = 0;
+
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 0.0f, 0.0f });
+	ImGui::Begin("Assets");
+	ImGui::PopStyleVar();
+
+	if (!m_AssetBrowserOneColumnView)
+		ImGui::Columns(2);
+
+	if (ImGui::Button("Settings"))
+		ImGui::OpenPopup("SettingsPopup##AssetBrowser");
+	if (ImGui::BeginPopup("SettingsPopup##AssetBrowser"))
+	{
+		ImGui::Checkbox("One Column View", &m_AssetBrowserOneColumnView);
+		ImGui::EndPopup();
+	}
+
+	ImGuiTreeNodeFlags root_node_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_SpanFullWidth;
+
+	if (m_IsAssetRootSelected)
+		root_node_flags |= ImGuiTreeNodeFlags_Selected;
+
+	if (ImGui::TreeNodeEx("##AssetsRootTreeNode", root_node_flags, "assets://"))
+	{
+		if (ImGui::IsItemClicked())
+			is_root_clicked = true;
+
+		String assetsPath = m_EditingProject->GetAssetsDirectoryPath();
+
+		uint32_t count = 0;
+		for (const auto& entry : std::filesystem::recursive_directory_iterator(assetsPath))
+			count++;
+
+
+		auto clickState = DirectoryTreeViewRecursive(this, assetsPath, &count, &selection_mask, m_AssetBrowserOneColumnView);
+
+		if (is_root_clicked)
+		{
+			if (ImGui::GetIO().KeyCtrl)
+			{
+				m_IsAssetRootSelected = !m_IsAssetRootSelected;
+			}
+			else
+			{
+				m_IsAssetRootSelected = true;
+				selection_mask = 0;
+				m_SelectedAssetFiles.clear();
+			}
+		}
+		else if (clickState.first)
+		{
+			// Update selection state
+			// (process outside of tree loop to avoid visual inconsistencies during the clicking frame)
+			if (ImGui::GetIO().KeyCtrl)
+			{
+				selection_mask ^= BIT(clickState.middle);          // CTRL+click to toggle
+				auto it = std::find(m_SelectedAssetFiles.begin(), m_SelectedAssetFiles.end(), clickState.last);
+				if (it != m_SelectedAssetFiles.end())
+					m_SelectedAssetFiles.erase(it);
+				else
+					m_SelectedAssetFiles.push_back(clickState.last);
+			}
+			else
+			{
+				selection_mask = BIT(clickState.middle);           // Click to single-select
+				m_IsAssetRootSelected = false;
+				m_SelectedAssetFiles.clear();
+				m_SelectedAssetFiles.push_back(clickState.last);
+			}
+		}
+
+		ImGui::TreePop();
+	}
+
+	if (!m_AssetBrowserOneColumnView)
+		ImGui::NextColumn();
+
+	if (!m_AssetBrowserOneColumnView)
+	{
+		ImGui::PushItemWidth(-1);
+		ImGui::SliderInt("##Thumbnail Size", &m_AssetThumbnailSize, m_AssetThumbnailSizeMin, m_AssetThumbnailSizeMax, "Thumbnail Size : %d px");
+		ImGui::PopItemWidth();
+
+		if (m_SelectedAssetFiles.size() > 1 || m_SelectedAssetFiles.size() == 1 && m_IsAssetRootSelected)
+			ImGui::TextUnformatted("Showing multiple files and folders");
+		else if (m_SelectedAssetFiles.size() == 1)
+			ImGui::TextUnformatted(FileSystem::FixFileSystemPath(m_SelectedAssetFiles[0]).c_str());
+		else
+			ImGui::TextUnformatted(FileSystem::FixFileSystemPath(m_EditingProject->GetAssetsDirectoryPath()).c_str());
+
+		ImGui::BeginChild("##ThumbnailView", { 0, 0 }, false, ImGuiWindowFlags_AlwaysUseWindowPadding);
+
+		uint32_t count = 0;
+		for (const auto& p : m_SelectedAssetFiles)
+		{
+			if (FileSystem::IsDirectory(p))
+				for (const auto& entry : std::filesystem::directory_iterator(p))
+					count++;
+			else
+				count++;
+		}
+
+		ImVec2 thumbnailSize((float)m_AssetThumbnailSize, (float)m_AssetThumbnailSize);
+		ImGuiStyle& style = ImGui::GetStyle();
+		float window_visible_x2 = ImGui::GetWindowPos().x + ImGui::GetWindowContentRegionMax().x;
+
+		uint32_t n = 0;
+		if (m_IsAssetRootSelected)
+		{
+			auto assetsPath = m_EditingProject->GetAssetsDirectoryPath();
+
+			for (const auto& entry : std::filesystem::directory_iterator(assetsPath))
+				count++;
+
+			for (const auto& entry : std::filesystem::directory_iterator(assetsPath))
 			{
 				ImGui::PushID(n);
 
-				String name = FileSystem::ExtractFileNameFromPath(p);
+				String name = FileSystem::ExtractFileNameFromPath(entry.path().string());
 
 				ImGui::Button(name.c_str(), thumbnailSize);
 				float last_button_x2 = ImGui::GetItemRectMax().x;
@@ -722,65 +1030,71 @@ void Editor::OnAssetsGUI()
 				n++;
 			}
 		}
+
+		for (const auto& p : m_SelectedAssetFiles)
+		{
+			if (FileSystem::IsDirectory(p))
+			{
+				for (const auto& entry : std::filesystem::directory_iterator(p))
+				{
+					ImGui::PushID(n);
+
+					String name = FileSystem::ExtractFileNameFromPath(entry.path().string());
+
+					ImGui::Button(name.c_str(), thumbnailSize);
+					float last_button_x2 = ImGui::GetItemRectMax().x;
+					float next_button_x2 = last_button_x2 + style.ItemSpacing.x + thumbnailSize.x; // Expected position if next button was on same line
+					if (n + 1 < count && next_button_x2 < window_visible_x2)
+						ImGui::SameLine();
+					ImGui::PopID();
+					n++;
+				}
+			}
+		}
 		ImGui::EndChild();
-		ImGui::PopStyleVar();
 	}
 
-	ImGui::End();
+	if (!m_AssetBrowserOneColumnView)
+		ImGui::Columns(1);
 
-	ImGui::PopStyleVar();
+	ImGui::End();
 }
 
 void Editor::OnAssetImportGUI()
 {
 	ImGui::Begin("Asset Import");
 
-
 	if (m_SelectedAssetFiles.size() == 1)
 	{
 		String& assetPath = m_SelectedAssetFiles[0];
 
-		if (std::filesystem::is_directory(assetPath))
+		if (FileSystem::IsFile(assetPath))
 		{
-			ImGui::Text("Please select some **FILE** to edit!");
-		}
-		else
-		{
-			ImGui::Text("Editing AssetFile : %s", FileSystem::ExtractFileNameFromPath(assetPath).c_str());
+			ImGui::Text("Editing Resource : %s", FileSystem::ExtractFileNameFromPath(assetPath).c_str());
 
-			if (!FileSystem::FileExists(assetPath + ".oeam")) // OverEngine Asset Manifest
+			if (!FileSystem::FileExists(assetPath + "." + OE_RESOURCE_DEFENITION_FILE_EXTENSION))
 			{
 				auto name = FileSystem::ExtractFileNameFromPath(assetPath);
-				auto lastDot = name.rfind('.');
-				lastDot = lastDot == String::npos ? 0 : lastDot + 1;
-				auto format = name.substr(lastDot, name.size() - lastDot);
+				auto format = FileSystem::ExtractFileExtentionFromName(name);
 
-				if (format == "oes")
+				if (format == OE_SCENE_FILE_EXTENSION)
 				{
-					ImGui::Text("OverEngine Scene File");
+					ImGui::TextUnformatted("OverEngine Scene File");
 				}
 				else
 				{
-					ImGui::TextWrapped("No AssetManifest found for this file. but you can create one.");
+					ImGui::TextWrapped("No 'ResourceDefenition' found for this file. OverEngine should make one for files that recognized as Resources. If not; It is not a supported file. but you can create that manually.");
 
-					if (ImGui::Button("Create AssetManifest"))
+					/*if (ImGui::Button("Create ResourceDefenition"))
 					{
-						std::ofstream manifestFile((assetPath + ".oeam").c_str());
+						std::ofstream manifestFile((assetPath + "." + OE_RESOURCE_DEFENITION_FILE_EXTENSION).c_str());
 						manifestFile << "{\n\t\"Assets\": []\n}";
 						manifestFile.flush();
 						manifestFile.close();
-					}
+					}*/
 				}
 			}
 		}
-	}
-	else if (m_SelectedAssetFiles.size() > 1)
-	{
-		ImGui::TextUnformatted("Cannot edit multiple items at the same time!");
-	}
-	else
-	{
-		ImGui::TextUnformatted("Please select some thing to edit!");
 	}
 
 	ImGui::End();

@@ -1,7 +1,7 @@
 set(OE_CROSS_PLATFORM_FILES
 	"src/OverEngine.h"
+	# "src/pcheader.cpp"
 	"src/pcheader.h"
-	"src/pcheader.cpp"
 	
 	"vendor/stb_image/stb_image.h"
 	"vendor/stb_image/stb_image.cpp"
@@ -166,6 +166,7 @@ endif()
 
 
 add_library(OverEngine ${OE_CROSS_PLATFORM_FILES} ${OE_OS_FILES} ${OE_OGL_FILES})
+target_precompile_headers(OverEngine PUBLIC "src/pcheader.h")
 
 include_directories(
 	"src"
@@ -188,5 +189,21 @@ add_compile_definitions(
 	"_CRT_SECURE_NO_WARNINGS"
 	"GLFW_INCLUDE_NONE"
 )
+
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+	add_compile_definitions("OE_DEBUG")
+endif()
+	
+if (CMAKE_BUILD_TYPE STREQUAL "Release")
+	add_compile_definitions("OE_RELEASE")
+endif()
+
+if (CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+	add_compile_definitions("OE_DEBUG")
+endif()
+
+if (CMAKE_BUILD_TYPE STREQUAL "MinSizeRel")
+	add_compile_definitions("OE_RELEASE")
+endif()
 
 target_link_libraries(OverEngine PUBLIC glfw Glad ImGui lua box2d)

@@ -10,20 +10,41 @@ namespace OverEngine
 	{
 	}
 
+	void Entity::ClearParent()
+	{
+		auto& family = GetComponent<FamilyComponent>();
+
+		if (!family.Parent)
+			return;
+
+		auto& lastParentChildren = family.Parent.GetComponent<FamilyComponent>().Children;
+		auto it = std::find(lastParentChildren.begin(), lastParentChildren.end(), *this);
+		OE_CORE_ASSERT(it != lastParentChildren.end(), "Entity is not in it's parent's child entities list!");
+		lastParentChildren.erase(it);
+
+		OE_CORE_INFO("Moving Entity #{} to the root. Last Parent : Entity #{}", GetID(), family.Parent.GetID());
+
+		family.Parent = Entity(); // Null entity
+		m_Scene->GetRootEntities().push_back(*this);
+	}
+
 	void Entity::SetParent(Entity parent)
 	{
 		auto& parentFamily = parent.GetComponent<FamilyComponent>();
-		parentFamily.Children.push_back(*this);
-
 		auto& family = GetComponent<FamilyComponent>();
+
+		if (parent == family.Parent)
+			return;
+
+		parentFamily.Children.push_back(*this);
 
 		if (family.Parent)
 		{
 			auto& lastParentChildren = family.Parent.GetComponent<FamilyComponent>().Children;
 
 			auto it = std::find(lastParentChildren.begin(), lastParentChildren.begin(), *this);
-			if (it != lastParentChildren.end())
-				lastParentChildren.erase(it);
+			OE_CORE_ASSERT(it != lastParentChildren.end(), "Entity is not in it's parent's child entities list!");
+			lastParentChildren.erase(it);
 		}
 		else
 		{

@@ -21,7 +21,7 @@ namespace OverEngine
 
 		WindowProps props = WindowProps(name, 1280, 720, true);
 		m_Window = Window::Create(props);
-		m_Window->SetEventCallback(OE_BIND_EVENT_FN(Application::OnEvent));
+		m_Window->SetEventCallback(BIND_FN(Application::OnEvent));
 
 		if (m_UseInternalRenderer)
 			Renderer::Init();
@@ -49,8 +49,8 @@ namespace OverEngine
 	void Application::OnEvent(Event& e)
 	{
 		EventDispatcher dispatcher(e);
-		dispatcher.Dispatch<WindowCloseEvent> (OE_BIND_EVENT_FN(Application::OnWindowClose));
-		dispatcher.Dispatch<WindowResizeEvent>(OE_BIND_EVENT_FN(Application::OnWindowResize));
+		dispatcher.Dispatch<WindowCloseEvent> (BIND_FN(Application::OnWindowClose));
+		dispatcher.Dispatch<WindowResizeEvent>(BIND_FN(Application::OnWindowResize));
 
 		for (auto it = m_LayerStack.rbegin(); it != m_LayerStack.rend(); it++)
 		{

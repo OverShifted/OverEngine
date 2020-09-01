@@ -1,6 +1,7 @@
 #include "EditorLayer.h"
 
 #include "Editor.h"
+#include <OverEngine/Core/GUIDGenerator.h>
 
 #include <imgui/imgui.h>
 

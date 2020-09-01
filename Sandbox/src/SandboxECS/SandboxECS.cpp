@@ -273,8 +273,8 @@ void SandboxECS::OnEvent(Event& event)
 	OE_PROFILE_FUNCTION();
 
 	EventDispatcher dispatcher(event);
-	dispatcher.Dispatch<WindowResizeEvent>(OE_BIND_EVENT_FN(SandboxECS::OnWindowResizeEvent));
-	dispatcher.Dispatch<MouseScrolledEvent>(OE_BIND_EVENT_FN(SandboxECS::OnMouseScrolledEvent));
+	dispatcher.Dispatch<WindowResizeEvent>(BIND_FN(SandboxECS::OnWindowResizeEvent));
+	dispatcher.Dispatch<MouseScrolledEvent>(BIND_FN(SandboxECS::OnMouseScrolledEvent));
 }
 
 bool SandboxECS::OnWindowResizeEvent(WindowResizeEvent& event)

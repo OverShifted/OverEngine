@@ -3,6 +3,7 @@
 #include <OverEngine.h>
 using namespace OverEngine;
 
+#include <OverEngine/Core/GUIDGenerator.h>
 #include <OverEngine/Assets/AssetResource.h>
 #include <OverEngine/Assets/Asset.h>
 
@@ -14,16 +15,23 @@ class EditorProject
 {
 public:
 	EditorProject() = default;
-	EditorProject(const String& oepPath);
+	EditorProject(const String& path);
 
 	inline const String& GetRootPath() { return m_RootPath; }
+	inline const String& GetAssetsDirectoryPath() { return m_AssetsDirectoryPath; }
+	inline ResourceCollection& GetResources() { return m_Resources; }
+
+	String ResolvePhysicalAssetPath(const String& virtualPath);
 private:
 	
 private:
-	String m_OepPath;
-	String m_RootPath;
+	String m_Name;
 
-	AssetResourceCollection m_ResourceCollection;
+	String m_ProjectFilePath;
+	String m_RootPath;
+	String m_AssetsDirectoryPath;
+
+	ResourceCollection m_Resources;
 };
 
 class Editor
@@ -75,6 +83,9 @@ private:
 	Vector<Entity> m_SelectedEntities;
 
 	Vector<String> m_SelectedAssetFiles;
+	//Vector<Guid> m_SelectedResources;
+	bool m_IsAssetRootSelected;
+	bool m_AssetBrowserOneColumnView = true;
 	int m_AssetThumbnailSize = 100;
 	int m_AssetThumbnailSizeMin = 50;
 	int m_AssetThumbnailSizeMax = 300;

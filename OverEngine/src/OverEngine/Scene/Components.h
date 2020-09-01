@@ -54,7 +54,7 @@ namespace OverEngine
 	struct FamilyComponent : public Component
 	{
 		Entity This;
-		Entity Parent; // If Entity is root Entity, this value should be nullptr
+		Entity Parent;
 		Vector<Entity> Children;
 
 		FamilyComponent() = default;

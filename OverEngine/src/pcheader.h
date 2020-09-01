@@ -1,10 +1,12 @@
 #pragma once
-    
+
+#include "OverEngine/Core/Core.h"
+
 #ifdef OE_PLATFORM_WINDOWS
-    #ifndef NOMINMAX
-        // See github.com/skypjack/entt/wiki/Frequently-Asked-Questions#warning-c4003-the-min-the-max-and-the-macro
-        #define NOMINMAX
-    #endif
+	#ifndef NOMINMAX
+		// See github.com/skypjack/entt/wiki/Frequently-Asked-Questions#warning-c4003-the-min-the-max-and-the-macro
+		#define NOMINMAX
+	#endif
 #endif
 
 #include <iostream>
@@ -21,7 +23,6 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include "OverEngine/Core/Core.h"
 #include "OverEngine/Core/Math/Math.h"
 #include "OverEngine/Core/Math/Transform.h"
 #include "OverEngine/Core/String.h"
