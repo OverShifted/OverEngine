@@ -105,4 +105,9 @@ namespace OverEngine
 		lastDot = lastDot == String::npos ? 0 : lastDot + 1;
 		return name.substr(lastDot, name.size() - lastDot);
 	}
+
+	String FileSystem::ExtractFileExtentionFromPath(const String& path)
+	{
+		return ExtractFileExtentionFromName(ExtractFileNameFromPath(path));
+	}
 }

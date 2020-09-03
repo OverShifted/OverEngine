@@ -2,18 +2,25 @@
 #include "AssetResource.h"
 
 #include <OverEngine/Core/FileSystem/FileSystem.h>
+#include <filesystem>
 
 namespace OverEngine
 {
-	Resource::Resource(const String& name, const String& virtualPath, AssetResourceType type)
+	Resource::Resource(const String& name, const String& virtualPath, ResourceType type)
 		: m_Name(name), m_VirtualPath(virtualPath), m_Type(type)
 	{
 	}
 
-	Resource::Resource(const String& virtualPath, const String& assetsDirectoryRoot)
+	Resource::Resource(const String& path, const String& assetsDirectoryRoot, bool isPhysicalPath)
 	{
 		nlohmann::json assetFileJson;
-		std::ifstream assetFile(assetsDirectoryRoot + "/" + virtualPath.substr(9, virtualPath.size()));
+		std::ifstream assetFile;
+
+		if (isPhysicalPath)
+			assetFile.open(path);
+		else
+			assetFile.open(assetsDirectoryRoot + "/" + path.substr(9, path.size()));
+
 		assetFile >> assetFileJson;
 		assetFile.close();
 
@@ -37,11 +44,13 @@ namespace OverEngine
 
 	void Resource::AddAsset(const Ref<Asset>& asset)
 	{
+		OE_CORE_ASSERT(!IsDirectory(), "directory Resources dont have assets!");
 		m_Assets.push_back(asset);
 	}
 
 	void Resource::RemoveAsset(const Ref<Asset>& asset)
 	{
+		OE_CORE_ASSERT(!IsDirectory(), "directory Resources dont have assets!");
 		auto it = std::find(m_Assets.begin(), m_Assets.end(), asset);
 		if (it != m_Assets.end())
 			m_Assets.erase(it);
@@ -51,49 +60,50 @@ namespace OverEngine
 
 
 	ResourceCollection::ResourceCollection()
+		: m_RootResource(CreateRef<Resource>("Assets", "assets://", ResourceType::Directory))
 	{
-		m_RootResourceTreeNode.IsDirectory = true;
-		//m_RootResourceTreeNode.
 	}
 
-	void ResourceCollection::InitFromJson(nlohmann::json json, const String& assetsDirectoryRoot)
+	void ResourceCollection::InitFromAssetsDirectory(const String& assetsDirectoryPath, const Guid& assetsDirectoryGuid)
 	{
-		for (const auto& asset : json)
+		m_RootResource->SetGuid(assetsDirectoryGuid);
+
+		for (const auto& entry : std::filesystem::recursive_directory_iterator(assetsDirectoryPath))
 		{
-			const auto& path = asset["Path"].get<String>();
-			AddResource(Resource(path, assetsDirectoryRoot));
+			auto path = entry.path().string();
+			auto name = FileSystem::ExtractFileNameFromPath(path);
+			auto extention = FileSystem::ExtractFileExtentionFromName(name);
+
+			if (extention == "oerd")
+			{
+				AddResource(CreateRef<Resource>(path, assetsDirectoryPath, true));
+			}
 		}
 	}
 
-	void ResourceCollection::AddResource(const Resource& resource)
+	void ResourceCollection::AddResource(const Ref<Resource> resource)
 	{
-		AddResource(resource, resource.GetVirtualPath());
+		AddResource(resource, resource->GetVirtualPath());
 	}
 
-	void ResourceCollection::AddResource(const Resource& resource, const String& path)
+	void ResourceCollection::AddResource(const Ref<Resource> resource, const String& path)
 	{
 		auto lastSlash = path.find_last_of("/\\");
 
-		ResourceCollectionTreeNode node;
-
-		node.IsDirectory = false;
-		node.Name = resource.GetName();
-		node.Resource = resource;
-
 		auto nodesNames = SplitString(FileSystem::FixFileSystemPath(path.substr(9, path.size())), '/');
 
-		ResourceCollectionTreeNode* currentNode = &m_RootResourceTreeNode;
+		Ref<Resource> currentResource = m_RootResource;
 		bool missing = false;
 		for (const auto& nodeName : *nodesNames)
 		{
 			if (!missing)
 			{
 				bool founded = false;
-				for (auto& child : currentNode->Children)
+				for (const auto& child : currentResource->GetChildren())
 				{
-					if (child.Name == nodeName)
+					if (child->GetName() == nodeName)
 					{
-						currentNode = &child;
+						currentResource = child;
 						founded = true;
 						break;
 					}
@@ -101,70 +111,53 @@ namespace OverEngine
 
 				if (!founded)
 				{
-					ResourceCollectionTreeNode nodeToAdd;
-					nodeToAdd.IsDirectory = true;
-					nodeToAdd.Name = nodeName;
-					currentNode->Children.push_back(nodeToAdd);
-					currentNode = &currentNode->Children[currentNode->Children.size() - 1];
+					currentResource->GetChildren().push_back(CreateRef<Resource>(nodeName, currentResource->GetVirtualPath() + "/" + nodeName, ResourceType::Directory));
+					auto& currentResourceChildren = currentResource->GetChildren();
+					currentResource = currentResourceChildren[currentResourceChildren.size() - 1];
 					missing = true;
 				}
 			}
 			else
 			{
-				ResourceCollectionTreeNode nodeToAdd;
-				nodeToAdd.IsDirectory = true;
-				nodeToAdd.Name = nodeName;
-				currentNode->Children.push_back(nodeToAdd);
-				currentNode = &currentNode->Children[currentNode->Children.size() - 1];
+				currentResource->GetChildren().push_back(CreateRef<Resource>(nodeName, currentResource->GetVirtualPath() + "/" + nodeName, ResourceType::Directory));
+				auto& currentResourceChildren = currentResource->GetChildren();
+				currentResource = currentResourceChildren[currentResourceChildren.size() - 1];
 			}
 		}
 
-		GetNode(path.substr(0, lastSlash)).Children.push_back(node);
+		GetResource(path.substr(0, lastSlash))->GetChildren().push_back(resource);
 	}
 
-	Resource& ResourceCollection::GetResource(const String& path)
-	{
-		auto& node = GetNode(path);
-
-		if (node.IsDirectory)
-		{
-			OE_CORE_ASSERT(false, "Entry '{}' is a resource directory instead of a resource", path);
-			return NULL_REF(Resource);
-		}
-
-		return node.Resource;
-	}
-
-	ResourceCollectionTreeNode& ResourceCollection::GetNode(const String& path)
+	Ref<Resource> ResourceCollection::GetResource(const String& path)
 	{
 		if (std::string_view(path.c_str(), 9) != "assets://")
 		{
 			OE_CORE_ASSERT(false, "Invalid resource path '{}' (must be started with 'assets://')", path);
-			return NULL_REF(ResourceCollectionTreeNode);
+			return nullptr;
 		}
 
 		if (path.size() == 9) // path == "assets://"
 		{
-			return m_RootResourceTreeNode;
+			return m_RootResource;
 		}
 
 		auto nodesNames = SplitString(FileSystem::FixFileSystemPath(path.substr(9, path.size())), '/');
 
-		ResourceCollectionTreeNode* currentNode = &m_RootResourceTreeNode;
+		Ref<Resource> currentResource = m_RootResource;
 		for (const auto& nodeName : *nodesNames)
 		{
-			if (!currentNode->IsDirectory)
+			if (!currentResource->IsDirectory())
 			{
-				OE_CORE_ASSERT(false, "Invalid resource path '{}' (at least one node '{}' is not a directory)", path, currentNode->Name)
-				return NULL_REF(ResourceCollectionTreeNode);
+				OE_CORE_ASSERT(false, "Invalid resource path '{}' (at least one node '{}' is not a directory)", path, currentResource->GetName())
+					return nullptr;
 			}
 
 			bool founded = false;
-			for (auto& child : currentNode->Children)
+			for (const auto& child : currentResource->GetChildren())
 			{
-				if (child.Name == nodeName)
+				if (child->GetName() == nodeName)
 				{
-					currentNode = &child;
+					currentResource = child;
 					founded = true;
 					break;
 				}
@@ -173,11 +166,11 @@ namespace OverEngine
 			if (!founded)
 			{
 				OE_CORE_ASSERT(false, "Invalid resource path '{}' (node '{}' not founded)", path, nodeName);
-				return NULL_REF(ResourceCollectionTreeNode);
+				return nullptr;
 			}
 		}
 
-		return *currentNode;
+		return currentResource;
 	}
 
 	bool ResourceCollection::NodeExists(const String& path)
@@ -190,18 +183,18 @@ namespace OverEngine
 
 		auto nodesNames = SplitString(FileSystem::FixFileSystemPath(path.substr(9, path.size())), '/');
 
-		ResourceCollectionTreeNode* currentNode = &m_RootResourceTreeNode;
+		Ref<Resource> currentResource = m_RootResource;
 		for (const auto& nodeName : *nodesNames)
 		{
-			if (!currentNode->IsDirectory)
+			if (!currentResource->IsDirectory())
 				return false;
 
 			bool founded = false;
-			for (auto& child : currentNode->Children)
+			for (const auto& child : currentResource->GetChildren())
 			{
-				if (child.Name == nodeName)
+				if (child->GetName() == nodeName)
 				{
-					currentNode = &child;
+					currentResource = child;
 					founded = true;
 					break;
 				}

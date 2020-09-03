@@ -21,7 +21,6 @@ Ref<EditorProject> NewProject(const String& name, String directoryPath)
 
 	nlohmann::json json;
 	json["Name"] = name;
-	json["Assets"] = String("assets.") + OE_ASSET_MANIFEST_FILE_EXTENSION;
 	json["AssetsRoot"] = "Assets";
 
 	FileSystem::FixFileSystemPath(&directoryPath);
@@ -44,12 +43,6 @@ Ref<EditorProject> NewProject(const String& name, String directoryPath)
 	projectFile << json.dump(1, '\t');
 
 	std::filesystem::create_directory(projectRoot + "/Assets");
-	json = nlohmann::json::array();
-
-	std::ofstream assetFile(projectRoot + "/assets." + OE_ASSET_MANIFEST_FILE_EXTENSION);
-	assetFile << json;
-	assetFile.flush();
-	assetFile.close();
 
 	return CreateRef<EditorProject>(projectRoot + "/project." + OE_PROJECT_FILE_EXTENSION);
 }
@@ -72,12 +65,20 @@ EditorProject::EditorProject(const String& path)
 
 	m_Name = projectJson["Name"];
 	m_AssetsDirectoryPath = m_RootPath + "/" + projectJson["AssetsRoot"].get<String>();
+	m_Resources.InitFromAssetsDirectory(m_AssetsDirectoryPath, projectJson["AssetsRootGuid"].get<String>());
 
-	nlohmann::json assetsManifestJson;
-	std::ifstream assetsManifestFile(m_RootPath + "/" + projectJson["AssetsManifest"].get<String>());
-	assetsManifestFile >> assetsManifestJson;
-	assetsManifestFile.close();
-	m_Resources.InitFromJson(assetsManifestJson, m_AssetsDirectoryPath);
+	m_Watcher.Reset(m_AssetsDirectoryPath, std::chrono::milliseconds(250));
+	m_Watcher.Start([](String s, FileWatcherEvent e)
+	{
+		String message;
+		if (e == FileWatcherEvent::Created)
+			message = "Created";
+		else if (e == FileWatcherEvent::Deleted)
+			message = "Deleted";
+		else
+			message = "Modified";
+		OE_CORE_INFO("file : {}, {}", s, message);
+	});
 }
 
 String EditorProject::ResolvePhysicalAssetPath(const String& virtualPath)

@@ -7,45 +7,54 @@
 
 namespace OverEngine
 {
-	enum class AssetResourceType
+	enum class ResourceType
 	{
-		None = 0, Texture2D
+		None = 0, Directory, Texture2D
 	};
 
 	class Resource
 	{
 	public:
-		Resource() = default;
-		Resource(const String& name, const String& virtualPath, AssetResourceType type);
+		Resource(const String& name, const String& virtualPath, ResourceType type);
 
 		// Loads resource and assets based on a .oea file
 		// To be used in OverEditor
-		Resource(const String& virtualPath, const String& assetsDirectoryRoot);
+		Resource(const String& path, const String& assetsDirectoryRoot, bool isPhysicalPath);
+
+		~Resource() {}
 
 		void AddAsset(const Ref<Asset>& asset);
 		void RemoveAsset(const Ref<Asset>& asset);
 
 		inline const String& GetName() const { return m_Name; }
 		inline const String& GetVirtualPath() const { return m_VirtualPath; }
+
+		inline bool IsDirectory() const { return m_Type == ResourceType::Directory; }
+
+		inline Vector<Ref<Resource>>& GetChildren()
+		{
+			OE_CORE_ASSERT(IsDirectory(), "non-directory Resources dont have children!");
+			return m_Children;
+		}
+
+		inline const Vector<Ref<Resource>>& GetChildren() const
+		{
+			OE_CORE_ASSERT(IsDirectory(), "non-directory Resources dont have children!");
+			return m_Children;
+		}
+
+		inline const Guid& GetGuid() const { return m_Guid; }
+		inline void SetGuid(const Guid& guid) { m_Guid = guid; }
 	private:
+		ResourceType m_Type = ResourceType::None;
 		String m_Name;
 		String m_VirtualPath;
 		Guid m_Guid;
 
-		AssetResourceType m_Type = AssetResourceType::None;
+		// Only for non-directory Resources
 		Vector<Ref<Asset>> m_Assets;
-	};
-
-	struct ResourceCollectionTreeNode
-	{
-		ResourceCollectionTreeNode() = default;
-		~ResourceCollectionTreeNode() {}
-
-		String Name;
-		bool IsDirectory;
-
-		Vector<ResourceCollectionTreeNode> Children;
-		OverEngine::Resource Resource;
+		// Only for directory Resources
+		Vector<Ref<Resource>> m_Children;
 	};
 
 	class ResourceCollection
@@ -53,20 +62,17 @@ namespace OverEngine
 	public:
 		ResourceCollection();
 
-		void InitFromJson(nlohmann::json json, const String& assetsDirectoryRoot);
+		void InitFromAssetsDirectory(const String& assetsDirectoryPath, const Guid& assetsDirectoryGuid);
 
-		void AddResource(const Resource& resource);
-		void AddResource(const Resource& resource, const String& path);
+		void AddResource(const Ref<Resource> resource);
+		void AddResource(const Ref<Resource> resource, const String& path);
 
-
-		Resource& GetResource(const String& path);
-
-		// Returns the matching node with the path
-		// use 'assets://' to get root nodes
-		ResourceCollectionTreeNode& GetNode(const String& path);
+		// Returns the matching Resource with the path
+		// use 'assets://' to get the root Resource
+		Ref<Resource> GetResource(const String& path);
 
 		bool NodeExists(const String& path);
 	private:
-		ResourceCollectionTreeNode m_RootResourceTreeNode;
+		Ref<Resource> m_RootResource;
 	};
 }

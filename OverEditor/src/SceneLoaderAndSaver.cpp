@@ -46,20 +46,19 @@ Ref<Scene> LoadSceneFromFile(const String& path)
 		Entity entity = scene->CreateEntity(entityJson["Name"]);
 		entities.push_back(entity);
 
-		Vector<Map<uint32_t, uint32_t>::iterator> entityParentAssignEraseList;
-		for (auto& parentAssignCommand : entityParentAssignList)
+		auto it = entityParentAssignList.begin();
+		while (it != entityParentAssignList.end())
 		{
-			if (parentAssignCommand.second <= i)
+			if (it->second <= i)
 			{
-				entities[parentAssignCommand.first].SetParent(entities[parentAssignCommand.second]);
-				auto it = std::find(entityParentAssignList.begin(), entityParentAssignList.end(), parentAssignCommand);
-				OE_CORE_ASSERT(it != entityParentAssignList.end(), "Parent not found!");
-				entityParentAssignEraseList.push_back(it);
+				entities[it->first].SetParent(entities[it->second]);
+				it = entityParentAssignList.erase(it);
+			}
+			else
+			{
+				it++;
 			}
 		}
-
-		for (const auto& it : entityParentAssignEraseList)
-			entityParentAssignList.erase(it);
 
 		// Family
 		auto family = entity.GetComponent<FamilyComponent>();

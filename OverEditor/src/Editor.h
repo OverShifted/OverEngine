@@ -6,6 +6,7 @@ using namespace OverEngine;
 #include <OverEngine/Core/GUIDGenerator.h>
 #include <OverEngine/Assets/AssetResource.h>
 #include <OverEngine/Assets/Asset.h>
+#include <OverEngine/Core//FileSystem/FileSystem.h>
 
 class EditorProject;
 
@@ -32,6 +33,8 @@ private:
 	String m_AssetsDirectoryPath;
 
 	ResourceCollection m_Resources;
+
+	FileWatcher m_Watcher;
 };
 
 class Editor
