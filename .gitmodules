@@ -10,3 +10,6 @@
 [submodule "OverEngine/vendor/box2d"]
 	path = OverEngine/vendor/box2d
 	url = https://github.com/erincatto/box2d
+[submodule "OverEngine/vendor/imgui"]
+	path = OverEngine/vendor/imgui
+	url = https://github.com/ocornut/imgui
