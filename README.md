@@ -3,12 +3,19 @@
 
 ![Logo](https://repository-images.githubusercontent.com/246120634/f6e9f080-a288-11ea-9a12-502646520a32)
 
+## WIP Editor powered by [DearImGui](https://github.com/ocornut/imgui)
+* WIP drag and drop support
+* WIP Resource management
+* ...
+
+![OverEditorScreenShot](https://user-images.githubusercontent.com/53635046/93054565-c20a7980-f67e-11ea-89f5-d72a1e0a315c.PNG)
+
 ## Cool things in use:
 * [premake](https://github.com/premake/premake-core)
 * [spdlog](https://github.com/gabime/spdlog)
 * [GLFW](https://github.com/glfw/GLFW)
 * [Glad2](https://gen.glad.sh/)
-* [DearImgui](https://github.com/ocornut/imgui)
+* [DearImGui](https://github.com/ocornut/imgui)
 * [glm](https://github.com/g-truc/glm)
 * [stb_image](https://github.com/nothings/stb/blob/master/stb_image.h)
 * [stb_rect_pack](https://github.com/nothings/stb/blob/master/stb_rect_pack.h)
