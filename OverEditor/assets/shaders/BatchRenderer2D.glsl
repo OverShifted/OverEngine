@@ -2,53 +2,37 @@
 #version 330 core
 
 layout(location = 0) in vec4 a_Position;
-layout(location = 1) in vec4 a_Color;
-layout(location = 2) in float a_UseTexture;
-layout(location = 3) in float a_TextureSWrapping;
-layout(location = 4) in float a_TextureTWrapping;
-layout(location = 5) in float a_TextureFilter;
-layout(location = 6) in float a_TextureSlot;
-layout(location = 7) in float a_TextureFlipX;
-layout(location = 8) in float a_TextureFlipY;
-layout(location = 9)  in float a_TextureTilingFactorX;
-layout(location = 10) in float a_TextureTilingFactorY;
-layout(location = 11) in vec4 a_TextureBorderColor;
-layout(location = 12) in vec4 a_TextureRect;
-layout(location = 13) in vec2 a_TextureSize;
-layout(location = 14) in vec2 a_TextureCoord;
+layout(location = 1) in vec4 a_Color; // Tint
+layout(location = 2) in float a_TextureSlot; // Texture Unit or -1 for no texture
+layout(location = 3) in float a_TextureFilter; // Linear / Point
+layout(location = 4) in vec2 a_TextureWrapping; // Repeat, MirroredRepeat, ...
+layout(location = 5) in vec4 a_TextureBorderColor; // Used for ClampToBorder
+layout(location = 6) in vec4 a_TextureRect; // 0 -> 1 Rect from Atlas
+layout(location = 7) in vec2 a_TextureSize; // Texture size in pixels
+layout(location = 8) in vec2 a_TextureCoord; // Basic UV Coord
 
-out vec4 v_Color;
-flat out int v_UseTexture;
+flat out vec4 v_Color;
+flat out int v_TextureSlot;
+flat out int v_TextureFilter;
 flat out int v_TextureSWrapping;
 flat out int v_TextureTWrapping;
-flat out int v_TextureFilter;
-flat out int v_TextureSlot;
-flat out int v_TextureFlipX;
-flat out int v_TextureFlipY;
-out float v_TextureTilingFactorX;
-out float v_TextureTilingFactorY;
-out vec4 v_TextureBorderColor;
-out vec4 v_TextureRect;
-out vec2 v_TextureSize;
+flat out vec4 v_TextureBorderColor;
+flat out vec4 v_TextureRect;
+flat out vec2 v_TextureSize;
 out vec2 v_TextureCoord;
 
 void main()
 {
 	gl_Position = a_Position;
 	v_Color = a_Color;
-	v_UseTexture = int(a_UseTexture);
-	v_TextureSWrapping = int(a_TextureSWrapping);
-	v_TextureTWrapping = int(a_TextureTWrapping);
-	v_TextureFilter = int(a_TextureFilter);
 	v_TextureSlot = int(a_TextureSlot);
-	v_TextureFlipX = int(a_TextureFlipX);
-	v_TextureFlipY = int(a_TextureFlipY);
-	v_TextureTilingFactorX = a_TextureTilingFactorX;
-	v_TextureTilingFactorY = a_TextureTilingFactorY;
+	v_TextureSWrapping = int(a_TextureWrapping.x);
+	v_TextureTWrapping = int(a_TextureWrapping.y);
+	v_TextureFilter = int(a_TextureFilter);
 	v_TextureBorderColor = a_TextureBorderColor;
 	v_TextureRect = a_TextureRect;
 	v_TextureSize = a_TextureSize;
-	v_TextureCoord = a_TextureCoord;
+	v_TextureCoord = vec2(a_TextureCoord.x, 1 - a_TextureCoord.y);
 }
 
 #type fragment
@@ -58,189 +42,195 @@ layout(location = 0) out vec4 o_Color;
 
 uniform sampler2D[32] u_Slots;
 
-in vec4 v_Color;
-flat in int v_UseTexture;
+flat in vec4 v_Color;
+flat in int v_TextureSlot;
+flat in int v_TextureFilter;
 flat in int v_TextureSWrapping;
 flat in int v_TextureTWrapping;
-flat in int v_TextureFilter;
-flat in int v_TextureSlot;
-flat in int v_TextureFlipX;
-flat in int v_TextureFlipY;
-in float v_TextureTilingFactorX;
-in float v_TextureTilingFactorY;
-in vec4 v_TextureBorderColor;
-in vec4 v_TextureRect;
-in vec2 v_TextureSize;
+flat in vec4 v_TextureBorderColor;
+flat in vec4 v_TextureRect;
+flat in vec2 v_TextureSize;
 in vec2 v_TextureCoord;
 
-vec4 PointSampleFromAtlas(sampler2D slot, vec2 coord, vec4 subTextureRect, int SWrapping, int TWrapping);
+vec4 PointSampleFromAtlas(sampler2D slot, vec2 coord);
 
-vec4 BiLinearSampleFromAtlas(sampler2D slot, vec2 texCoord)
+vec4 BiLinearSampleFromAtlas(sampler2D slot, vec2 coord)
 {
-	texCoord.x *= v_TextureRect.z * v_TextureSize.x;
-	texCoord.y *= v_TextureRect.w * v_TextureSize.y;
+	bool mainCoordValid = coord.x >= 0 && coord.x <= 1 && coord.y >= 0 && coord.y <= 1;
+	coord *= v_TextureSize;
 
-	float xmin = texCoord.x;
+	float xmin = coord.x;
 	float xmax = xmin + 1.0;
 
-	float ymin = texCoord.y;
+	float ymin = coord.y;
 	float ymax = ymin + 1.0;
 
-	vec2 crd1 = vec2(xmin / v_TextureSize.x, ymin / v_TextureSize.y);
-	vec2 crd2 = vec2(xmax / v_TextureSize.x, ymin / v_TextureSize.y);
-
-	vec4 TopMix = mix(
-		PointSampleFromAtlas(slot, crd1 / v_TextureRect.zw, v_TextureRect, 1, 1),
-		PointSampleFromAtlas(slot, crd2 / v_TextureRect.zw, v_TextureRect, 1, 1),
-		fract(texCoord.x)
-	);
-
-	crd1 = vec2(xmin / v_TextureSize.x, ymax / v_TextureSize.y);
-	crd2 = vec2(xmax / v_TextureSize.x, ymax / v_TextureSize.y);
-	vec4 DownMix = mix(
-		PointSampleFromAtlas(slot, crd1 / v_TextureRect.zw, v_TextureRect, 1, 1),
-		PointSampleFromAtlas(slot, crd2 / v_TextureRect.zw, v_TextureRect, 1, 1),
-		fract(texCoord.x)
-	);
-
-	return mix(TopMix, DownMix, fract(texCoord.y));
-}
-
-vec4 PointSampleFromAtlas(sampler2D slot, vec2 coord, vec4 subTextureRect, int SWrapping, int TWrapping)
-{
-	coord.y = 1 - coord.y;
-
-	switch (SWrapping)
-	{
-	case 0: // Repeat
-		if (coord.x > 1)
-			coord.x -= coord.x == int(coord.x) ? int(coord.x) - 1 : int(coord.x);
-
-		else if (coord.x < 0)
-			coord.x -= coord.x == int(coord.x) ? int(coord.x) - 2 : int(coord.x) - 1;
-		break;
-	case 1: // MirroredRepeat
-		if (coord.x > 1)
-		{
-			if (int(coord.x) % 2 == 0)
-				coord.x -= coord.x == int(coord.x) ? int(coord.x) - 1 : int(coord.x);
-			else
-				coord.x = (coord.x == int(coord.x) ? int(coord.x) : int(coord.x) + 1) - coord.x;
-		}
-
-		else if (coord.x < 0)
-		{
-			if (int(coord.x) % 2 == 0)
-				coord.x = (coord.x == int(coord.x) ? int(coord.x) - 1 : int(coord.x)) - coord.x;
-			else
-				coord.x -= coord.x == int(coord.x) ? int(coord.x) - 2 : int(coord.x) - 1;
-
-		}
-		break;
-	case 2: // ClampToEdge
-		coord.x = clamp(coord.x, 0.001f, 0.999f);
-		break;
-	case 3: // ClampToBorder
-		if (coord.x > 1 || coord.x < 0)
-			return v_TextureBorderColor;
-		break;
-	}
-
-	switch (TWrapping)
-	{
-	case 0: // Repeat
-		if (coord.y > 1)
-			coord.y -= coord.y == int(coord.y) ? int(coord.y) - 1 : int(coord.y);
-
-		else if (coord.y < 0)
-			coord.y -= coord.y == int(coord.y) ? int(coord.y) - 2 : int(coord.y) - 1;
-		break;
-	case 1: // MirroredRepeat
-		if (coord.y > 1)
-		{
-			if (int(coord.y) % 2 == 0)
-				coord.y -= coord.y == int(coord.y) ? int(coord.y) - 1 : int(coord.y);
-			else
-				coord.y = (coord.y == int(coord.y) ? int(coord.y) : int(coord.y) + 1) - coord.y;
-		}
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
-		else if (coord.y < 0)
+	vec2 crd1 = vec2(xmin, ymin) / v_TextureSize;
+	vec2 crd2 = vec2(xmax, ymin) / v_TextureSize;
+
+	bool crd1Valid = true, crd2Valid = true;
+
+	if (mainCoordValid)
+	{
+		if (crd1.x <= 0 || crd1.x >= 1 || crd1.y <= 0 || crd1.y >= 1)
+			crd1Valid = false;
+
+		if (crd2.x <= 0 || crd2.x >= 1 || crd2.y <= 0 || crd2.y >= 1)
+			crd2Valid = false;
+	}
+	
+	vec4 TopMix;
+	bool topMixValid = crd1Valid || crd2Valid;
+	if (!mainCoordValid || (crd1Valid && crd2Valid))
+		TopMix = mix(
+			PointSampleFromAtlas(slot, crd1),
+			PointSampleFromAtlas(slot, crd2),
+			fract(coord.x)
+		);
+	else if (crd1Valid)
+		TopMix = PointSampleFromAtlas(slot, crd1);
+	else if (crd2Valid)
+		TopMix = PointSampleFromAtlas(slot, crd2);
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	crd1Valid = true;
+	crd2Valid = true;
+
+	crd1 = vec2(xmin, ymax) / v_TextureSize;
+	crd2 = vec2(xmax, ymax) / v_TextureSize;
+
+	if (mainCoordValid)
+	{
+		if (crd1.x <= 0 || crd1.x >= 1 || crd1.y <= 0 || crd1.y >= 1)
+			crd1Valid = false;
+		
+		if (crd2.x <= 0 || crd2.x >= 1 || crd2.y <= 0 || crd2.y >= 1)
+			crd2Valid = false;
+	}
+	
+	vec4 DownMix;
+	bool downMixValid = crd1Valid || crd2Valid;
+	if (!mainCoordValid || (crd1Valid && crd2Valid))
+		DownMix = mix(
+			PointSampleFromAtlas(slot, crd1),
+			PointSampleFromAtlas(slot, crd2),
+			fract(coord.x)
+		);
+	else if (crd1Valid)
+		DownMix = PointSampleFromAtlas(slot, crd1);
+	else if (crd2Valid)
+		DownMix = PointSampleFromAtlas(slot, crd2);
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	if (topMixValid && downMixValid)
+		return mix(TopMix, DownMix, fract(coord.y));
+	else if (topMixValid)
+		return TopMix;
+	else if (downMixValid)
+		return DownMix;
+
+	return vec4(0.0, 0.0, 1.0, 1.0);
+}
+
+float Wrap(float value, int wrapping)
+{
+	int valueInt = int(value);
+	bool valueIsRound = value == valueInt;
+	int valueIntMinusOne = valueInt - 1;
+	int valueIntMinusTwo = valueInt - 2;
+	int commonExpr1 = valueIsRound ? valueIntMinusOne : valueInt;
+	int commonExpr2 = valueIsRound ? valueIntMinusTwo : valueIntMinusOne;
+
+	switch (wrapping)
+	{
+	case 1: // Repeat
+		if (value > 1)
+			value -= commonExpr1;
+		else if (value < 0)
+			value -= commonExpr2;
+		break;
+	case 2: // MirroredRepeat
+		bool commonCondition = valueInt % 2 == 0;
+		if (value > 1)
 		{
-			if (int(coord.y) % 2 == 0)
-				coord.y = (coord.y == int(coord.y) ? int(coord.y) - 1 : int(coord.y)) - coord.y;
+			if (commonCondition)
+				value -= commonExpr1;
 			else
-				coord.y -= coord.y == int(coord.y) ? int(coord.y) - 2 : int(coord.y) - 1;
+				value = (valueIsRound ? valueInt : valueInt + 1) - value;
+		}
+		else if (value < 0)
+		{
+			if (commonCondition)
+				value = commonExpr1 - value;
+			else
+				value -= commonExpr2;
 		}
 		break;
-	case 2: // ClampToEdge
-		coord.y = clamp(coord.y, 0.0f, 1.0f);
-		break;
-	case 3: // ClampToBorder
-		if (coord.y > 1 || coord.y < 0)
-			return v_TextureBorderColor;
+	case 3: // ClampToEdge
+		value = clamp(value, 0.001, 0.999);
 		break;
 	}
 
-	return texture(slot, vec2(subTextureRect.x + coord.x * subTextureRect.z, subTextureRect.y + coord.y * subTextureRect.w));
+	return value;
 }
 
-vec4 Sample(sampler2D slot, vec2 coord)
+vec4 PointSampleFromAtlas(sampler2D slot, vec2 coord)
 {
-	if (v_TextureFilter == 0)
-			return PointSampleFromAtlas(slot, coord * vec2(v_TextureTilingFactorX, v_TextureTilingFactorY), v_TextureRect, v_TextureSWrapping, v_TextureTWrapping) * v_Color;
-	return BiLinearSampleFromAtlas(slot, coord * vec2(v_TextureTilingFactorX, v_TextureTilingFactorY)) * v_Color;
+	if ((v_TextureSWrapping == 4 && (coord.x > 1 || coord.x < 0)) || (v_TextureTWrapping == 4 && (coord.y > 1 || coord.y < 0)))
+		return v_TextureBorderColor; // ClampToBorder
+
+	coord.x = Wrap(coord.x, v_TextureSWrapping);
+	coord.y = Wrap(coord.y, v_TextureTWrapping);
+	return texture(slot, vec2(v_TextureRect.x + coord.x * v_TextureRect.z, v_TextureRect.y + coord.y * v_TextureRect.w));
+}
+
+vec4 Sample(sampler2D slot)
+{
+	if (v_TextureFilter == 1)
+	return    PointSampleFromAtlas(slot, v_TextureCoord) * v_Color;
+	return BiLinearSampleFromAtlas(slot, v_TextureCoord) * v_Color;
 }
 
 void main()
 {
-	vec2 coord = v_TextureCoord;
-
-	if (v_TextureFlipX != 0)
-		coord.x = 1 - coord.x;
-
-	if (v_TextureFlipY != 0)
-		coord.y = 1 - coord.y;
-
-	if (v_UseTexture != 0)
+	switch (v_TextureSlot)
 	{
-		switch (v_TextureSlot)
-		{
-			case 0: o_Color = Sample(u_Slots[0], coord); break;
-			case 1: o_Color = Sample(u_Slots[1], coord); break;
-			case 2: o_Color = Sample(u_Slots[2], coord); break;
-			case 3: o_Color = Sample(u_Slots[3], coord); break;
-			case 4: o_Color = Sample(u_Slots[4], coord); break;
-			case 5: o_Color = Sample(u_Slots[5], coord); break;
-			case 6: o_Color = Sample(u_Slots[6], coord); break;
-			case 7: o_Color = Sample(u_Slots[7], coord); break;
-			case 8: o_Color = Sample(u_Slots[8], coord); break;
-			case 9: o_Color = Sample(u_Slots[9], coord); break;
-			case 10: o_Color = Sample(u_Slots[10], coord); break;
-			case 11: o_Color = Sample(u_Slots[11], coord); break;
-			case 12: o_Color = Sample(u_Slots[12], coord); break;
-			case 13: o_Color = Sample(u_Slots[13], coord); break;
-			case 14: o_Color = Sample(u_Slots[14], coord); break;
-			case 15: o_Color = Sample(u_Slots[15], coord); break;
-			case 16: o_Color = Sample(u_Slots[16], coord); break;
-			case 17: o_Color = Sample(u_Slots[17], coord); break;
-			case 18: o_Color = Sample(u_Slots[18], coord); break;
-			case 19: o_Color = Sample(u_Slots[19], coord); break;
-			case 20: o_Color = Sample(u_Slots[20], coord); break;
-			case 21: o_Color = Sample(u_Slots[21], coord); break;
-			case 22: o_Color = Sample(u_Slots[22], coord); break;
-			case 23: o_Color = Sample(u_Slots[23], coord); break;
-			case 24: o_Color = Sample(u_Slots[24], coord); break;
-			case 25: o_Color = Sample(u_Slots[25], coord); break;
-			case 26: o_Color = Sample(u_Slots[26], coord); break;
-			case 27: o_Color = Sample(u_Slots[27], coord); break;
-			case 28: o_Color = Sample(u_Slots[28], coord); break;
-			case 29: o_Color = Sample(u_Slots[29], coord); break;
-			case 30: o_Color = Sample(u_Slots[30], coord); break;
-			case 31: o_Color = Sample(u_Slots[31], coord); break;
-		}
-	}
-	else
-	{
-		o_Color = v_Color;
+	case -1 : o_Color = v_Color; return;
+	case  0 : o_Color = Sample(u_Slots[0 ]); return;
+	case  1 : o_Color = Sample(u_Slots[1 ]); return;
+	case  2 : o_Color = Sample(u_Slots[2 ]); return;
+	case  3 : o_Color = Sample(u_Slots[3 ]); return;
+	case  4 : o_Color = Sample(u_Slots[4 ]); return;
+	case  5 : o_Color = Sample(u_Slots[5 ]); return;
+	case  6 : o_Color = Sample(u_Slots[6 ]); return;
+	case  7 : o_Color = Sample(u_Slots[7 ]); return;
+	case  8 : o_Color = Sample(u_Slots[8 ]); return;
+	case  9 : o_Color = Sample(u_Slots[9 ]); return;
+	case  10: o_Color = Sample(u_Slots[10]); return;
+	case  11: o_Color = Sample(u_Slots[11]); return;
+	case  12: o_Color = Sample(u_Slots[12]); return;
+	case  13: o_Color = Sample(u_Slots[13]); return;
+	case  14: o_Color = Sample(u_Slots[14]); return;
+	case  15: o_Color = Sample(u_Slots[15]); return;
+	case  16: o_Color = Sample(u_Slots[16]); return;
+	case  17: o_Color = Sample(u_Slots[17]); return;
+	case  18: o_Color = Sample(u_Slots[18]); return;
+	case  19: o_Color = Sample(u_Slots[19]); return;
+	case  20: o_Color = Sample(u_Slots[20]); return;
+	case  21: o_Color = Sample(u_Slots[21]); return;
+	case  22: o_Color = Sample(u_Slots[22]); return;
+	case  23: o_Color = Sample(u_Slots[23]); return;
+	case  24: o_Color = Sample(u_Slots[24]); return;
+	case  25: o_Color = Sample(u_Slots[25]); return;
+	case  26: o_Color = Sample(u_Slots[26]); return;
+	case  27: o_Color = Sample(u_Slots[27]); return;
+	case  28: o_Color = Sample(u_Slots[28]); return;
+	case  29: o_Color = Sample(u_Slots[29]); return;
+	case  30: o_Color = Sample(u_Slots[30]); return;
+	case  31: o_Color = Sample(u_Slots[31]); return;
 	}
 }

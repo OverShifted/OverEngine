@@ -45,12 +45,13 @@ namespace OverEngine
 
 			data[i] = byte;
 		}
+
+		RecalculateString(); // To be always lowercase
 	}
 
-	String Guid::ToString(bool upperCase) const
+	void Guid::RecalculateString()
 	{
 		std::stringstream ss;
-		uint32_t smallOrCapitalA = upperCase ? CAPITAL_A_ASCII : SMALL_A_ASCII;
 
 		for (uint32_t i = 0; i < 16; i++)
 		{
@@ -71,20 +72,22 @@ namespace OverEngine
 				if (*digitPtr < 10)
 					ss << *digitPtr;
 				else
-					ss << (char)((smallOrCapitalA)+*digitPtr - 10);
+					ss << (char)((SMALL_A_ASCII)+*digitPtr - 10);
 			}
 
 			if (i == 3 || i == 5 || i == 7 || i == 9)
 				ss << "-";
 		}
-		return ss.str();
-	}
 
+		string = ss.str();
+	}
 
 	void Guid::operator=(const Guid& other)
 	{
 		for (int32_t i = 0; i < 16; i++)
 			data[i] = other.data[i];
+
+		string = other.string;
 	}
 
 	bool Guid::operator==(const Guid& other)
@@ -108,6 +111,7 @@ namespace OverEngine
 		guid.data[8] &= 0x3f;
 		guid.data[8] |= 0x80;
 
+		guid.RecalculateString();
 		return guid;
 	}
 }

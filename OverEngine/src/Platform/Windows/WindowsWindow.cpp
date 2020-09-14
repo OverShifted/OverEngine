@@ -10,8 +10,8 @@
 #include "OverEngine/Renderer/RendererContext.h"
 #include "OverEngine/Renderer/RendererAPI.h"
 
-namespace OverEngine {
-	
+namespace OverEngine
+{
 	uint32_t WindowsWindow::s_WindowCount = 0;
 
 	static void GLFWErrorCallback(int error, const char* description)
@@ -54,7 +54,7 @@ namespace OverEngine {
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-		#if defined(OE_DEBUG)
+		#ifdef OE_DEBUG
 			if (RendererAPI::GetAPI() == RendererAPI::API::OpenGL)
 				glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
 		#endif
@@ -220,5 +220,4 @@ namespace OverEngine {
 	{
 		return m_Data.DoubleBuffered;
 	}
-
 }

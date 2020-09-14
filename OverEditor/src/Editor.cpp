@@ -1,6 +1,5 @@
 #include "Editor.h"
 
-#include "SceneLoaderAndSaver.h"
 #include "ComponentEditor.h"
 
 #include <OverEngine/ImGui/ExtraImGui.h>
@@ -8,6 +7,7 @@
 #include <OverEngine/Core/Extentions.h>
 
 #include <imgui/imgui.h>
+#include <imgui/imgui_internal.h>
 #include <tinyfiledialogs/tinyfiledialogs.h>
 #include <json.hpp>
 
@@ -92,45 +92,16 @@ String EditorProject::ResolvePhysicalAssetPath(const String& virtualPath)
 
 Editor::Editor()
 {
-	FrameBufferProps fbProps;
-	fbProps.Width = 720;
-	fbProps.Height = 1280;
-	m_ViewportFrameBuffer = FrameBuffer::Create(fbProps);
+	m_IconsTexture = Texture2D::MasterFromFile("assets/textures/Icons.png");
+	m_Icons["FolderIcon"] = Texture2D::SubTextureFromExistingOne(m_IconsTexture, { 256, 0, 256, 256 });
+	m_Icons["SceneIcon"] = Texture2D::SubTextureFromExistingOne(m_IconsTexture, { 0, 0, 256, 256 });
 }
-
-/////////////////////////////////////////////
-// Main /////////////////////////////////////
-/////////////////////////////////////////////
 
 void Editor::OnUpdate()
 {
 	if (m_OpenScene)
-	{
-		if (FrameBufferProps props = m_ViewportFrameBuffer->GetProps();
-			m_ViewportSize.x > 0.0f && m_ViewportSize.y > 0.0f && // zero sized framebuffer is invalid
-			(props.Width != m_ViewportSize.x || props.Height != m_ViewportSize.y))
-		{
-			m_ViewportFrameBuffer->Resize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
-		}
-	}
-
-	RenderCommand::SetClearColor({ 0.0f, 0.0f, 0.0f, 1.0f });
-	RenderCommand::Clear();
-
-	m_ViewportFrameBuffer->Bind();
-
-	if (m_OpenScene)
-	{
 		m_OpenScene->OnTransformUpdate();
-		m_OpenScene->OnRender(m_ViewportSize);
-	}
-	else
-	{
-		RenderCommand::SetClearColor({ 0.0f, 0.0f, 0.0f, 1.0f });
-		RenderCommand::Clear();
-	}
-
-	m_ViewportFrameBuffer->Unbind();
+	m_ViewportPanel.OnRender();
 }
 
 void Editor::OnImGuiRender()
@@ -143,7 +114,7 @@ void Editor::OnImGuiRender()
 
 	if (m_EditingProject)
 	{
-		OnViewportGUI();
+		m_ViewportPanel.OnImGuiRender();
 		OnSceneGraphGUI();
 		OnInspectorGUI();
 
@@ -314,7 +285,8 @@ void Editor::OnToolbarGUI()
 
 		if (ImGui::Button("Save Scene"))
 		{
-			SaveSceneToFile(m_OpenScenePath, m_OpenScene);
+			auto pathToSave = m_EditingProject->GetAssetsDirectoryPath() + "/" + m_OpenScenePath.substr(9, m_OpenScenePath.size());
+			SaveSceneToFile(pathToSave, m_OpenScene);
 		}
 	}
 
@@ -328,24 +300,9 @@ void Editor::OnToolbarGUI()
 // Scene ////////////////////////////////////
 /////////////////////////////////////////////
 
-void Editor::OnViewportGUI()
-{
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0.0f, 0.0f });
-
-	ImGui::Begin("Viewport");
-
-	ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
-	ImGui::Image((void*)(intptr_t)m_ViewportFrameBuffer->GetColorAttachmentRendererID(), viewportPanelSize, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
-	m_ViewportSize = { viewportPanelSize.x, viewportPanelSize.y };
-
-	ImGui::End();
-
-	ImGui::PopStyleVar();
-}
-
 static Entity SceneGraphTreeViewRecursive(Entity parentEntity, int* selection_mask, bool fistCall = false, Ref<Scene> scene = nullptr)
 {
-	ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_SpanFullWidth;
+	ImGuiTreeNodeFlags base_flags = OE_IMGUI_BASE_TREE_VIEW_FLAGS;
 
 	Entity selectedEntity;
 
@@ -461,6 +418,20 @@ void Editor::OnSceneGraphGUI()
 		ImGui::PopStyleVar();
 
 		ImGui::BeginChild("Root Drag Drop Target");
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 5.0f, 5.0f });
+		if (ImGui::BeginPopupContextWindow("_SceneGraphContextMenu"))
+		{
+			if (ImGui::MenuItem("Create Empty Entity"))
+			{
+				Entity createdEntity = m_OpenScene->CreateEntity();
+				m_SelectedEntities.clear();
+				m_SelectedEntities.push_back(createdEntity);
+				selection_mask = BIT(createdEntity.GetID());
+			}
+
+			ImGui::EndPopup();
+		}
+		ImGui::PopStyleVar();
 		ImGui::EndChild();
 
 		if (ImGui::BeginDragDropTarget())
@@ -515,15 +486,13 @@ void Editor::OnInspectorGUI()
 		auto& name = selectedEntity.GetComponent<NameComponent>();
 		ImGui::InputText("Name", &name.Name);
 
-		char idText[15];
-		sprintf_s(idText, sizeof(idText) / sizeof(char), "ID: %i", selectedEntity.GetID());
-		ImGui::TextUnformatted(idText);
-
-		ImGui::SameLine();
-
 		bool wannaDestroy = false;
 		if (ImGui::SmallButton("Destroy Entity"))
 			wannaDestroy = true;
+
+		ImGui::SameLine();
+
+		ImGui::Text("GUID: %s", selectedEntity.GetComponent<GUIDComponent>().ID.ToString().c_str());
 
 		ImGui::Separator();
 
@@ -534,7 +503,7 @@ void Editor::OnInspectorGUI()
 			CheckComponentEditor<CameraComponent>(componentTypeID, selectedEntity);
 		}
 
-		if (ImGui::Button("Add Component##Button", ImVec2(150.0f, 30.0f)))
+		if (ImGui::Button("Add Component##Button", ImVec2(-1.0f, 40.0f)))
 			ImGui::OpenPopup("Add Component##Popup");
 
 		if (ImGui::BeginPopup("Add Component##Popup"))
@@ -575,95 +544,82 @@ void Editor::OnInspectorGUI()
 // Assets ///////////////////////////////////
 /////////////////////////////////////////////
 
-#if 0
-static TripleBinding<bool, uint32_t, String> DirectoryTreeViewRecursive(Editor* editor, const std::filesystem::path& path, uint32_t* count, int* selection_mask, bool drawFiles)
+static std::pair<bool, Ref<Resource>> ResourcesTreeViewRecursive(Editor* editor, const Ref<Resource>& resourceToDraw, Vector<Ref<Resource>>* selectedResources, bool drawNonDirectories)
 {
-	static ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_SpanFullWidth;
+	bool anyNodeClicked = false;
+	Ref<Resource> nodeClicked;
 
-	bool any_node_clicked = false;
-	uint32_t node_clicked = 0;
-	String clickedNodePath;
-	String pathString, name, format;
-
-	for (const auto& entry : std::filesystem::directory_iterator(path))
+	for (const auto& resource : resourceToDraw->GetChildren())
 	{
-		pathString = entry.path().string();
-		name = FileSystem::ExtractFileNameFromPath(pathString);
-		bool entryIsFile = FileSystem::IsFile(entry.path());
+		if (!drawNonDirectories && !resource->IsDirectory())
+			continue;
 
-		if (entryIsFile)
-		{
-			if (!drawFiles)
-				continue;
-
-			format = FileSystem::ExtractFileExtentionFromName(name);
-
-			if (format == OE_RESOURCE_DEFENITION_FILE_EXTENSION)
-			{
-				(*count)--;
-				continue;
-			}
-		}
-
-		ImGuiTreeNodeFlags node_flags = base_flags;
-		const bool is_selected = (*selection_mask & BIT(*count)) != 0;
-		if (is_selected)
+		ImGuiTreeNodeFlags node_flags = OE_IMGUI_BASE_TREE_VIEW_FLAGS;
+		if (std::find(selectedResources->begin(), selectedResources->end(), resource) != selectedResources->end())
 			node_flags |= ImGuiTreeNodeFlags_Selected;
 
-		if (entryIsFile)
+		if (!resource->IsDirectory())
 			node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
 
-		bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)(*count), node_flags, name.c_str());
+		bool nodeOpen = ImGui::TreeNodeEx(resource->GetGuid().ToString().c_str(), node_flags, resource->GetName().c_str());
+
+		// EXTREAMLY TEMPO
+		if (resource->GetType() == ResourceType::Texture2D)
+		{
+			if (ImGui::IsItemHovered())
+			{
+				ImGui::BeginTooltip();
+				ImGui::TextUnformatted(resource->GetName().c_str());
+				ImGui::Image((*(Ref<Texture2DAsset>*) & resource->GetAssets()[0])->GetAsset(), { 128, 128 });
+				ImGui::EndTooltip();
+			}
+
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 10.0f, 10.0f });
+			if (ImGui::BeginDragDropSource())
+			{
+				ImGui::SetDragDropPayload("_ASSET_DRAG", &resource->GetAssets()[0], sizeof(Ref<Asset>));
+				ImGui::TextUnformatted(resource->GetName().c_str());
+				ImGui::Image((*(Ref<Texture2DAsset>*) & resource->GetAssets()[0])->GetAsset(), { 128, 128 });
+				ImGui::EndDragDropSource();
+			}
+			ImGui::PopStyleVar();
+		}
 
 		if (ImGui::IsItemClicked())
 		{
-			if (entryIsFile && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+			if (!resource->IsDirectory() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
 			{
-				if (format == OE_SCENE_FILE_EXTENSION)
-					editor->EditScene(LoadSceneFromFile(pathString), pathString);
+				if (resource->GetType() == ResourceType::Scene && resource->GetAssets()[0]->GetType() == AssetType::Scene)
+					editor->EditScene((*(Ref<SceneAsset>*)(&resource->GetAssets()[0]))->GetAsset(), resource->GetVirtualPath());
 			}
 
-			node_clicked = *count;
-			any_node_clicked = true;
-			clickedNodePath = pathString;
+			anyNodeClicked = true;
+			nodeClicked = resource;
 		}
 
-		(*count)--;
-
-		if (!entryIsFile)
+		if (resource->IsDirectory())
 		{
-			if (node_open)
+			if (nodeOpen)
 			{
-				auto clickState = DirectoryTreeViewRecursive(editor, entry.path(), count, selection_mask, drawFiles);
+				auto clickState = ResourcesTreeViewRecursive(editor, resource, selectedResources, drawNonDirectories);
 
-				if (!any_node_clicked && clickState.first)
+				if (!anyNodeClicked && clickState.first)
 				{
-					any_node_clicked = clickState.first;
-					node_clicked = clickState.middle;
-					clickedNodePath = clickState.last;
+					anyNodeClicked = true;
+					nodeClicked = clickState.second;
 				}
 
 				ImGui::TreePop();
 			}
-			else
-			{
-				for (const auto& e : std::filesystem::recursive_directory_iterator(entry.path()))
-					(*count)--;
-			}
 		}
 	}
 
-	return { any_node_clicked, node_clicked, clickedNodePath };
+	return { anyNodeClicked, nodeClicked };
 }
 
 void Editor::OnAssetsGUI()
 {
-	bool is_root_clicked = false;
-	static int selection_mask = 0;
-
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 0.0f, 0.0f });
 	ImGui::Begin("Assets");
-	ImGui::PopStyleVar();
 
 	if (!m_AssetBrowserOneColumnView)
 		ImGui::Columns(2);
@@ -676,87 +632,80 @@ void Editor::OnAssetsGUI()
 		ImGui::EndPopup();
 	}
 
-	ImGuiTreeNodeFlags root_node_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_SpanFullWidth;
+	const auto& rootResource = m_EditingProject->GetResources().GetResource("assets://");
 
-	if (m_IsAssetRootSelected)
-		root_node_flags |= ImGuiTreeNodeFlags_Selected;
-	
-	if (ImGui::TreeNodeEx("##AssetsRootTreeNode", root_node_flags, "assets://"))
+	ImGuiTreeNodeFlags rootNodeFlags = OE_IMGUI_BASE_TREE_VIEW_FLAGS;
+	if (std::find(m_SelectedResources.begin(), m_SelectedResources.end(), rootResource) != m_SelectedResources.end())
+		rootNodeFlags |= ImGuiTreeNodeFlags_Selected;
+
+	bool rootOpen = ImGui::TreeNodeEx("##AssetsRootTreeNode", rootNodeFlags, "assets://");
+	std::pair<bool, Ref<Resource>> clickState{ false, nullptr };
+
+	if (ImGui::IsItemClicked())
 	{
-		if (ImGui::IsItemClicked())
-			is_root_clicked = true;
+		clickState.first = true;
+		clickState.second = rootResource;
+	}
 
-		String assetsPath = m_EditingProject->GetAssetsDirectoryPath();
-
-		uint32_t count = 0;
-		for (const auto& entry : std::filesystem::recursive_directory_iterator(assetsPath))
-			count++;
-
-
-		auto clickState = DirectoryTreeViewRecursive(this, assetsPath, &count, &selection_mask, m_AssetBrowserOneColumnView);
-
-		if (is_root_clicked)
-		{
-			if (ImGui::GetIO().KeyCtrl)
-			{
-				m_IsAssetRootSelected = !m_IsAssetRootSelected;
-			}
-			else
-			{
-				m_IsAssetRootSelected = true;
-				selection_mask = 0;
-				m_SelectedAssetFiles.clear();
-			}
-		}
-		else if (clickState.first)
-		{
-			// Update selection state
-			// (process outside of tree loop to avoid visual inconsistencies during the clicking frame)
-			if (ImGui::GetIO().KeyCtrl)
-			{
-				selection_mask ^= BIT(clickState.middle);          // CTRL+click to toggle
-				auto it = std::find(m_SelectedAssetFiles.begin(), m_SelectedAssetFiles.end(), clickState.last);
-				if (it != m_SelectedAssetFiles.end())
-					m_SelectedAssetFiles.erase(it);
-				else
-					m_SelectedAssetFiles.push_back(clickState.last);
-			}
-			else
-			{
-				selection_mask = BIT(clickState.middle);           // Click to single-select
-				m_IsAssetRootSelected = false;
-				m_SelectedAssetFiles.clear();
-				m_SelectedAssetFiles.push_back(clickState.last);
-			}
-		}
-
+	if (rootOpen)
+	{
+		auto childsClickState = ResourcesTreeViewRecursive(this, rootResource, &m_SelectedResources, m_AssetBrowserOneColumnView);
+		if (childsClickState.first)
+			clickState = childsClickState;
 		ImGui::TreePop();
 	}
 
-	if (!m_AssetBrowserOneColumnView)
-		ImGui::NextColumn();
+	if (clickState.first)
+	{
+		if (ImGui::GetIO().KeyCtrl)
+		{
+			auto it = std::find(m_SelectedResources.begin(), m_SelectedResources.end(), clickState.second);
+			if (it != m_SelectedResources.end())
+				m_SelectedResources.erase(it);
+			else
+				m_SelectedResources.push_back(clickState.second);
+		}
+		else
+		{
+			m_SelectedResources.clear();
+			m_SelectedResources.push_back(clickState.second);
+		}
+	}
+
+	//////////////////////////////////////////////////////
+	// Thumbnails ////////////////////////////////////////
+	//////////////////////////////////////////////////////
 
 	if (!m_AssetBrowserOneColumnView)
 	{
+		ImGui::NextColumn();
+
 		ImGui::PushItemWidth(-1);
+		ImGui::Spacing();
 		ImGui::SliderInt("##Thumbnail Size", &m_AssetThumbnailSize, m_AssetThumbnailSizeMin, m_AssetThumbnailSizeMax, "Thumbnail Size : %d px");
 		ImGui::PopItemWidth();
 
-		if (m_SelectedAssetFiles.size() > 1 || m_SelectedAssetFiles.size() == 1 && m_IsAssetRootSelected)
+		if (m_SelectedResources.size() > 1)
 			ImGui::TextUnformatted("Showing multiple files and folders");
-		else if (m_SelectedAssetFiles.size() == 1)
-			ImGui::TextUnformatted(FileSystem::FixFileSystemPath(m_SelectedAssetFiles[0]).c_str());
-		else
-			ImGui::TextUnformatted(FileSystem::FixFileSystemPath(m_EditingProject->GetAssetsDirectoryPath()).c_str());
+		else if (m_SelectedResources.size() == 1)
+		{
+			if (ImGui::ArrowButton("AssetThumbnailBackButton", ImGuiDir_Left))
+			{
+				auto parent = m_SelectedResources[0]->GetParent();
+				if (parent)
+					m_SelectedResources[0] = m_SelectedResources[0]->GetParent();
+			}
+			ImGui::SameLine();
+			ImGui::TextUnformatted(m_SelectedResources[0]->GetName().c_str());
+		}
 
 		ImGui::BeginChild("##ThumbnailView", { 0, 0 }, false, ImGuiWindowFlags_AlwaysUseWindowPadding);
 
 		uint32_t count = 0;
-		for (const auto& p : m_SelectedAssetFiles)
+		for (const auto& res : m_SelectedResources)
 		{
-			if (FileSystem::IsDirectory(p))
-				for (const auto& entry : std::filesystem::directory_iterator(p))
-					count++;
+			if (res->IsDirectory())
+				count += (uint32_t)res->GetChildren().size();
 			else
 				count++;
 		}
@@ -764,292 +713,113 @@ void Editor::OnAssetsGUI()
 		ImVec2 thumbnailSize((float)m_AssetThumbnailSize, (float)m_AssetThumbnailSize);
 		ImGuiStyle& style = ImGui::GetStyle();
 		float window_visible_x2 = ImGui::GetWindowPos().x + ImGui::GetWindowContentRegionMax().x;
+		ImDrawList* windowDrawList = ImGui::GetWindowDrawList();
+		static const ImVec2 threeDotsTextSize = ImGui::CalcTextSize("...");
 
 		uint32_t n = 0;
-		if (m_IsAssetRootSelected)
+		for (const auto& res : m_SelectedResources)
 		{
-			auto assetsPath = m_EditingProject->GetAssetsDirectoryPath();
+			if (!res->IsDirectory())
+				continue;
 
-			for (const auto& entry : std::filesystem::directory_iterator(assetsPath))
-				count++;
-
-			for (const auto& entry : std::filesystem::directory_iterator(assetsPath))
+			for (const auto& resource : res->GetChildren())
 			{
 				ImGui::PushID(n);
-
-				String name = FileSystem::ExtractFileNameFromPath(entry.path().string());
-
-				ImGui::Button(name.c_str(), thumbnailSize);
-				float last_button_x2 = ImGui::GetItemRectMax().x;
-				float next_button_x2 = last_button_x2 + style.ItemSpacing.x + thumbnailSize.x; // Expected position if next button was on same line
-				if (n + 1 < count && next_button_x2 < window_visible_x2)
-					ImGui::SameLine();
-				ImGui::PopID();
-				n++;
-			}
-		}
-
-		for (const auto& p : m_SelectedAssetFiles)
-		{
-			if (FileSystem::IsDirectory(p))
-			{
-				for (const auto& entry : std::filesystem::directory_iterator(p))
+				if (resource->GetType() == ResourceType::Texture2D)
 				{
-					ImGui::PushID(n);
+					ImGui::ImageButton((*(Ref<Texture2DAsset>*) & resource->GetAssets()[0])->GetAsset(), thumbnailSize);
 
-					String name = FileSystem::ExtractFileNameFromPath(entry.path().string());
+					if (ImGui::IsItemHovered())
+					{
+						ImGui::BeginTooltip();
+						ImGui::TextUnformatted(resource->GetName().c_str());
+						//ImGui::Image((*(Ref<Texture2DAsset>*) & resource->GetAssets()[0])->GetAsset(), { 128, 128 });
+						ImGui::EndTooltip();
+					}
 
-					ImGui::Button(name.c_str(), thumbnailSize);
-					float last_button_x2 = ImGui::GetItemRectMax().x;
-					float next_button_x2 = last_button_x2 + style.ItemSpacing.x + thumbnailSize.x; // Expected position if next button was on same line
-					if (n + 1 < count && next_button_x2 < window_visible_x2)
-						ImGui::SameLine();
-					ImGui::PopID();
-					n++;
+					ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 10.0f, 10.0f });
+					if (ImGui::BeginDragDropSource())
+					{
+						ImGui::SetDragDropPayload("_ASSET_DRAG", &resource->GetAssets()[0], sizeof(Ref<Asset>));
+						ImGui::TextUnformatted(resource->GetName().c_str());
+						//ImGui::Image((*(Ref<Texture2DAsset>*) & resource->GetAssets()[0])->GetAsset(), { 128, 128 });
+						ImGui::EndDragDropSource();
+					}
+					ImGui::PopStyleVar();
+
+					ImVec2 rectMin = ImGui::GetItemRectMin();
+					ImVec2 textSize = ImGui::CalcTextSize(resource->GetName().c_str());
+					if (textSize.x + 10 <= thumbnailSize.x) // Enough space
+					{
+						ImVec2 textPos = { rectMin.x + (thumbnailSize.x - textSize.x) / 2, rectMin.y + thumbnailSize.y + 15 };
+						windowDrawList->AddRectFilled({ textPos.x - 5, textPos.y }, { textPos.x + textSize.x + 5, textPos.y + textSize.y }, ImColor(20, 20, 20), 5);
+						windowDrawList->AddText(textPos, ImColor(1.0f, 1.0f, 1.0f), resource->GetName().c_str());
+					}
+					else // Tight
+					{
+						ImVec2 posMax = { rectMin.x + thumbnailSize.x - 5, rectMin.y + thumbnailSize.y + 30 };
+						windowDrawList->AddRectFilled({ rectMin.x, rectMin.y + thumbnailSize.y + 15 }, { posMax.x + 5, posMax.y }, ImColor(20, 20, 20), 5);
+						ImGui::RenderTextEllipsis(windowDrawList, { rectMin.x + 5, rectMin.y + thumbnailSize.y + 15 }, posMax, posMax.x, posMax.x, resource->GetName().c_str(), nullptr, &textSize);
+					}
 				}
-			}
-		}
-		ImGui::EndChild();
-	}
-
-	if (!m_AssetBrowserOneColumnView)
-		ImGui::Columns(1);
-
-	ImGui::End();
-}
-#endif
-
-static TripleBinding<bool, uint32_t, String> DirectoryTreeViewRecursive(Editor* editor, const std::filesystem::path& path, uint32_t* count, int* selection_mask, bool drawFiles)
-{
-	static ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_SpanFullWidth;
-
-	bool any_node_clicked = false;
-	uint32_t node_clicked = 0;
-	String clickedNodePath;
-	String pathString, name, format;
-
-	for (const auto& entry : std::filesystem::directory_iterator(path))
-	{
-		pathString = entry.path().string();
-		name = FileSystem::ExtractFileNameFromPath(pathString);
-		bool entryIsFile = FileSystem::IsFile(entry.path());
-
-		if (entryIsFile)
-		{
-			if (!drawFiles)
-				continue;
-
-			format = FileSystem::ExtractFileExtentionFromName(name);
-
-			if (format == OE_RESOURCE_DEFENITION_FILE_EXTENSION)
-			{
-				(*count)--;
-				continue;
-			}
-		}
-
-		ImGuiTreeNodeFlags node_flags = base_flags;
-		const bool is_selected = (*selection_mask & BIT(*count)) != 0;
-		if (is_selected)
-			node_flags |= ImGuiTreeNodeFlags_Selected;
-
-		if (entryIsFile)
-			node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
-
-		bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)(*count), node_flags, name.c_str());
-
-		if (ImGui::IsItemClicked())
-		{
-			if (entryIsFile && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
-			{
-				if (format == OE_SCENE_FILE_EXTENSION)
-					editor->EditScene(LoadSceneFromFile(pathString), pathString);
-			}
-
-			node_clicked = *count;
-			any_node_clicked = true;
-			clickedNodePath = pathString;
-		}
-
-		(*count)--;
-
-		if (!entryIsFile)
-		{
-			if (node_open)
-			{
-				auto clickState = DirectoryTreeViewRecursive(editor, entry.path(), count, selection_mask, drawFiles);
-
-				if (!any_node_clicked && clickState.first)
-				{
-					any_node_clicked = clickState.first;
-					node_clicked = clickState.middle;
-					clickedNodePath = clickState.last;
-				}
-
-				ImGui::TreePop();
-			}
-			else
-			{
-				for (const auto& e : std::filesystem::recursive_directory_iterator(entry.path()))
-					(*count)--;
-			}
-		}
-	}
-
-	return { any_node_clicked, node_clicked, clickedNodePath };
-}
-
-void Editor::OnAssetsGUI()
-{
-	bool is_root_clicked = false;
-	static int selection_mask = 0;
-
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 0.0f, 0.0f });
-	ImGui::Begin("Assets");
-	ImGui::PopStyleVar();
-
-	if (!m_AssetBrowserOneColumnView)
-		ImGui::Columns(2);
-
-	if (ImGui::Button("Settings"))
-		ImGui::OpenPopup("SettingsPopup##AssetBrowser");
-	if (ImGui::BeginPopup("SettingsPopup##AssetBrowser"))
-	{
-		ImGui::Checkbox("One Column View", &m_AssetBrowserOneColumnView);
-		ImGui::EndPopup();
-	}
-
-	ImGuiTreeNodeFlags root_node_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_SpanFullWidth;
-
-	if (m_IsAssetRootSelected)
-		root_node_flags |= ImGuiTreeNodeFlags_Selected;
-
-	if (ImGui::TreeNodeEx("##AssetsRootTreeNode", root_node_flags, "assets://"))
-	{
-		if (ImGui::IsItemClicked())
-			is_root_clicked = true;
-
-		String assetsPath = m_EditingProject->GetAssetsDirectoryPath();
-
-		uint32_t count = 0;
-		for (const auto& entry : std::filesystem::recursive_directory_iterator(assetsPath))
-			count++;
-
-
-		auto clickState = DirectoryTreeViewRecursive(this, assetsPath, &count, &selection_mask, m_AssetBrowserOneColumnView);
-
-		if (is_root_clicked)
-		{
-			if (ImGui::GetIO().KeyCtrl)
-			{
-				m_IsAssetRootSelected = !m_IsAssetRootSelected;
-			}
-			else
-			{
-				m_IsAssetRootSelected = true;
-				selection_mask = 0;
-				m_SelectedAssetFiles.clear();
-			}
-		}
-		else if (clickState.first)
-		{
-			// Update selection state
-			// (process outside of tree loop to avoid visual inconsistencies during the clicking frame)
-			if (ImGui::GetIO().KeyCtrl)
-			{
-				selection_mask ^= BIT(clickState.middle);          // CTRL+click to toggle
-				auto it = std::find(m_SelectedAssetFiles.begin(), m_SelectedAssetFiles.end(), clickState.last);
-				if (it != m_SelectedAssetFiles.end())
-					m_SelectedAssetFiles.erase(it);
 				else
-					m_SelectedAssetFiles.push_back(clickState.last);
-			}
-			else
-			{
-				selection_mask = BIT(clickState.middle);           // Click to single-select
-				m_IsAssetRootSelected = false;
-				m_SelectedAssetFiles.clear();
-				m_SelectedAssetFiles.push_back(clickState.last);
-			}
-		}
+				{
+					ImGui::PushStyleColor(ImGuiCol_Button, { 0.2f, 0.2f, 0.2f, 0.2f });
+					ImGui::PushStyleColor(ImGuiCol_ButtonHovered, { 0.2f, 0.2f, 0.2f, 0.5f });
+					ImGui::PushStyleColor(ImGuiCol_ButtonActive, { 0.2f, 0.2f, 0.2f, 0.7f });
+					if (resource->GetType() == ResourceType::Directory)
+						ImGui::ImageButton(m_Icons["FolderIcon"], thumbnailSize, -1, { 0.0f, 0.0f, 0.0f, 0.0f });
+					else if (resource->GetType() == ResourceType::Scene)
+						ImGui::ImageButton(m_Icons["SceneIcon"], thumbnailSize, -1, { 0.0f, 0.0f, 0.0f, 0.0f });
+					else
+						ImGui::Button("", thumbnailSize);
+					ImGui::PopStyleColor(3);
 
-		ImGui::TreePop();
-	}
+					if (ImGui::IsItemClicked() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+					{
+						if (resource->IsDirectory())
+						{
+							m_SelectedResources.clear();
+							m_SelectedResources.push_back(resource);
+						}
+						else if (resource->GetType() == ResourceType::Scene && resource->GetAssets()[0]->GetType() == AssetType::Scene)
+						{
+							EditScene((*(Ref<SceneAsset>*)(&resource->GetAssets()[0]))->GetAsset(), resource->GetVirtualPath());
+						}
+					}
 
-	if (!m_AssetBrowserOneColumnView)
-		ImGui::NextColumn();
+					if (ImGui::IsItemHovered())
+					{
+						ImGui::BeginTooltip();
+						ImGui::TextUnformatted(resource->GetName().c_str());
+						ImGui::EndTooltip();
+					}
 
-	if (!m_AssetBrowserOneColumnView)
-	{
-		ImGui::PushItemWidth(-1);
-		ImGui::SliderInt("##Thumbnail Size", &m_AssetThumbnailSize, m_AssetThumbnailSizeMin, m_AssetThumbnailSizeMax, "Thumbnail Size : %d px");
-		ImGui::PopItemWidth();
+					ImVec2 rectMin = ImGui::GetItemRectMin();
+					ImVec2 textSize = ImGui::CalcTextSize(resource->GetName().c_str());
+					if (textSize.x + 10 <= thumbnailSize.x) // Enough space
+					{
+						ImVec2 textPos = { rectMin.x + (thumbnailSize.x - textSize.x) / 2, rectMin.y + thumbnailSize.y + 15 };
+						windowDrawList->AddRectFilled({ textPos.x - 5, textPos.y }, { textPos.x + textSize.x + 5, textPos.y + textSize.y }, ImColor(20, 20, 20), 5);
+						windowDrawList->AddText(textPos, ImColor(1.0f, 1.0f, 1.0f), resource->GetName().c_str());
+					}
+					else // Tight
+					{
+						ImVec2 posMax = { rectMin.x + thumbnailSize.x - 5, rectMin.y + thumbnailSize.y + 30 };
+						windowDrawList->AddRectFilled({ rectMin.x, rectMin.y + thumbnailSize.y + 15 }, { posMax.x + 5, posMax.y }, ImColor(20, 20, 20), 5);
+						ImGui::RenderTextEllipsis(windowDrawList, { rectMin.x + 5, rectMin.y + thumbnailSize.y + 15 }, posMax, posMax.x, posMax.x, resource->GetName().c_str(), nullptr, &textSize);
+					}
+				}
 
-		if (m_SelectedAssetFiles.size() > 1 || m_SelectedAssetFiles.size() == 1 && m_IsAssetRootSelected)
-			ImGui::TextUnformatted("Showing multiple files and folders");
-		else if (m_SelectedAssetFiles.size() == 1)
-			ImGui::TextUnformatted(FileSystem::FixFileSystemPath(m_SelectedAssetFiles[0]).c_str());
-		else
-			ImGui::TextUnformatted(FileSystem::FixFileSystemPath(m_EditingProject->GetAssetsDirectoryPath()).c_str());
-
-		ImGui::BeginChild("##ThumbnailView", { 0, 0 }, false, ImGuiWindowFlags_AlwaysUseWindowPadding);
-
-		uint32_t count = 0;
-		for (const auto& p : m_SelectedAssetFiles)
-		{
-			if (FileSystem::IsDirectory(p))
-				for (const auto& entry : std::filesystem::directory_iterator(p))
-					count++;
-			else
-				count++;
-		}
-
-		ImVec2 thumbnailSize((float)m_AssetThumbnailSize, (float)m_AssetThumbnailSize);
-		ImGuiStyle& style = ImGui::GetStyle();
-		float window_visible_x2 = ImGui::GetWindowPos().x + ImGui::GetWindowContentRegionMax().x;
-
-		uint32_t n = 0;
-		if (m_IsAssetRootSelected)
-		{
-			auto assetsPath = m_EditingProject->GetAssetsDirectoryPath();
-
-			for (const auto& entry : std::filesystem::directory_iterator(assetsPath))
-				count++;
-
-			for (const auto& entry : std::filesystem::directory_iterator(assetsPath))
-			{
-				ImGui::PushID(n);
-
-				String name = FileSystem::ExtractFileNameFromPath(entry.path().string());
-
-				ImGui::Button(name.c_str(), thumbnailSize);
 				float last_button_x2 = ImGui::GetItemRectMax().x;
 				float next_button_x2 = last_button_x2 + style.ItemSpacing.x + thumbnailSize.x; // Expected position if next button was on same line
 				if (n + 1 < count && next_button_x2 < window_visible_x2)
 					ImGui::SameLine();
+				else
+					ImGui::Dummy({ 0, 25 });
+
 				ImGui::PopID();
 				n++;
-			}
-		}
-
-		for (const auto& p : m_SelectedAssetFiles)
-		{
-			if (FileSystem::IsDirectory(p))
-			{
-				for (const auto& entry : std::filesystem::directory_iterator(p))
-				{
-					ImGui::PushID(n);
-
-					String name = FileSystem::ExtractFileNameFromPath(entry.path().string());
-
-					ImGui::Button(name.c_str(), thumbnailSize);
-					float last_button_x2 = ImGui::GetItemRectMax().x;
-					float next_button_x2 = last_button_x2 + style.ItemSpacing.x + thumbnailSize.x; // Expected position if next button was on same line
-					if (n + 1 < count && next_button_x2 < window_visible_x2)
-						ImGui::SameLine();
-					ImGui::PopID();
-					n++;
-				}
 			}
 		}
 		ImGui::EndChild();
@@ -1065,9 +835,10 @@ void Editor::OnAssetImportGUI()
 {
 	ImGui::Begin("Asset Import");
 
-	if (m_SelectedAssetFiles.size() == 1)
+	#if 0
+	if (m_SelectedResources.size() == 1)
 	{
-		String& assetPath = m_SelectedAssetFiles[0];
+		String& assetPath = m_SelectedResources[0];
 
 		if (FileSystem::IsFile(assetPath))
 		{
@@ -1097,6 +868,7 @@ void Editor::OnAssetImportGUI()
 			}
 		}
 	}
+	#endif
 
 	ImGui::End();
 }
@@ -1130,21 +902,7 @@ void Editor::OnConsoleGUI()
 	ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4{ 0.2f, 0.2f, 0.2f, 1.0f });
 	ImGui::BeginChild("ScrollRegion", ImVec2(0, 0), false, ImGuiWindowFlags_HorizontalScrollbar);
 	{
-		/*ImGui::SetWindowFontScale(s_DisplayScale);
-
-		auto messageStart = s_MessageBuffer.begin() + s_MessageBufferBegin;
-		if (*messageStart) // If contains old message here
-			for (auto message = messageStart; message != s_MessageBuffer.end(); message++)
-				(*message)->OnImGuiRender();
-		if (s_MessageBufferBegin != 0) // Skipped first messages in vector
-			for (auto message = s_MessageBuffer.begin(); message != messageStart; message++)
-				(*message)->OnImGuiRender();
-
-		if (s_RequestScrollToBottom && ImGui::GetScrollMaxY() > 0)
-		{
-			ImGui::SetScrollY(ImGui::GetScrollMaxY());
-			s_RequestScrollToBottom = false;
-		}*/
+		ImGui::Text("WOW");
 	}
 	ImGui::EndChild();
 	ImGui::PopStyleColor();

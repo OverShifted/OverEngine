@@ -10,7 +10,7 @@ namespace OverEngine
 		{
 		public:
 			List()
-				: m_firstElement(nullptr), m_Length(0)
+				: m_FirstElement(nullptr), m_Length(0)
 			{
 			}
 
@@ -18,7 +18,7 @@ namespace OverEngine
 			{
 				if (m_Length == 0)
 				{
-					m_firstElement = new Element<T>(item);
+					m_FirstElement = new Element<T>(item);
 				}
 				else
 				{
@@ -34,7 +34,7 @@ namespace OverEngine
 				if (idx == 0)
 				{
 					Element<T>* e = GetNthElementPointer(idx);
-					m_firstElement = e->next;
+					m_FirstElement = e->next;
 					m_Length--;
 					return e->value;
 				}
@@ -65,14 +65,14 @@ namespace OverEngine
 				_T* value;
 			};
 
-			Element<T>* m_firstElement;
+			Element<T>* m_FirstElement;
 			int m_Length;
 
 			Element<T>* GetNthElementPointer(int idx)
 			{
 				if (idx < 0)
 					idx = m_Length + idx;
-				Element<T>* current = m_firstElement;
+				Element<T>* current = m_FirstElement;
 				for (int i = 0; i < idx; i++)
 				{
 					current = current->next;

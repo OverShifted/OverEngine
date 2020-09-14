@@ -42,7 +42,7 @@ namespace OverEngine
 		{
 			auto& lastParentChildren = family.Parent.GetComponent<FamilyComponent>().Children;
 
-			auto it = std::find(lastParentChildren.begin(), lastParentChildren.begin(), *this);
+			auto it = std::find(lastParentChildren.begin(), lastParentChildren.end(), *this);
 			OE_CORE_ASSERT(it != lastParentChildren.end(), "Entity is not in it's parent's child entities list!");
 			lastParentChildren.erase(it);
 		}
@@ -60,8 +60,8 @@ namespace OverEngine
 	{
 		auto& family = GetComponent<FamilyComponent>();
 
-		for (auto& child : family.Children)
-			child.Destroy();
+		while (family.Children.size() > 0)
+			Entity(family.Children[0]).Destroy(); // Copy to prevent self-editing
 
 		if (!family.Parent)
 		{
@@ -71,15 +71,11 @@ namespace OverEngine
 		}
 		else
 		{
-			auto parentFamily = family.Parent.GetComponent<FamilyComponent>();
-			auto it = std::find(parentFamily.Children.begin(), parentFamily.Children.end(), *this);
-			OE_CORE_ASSERT(it != parentFamily.Children.end(), "Entity is not in it's parent's child entities!");
-			parentFamily.Children.erase(it);
+			auto& parentChildren = family.Parent.GetComponent<FamilyComponent>().Children;
+			auto it = std::find(parentChildren.begin(), parentChildren.end(), *this);
+			OE_CORE_ASSERT(it != parentChildren.end(), "Entity is not in it's parent's child entities!");
+			parentChildren.erase(it);
 		}
-
-		auto it = std::find(m_Scene->m_Entities.begin(), m_Scene->m_Entities.end(), *this);
-		OE_CORE_ASSERT(it != m_Scene->m_Entities.end(), "Entity is not in the Scene's entities!");
-		m_Scene->m_Entities.erase(it);
 
 		m_Scene->m_Registry.destroy(m_EntityHandle);
 	}

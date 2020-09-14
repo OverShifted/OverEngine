@@ -19,6 +19,7 @@ namespace OverEngine
 		static void BeginScene(const Mat4x4& viewMatrix, const Camera& camera);
 		static void BeginScene(const Mat4x4& viewMatrix, const Mat4x4& projectionMatrix);
 		static void EndScene();
+
 		static void Submit(const Ref<Shader>& shader, const Ref<VertexArray>& vertexArray, const Mat4x4& transform = Mat4x4(1.0f));
 
 		inline static ShaderLibrary& GetShaderLibrary() { return s_ShaderLibrary; }

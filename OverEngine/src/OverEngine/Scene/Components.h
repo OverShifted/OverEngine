@@ -4,8 +4,9 @@
 
 #include "OverEngine/Core/Math/Math.h"
 #include "OverEngine/Core/Core.h"
+#include "OverEngine/Core/GUIDGenerator.h"
 
-#include "OverEngine/Renderer/Texture.h"
+#include "OverEngine/Assets/Asset.h"
 
 #include "OverEngine/Physics/PhysicsBody2D.h"
 #include "OverEngine/Physics/PhysicsCollider2D.h"
@@ -18,9 +19,9 @@ namespace OverEngine
 
 	enum class ComponentType
 	{
-		NameComponent, FamilyComponent, TransformComponent,
-		CameraComponent, SpriteRendererComponent,
-		PhysicsBody2DComponent, PhysicsColliders2DComponent
+		NameComponent, GUIDComponent, FamilyComponent, TransformComponent,
+		CameraComponent, SpriteRendererComponent, PhysicsBody2DComponent,
+		PhysicsColliders2DComponent
 	};
 
 	#define COMPONENT_TYPE(type) static ComponentType GetStaticType() { return ComponentType::type; }\
@@ -29,6 +30,10 @@ namespace OverEngine
 
 	struct Component
 	{
+		Component(Entity attachedEntity, bool enabled = true)
+			: AttachedEntity(attachedEntity), Enabled(enabled) {}
+
+		Entity AttachedEntity;
 		bool Enabled = true;
 
 		virtual ComponentType GetComponentType() const = 0;
@@ -46,14 +51,27 @@ namespace OverEngine
 		NameComponent() = default;
 		NameComponent(const NameComponent&) = default;
 		NameComponent(Entity& entity, const String& name)
-			: Name(name) {}
+			: Component(entity), Name(name) {}
 
 		COMPONENT_TYPE(NameComponent)
 	};
 
+	struct GUIDComponent : public Component
+	{
+		Guid ID = GUIDGenerator::GenerateVersion4();
+
+		GUIDComponent() = default;
+		GUIDComponent(const GUIDComponent&) = default;
+		GUIDComponent(Entity& entity)
+			: Component(entity) {}
+		GUIDComponent(Entity& entity, const Guid & id)
+			: Component(entity), ID(id) {}
+
+		COMPONENT_TYPE(GUIDComponent)
+	};
+
 	struct FamilyComponent : public Component
 	{
-		Entity This;
 		Entity Parent;
 		Vector<Entity> Children;
 
@@ -61,14 +79,12 @@ namespace OverEngine
 		FamilyComponent(const FamilyComponent&) = default;
 
 		FamilyComponent(Entity& entity)
-			: This(entity)
-		{
-		}
+			: Component(entity) {}
 
 		FamilyComponent(Entity& entity, Entity& parent)
-			: This(entity), Parent(parent)
+			: Component(entity), Parent(parent)
 		{
-			parent.GetComponent<FamilyComponent>().Children.push_back(This);
+			parent.GetComponent<FamilyComponent>().Children.push_back(entity);
 		}
 
 		COMPONENT_TYPE(FamilyComponent)
@@ -80,10 +96,10 @@ namespace OverEngine
 		TransformComponent(
 			Entity& entity,
 			const Vector3& Position = Vector3(0.0f),
-			const Quaternion& Rotation = Quaternion(1.0, 0.0, 0.0, 0.0),
+			const Quaternion& Rotation = Quaternion(0.0, 0.0, 0.0, 1.0),
 			const Vector3& Scale = Vector3(1.0f)
 		)
-			: m_Position(Position), m_Rotation(Rotation), m_Scale(Scale)
+			: Component(entity), m_Position(Position), m_Rotation(Rotation), m_EulerAngles(Vector3(0)), m_Scale(Scale)
 		{
 			RecalculateTransformationMatrix();
 		}
@@ -173,35 +189,33 @@ namespace OverEngine
 		CameraComponent(const CameraComponent&) = default;
 
 		CameraComponent(Entity& entity, const OverEngine::Camera& camera)
-			: Camera(camera)
-		{
-		}
+			: Component(entity), Camera(camera) {}
 
 		CameraComponent(Entity& entity)
-		{
-		}
+			: Component(entity) {}
 
 		COMPONENT_TYPE(CameraComponent)
 	};
 
 	struct SpriteRendererComponent : public Component
 	{
-		Ref<Texture2D> Sprite;
+		Ref<Texture2DAsset> Sprite;
 		Color Tint{ 1.0f, 1.0f, 1.0f, 1.0f };
 		float TilingFactorX = 1.0f;
 		float TilingFactorY = 1.0f;
 		bool FlipX = false, FlipY = false;
 		TextureWrapping OverrideSWrapping = TextureWrapping::None;
 		TextureWrapping OverrideTWrapping = TextureWrapping::None;
+		TextureFiltering OverrideFiltering = TextureFiltering::None;
 
 		SpriteRendererComponent() = default;
 		SpriteRendererComponent(const SpriteRendererComponent&) = default;
 
-		SpriteRendererComponent(Entity& entity, Ref<Texture2D> sprite)
-			: Sprite(sprite) {}
+		SpriteRendererComponent(Entity& entity, Ref<Texture2DAsset> sprite)
+			: Component(entity), Sprite(sprite) {}
 
-		SpriteRendererComponent(Entity& entity, Ref<Texture2D> sprite, const Color& tint)
-			: Sprite(sprite), Tint(tint) {}
+		SpriteRendererComponent(Entity& entity, Ref<Texture2DAsset> sprite, const Color& tint)
+			: Component(entity), Sprite(sprite), Tint(tint) {}
 
 		COMPONENT_TYPE(SpriteRendererComponent)
 	};
@@ -231,8 +245,8 @@ namespace OverEngine
 		PhysicsColliders2DComponent(const PhysicsColliders2DComponent&) = default;
 
 		PhysicsColliders2DComponent(Entity& entity)
+			: Component(entity)
 		{
-			PhysicsColliders2DComponent(); // TODO: What is this?
 			if (entity.HasComponent<PhysicsBody2DComponent>())
 				AttachedBody = entity.GetComponent<PhysicsBody2DComponent>().Body;
 			else

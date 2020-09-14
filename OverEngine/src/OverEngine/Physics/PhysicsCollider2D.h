@@ -11,7 +11,8 @@ namespace OverEngine
 	{
 	public:
 		PhysicsCollider2D(Ref<PhysicsShape2D> shape = CreateRef<PhysicsShape2D>(), const PhysicsMaterial2D& material = PhysicsMaterial2D(), bool isTrigger = false)
-			: m_Shape(shape), m_Material(material), m_IsTrigger(isTrigger)
+			: m_Shape(shape), m_Material(material), m_IsTrigger(isTrigger),
+			  m_Enabled(true), m_Changed(false)
 		{
 		}
 

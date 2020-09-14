@@ -77,7 +77,7 @@ SandboxECS::SandboxECS()
 	m_Player = m_Scene->CreateEntity("Player");
 
 	// SpriteRenderer
-	m_Player.AddComponent<SpriteRendererComponent>(m_Sprite);
+	m_Player.AddComponent<SpriteRendererComponent>(CreateRef<Texture2DAsset>(m_Sprite));
 
 	// PhysicsBody2D
 	PhysicsBodyProps props;
@@ -98,7 +98,7 @@ SandboxECS::SandboxECS()
 	Entity obstacle = m_Scene->CreateEntity("Obstacle");
 
 	// SpriteRenderer
-	auto& spriteRenderer = obstacle.AddComponent<SpriteRendererComponent>(m_ObstacleSprite);
+	auto& spriteRenderer = obstacle.AddComponent<SpriteRendererComponent>(CreateRef<Texture2DAsset>(m_ObstacleSprite));
 	spriteRenderer.TilingFactorX = 4.0f;
 	spriteRenderer.OverrideSWrapping = TextureWrapping::Repeat;
 	spriteRenderer.OverrideTWrapping = TextureWrapping::Repeat;
@@ -126,7 +126,7 @@ SandboxECS::SandboxECS()
 	Entity obstacle2 = m_Scene->CreateEntity("Obstacle2");
 
 	// SpriteRenderer
-	auto& spriteRenderer2 = obstacle2.AddComponent<SpriteRendererComponent>(m_ObstacleSprite);
+	auto& spriteRenderer2 = obstacle2.AddComponent<SpriteRendererComponent>(CreateRef<Texture2DAsset>(m_ObstacleSprite));
 	spriteRenderer2.TilingFactorX = 40.0f;
 	spriteRenderer2.OverrideSWrapping = TextureWrapping::Repeat;
 	spriteRenderer2.OverrideTWrapping = TextureWrapping::Repeat;

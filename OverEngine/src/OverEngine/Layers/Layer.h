@@ -4,8 +4,8 @@
 #include "OverEngine/Events/Event.h"
 #include "OverEngine/Core/Time/Time.h"
 
-namespace OverEngine {
-
+namespace OverEngine
+{
 	class Layer
 	{
 	public:
@@ -22,5 +22,4 @@ namespace OverEngine {
 	protected:
 		String m_DebugName;
 	};
-
 }

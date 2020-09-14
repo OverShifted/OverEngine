@@ -5,8 +5,8 @@
 
 #include <GLFW/glfw3.h>
 
-namespace OverEngine {
-
+namespace OverEngine
+{
 	class LinuxWindow : public Window
 	{
 	public:
@@ -47,5 +47,4 @@ namespace OverEngine {
 
 		WindowData m_Data;
 	};
-
 }

@@ -21,6 +21,13 @@ void ComponentEditor(Entity entity, uint32_t typeID)
 		componentRemoved = true;
 	}
 
+	sprintf_s(txt, sizeof(txt) / sizeof(char), "##%i", typeID);
+	if (!componentRemoved)
+	{
+		ImGui::SameLine();
+		ImGui::Checkbox(txt, &entity.GetComponent<T>().Enabled);
+	}
+
 	ImGui::SameLine();
 
 	sprintf_s(txt, sizeof(txt) / sizeof(char), "##MOVE_COMPONENT_UP%i", typeID);
@@ -31,8 +38,8 @@ void ComponentEditor(Entity entity, uint32_t typeID)
 		auto it = std::find(componentList.begin(), componentList.end(), typeID);
 		if (it != componentList.begin())
 		{
-			componentList[it-componentList.begin()] = componentList[it-componentList.begin()-1];
-			componentList[it-componentList.begin()-1] = typeID;
+			componentList[it - componentList.begin()] = componentList[it - componentList.begin() - 1];
+			componentList[it - componentList.begin() - 1] = typeID;
 		}
 	}
 
@@ -46,8 +53,8 @@ void ComponentEditor(Entity entity, uint32_t typeID)
 		auto it = std::find(componentList.begin(), componentList.end(), typeID);
 		if (it != componentList.end() - 1)
 		{
-			componentList[it-componentList.begin()] = componentList[it-componentList.begin()+1];
-			componentList[it-componentList.begin()+1] = typeID;
+			componentList[it - componentList.begin()] = componentList[it - componentList.begin() + 1];
+			componentList[it - componentList.begin() + 1] = typeID;
 		}
 	}
 
@@ -82,6 +89,13 @@ void ComponentEditor<TransformComponent>(Entity entity, uint32_t typeID)
 		componentRemoved = true;
 	}
 
+	sprintf_s(txt, sizeof(txt) / sizeof(char), "##%i", typeID);
+	if (!componentRemoved)
+	{
+		ImGui::SameLine();
+		ImGui::Checkbox(txt, &entity.GetComponent<TransformComponent>().Enabled);
+	}
+
 	ImGui::SameLine();
 
 	sprintf_s(txt, sizeof(txt) / sizeof(char), "##MOVE_COMPONENT_UP%i", typeID);
@@ -93,7 +107,7 @@ void ComponentEditor<TransformComponent>(Entity entity, uint32_t typeID)
 		if (it != componentList.begin())
 		{
 			componentList[it - componentList.begin()] = componentList[it - componentList.begin() - 1];
-			componentList[it-componentList.begin()-1] = typeID;
+			componentList[it - componentList.begin() - 1] = typeID;
 		}
 	}
 
@@ -107,8 +121,8 @@ void ComponentEditor<TransformComponent>(Entity entity, uint32_t typeID)
 		auto it = std::find(componentList.begin(), componentList.end(), typeID);
 		if (it != componentList.end() - 1)
 		{
-			componentList[it-componentList.begin()] = componentList[it-componentList.begin() + 1];
-			componentList[it-componentList.begin()+1] = typeID;
+			componentList[it - componentList.begin()] = componentList[it - componentList.begin() + 1];
+			componentList[it - componentList.begin() + 1] = typeID;
 		}
 	}
 
@@ -175,6 +189,13 @@ void ComponentEditor<SpriteRendererComponent>(Entity entity, uint32_t typeID)
 		componentRemoved = true;
 	}
 
+	sprintf_s(txt, sizeof(txt) / sizeof(char), "##%i", typeID);
+	if (!componentRemoved)
+	{
+		ImGui::SameLine();
+		ImGui::Checkbox(txt, &entity.GetComponent<SpriteRendererComponent>().Enabled);
+	}
+
 	ImGui::SameLine();
 
 	sprintf_s(txt, sizeof(txt) / sizeof(char), "##MOVE_COMPONENT_UP%i", typeID);
@@ -226,7 +247,90 @@ void ComponentEditor<SpriteRendererComponent>(Entity entity, uint32_t typeID)
 			ImGui::TextUnformatted("Sprite");
 			ImGui::NextColumn();
 			ImGui::PushItemWidth(-1);
-			ImGui::TextDisabled("None (Texture2DAsset)");
+
+			char spriteText[50];
+			auto spriteTextSize = sizeof(spriteText) / sizeof(char);
+
+			if (!spriteRenderer.Sprite)
+				sprintf_s(spriteText, spriteTextSize, "None (Texture2DAsset)");
+			else if (!spriteRenderer.Sprite->GetResource())
+				sprintf_s(spriteText, spriteTextSize, "%s.%s",
+					spriteRenderer.Sprite->GetResource()->GetName().c_str(),
+					spriteRenderer.Sprite->GetName().c_str());
+			else
+				sprintf_s(spriteText, spriteTextSize, "%s", spriteRenderer.Sprite->GetName().c_str());
+
+			ImGui::InputText("", spriteText, spriteTextSize, ImGuiInputTextFlags_ReadOnly);
+
+			if (ImGui::BeginDragDropTarget())
+			{
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("_ASSET_DRAG"))
+				{
+					Ref<Texture2DAsset>* asset = static_cast<Ref<Texture2DAsset>*>(payload->Data);
+					spriteRenderer.Sprite = *asset;
+				}
+				ImGui::EndDragDropTarget();
+			}
+
+			if (spriteRenderer.Sprite)
+			{
+				ImGui::NextColumn();
+
+				ImGui::TextUnformatted("FlipX");
+				ImGui::NextColumn();
+				ImGui::PushItemWidth(-1);
+				ImGui::Checkbox("##FlipX", &spriteRenderer.FlipX);
+				ImGui::PopItemWidth();
+				ImGui::NextColumn();
+
+				ImGui::TextUnformatted("FlipY");
+				ImGui::NextColumn();
+				ImGui::PushItemWidth(-1);
+				ImGui::Checkbox("##FlipY", &spriteRenderer.FlipY);
+				ImGui::PopItemWidth();
+				ImGui::NextColumn();
+
+				static constexpr char* textureWrappingLabels[] = { "None (Use texture default value)", "Repeat", "MirroredRepeat", "ClampToEdge", "ClampToBorder" };
+				static constexpr size_t textureWrappingLabelsSize = OE_ARRAY_SIZE(textureWrappingLabels);
+
+				ImGui::TextUnformatted("SWrapping");
+				ImGui::NextColumn();
+				ImGui::PushItemWidth(-1);
+				ImGui::Combo("##SWrapping", (int*)&spriteRenderer.OverrideSWrapping, textureWrappingLabels, textureWrappingLabelsSize);
+				ImGui::PopItemWidth();
+				ImGui::NextColumn();
+
+				ImGui::TextUnformatted("TWrapping");
+				ImGui::NextColumn();
+				ImGui::PushItemWidth(-1);
+				ImGui::Combo("##TWrapping", (int*)&spriteRenderer.OverrideTWrapping, textureWrappingLabels, textureWrappingLabelsSize);
+				ImGui::PopItemWidth();
+				ImGui::NextColumn();
+
+				static constexpr char* textureFilteringLabels[] = { "None (Use texture default value)", "Point", "Linear" };
+				static constexpr size_t textureFilteringLabelsSize = OE_ARRAY_SIZE(textureFilteringLabels);
+
+				ImGui::TextUnformatted("Filtering");
+				ImGui::NextColumn();
+				ImGui::PushItemWidth(-1);
+				ImGui::Combo("##Filtering", (int*)&spriteRenderer.OverrideFiltering, textureFilteringLabels, textureFilteringLabelsSize);
+				ImGui::PopItemWidth();
+				ImGui::NextColumn();
+
+				ImGui::TextUnformatted("TilingFactorX");
+				ImGui::NextColumn();
+				ImGui::PushItemWidth(-1);
+				ImGui::DragFloat("##TilingFactorX", &spriteRenderer.TilingFactorX);
+				ImGui::PopItemWidth();
+				ImGui::NextColumn();
+
+				ImGui::TextUnformatted("TilingFactorY");
+				ImGui::NextColumn();
+				ImGui::PushItemWidth(-1);
+				ImGui::DragFloat("##TilingFactorY", &spriteRenderer.TilingFactorY);
+				ImGui::PopItemWidth();
+			}
+
 			ImGui::PopItemWidth();
 
 			ImGui::Columns(1);
@@ -247,6 +351,13 @@ void ComponentEditor<CameraComponent>(Entity entity, uint32_t typeID)
 	{
 		entity.RemoveComponent<CameraComponent>();
 		componentRemoved = true;
+	}
+
+	sprintf_s(txt, sizeof(txt) / sizeof(char), "##%i", typeID);
+	if (!componentRemoved)
+	{
+		ImGui::SameLine();
+		ImGui::Checkbox(txt, &entity.GetComponent<CameraComponent>().Enabled);
 	}
 
 	ImGui::SameLine();

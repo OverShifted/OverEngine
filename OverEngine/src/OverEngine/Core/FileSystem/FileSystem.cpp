@@ -110,4 +110,87 @@ namespace OverEngine
 	{
 		return ExtractFileExtentionFromName(ExtractFileNameFromPath(path));
 	}
+
+	////////////////////////////////////////////////////////////////////////
+	// FileWatcher /////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////
+
+	FileWatcher::FileWatcher(String pathToWatch, std::chrono::duration<int, std::milli> delay)
+		: m_PathToWatch(m_PathToWatch), m_Delay(m_Delay), m_Running(false), m_Stopped(false)
+	{
+		for (const auto& entry : std::filesystem::recursive_directory_iterator(m_PathToWatch))
+		{
+			m_Paths[entry.path().string()] = std::filesystem::last_write_time(entry);
+		}
+
+		m_Action = [](String, FileWatcherEvent) {};
+	}
+
+	void FileWatcher::Reset(String pathToWatch, std::chrono::duration<int, std::milli> delay)
+	{
+		m_PathToWatch = pathToWatch;
+		m_Delay = delay;
+
+		for (const auto& entry : std::filesystem::recursive_directory_iterator(m_PathToWatch))
+		{
+			m_Paths[entry.path().string()] = std::filesystem::last_write_time(entry);
+		}
+
+		m_Action = [](String, FileWatcherEvent) {};
+	}
+
+	void FileWatcher::Start(void(*action)(String, FileWatcherEvent))
+	{
+		m_Action = action;
+		m_Running = true;
+		m_Thread = std::thread([this]() { Thread(); });
+	}
+
+	void FileWatcher::Thread()
+	{
+		while (true)
+		{
+			if (m_Stopped)
+				return;
+
+			std::this_thread::sleep_for(m_Delay);
+
+			if (m_Running)
+			{
+				auto it = m_Paths.begin();
+				while (it != m_Paths.end())
+				{
+					if (!std::filesystem::exists(it->first))
+					{
+						m_Action(it->first, FileWatcherEvent::Deleted);
+						it = m_Paths.erase(it);
+					}
+					else
+					{
+						it++;
+					}
+				}
+
+				for (auto& entry : std::filesystem::recursive_directory_iterator(m_PathToWatch))
+				{
+					auto currentFileLastWriteTime = std::filesystem::last_write_time(entry);
+
+					if (m_Paths.find(entry.path().string()) == m_Paths.end())
+					{
+						m_Paths[entry.path().string()] = currentFileLastWriteTime;
+						m_Action(entry.path().string(), FileWatcherEvent::Created);
+					}
+					else
+					{
+						if (m_Paths[entry.path().string()] != currentFileLastWriteTime)
+						{
+							m_Paths[entry.path().string()] = currentFileLastWriteTime;
+							m_Action(entry.path().string(), FileWatcherEvent::Modified);
+
+						}
+					}
+				}
+			}
+		}
+	}
 }

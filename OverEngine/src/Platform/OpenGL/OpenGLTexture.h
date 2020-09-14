@@ -34,6 +34,7 @@ namespace OverEngine
 			inline virtual TextureFormat GetFormat() const override { return m_Format; }
 
 			virtual void Bind(uint32_t slot = 0) const override;
+			inline virtual uint32_t GetRendererID() const { return m_RendererID; }
 
 			inline virtual bool operator==(const Texture& other) const override
 			{

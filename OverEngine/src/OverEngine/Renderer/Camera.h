@@ -68,6 +68,6 @@ namespace OverEngine
 
 		bool m_IsClearingColor = true;
 		bool m_IsClearingDepth = true;
-		Color m_ClearColor = Color(0.0f, 0.0f, 0.0f, 1.0f);
+		Color m_ClearColor = Color(0.0f, 0.1f, 0.5f, 1.0f);
 	};
 }

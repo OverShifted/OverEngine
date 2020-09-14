@@ -17,6 +17,7 @@ namespace OverEngine
 		bool flipY = false;
 		TextureWrapping overrideSTextureWrapping = TextureWrapping::None;
 		TextureWrapping overrideTTextureWrapping = TextureWrapping::None;
+		TextureFiltering overrideTextureFiltering = TextureFiltering::None;
 	};
 
 	class Renderer2D

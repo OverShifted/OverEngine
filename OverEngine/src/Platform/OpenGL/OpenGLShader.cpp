@@ -6,6 +6,7 @@
 #include "OverEngine/Core/FileSystem/FileSystem.h"
 
 #include <glad/gl.h>
+#include <fstream>
 
 namespace OverEngine
 {
@@ -116,6 +117,7 @@ namespace OverEngine
 		UnorderedMap<GLenum, const char*> sources;
 		for (auto& src : shaderSources)
 			sources[src.first] = src.second.c_str();
+		Compile(sources);
 	}
 
 	void OpenGLShader::Compile(const UnorderedMap<GLenum, const char*>& shaderSources)
@@ -136,6 +138,7 @@ namespace OverEngine
 
 			glShaderSource(shader, 1, &source, 0);
 
+			OE_CORE_INFO("shader compile");
 			glCompileShader(shader);
 
 			GLint isCompiled = 0;
@@ -162,7 +165,9 @@ namespace OverEngine
 
 		m_RendererID = program;
 
+		OE_CORE_INFO("shader link");
 		glLinkProgram(program);
+		OE_CORE_INFO("shader link done");
 
 		GLint isLinked = 0;
 		glGetProgramiv(program, GL_LINK_STATUS, (int*)&isLinked);
@@ -178,6 +183,11 @@ namespace OverEngine
 
 			for (auto id : glShaderIDs)
 				glDeleteShader(id);
+
+			std::ofstream a("log.txt");
+			a << infoLog.data();
+			a.flush();
+			a.close();
 
 			OE_CORE_ERROR("{0}", infoLog.data());
 			OE_CORE_ASSERT(false, "Shader link failure!");

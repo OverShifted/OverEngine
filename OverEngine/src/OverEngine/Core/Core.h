@@ -89,6 +89,10 @@
 
 #define DIGIT_TO_CHAR(digit) ((char)(digit + CHAR_0_ASCII))
 
+#define OE_IMGUI_BASE_TREE_VIEW_FLAGS (ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_SpanFullWidth)
+
+#define OE_ARRAY_SIZE(a) (sizeof(a) / sizeof(*a))
+
 namespace OverEngine
 {
 	// Scope ////////////////////////////////////////////////////////////////////

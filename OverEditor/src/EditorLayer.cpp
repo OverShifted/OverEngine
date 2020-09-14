@@ -4,6 +4,7 @@
 #include <OverEngine/Core/GUIDGenerator.h>
 
 #include <imgui/imgui.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
 
 EditorLayer* EditorLayer::s_Instance = nullptr;
 
@@ -27,7 +28,6 @@ void EditorLayer::OnImGuiRender()
 	OE_PROFILE_FUNCTION();
 
 	m_Editor.OnImGuiRender();
-	ImGui::ShowDemoWindow();
 }
 
 void EditorLayer::OnEvent(Event& event)

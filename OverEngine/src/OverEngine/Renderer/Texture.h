@@ -29,6 +29,9 @@ namespace OverEngine
 
 		virtual TextureFormat GetFormat() const = 0;
 		virtual TextureType GetType() const = 0;
+
+		virtual uint32_t GetRendererID() const = 0;
+		virtual Rect GetRect() const = 0;
 	};
 
 	class Texture2D;
@@ -41,8 +44,8 @@ namespace OverEngine
 
 		TextureFiltering m_Filter;
 
-		TextureWrapping m_SWrapping;
-		TextureWrapping m_TWrapping;
+		TextureWrapping m_SWrapping = TextureWrapping::Repeat;
+		TextureWrapping m_TWrapping = TextureWrapping::Repeat;
 		Color m_BorderColor;
 
 		uint8_t* m_Pixels;
@@ -157,6 +160,45 @@ namespace OverEngine
 
 			OE_CORE_ERROR("SubTextures don't have PixelBuffer!");
 			return nullptr;
+		}
+
+		virtual uint32_t GetRendererID() const
+		{
+			if (m_Type == TextureType::Master)
+				return m_MasterTextureData.m_MappedTexture->GetRendererID();
+			else
+				return m_SubTextureData.m_Parent->m_MasterTextureData.m_MappedTexture->GetRendererID();
+		}
+
+		virtual Rect GetRect() const
+		{
+			Rect finalRect;
+
+			if (m_Type == TextureType::Master)
+			{
+				const auto& boundedGPUTexture = m_MasterTextureData.m_MappedTexture;
+				finalRect.x = m_MasterTextureData.m_MappedTextureRect.x / boundedGPUTexture->GetWidth();
+				finalRect.y = m_MasterTextureData.m_MappedTextureRect.y / boundedGPUTexture->GetHeight();
+				finalRect.z = m_MasterTextureData.m_MappedTextureRect.z / boundedGPUTexture->GetWidth();
+				finalRect.w = m_MasterTextureData.m_MappedTextureRect.w / boundedGPUTexture->GetHeight();
+			}
+			else
+			{
+				const auto& boundedGPUTexture = m_SubTextureData.m_Parent->m_MasterTextureData.m_MappedTexture;
+
+				const Rect& parentRect = m_SubTextureData.m_Parent->m_MasterTextureData.m_MappedTextureRect;
+				Rect rect = m_SubTextureData.m_Rect;
+
+				rect.x += parentRect.x;
+				rect.y += parentRect.y;
+
+				finalRect.x = rect.x / boundedGPUTexture->GetWidth();
+				finalRect.y = rect.y / boundedGPUTexture->GetHeight();
+				finalRect.z = rect.z / boundedGPUTexture->GetWidth();
+				finalRect.w = rect.w / boundedGPUTexture->GetHeight();
+			}
+
+			return finalRect;
 		}
 
 		inline operator int() { return m_Width * m_Height; }

@@ -7,10 +7,12 @@ namespace OverEngine
 		Guid() = default;
 		Guid(const String& source);
 
-		String ToString(bool upperCase = false) const;
+		inline const String& ToString() const { return string; }
+		void Guid::RecalculateString();
 		void operator =(const Guid& other);
 		bool operator ==(const Guid& other);
 
+		String string;
 		uint8_t data[16];
 	};
 

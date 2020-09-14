@@ -25,7 +25,7 @@ namespace OverEngine
 		{
 			Dark, Light, Classic, // BuiltIn
 			DarkVariant1, DarkVariant2, PhotoshopLike,
-			OverDark
+			OverDark, OverDark2
 		};
 
 		void ApplyTheme(ImGuiThemes theme);

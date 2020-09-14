@@ -1,9 +1,9 @@
 #pragma once
 
 #include "OverEngine/Core/Core.h"
-#include "spdlog/spdlog.h"
-#include "spdlog/fmt/ostr.h"
 
+#include <spdlog/spdlog.h>
+#include <spdlog/fmt/ostr.h>
 
 namespace OverEngine
 {
@@ -12,8 +12,8 @@ namespace OverEngine
 	public:
 		static void Init();
 
-		inline static Ref<spdlog::logger>& GetCoreLogger() { return s_CoreLogger;  }
-		inline static Ref<spdlog::logger>& GetClientLogger() { return s_ClientLogger;  }
+		inline static std::shared_ptr<spdlog::logger>& GetCoreLogger() { return s_CoreLogger; }
+		inline static std::shared_ptr<spdlog::logger>& GetClientLogger() { return s_ClientLogger; }
 
 	private:
 		static std::shared_ptr<spdlog::logger> s_CoreLogger;

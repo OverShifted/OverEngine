@@ -23,10 +23,11 @@ namespace OverEngine {
 		}
 	};
 
-	/**
+	/*
 	 * Interface representing a desktop system based Window
 	 * Use Windows::Create to create a window
 	 */
+
 	class Window
 	{
 	public:

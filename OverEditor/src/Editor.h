@@ -4,9 +4,11 @@
 using namespace OverEngine;
 
 #include <OverEngine/Core/GUIDGenerator.h>
-#include <OverEngine/Assets/AssetResource.h>
+#include <OverEngine/Assets/Resource.h>
 #include <OverEngine/Assets/Asset.h>
-#include <OverEngine/Core//FileSystem/FileSystem.h>
+#include <OverEngine/Core/FileSystem/FileSystem.h>
+
+#include "ViewportPanel.h"
 
 class EditorProject;
 
@@ -49,11 +51,14 @@ public:
 	inline void EditProject(const Ref<EditorProject>& project) { m_EditingProject = project; }
 	inline Ref<EditorProject> GetProject() { return m_EditingProject; }
 
-	inline void EditScene(const Ref<Scene>& scene, String path) {
+	inline void EditScene(const Ref<Scene>& scene, String path)
+	{
 		m_OpenScene = scene;
 		m_OpenScenePath = path;
+		m_ViewportPanel.SetContext(m_OpenScene);
 		m_SelectedEntities.clear();
 	}
+
 	inline Ref<Scene> GetScene() { return m_OpenScene; }
 private:
 	void OnMainMenubarGUI();
@@ -62,7 +67,6 @@ private:
 	
 	void OnProjectManagerGUI();
 
-	void OnViewportGUI();
 	void OnSceneGraphGUI();
 	void OnInspectorGUI();
 
@@ -72,6 +76,8 @@ private:
 	void OnConsoleGUI();
 private:
 	Ref<EditorProject> m_EditingProject;
+	Ref<Texture2D> m_IconsTexture;
+	UnorderedMap<String, Ref<Texture2D>> m_Icons;
 
 	bool m_IsProjectManagerOpen = true;
 	bool m_IsSceneGraphOpen     = true;
@@ -80,15 +86,12 @@ private:
 
 	Ref<Scene> m_OpenScene;
 	String m_OpenScenePath;
-
-	Ref<FrameBuffer> m_ViewportFrameBuffer;
-	Vector2 m_ViewportSize;
 	Vector<Entity> m_SelectedEntities;
 
-	Vector<String> m_SelectedAssetFiles;
-	//Vector<Guid> m_SelectedResources;
-	bool m_IsAssetRootSelected;
-	bool m_AssetBrowserOneColumnView = true;
+	ViewportPanel m_ViewportPanel;
+
+	Vector<Ref<Resource>> m_SelectedResources;
+	bool m_AssetBrowserOneColumnView = false;
 	int m_AssetThumbnailSize = 100;
 	int m_AssetThumbnailSizeMin = 50;
 	int m_AssetThumbnailSizeMax = 300;

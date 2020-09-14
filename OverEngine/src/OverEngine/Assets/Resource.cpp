@@ -1,45 +1,80 @@
 #include "pcheader.h"
-#include "AssetResource.h"
+#include "Resource.h"
+
+#include "OverEngine/Renderer/Texture.h"
+#include "OverEngine/Scene/Scene.h"
 
 #include <OverEngine/Core/FileSystem/FileSystem.h>
 #include <filesystem>
 
 namespace OverEngine
 {
-	Resource::Resource(const String& name, const String& virtualPath, ResourceType type)
-		: m_Name(name), m_VirtualPath(virtualPath), m_Type(type)
+	Resource::Resource(const String& name, const String& virtualPath, ResourceType type, ResourceCollection* collection)
+		: m_Type(type), m_Name(name), m_VirtualPath(virtualPath), m_Guid(GUIDGenerator::GenerateVersion4()), m_Collection(collection)
 	{
 	}
 
-	Resource::Resource(const String& path, const String& assetsDirectoryRoot, bool isPhysicalPath)
+	Resource::Resource(const String& path, const String& assetsDirectoryRoot, bool isPhysicalPath, ResourceCollection* collection)
+		: m_Collection(collection)
 	{
-		nlohmann::json assetFileJson;
-		std::ifstream assetFile;
+		nlohmann::json resourceJson;
+		std::ifstream resourceFile;
 
 		if (isPhysicalPath)
-			assetFile.open(path);
+			resourceFile.open(path);
 		else
-			assetFile.open(assetsDirectoryRoot + "/" + path.substr(9, path.size()));
+			resourceFile.open(assetsDirectoryRoot + "/" + path.substr(9, path.size()));
 
-		assetFile >> assetFileJson;
-		assetFile.close();
+		resourceFile >> resourceJson;
+		resourceFile.close();
 
-		m_Name = assetFileJson["Name"];
-		m_VirtualPath = assetFileJson["FilePath"];
-		m_Guid = Guid(assetFileJson["Guid"]);
+		m_Name = resourceJson["Name"];
+		m_VirtualPath = resourceJson["FilePath"];
+		m_Guid = Guid(resourceJson["Guid"]);
 
-		for (const auto& assetJson : assetFileJson["Assets"])
+		const String& typeName = resourceJson["TypeName"].get<String>();
+		if (typeName == "Directory")
+			m_Type = ResourceType::Directory;
+		else if (typeName == "Texture2D")
+			m_Type = ResourceType::Texture2D;
+		else if (typeName == "Scene")
+			m_Type = ResourceType::Scene;
+		else
+			m_Type = ResourceType::None;
+
+		for (const auto& assetJson : resourceJson["Assets"])
 		{
 			if (assetJson["TypeName"] == "MasterTexture")
 			{
 				OE_CORE_INFO("Generating MasterTexture Asset");
-				const auto& filePathJson = assetJson["FilePath"].get<String>();
-				auto fileToLoadPath = assetsDirectoryRoot + "/" + filePathJson.substr(9, filePathJson.size());
+				auto fileToLoadPath = assetsDirectoryRoot + "/" + m_VirtualPath.substr(9, m_VirtualPath.size());
 				auto texture = Texture2D::MasterFromFile(fileToLoadPath);
 				auto asset = CreateRef<Texture2DAsset>(assetJson["Name"], this, texture);
 				m_Assets.push_back(asset);
 			}
+			else if (assetJson["TypeName"] == "Scene")
+			{
+				OE_CORE_INFO("Generating Scene Asset");
+				auto fileToLoadPath = assetsDirectoryRoot + "/" + m_VirtualPath.substr(9, m_VirtualPath.size());
+				auto asset = CreateRef<SceneAsset>(assetJson["Name"], this, LoadSceneFromFile(fileToLoadPath));
+				m_Assets.push_back(asset);
+			}
 		}
+	}
+
+	Ref<Resource> Resource::GetParent() const
+	{
+		if (m_VirtualPath == "assets://")
+			return nullptr;
+
+		OE_CORE_ASSERT(m_Collection, "Resource is not owned by a collection");
+
+		auto lastSlash = m_VirtualPath.find_last_of("/\\");
+		auto parentPath = m_VirtualPath.substr(0, lastSlash);
+		if (parentPath == "assets:/")
+			parentPath += "/";
+
+		return m_Collection->GetResource(parentPath);
 	}
 
 	void Resource::AddAsset(const Ref<Asset>& asset)
@@ -58,7 +93,6 @@ namespace OverEngine
 			OE_CORE_ASSERT(false, "Asset is not owned by this AssetResource!");
 	}
 
-
 	ResourceCollection::ResourceCollection()
 		: m_RootResource(CreateRef<Resource>("Assets", "assets://", ResourceType::Directory))
 	{
@@ -76,17 +110,17 @@ namespace OverEngine
 
 			if (extention == "oerd")
 			{
-				AddResource(CreateRef<Resource>(path, assetsDirectoryPath, true));
+				AddResource(CreateRef<Resource>(path, assetsDirectoryPath, true, this), true);
 			}
 		}
 	}
 
-	void ResourceCollection::AddResource(const Ref<Resource> resource)
+	void ResourceCollection::AddResource(const Ref<Resource> resource, bool loading)
 	{
-		AddResource(resource, resource->GetVirtualPath());
+		AddResource(resource, resource->GetVirtualPath(), loading);
 	}
 
-	void ResourceCollection::AddResource(const Ref<Resource> resource, const String& path)
+	void ResourceCollection::AddResource(const Ref<Resource> resource, const String& path, bool loading)
 	{
 		auto lastSlash = path.find_last_of("/\\");
 
@@ -94,8 +128,14 @@ namespace OverEngine
 
 		Ref<Resource> currentResource = m_RootResource;
 		bool missing = false;
+
+		uint32_t currentPathNodeIndex = 0;
 		for (const auto& nodeName : *nodesNames)
 		{
+			if (currentPathNodeIndex == nodesNames->size() - 1)
+				break;
+			currentPathNodeIndex++;
+
 			if (!missing)
 			{
 				bool founded = false;
@@ -111,7 +151,7 @@ namespace OverEngine
 
 				if (!founded)
 				{
-					currentResource->GetChildren().push_back(CreateRef<Resource>(nodeName, currentResource->GetVirtualPath() + "/" + nodeName, ResourceType::Directory));
+					currentResource->GetChildren().push_back(CreateRef<Resource>(nodeName, currentResource->GetVirtualPath() + "/" + nodeName, ResourceType::Directory, this));
 					auto& currentResourceChildren = currentResource->GetChildren();
 					currentResource = currentResourceChildren[currentResourceChildren.size() - 1];
 					missing = true;
@@ -125,7 +165,27 @@ namespace OverEngine
 			}
 		}
 
-		GetResource(path.substr(0, lastSlash))->GetChildren().push_back(resource);
+		auto& parentResourceChildren = GetResource(path.substr(0, lastSlash + 1))->GetChildren();
+
+		for (auto& res : parentResourceChildren)
+		{
+			if (res->GetName() == resource->GetName())
+			{
+				if (!loading)
+				{
+					OE_CORE_ASSERT(false, "Resource already exists!");
+					return;
+				}
+
+				res->m_Type = resource->m_Type;
+				res->m_VirtualPath = resource->m_VirtualPath;
+				res->m_Guid = resource->m_Guid;
+				return;
+			}
+		}
+
+		resource->m_Collection = this;
+		parentResourceChildren.push_back(resource);
 	}
 
 	Ref<Resource> ResourceCollection::GetResource(const String& path)
@@ -173,7 +233,7 @@ namespace OverEngine
 		return currentResource;
 	}
 
-	bool ResourceCollection::NodeExists(const String& path)
+	bool ResourceCollection::ResourceExists(const String& path)
 	{
 		if (std::string_view(path.c_str(), 9) != "assets://")
 		{

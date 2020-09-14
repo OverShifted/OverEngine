@@ -8,6 +8,11 @@
 namespace OverEngine
 {
 	class Entity;
+	class Scene;
+
+	Ref<Scene> CreateSceneOnDisk(const String& path);
+	Ref<Scene> LoadSceneFromFile(const String& path);
+	void SaveSceneToFile(const String& path, Ref<Scene> scene);
 
 	struct Physics2DSettings
 	{
@@ -25,14 +30,30 @@ namespace OverEngine
 		Scene(const SceneSettings& settings = SceneSettings());
 		~Scene();
 
+		Entity CreateEntity(const String& name = String());
+		Entity CreateEntity(Entity& parent, const String& name = String());
+
+		/*
+		 * Func should be void(*func)(Entity);
+		 * Using template allow func (probably a lambda expression)
+		 * to be able to use capture flags
+		 */
+
+		template <typename Func>
+		void Each(Func func)
+		{
+			m_Registry.each([&](auto entityID)
+			{
+				Entity entity{ entityID , this };
+				func(entity);
+			});
+		}
+
 		void OnUpdate(TimeStep deltaTime, Vector2 renderSurface);
 
 		void OnPhysicsUpdate(TimeStep DeltaTime);
 		void OnTransformUpdate();
-		void OnRender(Vector2 renderSurface);
-
-		Entity CreateEntity(const String& name = String());
-		Entity CreateEntity(Entity& parent, const String& name = String());
+		bool OnRender(Vector2 renderSurface);
 
 		inline PhysicsWorld2D& GetPhysicsWorld2D() { return m_PhysicsWorld2D; }
 		inline const PhysicsWorld2D& GetPhysicsWorld2D() const { return m_PhysicsWorld2D; }
@@ -40,8 +61,7 @@ namespace OverEngine
 		inline const Vector<Entity>& GetRootEntities() const { return m_RootEntities; }
 		inline Vector<Entity>& GetRootEntities() { return m_RootEntities; }
 
-		inline const Vector<Entity>& GetEntities() const { return m_Entities; }
-		inline Vector<Entity>& GetEntities() { return m_Entities; }
+		inline uint32_t GetEntityCount();
 	private:
 		entt::registry m_Registry;
 		PhysicsWorld2D m_PhysicsWorld2D;
@@ -52,8 +72,6 @@ namespace OverEngine
 		 */
 
 		Vector<Entity> m_RootEntities;
-
-		Vector<Entity> m_Entities;
 
 		UnorderedMap<entt::entity, Vector<uint32_t>> m_EntitiesComponentsTypeIDList;
 

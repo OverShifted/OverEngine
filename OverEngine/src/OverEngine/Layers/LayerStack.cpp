@@ -1,8 +1,8 @@
 #include "pcheader.h"
 #include "LayerStack.h"
 
-namespace OverEngine {
-
+namespace OverEngine
+{
 	LayerStack::LayerStack()
 	{
 	}
@@ -46,5 +46,4 @@ namespace OverEngine {
 			m_Layers.erase(it);
 		}
 	}
-
 }

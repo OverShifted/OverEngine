@@ -9,8 +9,8 @@
 
 #include "OverEngine/Renderer/RendererContext.h"
 
-namespace OverEngine {
-	
+namespace OverEngine
+{
 	uint32_t LinuxWindow::s_WindowCount = 0;
 
 	static void GLFWErrorCallback(int error, const char* description)
@@ -215,5 +215,4 @@ namespace OverEngine {
 	{
 		return m_Data.DoubleBuffered;
 	}
-
 }

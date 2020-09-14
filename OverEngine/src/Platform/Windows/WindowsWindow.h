@@ -5,8 +5,8 @@
 
 #include <GLFW/glfw3.h>
 
-namespace OverEngine {
-
+namespace OverEngine
+{
 	class WindowsWindow : public Window
 	{
 	public:
@@ -37,7 +37,7 @@ namespace OverEngine {
 
 		struct WindowData
 		{
-			std::string Title;
+			String Title;
 			unsigned int Width, Height;
 			bool VSync;
 			bool DoubleBuffered;
@@ -47,5 +47,4 @@ namespace OverEngine {
 
 		WindowData m_Data;
 	};
-
 }
