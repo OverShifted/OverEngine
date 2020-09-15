@@ -66,7 +66,7 @@ namespace OverEngine
 			s_ManagerData->GPUTextures[0]->AllocateStorage(TextureFormat::RGBA, texture->GetWidth(), texture->GetHeight());
 			s_ManagerData->GPUTextures[0]->SubImage(texture->GetPixels(), texture->GetWidth(), texture->GetHeight(), texture->GetFormat());
 			s_ManagerData->GPUTextures[0]->GetMemberTextures().push_back(texture);
- 			texture->m_MasterTextureData.m_MappedTexture = s_ManagerData->GPUTextures[0];
+			texture->m_MasterTextureData.m_MappedTexture = s_ManagerData->GPUTextures[0];
 			texture->m_MasterTextureData.m_MappedTextureRect = {
 				0, 0, texture->GetWidth(), texture->GetHeight()
 			};
