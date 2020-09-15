@@ -5,8 +5,8 @@
 
 #include <vector>
 
-namespace OverEngine {
-
+namespace OverEngine
+{
 	class LayerStack
 	{
 	public:
@@ -24,12 +24,11 @@ namespace OverEngine {
 		Vector<Layer*>::reverse_iterator rend() { return m_Layers.rend(); }
 
 		Vector<Layer*>::const_iterator begin() const { return m_Layers.begin(); }
-		Vector<Layer*>::const_iterator end()	const { return m_Layers.end(); }
+		Vector<Layer*>::const_iterator end() const { return m_Layers.end(); }
 		Vector<Layer*>::const_reverse_iterator rbegin() const { return m_Layers.rbegin(); }
 		Vector<Layer*>::const_reverse_iterator rend() const { return m_Layers.rend(); }
 	private:
 		Vector<Layer*> m_Layers;
-		unsigned int m_LayerInsertIndex = 0;
+		uint32_t m_LayerInsertIndex = 0;
 	};
-
 }

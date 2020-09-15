@@ -30,7 +30,6 @@ namespace OverEngine
 				return luaL_dofile(m_State, m_CodeOrPath.c_str());
 			else
 				return luaL_dostring(m_State, m_CodeOrPath.c_str());
-
 		}
 	}
 }
