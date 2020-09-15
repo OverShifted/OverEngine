@@ -138,7 +138,6 @@ namespace OverEngine
 
 			glShaderSource(shader, 1, &source, 0);
 
-			OE_CORE_INFO("shader compile");
 			glCompileShader(shader);
 
 			GLint isCompiled = 0;
@@ -165,9 +164,7 @@ namespace OverEngine
 
 		m_RendererID = program;
 
-		OE_CORE_INFO("shader link");
 		glLinkProgram(program);
-		OE_CORE_INFO("shader link done");
 
 		GLint isLinked = 0;
 		glGetProgramiv(program, GL_LINK_STATUS, (int*)&isLinked);
