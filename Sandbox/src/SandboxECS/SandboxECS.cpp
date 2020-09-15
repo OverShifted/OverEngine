@@ -140,7 +140,6 @@ SandboxECS::SandboxECS()
 	auto& obstacle2Transform = obstacle2.GetComponent<TransformComponent>();
 	obstacle2Transform.SetScale({ 40.0f, 1.0f, 1.0f });
 	obstacle2Transform.SetPosition({ 0.0f, -8.0f, 0.0f });
-	//obstacle2Transform.SetRotation(QuaternionEuler({ 0.0f, 0.0f, 90.0f }));
 
 	// PhysicsCollider2D
 	auto& colliderList2 = obstacle2.AddComponent<PhysicsColliders2DComponent>();

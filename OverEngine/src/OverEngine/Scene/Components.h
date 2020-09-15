@@ -96,7 +96,7 @@ namespace OverEngine
 		TransformComponent(
 			Entity& entity,
 			const Vector3& Position = Vector3(0.0f),
-			const Quaternion& Rotation = Quaternion(0.0, 0.0, 0.0, 1.0),
+			const Quaternion& Rotation = Quaternion(1.0, 0.0, 0.0, 0.0),
 			const Vector3& Scale = Vector3(1.0f)
 		)
 			: Component(entity), m_Position(Position), m_Rotation(Rotation), m_EulerAngles(Vector3(0)), m_Scale(Scale)
