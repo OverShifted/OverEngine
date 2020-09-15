@@ -18,12 +18,13 @@ namespace OverEngine
 		TextureWrapping overrideSTextureWrapping = TextureWrapping::None;
 		TextureWrapping overrideTTextureWrapping = TextureWrapping::None;
 		TextureFiltering overrideTextureFiltering = TextureFiltering::None;
+		Color overrideTextureBorderColor = Color(-1);
 	};
 
 	class Renderer2D
 	{
 	public:
-		static void Init();
+		static void Init(uint32_t initQuadCapacity = 10);
 		static void Shutdown();
 
 		static void Reset();
@@ -33,11 +34,11 @@ namespace OverEngine
 		static void BeginScene(const Mat4x4& viewMatrix, const Mat4x4& projectionMatrix);
 		static void EndScene();
 
-		static void DrawQuad(const Vector2& position, float rotation, const Vector2& size, const Color& color);
+		inline static void DrawQuad(const Vector2& position, float rotation, const Vector2& size, const Color& color);
 		static void DrawQuad(const Vector3& position, float rotation, const Vector2& size, const Color& color);
 		static void DrawQuad(const Mat4x4& transform, const Color& color);
 
-		static void DrawQuad(const Vector2& position, float rotation, const Vector2& size, Ref<Texture2D> texture, const TexturedQuadExtraData& extraData = TexturedQuadExtraData());
+		inline static void DrawQuad(const Vector2& position, float rotation, const Vector2& size, Ref<Texture2D> texture, const TexturedQuadExtraData& extraData = TexturedQuadExtraData());
 		static void DrawQuad(const Vector3& position, float rotation, const Vector2& size, Ref<Texture2D> texture, const TexturedQuadExtraData& extraData = TexturedQuadExtraData());
 		static void DrawQuad(const Mat4x4& transform, Ref<Texture2D> texture, const TexturedQuadExtraData& extraData = TexturedQuadExtraData());
 

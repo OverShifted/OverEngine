@@ -9,18 +9,41 @@ namespace OverEngine
 {
 	Renderer2D::Statistics Renderer2D::s_Statistics;
 
+	struct Vertex
+	{
+		Vector4 a_Position = Vector4(0.0f);
+		Color a_Color = Color(0.0f);
+
+		float a_TextureSlot        = -1.0f;
+		float a_TextureFilter      = 0.0f;
+		Vector2 a_TextureWrapping  = Vector2(0.0f);
+		Color a_TextureBorderColor = Color(0.0f);
+		Rect a_TextureRect         = Rect(0.0f);
+		Vector2 a_TextureSize      = Vector2(0.0f);
+		Vector2 a_TextureCoord     = Vector2(0.0f);
+	};
+
+	using DrawQuadVertices = std::array<Vertex, 4>;
+	using DrawQuadIndices = std::array<uint32_t, 6>;
+
 	struct Renderer2DData
 	{
 		Ref<VertexArray> vertexArray = nullptr;
 		Ref<VertexBuffer> vertexBuffer = nullptr;
 		Ref<IndexBuffer> indexBuffer = nullptr;
 
+		Vector<DrawQuadVertices> Vertices;
+		Vector<DrawQuadIndices> Indices;
+		uint32_t QuadCapacity;
+		uint32_t QuadCount = 0;
+
+		uint32_t OpaqueInsertIndex = 0;
+
 		Ref<Shader> BatchRenderer2DShader = nullptr;
 
-		Vector<float> Vertices;
-		Vector<uint32_t> Indices;
+		UnorderedMap<uint32_t, Ref<GAPI::Texture2D>> TextureBindList;
+
 		Mat4x4 ViewProjectionMatrix;
-		uint32_t QuadCount = 0;
 
 		static constexpr float QuadVertices[3 * 4] = {
 			-0.5f, -0.5f, 0.0f,
@@ -37,19 +60,19 @@ namespace OverEngine
 			16, 17, 18, 19, 20, 21, 22, 23,
 			24, 25, 26, 27, 28, 29, 30, 31
 		};
-
-		Vector<std::pair<uint32_t, Ref<GAPI::Texture2D>>> TextureBindList;
 	};
 
 	static Renderer2DData* s_Data;
 
-	void Renderer2D::Init()
+	void Renderer2D::Init(uint32_t initQuadCapacity)
 	{
 		s_Data = new Renderer2DData();
 
 		s_Data->vertexArray = VertexArray::Create();
+		s_Data->QuadCapacity = initQuadCapacity;
 
 		s_Data->vertexBuffer = VertexBuffer::Create();
+		s_Data->vertexBuffer->AllocateStorage(initQuadCapacity * 4 * sizeof(Vertex));
 		s_Data->vertexBuffer->SetLayout({
 			{ ShaderDataType::Float4, "a_Position" },
 			{ ShaderDataType::Float4, "a_Color" },
@@ -61,11 +84,15 @@ namespace OverEngine
 			{ ShaderDataType::Float4, "a_TextureRect" },
 			{ ShaderDataType::Float2, "a_TextureSize" },
 			{ ShaderDataType::Float2, "a_TextureCoord" },
-		});
+			});
 		s_Data->vertexArray->AddVertexBuffer(s_Data->vertexBuffer);
 
 		s_Data->indexBuffer = IndexBuffer::Create();
+		s_Data->indexBuffer->AllocateStorage(initQuadCapacity * 6);
 		s_Data->vertexArray->SetIndexBuffer(s_Data->indexBuffer);
+
+		s_Data->Vertices.reserve(initQuadCapacity);
+		s_Data->Indices.reserve(initQuadCapacity);
 
 		s_Data->BatchRenderer2DShader = Shader::Create("assets/shaders/BatchRenderer2D.glsl");
 		//s_Data->BatchRenderer2DShader = Shader::Create("BatchRenderer2D", BatchRenderer2DVertexShaderSrc, BatchRenderer2DFragmentShaderSrc);
@@ -84,6 +111,7 @@ namespace OverEngine
 	{
 		s_Data->Vertices.clear();
 		s_Data->Indices.clear();
+		s_Data->OpaqueInsertIndex = 0;
 
 		s_Statistics.Reset();
 	}
@@ -108,9 +136,16 @@ namespace OverEngine
 
 	void Renderer2D::EndScene()
 	{
-		s_Data->vertexBuffer->BufferData(s_Data->Vertices.data(), (uint32_t)(s_Data->Vertices.size() * sizeof(float)), true);
-		s_Data->indexBuffer->BufferData(s_Data->Indices.data(), (uint32_t)s_Data->Indices.size(), true);
-		
+		if (s_Data->QuadCapacity < s_Statistics.QuadCount)
+		{
+			s_Data->QuadCapacity = s_Statistics.QuadCount;
+			s_Data->vertexBuffer->AllocateStorage(s_Data->QuadCapacity * 4 * sizeof(Vertex));
+			s_Data->indexBuffer->AllocateStorage(s_Data->QuadCapacity * 6);
+		}
+
+		s_Data->vertexBuffer->BufferSubData((float*)s_Data->Vertices.data(), (uint32_t)(s_Data->Vertices.size() * 4 * sizeof(Vertex)));
+		s_Data->indexBuffer->BufferSubData((uint32_t*)s_Data->Indices.data(), (uint32_t)s_Data->Indices.size() * 6);
+
 		// Bind Textures
 		for (auto& t : s_Data->TextureBindList)
 			t.second->Bind(t.first);
@@ -143,34 +178,41 @@ namespace OverEngine
 
 	void Renderer2D::DrawQuad(const Mat4x4& transform, const Color& color)
 	{
+		if (color.a == 0.0f)
+			return;
+
+		bool transparent = color.a < 1.0f;
+
+		std::array<Vertex, 4> vertices;
+
 		for (int i = 0; i < 4; i++)
 		{
-			Vector4 vertexPosition;
+			Vertex& vertex = vertices[i];
 
-			vertexPosition.x = Renderer2DData::QuadVertices[0 + 3 * i];
-			vertexPosition.y = Renderer2DData::QuadVertices[1 + 3 * i];
-			vertexPosition.z = Renderer2DData::QuadVertices[2 + 3 * i];
-			vertexPosition.w = 1.0f;
-			vertexPosition = s_Data->ViewProjectionMatrix * transform * vertexPosition;
+			vertex.a_Position.x = Renderer2DData::QuadVertices[0 + 3 * i];
+			vertex.a_Position.y = Renderer2DData::QuadVertices[1 + 3 * i];
+			vertex.a_Position.z = Renderer2DData::QuadVertices[2 + 3 * i];
+			vertex.a_Position.w = 1.0f;
+			vertex.a_Position = s_Data->ViewProjectionMatrix * transform * vertex.a_Position;
 
-			s_Data->Vertices.push_back(vertexPosition.x);
-			s_Data->Vertices.push_back(vertexPosition.y);
-			s_Data->Vertices.push_back(vertexPosition.z);
-			s_Data->Vertices.push_back(vertexPosition.w);
-
-			s_Data->Vertices.push_back(color.r);
-			s_Data->Vertices.push_back(color.g);
-			s_Data->Vertices.push_back(color.b);
-			s_Data->Vertices.push_back(color.a);
-
-			s_Data->Vertices.push_back(-1.0f);
-
-			for (uint32_t i = 0; i < 15; i++)
-				s_Data->Vertices.push_back(0.0f);
+			vertex.a_Color = color;
 		}
 
-		for (uint32_t idx : Renderer2DData::QuadIndices)
-			s_Data->Indices.push_back((uint32_t)(idx + 4 * s_Statistics.QuadCount));
+		s_Data->Vertices.push_back(vertices);
+
+		DrawQuadIndices indices;
+		for (uint32_t i = 0; i < 6; i++)
+			indices[i] = Renderer2DData::QuadIndices[i] + 4 * s_Statistics.QuadCount;
+
+		if (transparent)
+		{
+			s_Data->Indices.push_back(indices);
+		}
+		else
+		{
+			s_Data->Indices.emplace(s_Data->Indices.begin() + s_Data->OpaqueInsertIndex, indices);
+			s_Data->OpaqueInsertIndex++;
+		}
 
 		s_Statistics.QuadCount++;
 	}
@@ -196,27 +238,24 @@ namespace OverEngine
 
 	void Renderer2D::DrawQuad(const Mat4x4& transform, Ref<Texture2D> texture, const TexturedQuadExtraData& extraData)
 	{
+		if (extraData.tint.a == 0.0f)
+			return;
+
+		bool transparent = extraData.tint.a < 1.0f || texture->GetFormat() == TextureFormat::RGBA;
+
+		std::array<Vertex, 4> vertices;
+
 		for (int i = 0; i < 4; i++)
 		{
-			Vector4 vertexPosition;
+			Vertex& vertex = vertices[i];
 
-			vertexPosition.x = Renderer2DData::QuadVertices[0 + 3 * i];
-			vertexPosition.y = Renderer2DData::QuadVertices[1 + 3 * i];
-			vertexPosition.z = Renderer2DData::QuadVertices[2 + 3 * i];
-			vertexPosition.w = 1.0f;
-			vertexPosition = s_Data->ViewProjectionMatrix * transform * vertexPosition;
+			vertex.a_Position.x = Renderer2DData::QuadVertices[0 + 3 * i];
+			vertex.a_Position.y = Renderer2DData::QuadVertices[1 + 3 * i];
+			vertex.a_Position.z = Renderer2DData::QuadVertices[2 + 3 * i];
+			vertex.a_Position.w = 1.0f;
+			vertex.a_Position = s_Data->ViewProjectionMatrix * transform * vertex.a_Position;
 
-			// a_Position
-			s_Data->Vertices.push_back(vertexPosition.x);
-			s_Data->Vertices.push_back(vertexPosition.y);
-			s_Data->Vertices.push_back(vertexPosition.z);
-			s_Data->Vertices.push_back(vertexPosition.w);
-
-			// a_Color
-			s_Data->Vertices.push_back(extraData.tint.r);
-			s_Data->Vertices.push_back(extraData.tint.g);
-			s_Data->Vertices.push_back(extraData.tint.b);
-			s_Data->Vertices.push_back(extraData.tint.a);
+			vertex.a_Color = extraData.tint;
 
 			// a_TextureSlot
 			{
@@ -242,63 +281,66 @@ namespace OverEngine
 				if (!textureFound)
 				{
 					uint32_t slot = (uint32_t)s_Data->TextureBindList.size();
-					s_Data->TextureBindList.push_back({ slot, textureToBind });
+					s_Data->TextureBindList[slot] = textureToBind;
 					textureSlot = slot;
 				}
 
-				s_Data->Vertices.push_back((float)textureSlot);
+				vertex.a_TextureSlot = (float)textureSlot;
 			}
 
 			// a_TextureFilter
 			if (extraData.overrideTextureFiltering != TextureFiltering::None)
-				s_Data->Vertices.push_back((float)extraData.overrideTextureFiltering);
+				vertex.a_TextureFilter = (float)extraData.overrideTextureFiltering;
 			else
-				s_Data->Vertices.push_back((float)texture->GetFilter());
+				vertex.a_TextureFilter = (float)texture->GetFilter();
 
 			// a_TextureSWrapping & a_TextureTWrapping
 			if (extraData.overrideSTextureWrapping != TextureWrapping::None)
-				s_Data->Vertices.push_back((float)extraData.overrideSTextureWrapping);
+				vertex.a_TextureWrapping.x = (float)extraData.overrideSTextureWrapping;
 			else
-				s_Data->Vertices.push_back((float)texture->GetSWrapping());
+				vertex.a_TextureWrapping.x = (float)texture->GetSWrapping();
 
 			if (extraData.overrideTTextureWrapping != TextureWrapping::None)
-				s_Data->Vertices.push_back((float)extraData.overrideTTextureWrapping);
+				vertex.a_TextureWrapping.y = (float)extraData.overrideTTextureWrapping;
 			else
-				s_Data->Vertices.push_back((float)texture->GetTWrapping());
+				vertex.a_TextureWrapping.y = (float)texture->GetTWrapping();
 
 			// a_TextureBorderColor
-			{
-				const Color& borderColor = texture->GetBorderColor();
-				s_Data->Vertices.push_back(borderColor.x);
-				s_Data->Vertices.push_back(borderColor.y);
-				s_Data->Vertices.push_back(borderColor.z);
-				s_Data->Vertices.push_back(borderColor.w);
-			}
+			if (extraData.overrideTextureBorderColor.x != -1)
+				vertex.a_TextureBorderColor = extraData.overrideTextureBorderColor;
+			else
+				vertex.a_TextureBorderColor = texture->GetBorderColor();
 
 			// a_TextureRect
-			{
-				Rect rect = texture->GetRect();
-				s_Data->Vertices.push_back(rect.x);
-				s_Data->Vertices.push_back(rect.y);
-				s_Data->Vertices.push_back(rect.z);
-				s_Data->Vertices.push_back(rect.w);
-			}
+			vertex.a_TextureRect = texture->GetRect();
 
 			// a_TextureSize
-			s_Data->Vertices.push_back((float)texture->GetWidth());
-			s_Data->Vertices.push_back((float)texture->GetHeight());
+			vertex.a_TextureSize = { texture->GetWidth() ,texture->GetHeight() };
 
 			// a_TextureCoord
 			{
 				float xTexCoord = Renderer2DData::QuadVertices[0 + 3 * i] > 0.0f ? extraData.tilingFactorX : 0.0f;
 				float yTexCoord = Renderer2DData::QuadVertices[1 + 3 * i] > 0.0f ? extraData.tilingFactorY : 0.0f;
-				s_Data->Vertices.push_back(extraData.flipX ? extraData.tilingFactorX - xTexCoord : xTexCoord);
-				s_Data->Vertices.push_back(extraData.flipY ? extraData.tilingFactorY - yTexCoord : yTexCoord);
+				vertex.a_TextureCoord.x = extraData.flipX ? extraData.tilingFactorX - xTexCoord : xTexCoord;
+				vertex.a_TextureCoord.y = extraData.flipY ? extraData.tilingFactorY - yTexCoord : yTexCoord;
 			}
 		}
 
-		for (uint32_t idx : Renderer2DData::QuadIndices)
-			s_Data->Indices.push_back((uint32_t)(idx + 4 * s_Statistics.QuadCount));
+		s_Data->Vertices.push_back(vertices);
+
+		DrawQuadIndices indices;
+		for (uint32_t i = 0; i < 6; i++)
+			indices[i] = Renderer2DData::QuadIndices[i] + 4 * s_Statistics.QuadCount;
+
+		if (transparent)
+		{
+			s_Data->Indices.push_back(indices);
+		}
+		else
+		{
+			s_Data->Indices.emplace(s_Data->Indices.begin() + s_Data->OpaqueInsertIndex, indices);
+			s_Data->OpaqueInsertIndex++;
+		}
 
 		s_Statistics.QuadCount++;
 	}
