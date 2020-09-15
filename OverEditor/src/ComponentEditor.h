@@ -34,7 +34,7 @@ void ComponentEditor(Entity entity, uint32_t typeID)
 
 	if (ImGui::ArrowButton(txt, ImGuiDir_Up))
 	{
-		auto& componentList = entity.GetEntitiesComponentsTypeIDList();
+		auto& componentList = entity.GetComponentsTypeIDList();
 		auto it = std::find(componentList.begin(), componentList.end(), typeID);
 		if (it != componentList.begin())
 		{
@@ -49,7 +49,7 @@ void ComponentEditor(Entity entity, uint32_t typeID)
 
 	if (ImGui::ArrowButton(txt, ImGuiDir_Down))
 	{
-		auto& componentList = entity.GetEntitiesComponentsTypeIDList();
+		auto& componentList = entity.GetComponentsTypeIDList();
 		auto it = std::find(componentList.begin(), componentList.end(), typeID);
 		if (it != componentList.end() - 1)
 		{
@@ -102,7 +102,7 @@ void ComponentEditor<TransformComponent>(Entity entity, uint32_t typeID)
 
 	if (ImGui::ArrowButton(txt, ImGuiDir_Up))
 	{
-		auto& componentList = entity.GetEntitiesComponentsTypeIDList();
+		auto& componentList = entity.GetComponentsTypeIDList();
 		auto it = std::find(componentList.begin(), componentList.end(), typeID);
 		if (it != componentList.begin())
 		{
@@ -117,7 +117,7 @@ void ComponentEditor<TransformComponent>(Entity entity, uint32_t typeID)
 
 	if (ImGui::ArrowButton(txt, ImGuiDir_Down))
 	{
-		auto& componentList = entity.GetEntitiesComponentsTypeIDList();
+		auto& componentList = entity.GetComponentsTypeIDList();
 		auto it = std::find(componentList.begin(), componentList.end(), typeID);
 		if (it != componentList.end() - 1)
 		{
@@ -202,7 +202,7 @@ void ComponentEditor<SpriteRendererComponent>(Entity entity, uint32_t typeID)
 
 	if (ImGui::ArrowButton(txt, ImGuiDir_Up))
 	{
-		auto& componentList = entity.GetEntitiesComponentsTypeIDList();
+		auto& componentList = entity.GetComponentsTypeIDList();
 		auto it = std::find(componentList.begin(), componentList.end(), typeID);
 		if (it != componentList.begin())
 		{
@@ -217,7 +217,7 @@ void ComponentEditor<SpriteRendererComponent>(Entity entity, uint32_t typeID)
 
 	if (ImGui::ArrowButton(txt, ImGuiDir_Down))
 	{
-		auto& componentList = entity.GetEntitiesComponentsTypeIDList();
+		auto& componentList = entity.GetComponentsTypeIDList();
 		auto it = std::find(componentList.begin(), componentList.end(), typeID);
 		if (it != componentList.end() - 1)
 		{
@@ -366,7 +366,7 @@ void ComponentEditor<CameraComponent>(Entity entity, uint32_t typeID)
 
 	if (ImGui::ArrowButton(txt, ImGuiDir_Up))
 	{
-		auto& componentList = entity.GetEntitiesComponentsTypeIDList();
+		auto& componentList = entity.GetComponentsTypeIDList();
 		auto it = std::find(componentList.begin(), componentList.end(), typeID);
 		if (it != componentList.begin())
 		{
@@ -381,7 +381,7 @@ void ComponentEditor<CameraComponent>(Entity entity, uint32_t typeID)
 
 	if (ImGui::ArrowButton(txt, ImGuiDir_Down))
 	{
-		auto& componentList = entity.GetEntitiesComponentsTypeIDList();
+		auto& componentList = entity.GetComponentsTypeIDList();
 		auto it = std::find(componentList.begin(), componentList.end(), typeID);
 		if (it != componentList.end() - 1)
 		{

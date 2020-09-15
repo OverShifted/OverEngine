@@ -343,120 +343,119 @@ namespace OverEngine
 		entitiesJson.reserve(size);
 
 		scene->Each([&](Entity entity)
-			{
-				entityIDs.push_back(entity.GetID());
-			});
-
+		{
+			entityIDs.push_back(entity.GetID());
+		});
 
 		uint32_t i = 0;
 		scene->Each([&](Entity entity)
+		{
+			const auto& componentList = entity.GetComponentsTypeIDList();
+
+			entitiesJson.push_back({ nlohmann::json() });
+			auto& entityJson = entitiesJson[i];
+
+			// Name
+			entityJson["Name"] = entity.GetComponent<NameComponent>().Name;
+
+			// Family
+			auto& family = entity.GetComponent<FamilyComponent>();
+			if (!family.Parent)
 			{
-				const auto& componentList = entity.GetEntitiesComponentsTypeIDList();
+				entityJson["Family"]["Parent"] = nullptr;
+			}
+			else
+			{
+				auto it = std::find(entityIDs.begin(), entityIDs.end(), family.Parent.GetID());
+				OE_CORE_ASSERT(it != entityIDs.end(), "Parent not found!");
+				entityJson["Family"]["Parent"] = it - entityIDs.begin();
+			}
 
-				entitiesJson.push_back({ nlohmann::json() });
-				auto& entityJson = entitiesJson[i];
+			entityJson["GUID"] = entity.GetComponent<GUIDComponent>().ID.ToString();
 
-				// Name
-				entityJson["Name"] = entity.GetComponent<NameComponent>().Name;
+			// Transform
+			if (entity.HasComponent<TransformComponent>())
+			{
+				auto& transform = entity.GetComponent<TransformComponent>();
 
-				// Family
-				auto& family = entity.GetComponent<FamilyComponent>();
-				if (!family.Parent)
+				entityJson["Transform"]["Position"] = {
+					{ "x", transform.GetPosition().x },
+					{ "y", transform.GetPosition().y },
+					{ "z", transform.GetPosition().z }
+				};
+
+				entityJson["Transform"]["Rotation"] = {
+					{ "x", transform.GetEulerAngles().x },
+					{ "y", transform.GetEulerAngles().y },
+					{ "z", transform.GetEulerAngles().z }
+				};
+
+				entityJson["Transform"]["Scale"] = {
+					{ "x", transform.GetScale().x },
+					{ "y", transform.GetScale().y },
+					{ "z", transform.GetScale().z }
+				};
+			}
+			else
+			{
+				entityJson["Transform"] = nullptr;
+			}
+
+			entityJson["Components"] = Vector<nlohmann::json>();
+			for (const auto& componentTypeID : componentList)
+			{
+				nlohmann::json componentJson;
+				bool componentParsed = false;
+
+				if (componentTypeID == GetComponentTypeID<CameraComponent>())
 				{
-					entityJson["Family"]["Parent"] = nullptr;
-				}
-				else
-				{
-					auto it = std::find(entityIDs.begin(), entityIDs.end(), family.Parent.GetID());
-					OE_CORE_ASSERT(it != entityIDs.end(), "Parent not found!");
-					entityJson["Family"]["Parent"] = it - entityIDs.begin();
-				}
+					auto& camera = entity.GetComponent<CameraComponent>();
 
-				entityJson["GUID"] = entity.GetComponent<GUIDComponent>().ID.ToString();
+					componentJson["TypeName"] = "_CameraComponent";
 
-				// Transform
-				if (entity.HasComponent<TransformComponent>())
-				{
-					auto& transform = entity.GetComponent<TransformComponent>();
-
-					entityJson["Transform"]["Position"] = {
-						{ "x", transform.GetPosition().x },
-						{ "y", transform.GetPosition().y },
-						{ "z", transform.GetPosition().z }
-					};
-
-					entityJson["Transform"]["Rotation"] = {
-						{ "x", transform.GetEulerAngles().x },
-						{ "y", transform.GetEulerAngles().y },
-						{ "z", transform.GetEulerAngles().z }
-					};
-
-					entityJson["Transform"]["Scale"] = {
-						{ "x", transform.GetScale().x },
-						{ "y", transform.GetScale().y },
-						{ "z", transform.GetScale().z }
-					};
-				}
-				else
-				{
-					entityJson["Transform"] = nullptr;
-				}
-
-				entityJson["Components"] = Vector<nlohmann::json>();
-				for (const auto& componentTypeID : componentList)
-				{
-					nlohmann::json componentJson;
-					bool componentParsed = false;
-
-					if (componentTypeID == GetComponentTypeID<CameraComponent>())
+					if (camera.Camera.IsOrthographic())
 					{
-						auto& camera = entity.GetComponent<CameraComponent>();
+						componentJson["m_Type"] = "Orthographic";
+						componentJson["m_OrthographicSize"] = camera.Camera.GetOrthographicSize();
 
-						componentJson["TypeName"] = "_CameraComponent";
+						componentJson["m_ZNear"] = camera.Camera.GetZNear();
+						componentJson["m_ZFar"] = camera.Camera.GetZFar();
 
-						if (camera.Camera.IsOrthographic())
-						{
-							componentJson["m_Type"] = "Orthographic";
-							componentJson["m_OrthographicSize"] = camera.Camera.GetOrthographicSize();
-
-							componentJson["m_ZNear"] = camera.Camera.GetZNear();
-							componentJson["m_ZFar"] = camera.Camera.GetZFar();
-
-							componentJson["m_IsClearingColor"] = camera.Camera.GetIsClearingColor();
-							componentJson["m_ClearColor"] = {
-								{ "r", camera.Camera.GetClearColor().r },
-								{ "g", camera.Camera.GetClearColor().g },
-								{ "b", camera.Camera.GetClearColor().b },
-								{ "a", camera.Camera.GetClearColor().a }
-							};
-							componentJson["m_IsClearingDepth"] = camera.Camera.GetIsClearingDepth();
-						}
-						// TODO: Perspective cameras
-
-						componentParsed = true;
-					}
-					else if (componentTypeID == GetComponentTypeID<SpriteRendererComponent>())
-					{
-						auto& spriteRenderer = entity.GetComponent<SpriteRendererComponent>();
-
-						componentJson["TypeName"] = "_SpriteRendererComponent";
-
-						componentJson["m_Tint"] = {
-							{ "r", spriteRenderer.Tint.r },
-							{ "g", spriteRenderer.Tint.g },
-							{ "b", spriteRenderer.Tint.b },
-							{ "a", spriteRenderer.Tint.a }
+						componentJson["m_IsClearingColor"] = camera.Camera.GetIsClearingColor();
+						componentJson["m_ClearColor"] = {
+							{ "r", camera.Camera.GetClearColor().r },
+							{ "g", camera.Camera.GetClearColor().g },
+							{ "b", camera.Camera.GetClearColor().b },
+							{ "a", camera.Camera.GetClearColor().a }
 						};
-
-						componentParsed = true;
+						componentJson["m_IsClearingDepth"] = camera.Camera.GetIsClearingDepth();
 					}
+					// TODO: Perspective cameras
 
-					if (componentParsed)
-						entityJson["Components"].push_back(componentJson);
+					componentParsed = true;
+				}
+				else if (componentTypeID == GetComponentTypeID<SpriteRendererComponent>())
+				{
+					auto& spriteRenderer = entity.GetComponent<SpriteRendererComponent>();
+
+					componentJson["TypeName"] = "_SpriteRendererComponent";
+
+					componentJson["m_Tint"] = {
+						{ "r", spriteRenderer.Tint.r },
+						{ "g", spriteRenderer.Tint.g },
+						{ "b", spriteRenderer.Tint.b },
+						{ "a", spriteRenderer.Tint.a }
+					};
+
+					componentParsed = true;
 				}
 
-				i++;
-			});
+				if (componentParsed)
+					entityJson["Components"].push_back(componentJson);
+			}
+
+			i++;
+		});
 
 		sceneJson["Entities"] = entitiesJson;
 

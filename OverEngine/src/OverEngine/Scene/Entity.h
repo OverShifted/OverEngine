@@ -80,8 +80,8 @@ namespace OverEngine
 				componentList.erase(it);
 		}
 
-		const Vector<uint32_t>& GetEntitiesComponentsTypeIDList() const { return m_Scene->m_EntitiesComponentsTypeIDList[m_EntityHandle]; }
-		Vector<uint32_t>& GetEntitiesComponentsTypeIDList() { return m_Scene->m_EntitiesComponentsTypeIDList[m_EntityHandle]; }
+		const Vector<uint32_t>& GetComponentsTypeIDList() const { return m_Scene->m_EntitiesComponentsTypeIDList[m_EntityHandle]; }
+		Vector<uint32_t>& GetComponentsTypeIDList() { return m_Scene->m_EntitiesComponentsTypeIDList[m_EntityHandle]; }
 
 		// Sets entity parent to scene
 		void ClearParent();

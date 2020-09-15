@@ -496,7 +496,7 @@ void Editor::OnInspectorGUI()
 
 		ImGui::Separator();
 
-		for (const auto& componentTypeID : selectedEntity.GetEntitiesComponentsTypeIDList())
+		for (const auto& componentTypeID : selectedEntity.GetComponentsTypeIDList())
 		{
 			CheckComponentEditor<TransformComponent>(componentTypeID, selectedEntity);
 			CheckComponentEditor<SpriteRendererComponent>(componentTypeID, selectedEntity);
