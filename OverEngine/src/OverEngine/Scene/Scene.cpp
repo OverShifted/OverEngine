@@ -163,12 +163,15 @@ namespace OverEngine
 							data.overrideSTextureWrapping = sprite.OverrideSWrapping;
 							data.overrideTTextureWrapping = sprite.OverrideTWrapping;
 							data.overrideTextureFiltering = sprite.OverrideFiltering;
+							data.alphaClippingThreshold = sprite.AlphaClippingThreshold;
+							if (sprite.IsOverrideTextureBorderColor)
+								data.overrideTextureBorderColor = sprite.OverrideTextureBorderColor;
 
 							Renderer2D::DrawQuad(sptransform, sprite.Sprite->GetAsset(), data);
 						}
 						else
 						{
-							Renderer2D::DrawQuad(sptransform, sprite.Tint);
+							Renderer2D::DrawQuad(sptransform, sprite.Tint, sprite.AlphaClippingThreshold);
 						}
 					}
 				}

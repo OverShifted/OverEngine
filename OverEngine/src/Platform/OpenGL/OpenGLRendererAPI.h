@@ -14,7 +14,7 @@ namespace OverEngine
 		virtual void SetClearDepth(float depth) override;
 		virtual void Clear(bool clearColorBuffer, bool clearDepthBuffer) override;
 
-		virtual void DrawIndexed(const VertexArray& vertexArray) override;
+		virtual void DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0) override;
 
 		virtual uint32_t GetMaxTextureSize() override;
 		virtual uint32_t GetMaxTextureSlotCount() override;

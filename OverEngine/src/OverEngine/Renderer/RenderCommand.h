@@ -35,9 +35,9 @@ namespace OverEngine
 			s_RendererAPI->Clear(clearColorBuffer, clearDepthBuffer);
 		}
 
-		inline static void DrawIndexed(const VertexArray& vertexArray)
+		inline static void DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0)
 		{
-			s_RendererAPI->DrawIndexed(vertexArray);
+			s_RendererAPI->DrawIndexed(vertexArray, indexCount);
 		}
 
 		inline static uint32_t GetMaxTextureSize()

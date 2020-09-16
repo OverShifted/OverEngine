@@ -5,15 +5,17 @@ layout(location = 0) in vec4 a_Position;
 layout(location = 1) in vec4 a_Color; // Tint
 layout(location = 2) in float a_TextureSlot; // Texture Unit or -1 for no texture
 layout(location = 3) in float a_TextureFilter; // Linear / Point
-layout(location = 4) in vec2 a_TextureWrapping; // Repeat, MirroredRepeat, ...
-layout(location = 5) in vec4 a_TextureBorderColor; // Used for ClampToBorder
-layout(location = 6) in vec4 a_TextureRect; // 0 -> 1 Rect from Atlas
-layout(location = 7) in vec2 a_TextureSize; // Texture size in pixels
-layout(location = 8) in vec2 a_TextureCoord; // Basic UV Coord
+layout(location = 4) in float a_TextureAlphaClippingThreshold;
+layout(location = 5) in vec2 a_TextureWrapping; // Repeat, MirroredRepeat, ...
+layout(location = 6) in vec4 a_TextureBorderColor; // Used for ClampToBorder
+layout(location = 7) in vec4 a_TextureRect; // 0 -> 1 Rect from Atlas
+layout(location = 8) in vec2 a_TextureSize; // Texture size in pixels
+layout(location = 9) in vec2 a_TextureCoord; // UV Coord
 
 flat out vec4 v_Color;
 flat out int v_TextureSlot;
 flat out int v_TextureFilter;
+flat out float v_TextureAlphaClippingThreshold;
 flat out int v_TextureSWrapping;
 flat out int v_TextureTWrapping;
 flat out vec4 v_TextureBorderColor;
@@ -29,6 +31,7 @@ void main()
 	v_TextureSWrapping = int(a_TextureWrapping.x);
 	v_TextureTWrapping = int(a_TextureWrapping.y);
 	v_TextureFilter = int(a_TextureFilter);
+	v_TextureAlphaClippingThreshold = a_TextureAlphaClippingThreshold;
 	v_TextureBorderColor = a_TextureBorderColor;
 	v_TextureRect = a_TextureRect;
 	v_TextureSize = a_TextureSize;
@@ -45,6 +48,7 @@ uniform sampler2D[32] u_Slots;
 flat in vec4 v_Color;
 flat in int v_TextureSlot;
 flat in int v_TextureFilter;
+flat in float v_TextureAlphaClippingThreshold;
 flat in int v_TextureSWrapping;
 flat in int v_TextureTWrapping;
 flat in vec4 v_TextureBorderColor;
@@ -66,7 +70,7 @@ vec4 BiLinearSampleFromAtlas(sampler2D slot, vec2 coord)
 	float ymax = ymin + 1.0;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	
+
 	vec2 crd1 = vec2(xmin, ymin) / v_TextureSize;
 	vec2 crd2 = vec2(xmax, ymin) / v_TextureSize;
 
@@ -80,7 +84,7 @@ vec4 BiLinearSampleFromAtlas(sampler2D slot, vec2 coord)
 		if (crd2.x <= 0 || crd2.x >= 1 || crd2.y <= 0 || crd2.y >= 1)
 			crd2Valid = false;
 	}
-	
+
 	vec4 TopMix;
 	bool topMixValid = crd1Valid || crd2Valid;
 	if (!mainCoordValid || (crd1Valid && crd2Valid))
@@ -93,9 +97,9 @@ vec4 BiLinearSampleFromAtlas(sampler2D slot, vec2 coord)
 		TopMix = PointSampleFromAtlas(slot, crd1);
 	else if (crd2Valid)
 		TopMix = PointSampleFromAtlas(slot, crd2);
-	
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	
+
 	crd1Valid = true;
 	crd2Valid = true;
 
@@ -106,11 +110,11 @@ vec4 BiLinearSampleFromAtlas(sampler2D slot, vec2 coord)
 	{
 		if (crd1.x <= 0 || crd1.x >= 1 || crd1.y <= 0 || crd1.y >= 1)
 			crd1Valid = false;
-		
+
 		if (crd2.x <= 0 || crd2.x >= 1 || crd2.y <= 0 || crd2.y >= 1)
 			crd2Valid = false;
 	}
-	
+
 	vec4 DownMix;
 	bool downMixValid = crd1Valid || crd2Valid;
 	if (!mainCoordValid || (crd1Valid && crd2Valid))
@@ -125,7 +129,7 @@ vec4 BiLinearSampleFromAtlas(sampler2D slot, vec2 coord)
 		DownMix = PointSampleFromAtlas(slot, crd2);
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	
+
 	if (topMixValid && downMixValid)
 		return mix(TopMix, DownMix, fract(coord.y));
 	else if (topMixValid)
@@ -190,16 +194,23 @@ vec4 PointSampleFromAtlas(sampler2D slot, vec2 coord)
 
 vec4 Sample(sampler2D slot)
 {
+	vec4 color;
 	if (v_TextureFilter == 1)
-	return    PointSampleFromAtlas(slot, v_TextureCoord) * v_Color;
-	return BiLinearSampleFromAtlas(slot, v_TextureCoord) * v_Color;
+		color = PointSampleFromAtlas(slot, v_TextureCoord) * v_Color;
+	else
+		color = BiLinearSampleFromAtlas(slot, v_TextureCoord) * v_Color;
+
+	if (color.a <= v_TextureAlphaClippingThreshold) // Handle Alpha clipping
+		discard;
+
+	return color;
 }
 
 void main()
 {
 	switch (v_TextureSlot)
 	{
-	case -1 : o_Color = v_Color; return;
+	case -1 : o_Color = v_Color; return; // Alpha clipping handled by Renderer2D class in C++
 	case  0 : o_Color = Sample(u_Slots[0 ]); return;
 	case  1 : o_Color = Sample(u_Slots[1 ]); return;
 	case  2 : o_Color = Sample(u_Slots[2 ]); return;

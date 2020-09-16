@@ -207,6 +207,9 @@ namespace OverEngine
 		TextureWrapping OverrideSWrapping = TextureWrapping::None;
 		TextureWrapping OverrideTWrapping = TextureWrapping::None;
 		TextureFiltering OverrideFiltering = TextureFiltering::None;
+		float AlphaClippingThreshold = 0.0f;
+		bool IsOverrideTextureBorderColor = false;
+		Color OverrideTextureBorderColor = Color(1);
 
 		SpriteRendererComponent() = default;
 		SpriteRendererComponent(const SpriteRendererComponent&) = default;

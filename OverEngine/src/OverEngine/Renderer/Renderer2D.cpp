@@ -14,13 +14,14 @@ namespace OverEngine
 		Vector4 a_Position = Vector4(0.0f);
 		Color a_Color = Color(0.0f);
 
-		float a_TextureSlot        = -1.0f;
-		float a_TextureFilter      = 0.0f;
-		Vector2 a_TextureWrapping  = Vector2(0.0f);
-		Color a_TextureBorderColor = Color(0.0f);
-		Rect a_TextureRect         = Rect(0.0f);
-		Vector2 a_TextureSize      = Vector2(0.0f);
-		Vector2 a_TextureCoord     = Vector2(0.0f);
+		float a_TextureSlot                   = -1.0f;
+		float a_TextureFilter                 = 0.0f;
+		float a_TextureAlphaClippingThreshold = 0.0f;
+		Vector2 a_TextureWrapping             = Vector2(0.0f);
+		Color a_TextureBorderColor            = Color(0.0f);
+		Rect a_TextureRect                    = Rect(0.0f);
+		Vector2 a_TextureSize                 = Vector2(0.0f);
+		Vector2 a_TextureCoord                = Vector2(0.0f);
 	};
 
 	using DrawQuadVertices = std::array<Vertex, 4>;
@@ -34,8 +35,8 @@ namespace OverEngine
 
 		Vector<DrawQuadVertices> Vertices;
 		Vector<DrawQuadIndices> Indices;
+		Vector<float> IndicesZ;
 		uint32_t QuadCapacity;
-		uint32_t QuadCount = 0;
 
 		uint32_t OpaqueInsertIndex = 0;
 
@@ -64,6 +65,32 @@ namespace OverEngine
 
 	static Renderer2DData* s_Data;
 
+	static void InsertIndices(bool transparent, const float& z, const DrawQuadIndices& indices)
+	{
+		if (transparent)
+		{
+			for (auto idx = s_Data->Indices.begin() + s_Data->OpaqueInsertIndex; idx < s_Data->Indices.end(); idx++)
+			{
+				auto i = idx - s_Data->Indices.begin();
+				if (z <= s_Data->IndicesZ[i])
+				{
+					s_Data->Indices.emplace(idx, indices);
+					s_Data->IndicesZ.emplace(s_Data->IndicesZ.begin() + i, z);
+					return;
+				}
+			}
+
+			s_Data->Indices.emplace_back(indices);
+			s_Data->IndicesZ.emplace_back(z);
+			return;
+		}
+
+		// Opaque
+		s_Data->Indices.emplace(s_Data->Indices.begin() + s_Data->OpaqueInsertIndex, indices);
+		s_Data->IndicesZ.emplace(s_Data->IndicesZ.begin() + s_Data->OpaqueInsertIndex, z);
+		s_Data->OpaqueInsertIndex++;
+	}
+
 	void Renderer2D::Init(uint32_t initQuadCapacity)
 	{
 		s_Data = new Renderer2DData();
@@ -79,12 +106,13 @@ namespace OverEngine
 
 			{ ShaderDataType::Float, "a_TextureSlot" },
 			{ ShaderDataType::Float, "a_TextureFilter" },
+			{ ShaderDataType::Float, "a_TextureAlphaClippingThreshold" },
 			{ ShaderDataType::Float2, "a_TextureWrapping" },
 			{ ShaderDataType::Float4, "a_TextureBorderColor" },
 			{ ShaderDataType::Float4, "a_TextureRect" },
 			{ ShaderDataType::Float2, "a_TextureSize" },
 			{ ShaderDataType::Float2, "a_TextureCoord" },
-			});
+		});
 		s_Data->vertexArray->AddVertexBuffer(s_Data->vertexBuffer);
 
 		s_Data->indexBuffer = IndexBuffer::Create();
@@ -93,6 +121,7 @@ namespace OverEngine
 
 		s_Data->Vertices.reserve(initQuadCapacity);
 		s_Data->Indices.reserve(initQuadCapacity);
+		s_Data->IndicesZ.reserve(initQuadCapacity);
 
 		s_Data->BatchRenderer2DShader = Shader::Create("assets/shaders/BatchRenderer2D.glsl");
 		//s_Data->BatchRenderer2DShader = Shader::Create("BatchRenderer2D", BatchRenderer2DVertexShaderSrc, BatchRenderer2DFragmentShaderSrc);
@@ -111,6 +140,7 @@ namespace OverEngine
 	{
 		s_Data->Vertices.clear();
 		s_Data->Indices.clear();
+		s_Data->IndicesZ.clear();
 		s_Data->OpaqueInsertIndex = 0;
 
 		s_Statistics.Reset();
@@ -136,6 +166,10 @@ namespace OverEngine
 
 	void Renderer2D::EndScene()
 	{
+		if (!s_Statistics.QuadCount) // Nothing to draw
+			return;
+
+		// Grow GPU Buffers
 		if (s_Data->QuadCapacity < s_Statistics.QuadCount)
 		{
 			s_Data->QuadCapacity = s_Statistics.QuadCount;
@@ -143,17 +177,24 @@ namespace OverEngine
 			s_Data->indexBuffer->AllocateStorage(s_Data->QuadCapacity * 6);
 		}
 
-		s_Data->vertexBuffer->BufferSubData((float*)s_Data->Vertices.data(), (uint32_t)(s_Data->Vertices.size() * 4 * sizeof(Vertex)));
-		s_Data->indexBuffer->BufferSubData((uint32_t*)s_Data->Indices.data(), (uint32_t)s_Data->Indices.size() * 6);
+		uint32_t indexCount = s_Statistics.GetIndexCount();
+
+		// Upload Data
+		s_Data->vertexBuffer->BufferSubData((float*)s_Data->Vertices.data(), s_Statistics.GetVertexCount() * sizeof(Vertex));
+		s_Data->indexBuffer->BufferSubData((uint32_t*)s_Data->Indices.data(), indexCount);
 
 		// Bind Textures
 		for (auto& t : s_Data->TextureBindList)
 			t.second->Bind(t.first);
 
+		// Bind VertexArray
 		s_Data->vertexArray->Bind();
-		s_Data->BatchRenderer2DShader->Bind();
-		RenderCommand::DrawIndexed(*s_Data->vertexArray);
 
+		// Bind Shader
+		s_Data->BatchRenderer2DShader->Bind();
+
+		// DrawCall
+		RenderCommand::DrawIndexed(s_Data->vertexArray, indexCount);
 		s_Statistics.DrawCalls++;
 	}
 
@@ -161,24 +202,24 @@ namespace OverEngine
 	// FlatColor Quad ///////////////////////////////////////
 	/////////////////////////////////////////////////////////
 
-	void Renderer2D::DrawQuad(const Vector2& position, float rotation, const Vector2& size, const Color& color)
+	void Renderer2D::DrawQuad(const Vector2& position, float rotation, const Vector2& size, const Color& color, float alphaClippingThreshold)
 	{
-		DrawQuad(Vector3(position, 0.0f), rotation, size, color);
+		DrawQuad(Vector3(position, 0.0f), rotation, size, color, alphaClippingThreshold);
 	}
 
-	void Renderer2D::DrawQuad(const Vector3& position, float rotation, const Vector2& size, const Color& color)
+	void Renderer2D::DrawQuad(const Vector3& position, float rotation, const Vector2& size, const Color& color, float alphaClippingThreshold)
 	{
 		Mat4x4 transform =
 			glm::translate(Mat4x4(1.0f), position) *
 			glm::rotate(Mat4x4(1.0f), rotation, Vector3(0, 0, 1)) *
 			glm::scale(Mat4x4(1.0f), Vector3(size, 1.0f));
 
-		DrawQuad(transform, color);
+		DrawQuad(transform, color, alphaClippingThreshold);
 	}
 
-	void Renderer2D::DrawQuad(const Mat4x4& transform, const Color& color)
+	void Renderer2D::DrawQuad(const Mat4x4& transform, const Color& color, float alphaClippingThreshold)
 	{
-		if (color.a == 0.0f)
+		if (color.a <= alphaClippingThreshold)
 			return;
 
 		bool transparent = color.a < 1.0f;
@@ -204,15 +245,7 @@ namespace OverEngine
 		for (uint32_t i = 0; i < 6; i++)
 			indices[i] = Renderer2DData::QuadIndices[i] + 4 * s_Statistics.QuadCount;
 
-		if (transparent)
-		{
-			s_Data->Indices.push_back(indices);
-		}
-		else
-		{
-			s_Data->Indices.emplace(s_Data->Indices.begin() + s_Data->OpaqueInsertIndex, indices);
-			s_Data->OpaqueInsertIndex++;
-		}
+		InsertIndices(transparent, 1 - vertices[0].a_Position.z, indices);
 
 		s_Statistics.QuadCount++;
 	}
@@ -238,7 +271,7 @@ namespace OverEngine
 
 	void Renderer2D::DrawQuad(const Mat4x4& transform, Ref<Texture2D> texture, const TexturedQuadExtraData& extraData)
 	{
-		if (extraData.tint.a == 0.0f)
+		if (extraData.alphaClippingThreshold >= 1.0f || extraData.tint.a <= extraData.alphaClippingThreshold)
 			return;
 
 		bool transparent = extraData.tint.a < 1.0f || texture->GetFormat() == TextureFormat::RGBA;
@@ -294,6 +327,8 @@ namespace OverEngine
 			else
 				vertex.a_TextureFilter = (float)texture->GetFilter();
 
+			vertex.a_TextureAlphaClippingThreshold = extraData.alphaClippingThreshold;
+
 			// a_TextureSWrapping & a_TextureTWrapping
 			if (extraData.overrideSTextureWrapping != TextureWrapping::None)
 				vertex.a_TextureWrapping.x = (float)extraData.overrideSTextureWrapping;
@@ -306,7 +341,10 @@ namespace OverEngine
 				vertex.a_TextureWrapping.y = (float)texture->GetTWrapping();
 
 			// a_TextureBorderColor
-			if (extraData.overrideTextureBorderColor.x != -1)
+			if (   extraData.overrideTextureBorderColor.r >= 0.0f
+				&& extraData.overrideTextureBorderColor.g >= 0.0f
+				&& extraData.overrideTextureBorderColor.b >= 0.0f
+				&& extraData.overrideTextureBorderColor.a >= 0.0f)
 				vertex.a_TextureBorderColor = extraData.overrideTextureBorderColor;
 			else
 				vertex.a_TextureBorderColor = texture->GetBorderColor();
@@ -332,15 +370,7 @@ namespace OverEngine
 		for (uint32_t i = 0; i < 6; i++)
 			indices[i] = Renderer2DData::QuadIndices[i] + 4 * s_Statistics.QuadCount;
 
-		if (transparent)
-		{
-			s_Data->Indices.push_back(indices);
-		}
-		else
-		{
-			s_Data->Indices.emplace(s_Data->Indices.begin() + s_Data->OpaqueInsertIndex, indices);
-			s_Data->OpaqueInsertIndex++;
-		}
+		InsertIndices(transparent, 1 - vertices[0].a_Position.z, indices);
 
 		s_Statistics.QuadCount++;
 	}

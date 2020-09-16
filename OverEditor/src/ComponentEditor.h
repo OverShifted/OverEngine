@@ -244,6 +244,13 @@ void ComponentEditor<SpriteRendererComponent>(Entity entity, uint32_t typeID)
 			ImGui::PopItemWidth();
 			ImGui::NextColumn();
 
+			ImGui::TextUnformatted("AlphaClippingThreshold");
+			ImGui::NextColumn();
+			ImGui::PushItemWidth(-1);
+			ImGui::DragFloat("##AlphaClippingThreshold", &spriteRenderer.AlphaClippingThreshold, 1.0f, 0.0f, 1.0f);
+			ImGui::PopItemWidth();
+			ImGui::NextColumn();
+
 			ImGui::TextUnformatted("Sprite");
 			ImGui::NextColumn();
 			ImGui::PushItemWidth(-1);
@@ -329,6 +336,23 @@ void ComponentEditor<SpriteRendererComponent>(Entity entity, uint32_t typeID)
 				ImGui::PushItemWidth(-1);
 				ImGui::DragFloat("##TilingFactorY", &spriteRenderer.TilingFactorY);
 				ImGui::PopItemWidth();
+				ImGui::NextColumn();
+
+				ImGui::TextUnformatted("OverrideTextureBorderColor (for ClampToBorder wrapping)");
+				ImGui::NextColumn();
+				ImGui::PushItemWidth(-1);
+				ImGui::Checkbox("##OverrideTextureBorderColor", &spriteRenderer.IsOverrideTextureBorderColor);
+				ImGui::PopItemWidth();
+				ImGui::NextColumn();
+
+				if (spriteRenderer.IsOverrideTextureBorderColor)
+				{
+					ImGui::TextUnformatted("BorderColor (for ClampToBorder wrapping)");
+					ImGui::NextColumn();
+					ImGui::PushItemWidth(-1);
+					ImGui::ColorEdit4("##BorderColor", &spriteRenderer.OverrideTextureBorderColor.r);
+					ImGui::PopItemWidth();
+				}
 			}
 
 			ImGui::PopItemWidth();

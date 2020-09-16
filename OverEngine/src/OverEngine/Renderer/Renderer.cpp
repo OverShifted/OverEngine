@@ -52,6 +52,6 @@ namespace OverEngine
 		shader->UploadUniformMat4("u_ViewProjMatrix", s_SceneData->ViewProjectionMatrix);
 		shader->UploadUniformMat4("u_Transform", transform);
 		vertexArray->Bind();
-		RenderCommand::DrawIndexed(*vertexArray);
+		RenderCommand::DrawIndexed(vertexArray);
 	}
 }

@@ -46,7 +46,7 @@ namespace OverEngine
 
 		TextureWrapping m_SWrapping = TextureWrapping::Repeat;
 		TextureWrapping m_TWrapping = TextureWrapping::Repeat;
-		Color m_BorderColor;
+		Color m_BorderColor = { 0.0f, 0.0f, 0.0f, 1.0f };
 
 		uint8_t* m_Pixels;
 
