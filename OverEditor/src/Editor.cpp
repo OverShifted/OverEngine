@@ -310,7 +310,7 @@ static Entity SceneGraphTreeViewRecursive(Entity parentEntity, int* selection_ma
 	if (fistCall)
 		entityList = &(scene->GetRootEntities());
 	else
-		entityList = &(parentEntity.GetComponent<FamilyComponent>().Children);
+		entityList = &(parentEntity.GetComponent<BaseComponent>().Children);
 
 	for (auto entity : *(entityList))
 	{
@@ -319,12 +319,12 @@ static Entity SceneGraphTreeViewRecursive(Entity parentEntity, int* selection_ma
 		if (is_selected)
 			node_flags |= ImGuiTreeNodeFlags_Selected;
 
-		bool entityIsParent = entity.GetComponent<FamilyComponent>().Children.size();
+		bool entityIsParent = entity.GetComponent<BaseComponent>().Children.size();
 
 		if (!entityIsParent)
 			node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
 
-		const char* name = entity.GetComponent<NameComponent>().Name.c_str();
+		const char* name = entity.GetComponent<BaseComponent>().Name.c_str();
 		bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)(entity.GetID()), node_flags, name);
 
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 10.0f, 10.0f });
@@ -483,7 +483,7 @@ void Editor::OnInspectorGUI()
 		sprintf_s(id, sizeof(id) / sizeof(char), "INSPECTOR_ENTITY_EDITOR%i", selectedEntity.GetID());
 		ImGui::PushID(id);
 
-		auto& name = selectedEntity.GetComponent<NameComponent>();
+		auto& name = selectedEntity.GetComponent<BaseComponent>();
 		ImGui::InputText("Name", &name.Name);
 
 		bool wannaDestroy = false;
@@ -492,7 +492,7 @@ void Editor::OnInspectorGUI()
 
 		ImGui::SameLine();
 
-		ImGui::Text("GUID: %s", selectedEntity.GetComponent<GUIDComponent>().ID.ToString().c_str());
+		ImGui::Text("GUID: %s", selectedEntity.GetComponent<BaseComponent>().ID.ToString().c_str());
 
 		ImGui::Separator();
 

@@ -24,10 +24,8 @@ namespace OverEngine
 	Entity Scene::CreateEntity(const String& name /*= String()*/)
 	{
 		Entity entity = { m_Registry.create(), this };
-		entity.AddComponent<NameComponent>(name.empty() ? "Entity" : name);
-		entity.AddComponent<FamilyComponent>();
+		entity.AddComponent<BaseComponent>(name.empty() ? "Entity" : name);
 		entity.AddComponent<TransformComponent>();
-		entity.AddComponent<GUIDComponent>();
 		m_RootEntities.push_back(entity);
 		return entity;
 	}
@@ -36,10 +34,8 @@ namespace OverEngine
 	{
 		OE_CORE_ASSERT(parent, "Parent is null!");
 		Entity entity = { m_Registry.create(), this };
-		entity.AddComponent<NameComponent>(name.empty() ? "Entity" : name);
-		entity.AddComponent<FamilyComponent>(parent);
+		entity.AddComponent<BaseComponent>(name.empty() ? "Entity" : name, parent);
 		entity.AddComponent<TransformComponent>();
-		entity.AddComponent<GUIDComponent>();
 		return entity;
 	}
 
@@ -186,7 +182,7 @@ namespace OverEngine
 
 	uint32_t Scene::GetEntityCount()
 	{
-		return (uint32_t)m_Registry.size<GUIDComponent>();
+		return (uint32_t)m_Registry.size<BaseComponent>();
 	}
 
 	////////////////////////////////////////////////////////////
@@ -251,9 +247,9 @@ namespace OverEngine
 			}
 
 			// Family
-			auto family = entity.GetComponent<FamilyComponent>();
+			auto& base = entity.GetComponent<BaseComponent>();
 
-			auto parentJson = entityJson["Family"]["Parent"];
+			auto parentJson = entityJson["Parent"];
 			if (!parentJson.is_null())
 			{
 				if (parentJson < i)
@@ -262,7 +258,7 @@ namespace OverEngine
 					entityParentAssignList[i] = parentJson.get<uint32_t>();
 			}
 
-			entity.GetComponent<GUIDComponent>().ID = Guid(entityJson["GUID"]);
+			base.ID = Guid(entityJson["GUID"]);
 
 			// Transform
 			auto& transform = entity.GetComponent<TransformComponent>();
@@ -272,19 +268,19 @@ namespace OverEngine
 				transformJson["Position"]["x"],
 				transformJson["Position"]["y"],
 				transformJson["Position"]["z"]
-				});
+			});
 
 			transform.SetEulerAngles({
 				transformJson["Rotation"]["x"],
 				transformJson["Rotation"]["y"],
 				transformJson["Rotation"]["z"]
-				});
+			});
 
 			transform.SetScale({
 				transformJson["Scale"]["x"],
 				transformJson["Scale"]["y"],
 				transformJson["Scale"]["z"]
-				});
+			});
 
 			auto& componentsJson = entityJson["Components"];
 
@@ -358,23 +354,24 @@ namespace OverEngine
 			entitiesJson.push_back({ nlohmann::json() });
 			auto& entityJson = entitiesJson[i];
 
+			const auto& base = entity.GetComponent<BaseComponent>();
+
 			// Name
-			entityJson["Name"] = entity.GetComponent<NameComponent>().Name;
+			entityJson["Name"] = base.Name;
 
 			// Family
-			auto& family = entity.GetComponent<FamilyComponent>();
-			if (!family.Parent)
+			if (!base.Parent)
 			{
-				entityJson["Family"]["Parent"] = nullptr;
+				entityJson["Parent"] = nullptr;
 			}
 			else
 			{
-				auto it = std::find(entityIDs.begin(), entityIDs.end(), family.Parent.GetID());
+				auto it = std::find(entityIDs.begin(), entityIDs.end(), base.Parent.GetID());
 				OE_CORE_ASSERT(it != entityIDs.end(), "Parent not found!");
-				entityJson["Family"]["Parent"] = it - entityIDs.begin();
+				entityJson["Parent"] = it - entityIDs.begin();
 			}
 
-			entityJson["GUID"] = entity.GetComponent<GUIDComponent>().ID.ToString();
+			entityJson["GUID"] = base.ID.ToString();
 
 			// Transform
 			if (entity.HasComponent<TransformComponent>())

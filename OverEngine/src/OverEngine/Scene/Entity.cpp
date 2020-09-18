@@ -12,35 +12,34 @@ namespace OverEngine
 
 	void Entity::ClearParent()
 	{
-		auto& family = GetComponent<FamilyComponent>();
+		auto& base = GetComponent<BaseComponent>();
 
-		if (!family.Parent)
+		if (!base.Parent)
 			return;
 
-		auto& lastParentChildren = family.Parent.GetComponent<FamilyComponent>().Children;
+		auto& lastParentChildren = base.Parent.GetComponent<BaseComponent>().Children;
 		auto it = std::find(lastParentChildren.begin(), lastParentChildren.end(), *this);
 		OE_CORE_ASSERT(it != lastParentChildren.end(), "Entity is not in it's parent's child entities list!");
 		lastParentChildren.erase(it);
 
-		OE_CORE_INFO("Moving Entity #{} to the root. Last Parent : Entity #{}", GetID(), family.Parent.GetID());
+		OE_CORE_INFO("Moving Entity #{} to the root. Last Parent : Entity #{}", GetID(), base.Parent.GetID());
 
-		family.Parent = Entity(); // Null entity
+		base.Parent = Entity(); // Null entity
 		m_Scene->GetRootEntities().push_back(*this);
 	}
 
 	void Entity::SetParent(Entity parent)
 	{
-		auto& parentFamily = parent.GetComponent<FamilyComponent>();
-		auto& family = GetComponent<FamilyComponent>();
+		auto& base = GetComponent<BaseComponent>();
 
-		if (parent == family.Parent)
+		if (parent == base.Parent)
 			return;
 
-		parentFamily.Children.push_back(*this);
+		parent.GetComponent<BaseComponent>().Children.push_back(*this);
 
-		if (family.Parent)
+		if (base.Parent)
 		{
-			auto& lastParentChildren = family.Parent.GetComponent<FamilyComponent>().Children;
+			auto& lastParentChildren = base.Parent.GetComponent<BaseComponent>().Children;
 
 			auto it = std::find(lastParentChildren.begin(), lastParentChildren.end(), *this);
 			OE_CORE_ASSERT(it != lastParentChildren.end(), "Entity is not in it's parent's child entities list!");
@@ -53,17 +52,17 @@ namespace OverEngine
 			m_Scene->GetRootEntities().erase(it);
 		}
 
-		family.Parent = parent;
+		base.Parent = parent;
 	}
 
 	void Entity::Destroy()
 	{
-		auto& family = GetComponent<FamilyComponent>();
+		auto& base = GetComponent<BaseComponent>();
 
-		while (family.Children.size() > 0)
-			Entity(family.Children[0]).Destroy(); // Copy to prevent self-editing
+		while (base.Children.size() > 0)
+			Entity(base.Children[0]).Destroy(); // Copy to prevent self-editing
 
-		if (!family.Parent)
+		if (!base.Parent)
 		{
 			auto it = std::find(m_Scene->m_RootEntities.begin(), m_Scene->m_RootEntities.end(), *this);
 			OE_CORE_ASSERT(it != m_Scene->m_RootEntities.end(), "Entity is not in the Scene's root entities!");
@@ -71,7 +70,7 @@ namespace OverEngine
 		}
 		else
 		{
-			auto& parentChildren = family.Parent.GetComponent<FamilyComponent>().Children;
+			auto& parentChildren = base.Parent.GetComponent<BaseComponent>().Children;
 			auto it = std::find(parentChildren.begin(), parentChildren.end(), *this);
 			OE_CORE_ASSERT(it != parentChildren.end(), "Entity is not in it's parent's child entities!");
 			parentChildren.erase(it);

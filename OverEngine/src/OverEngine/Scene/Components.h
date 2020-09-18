@@ -2,8 +2,8 @@
 
 #include "Entity.h"
 
-#include "OverEngine/Core/Math/Math.h"
 #include "OverEngine/Core/Core.h"
+#include "OverEngine/Core/Math/Math.h"
 #include "OverEngine/Core/GUIDGenerator.h"
 
 #include "OverEngine/Assets/Asset.h"
@@ -19,8 +19,8 @@ namespace OverEngine
 
 	enum class ComponentType
 	{
-		NameComponent, GUIDComponent, FamilyComponent, TransformComponent,
-		CameraComponent, SpriteRendererComponent, PhysicsBody2DComponent,
+		BaseComponent, TransformComponent, CameraComponent,
+		SpriteRendererComponent, PhysicsBody2DComponent,
 		PhysicsColliders2DComponent
 	};
 
@@ -44,50 +44,24 @@ namespace OverEngine
 	// Common Components ///////////////////////////////////
 	////////////////////////////////////////////////////////
 
-	struct NameComponent : public Component
+	struct BaseComponent : public Component
 	{
 		String Name;
-
-		NameComponent() = default;
-		NameComponent(const NameComponent&) = default;
-		NameComponent(Entity& entity, const String& name)
-			: Component(entity), Name(name) {}
-
-		COMPONENT_TYPE(NameComponent)
-	};
-
-	struct GUIDComponent : public Component
-	{
 		Guid ID = GUIDGenerator::GenerateVersion4();
 
-		GUIDComponent() = default;
-		GUIDComponent(const GUIDComponent&) = default;
-		GUIDComponent(Entity& entity)
-			: Component(entity) {}
-		GUIDComponent(Entity& entity, const Guid & id)
-			: Component(entity), ID(id) {}
-
-		COMPONENT_TYPE(GUIDComponent)
-	};
-
-	struct FamilyComponent : public Component
-	{
 		Entity Parent;
 		Vector<Entity> Children;
 
-		FamilyComponent() = default;
-		FamilyComponent(const FamilyComponent&) = default;
-
-		FamilyComponent(Entity& entity)
-			: Component(entity) {}
-
-		FamilyComponent(Entity& entity, Entity& parent)
-			: Component(entity), Parent(parent)
+		BaseComponent() = default;
+		BaseComponent(const BaseComponent&) = default;
+		BaseComponent(Entity& entity, const String& name, Entity& parent = Entity())
+			: Component(entity), Name(name), Parent(parent)
 		{
-			parent.GetComponent<FamilyComponent>().Children.push_back(entity);
+			if (parent)
+				parent.GetComponent<BaseComponent>().Children.push_back(entity);
 		}
 
-		COMPONENT_TYPE(FamilyComponent)
+		COMPONENT_TYPE(BaseComponent)
 	};
 
 	struct TransformComponent : public Component
