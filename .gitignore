@@ -23,3 +23,6 @@ MakeFile
 OverEngineProfile-StartUp.json
 OverEngineProfile-Runtime.json
 OverEngineProfile-Shutdown.json
+
+# Log files
+OverEngine.log
