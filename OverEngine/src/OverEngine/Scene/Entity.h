@@ -89,10 +89,10 @@ namespace OverEngine
 		void SetParent(Entity parent);
 		void Destroy();
 
-		inline uint32_t GetID() const { OE_CORE_ASSERT(m_EntityHandle != entt::null, "Entity handle is null!"); return (uint32_t)m_EntityHandle; }
+		inline uint32_t GetRuntimeID() const { OE_CORE_ASSERT(m_EntityHandle != entt::null, "Entity handle is null!"); return (uint32_t)m_EntityHandle; }
 
 		operator bool() const { return m_EntityHandle != entt::null; }
-		operator uint32_t() const { return GetID(); }
+		operator uint32_t() const { return GetRuntimeID(); }
 
 		bool operator==(const Entity& other) const
 		{

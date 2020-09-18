@@ -343,7 +343,7 @@ namespace OverEngine
 
 		scene->Each([&](Entity entity)
 		{
-			entityIDs.push_back(entity.GetID());
+				entityIDs.push_back(entity.GetRuntimeID());
 		});
 
 		uint32_t i = 0;
@@ -366,7 +366,7 @@ namespace OverEngine
 			}
 			else
 			{
-				auto it = std::find(entityIDs.begin(), entityIDs.end(), base.Parent.GetID());
+				auto it = std::find(entityIDs.begin(), entityIDs.end(), base.Parent.GetRuntimeID());
 				OE_CORE_ASSERT(it != entityIDs.end(), "Parent not found!");
 				entityJson["Parent"] = it - entityIDs.begin();
 			}
