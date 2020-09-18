@@ -111,6 +111,7 @@ namespace OverEditor
 		ImGui::TextUnformatted(fieldName);
 		ImGui::NextColumn();
 
+		ImGui::PushItemWidth(-1);
 		bool changed = false;
 		if (ImGui::BeginCombo(fieldID, values[*currentValue].c_str()))
 		{
@@ -129,6 +130,7 @@ namespace OverEditor
 			}
 			ImGui::EndCombo();
 		}
+		ImGui::PopItemWidth();
 
 		ImGui::NextColumn();
 
