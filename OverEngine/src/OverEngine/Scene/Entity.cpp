@@ -22,8 +22,6 @@ namespace OverEngine
 		OE_CORE_ASSERT(it != lastParentChildren.end(), "Entity is not in it's parent's child entities list!");
 		lastParentChildren.erase(it);
 
-		OE_CORE_INFO("Moving Entity #{} to the root. Last Parent : Entity #{}", GetRuntimeID(), base.Parent.GetRuntimeID());
-
 		base.Parent = Entity(); // Null entity
 		m_Scene->GetRootEntities().push_back(*this);
 	}

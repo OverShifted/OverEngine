@@ -73,6 +73,7 @@ namespace OverEditor
 			}
 
 			ImGui::SameLine();
+			ImGui::SetNextItemOpen(true, ImGuiCond_Once);
 			return !componentRemoved && ImGui::CollapsingHeader(headerName);
 		}
 
