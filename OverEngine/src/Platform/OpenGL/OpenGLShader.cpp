@@ -22,6 +22,7 @@ namespace OverEngine
 	}
 
 	OpenGLShader::OpenGLShader(const String& filePath)
+		: m_FilePath(filePath)
 	{
 		Compile(PreProcess(FileSystem::ReadFile(filePath)));
 
@@ -63,7 +64,7 @@ namespace OverEngine
 		glLinkProgram(m_RendererID);
 
 		GLint isLinked = 0;
-		glGetProgramiv(m_RendererID, GL_LINK_STATUS, (int*)&isLinked);
+		glGetProgramiv(m_RendererID, GL_LINK_STATUS, &isLinked);
 		if (isLinked == GL_FALSE)
 		{
 			GLint maxLength = 0;
@@ -167,7 +168,7 @@ namespace OverEngine
 		glLinkProgram(program);
 
 		GLint isLinked = 0;
-		glGetProgramiv(program, GL_LINK_STATUS, (int*)&isLinked);
+		glGetProgramiv(program, GL_LINK_STATUS, &isLinked);
 		if (isLinked == GL_FALSE)
 		{
 			GLint maxLength = 0;
@@ -256,4 +257,36 @@ namespace OverEngine
 		glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
 	}
 
+	bool OpenGLShader::Reload(String filePath)
+	{
+		if (filePath.empty())
+		{
+			if (m_FilePath.empty())
+				return false;
+
+			Compile(PreProcess(FileSystem::ReadFile(m_FilePath)));
+			return true;
+		}
+
+		Compile(PreProcess(FileSystem::ReadFile(filePath)));
+		return true;
+	}
+
+	bool OpenGLShader::Reload(const String& vertexSrc, const String& fragmentSrc)
+	{
+		UnorderedMap<GLenum, const char*> sources;
+		sources[GL_VERTEX_SHADER] = vertexSrc.c_str();
+		sources[GL_FRAGMENT_SHADER] = fragmentSrc.c_str();
+		Compile(sources);
+		return true;
+	}
+
+	bool OpenGLShader::Reload(const char* vertexSrc, const char* fragmentSrc)
+	{
+		UnorderedMap<GLenum, const char*> sources;
+		sources[GL_VERTEX_SHADER] = vertexSrc;
+		sources[GL_FRAGMENT_SHADER] = fragmentSrc;
+		Compile(sources);
+		return true;
+	}
 }

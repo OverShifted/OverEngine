@@ -27,10 +27,14 @@ namespace OverEngine
 		virtual void UploadUniformMat3(const String& name, const Math::Mat3x3& matrix) = 0;
 		virtual void UploadUniformMat4(const String& name, const Math::Mat4x4& matrix) = 0;
 
+		virtual bool Reload(String filePath = String()) = 0;
+		virtual bool Reload(const String& vertexSrc, const String& fragmentSrc) = 0;
+		virtual bool Reload(const char* vertexSrc, const char* fragmentSrc) = 0;
+
 		static Ref<Shader> Create(const String& filePath);
 		static Ref<Shader> Create(const String& name, const String& vertexSrc, const String& fragmentSrc);
 		static Ref<Shader> Create(const String& name, const char* vertexSrc, const char* fragmentSrc);
-		static Ref<Shader> Create(const String& name, Ref<IntermediateShader>& vertexShader ,const Ref<IntermediateShader>& fragmentShader);
+		static Ref<Shader> Create(const String& name, Ref<IntermediateShader>& vertexShader, const Ref<IntermediateShader>& fragmentShader);
 	};
 
 	class IntermediateShader

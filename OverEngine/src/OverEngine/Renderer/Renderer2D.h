@@ -27,6 +27,7 @@ namespace OverEngine
 	public:
 		static void Init(uint32_t initQuadCapacity = 10);
 		static void Shutdown();
+		static Ref<Shader>& GetShader();
 
 		static void Reset();
 

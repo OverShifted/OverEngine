@@ -30,6 +30,10 @@ namespace OverEngine
 
 		virtual void UploadUniformMat3(const String& name, const Math::Mat3x3& matrix) override;
 		virtual void UploadUniformMat4(const String& name, const Math::Mat4x4& matrix) override;
+
+		virtual bool Reload(String filePath = String()) override;
+		virtual bool Reload(const String& vertexSrc, const String& fragmentSrc) override;
+		virtual bool Reload(const char* vertexSrc, const char* fragmentSrc) override;
 	private:
 		UnorderedMap<GLenum, String> PreProcess(const String& source);
 		void Compile(const UnorderedMap<GLenum, String>& shaderSources);
@@ -37,5 +41,6 @@ namespace OverEngine
 	private:
 		uint32_t m_RendererID = 0;
 		String m_Name;
+		String m_FilePath;
 	};
 }

@@ -118,11 +118,14 @@ void Editor::OnImGuiRender()
 		OnSceneGraphGUI();
 		OnInspectorGUI();
 
-		OnAssetsGUI();
-		OnAssetImportGUI();
-	}
-
-	//OnConsoleGUI();
+		ImGui::Begin("Renderer2D");
+		ImGui::Columns(2);
+		ImGui::Text(Renderer2D::GetShader()->GetName().c_str());
+		ImGui::NextColumn();
+		if (ImGui::Button("Reload"))
+			Renderer2D::GetShader()->Reload();
+		ImGui::Columns(1);
+		ImGui::End();
 }
 
 void Editor::OnEvent(Event& event)

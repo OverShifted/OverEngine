@@ -136,6 +136,11 @@ namespace OverEngine
 		delete s_Data;
 	}
 
+	Ref<Shader>& Renderer2D::GetShader()
+	{
+		return s_Data->BatchRenderer2DShader;
+	}
+
 	void Renderer2D::Reset()
 	{
 		s_Data->Vertices.clear();
@@ -230,7 +235,7 @@ namespace OverEngine
 		{
 			Vertex& vertex = vertices[i];
 
-			vertex.a_Position.x = Renderer2DData::QuadVertices[0 + 3 * i];
+			vertex.a_Position.x = Renderer2DData::QuadVertices[    3 * i];
 			vertex.a_Position.y = Renderer2DData::QuadVertices[1 + 3 * i];
 			vertex.a_Position.z = Renderer2DData::QuadVertices[2 + 3 * i];
 			vertex.a_Position.w = 1.0f;
@@ -282,7 +287,7 @@ namespace OverEngine
 		{
 			Vertex& vertex = vertices[i];
 
-			vertex.a_Position.x = Renderer2DData::QuadVertices[0 + 3 * i];
+			vertex.a_Position.x = Renderer2DData::QuadVertices[    3 * i];
 			vertex.a_Position.y = Renderer2DData::QuadVertices[1 + 3 * i];
 			vertex.a_Position.z = Renderer2DData::QuadVertices[2 + 3 * i];
 			vertex.a_Position.w = 1.0f;
@@ -357,7 +362,7 @@ namespace OverEngine
 
 			// a_TextureCoord
 			{
-				float xTexCoord = Renderer2DData::QuadVertices[0 + 3 * i] > 0.0f ? extraData.tilingFactorX : 0.0f;
+				float xTexCoord = Renderer2DData::QuadVertices[    3 * i] > 0.0f ? extraData.tilingFactorX : 0.0f;
 				float yTexCoord = Renderer2DData::QuadVertices[1 + 3 * i] > 0.0f ? extraData.tilingFactorY : 0.0f;
 				vertex.a_TextureCoord.x = extraData.flipX ? extraData.tilingFactorX - xTexCoord : xTexCoord;
 				vertex.a_TextureCoord.y = extraData.flipY ? extraData.tilingFactorY - yTexCoord : yTexCoord;
