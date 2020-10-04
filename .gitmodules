@@ -13,3 +13,6 @@
 [submodule "OverEngine/vendor/imgui"]
 	path = OverEngine/vendor/imgui
 	url = https://github.com/ocornut/imgui
+[submodule "OverEngine/vendor/fmt"]
+	path = OverEngine/vendor/fmt
+	url = https://github.com/fmtlib/fmt.git
