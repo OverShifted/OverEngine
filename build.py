@@ -18,14 +18,6 @@ def HasFlag(flags):
             return True
     return False
 
-buildFlags = [
-    "-b",
-    "--b",
-    "-build",
-    "--build"
-]
-WannaBuild = HasFlag(buildFlags)
-
 premakeCommand = "vendor/premake/bin/premake5"
 buildCommand = ""
 if DetectOperatingSystem() == SYSTEM_WINDOWS:
@@ -38,7 +30,7 @@ elif DetectOperatingSystem() == SYSTEM_LINUX:
 print("Generating project files\n")
 if os.system(premakeCommand) == 0:
     print("\nProject files generated")
-    if WannaBuild:
+    if HasFlag(["-b", "--b", "-build", "--build"]):
         os.system(buildCommand)
 else:
     print("\nProject files generation failed")

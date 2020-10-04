@@ -3,61 +3,50 @@
 
 namespace OverEngine
 {
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	/// Camera /////////////////////////////////////////////////////////////////////////////////////////////////////
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-	/*Camera::Camera(const Math::Mat4x4& viewMat, const Math::Mat4x4& projMat, CameraType type,
-				   float aspectRatio, float orthoSizeOrFov)
-		: m_ViewMatrix(viewMat), m_ProjectionMatrix(projMat),
-		  m_ViewProjectionMatrix(m_ProjectionMatrix * m_ViewMatrix),
-		  m_Position(Math::Vector3(0.0f)), m_Rotation(Math::Vector3(0.0f)), m_Type(type),
-		  m_AspectRatio(aspectRatio), m_FieldOfView(orthoSizeOrFov)
+	SceneCamera::SceneCamera()
 	{
-	}*/
-
-	Camera::Camera(CameraType type, float orthoSizeOrFov, float aspectRatio, float zNear, float zFar)
-	{
-		if (type == CameraType::Orthographic)
-			MakeOrthographic(orthoSizeOrFov, aspectRatio, zNear, zFar);
-		else
-			MakePrespective(orthoSizeOrFov, aspectRatio, zNear, zFar);
+		RecalculateProjection();
 	}
 
-	void Camera::MakeOrthographic(float size, float aspectRatio, float zNear /*= -1.0f*/, float zFar /*= 1.0f*/)
+	void SceneCamera::SetOrthographic(float size, float nearClip, float farClip)
 	{
-		m_ProjectionMatrix = glm::ortho(-size * aspectRatio, size * aspectRatio, -size, size, zNear, zFar);
-		m_Type = CameraType::Orthographic;
-		m_AspectRatio = aspectRatio;
-		m_ZNear = zNear;
-		m_ZFar = zFar;
+		m_ProjectionType = ProjectionType::Orthographic;
 		m_OrthographicSize = size;
+		m_OrthographicNear = nearClip;
+		m_OrthographicFar = farClip;
+		RecalculateProjection();
 	}
 
-	void Camera::MakePrespective(float fov, float aspectRatio, float zNear /*= 0.05f*/, float zFar /*= 100.0f*/)
+	void SceneCamera::SetPerspective(float verticalFOV, float nearClip, float farClip)
 	{
-		m_ProjectionMatrix = glm::perspective(glm::radians(fov), aspectRatio, zNear, zFar);
-		m_Type = CameraType::Prespective;
-		m_AspectRatio = aspectRatio;
-		m_ZNear = zNear;
-		m_ZFar = zFar;
-		m_FieldOfView = fov;
+		m_ProjectionType = ProjectionType::Perspective;
+		m_PerspectiveFOV = verticalFOV;
+		m_PerspectiveNear = nearClip;
+		m_PerspectiveFar = farClip;
+		RecalculateProjection();
 	}
 
-	void Camera::RecalculateProjectionMatrix()
+	void SceneCamera::SetViewportSize(uint32_t width, uint32_t height)
 	{
-		if (m_Type == CameraType::Orthographic)
+		m_AspectRatio = (float)width / (float)height;
+		RecalculateProjection();
+	}
+
+	void SceneCamera::RecalculateProjection()
+	{
+		if (m_ProjectionType == ProjectionType::Perspective)
 		{
-			m_ProjectionMatrix = glm::ortho(
-				-m_OrthographicSize * m_AspectRatio,
-				 m_OrthographicSize * m_AspectRatio,
-				-m_OrthographicSize, m_OrthographicSize,
-				 m_ZNear, m_ZFar
-			);
+			m_Projection = glm::perspective(m_PerspectiveFOV, m_AspectRatio, m_PerspectiveNear, m_PerspectiveFar);
 		}
 		else
 		{
-			m_ProjectionMatrix = glm::perspective(glm::radians(m_FieldOfView), m_AspectRatio, m_ZNear, m_ZFar);
+			float orthoLeft = -m_OrthographicSize * m_AspectRatio * 0.5f;
+			float orthoRight = m_OrthographicSize * m_AspectRatio * 0.5f;
+			float orthoBottom = -m_OrthographicSize * 0.5f;
+			float orthoTop = m_OrthographicSize * 0.5f;
+
+			m_Projection = glm::ortho(orthoLeft, orthoRight,
+				orthoBottom, orthoTop, m_OrthographicNear, m_OrthographicFar);
 		}
 	}
 }

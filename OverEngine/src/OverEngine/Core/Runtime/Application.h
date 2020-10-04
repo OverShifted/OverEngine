@@ -1,6 +1,7 @@
 #pragma once
 
 #include "OverEngine/Core/Core.h"
+#include "OverEngine/Core/Runtime/Runtime.h"
 #include "OverEngine/Core/Window.h"
 #include "OverEngine/Core/Time/Time.h"
 
@@ -10,12 +11,17 @@
 
 namespace OverEngine
 {
-	class ImGuiLayer;
+	struct ApplicationProps
+	{
+		WindowProps MainWindowProps;
+		OverEngine::RuntimeType RuntimeType = RuntimeType::Player;
+	};
 
+	class ImGuiLayer;
 	class Application
 	{
 	public:
-		Application(String name = "OverEngine", bool InitRenderer = true);
+		Application(const ApplicationProps& props = ApplicationProps());
 		virtual ~Application();
 
 		void Run();
@@ -37,7 +43,6 @@ namespace OverEngine
 
 		bool m_Running   = true;
 		bool m_Minimized = false;
-		bool m_UseInternalRenderer = false;
 
 		LayerStack  m_LayerStack;
 		ImGuiLayer* m_ImGuiLayer;

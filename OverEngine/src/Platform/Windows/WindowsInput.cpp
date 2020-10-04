@@ -1,28 +1,30 @@
 #include "pcheader.h"
 #include "OverEngine/Input/Input.h"
 
-#include "OverEngine/Core/Application.h"
+#include "OverEngine/Core/Runtime/Application.h"
 #include <GLFW/glfw3.h>
+
+#define GET_MAIN_NATIVE_WINDOW Application::Get().GetMainWindow().GetNativeWindow()
 
 namespace OverEngine
 {
 	bool Input::IsKeyPressed(KeyCode keycode)
 	{
-		auto window = static_cast<GLFWwindow*>(Application::Get().GetMainWindow().GetNativeWindow());
+		auto window = static_cast<GLFWwindow*>(GET_MAIN_NATIVE_WINDOW);
 		auto state = glfwGetKey(window, (int)keycode);
 		return state == (int)KeyTrigger::Press;
 	}
 
 	bool Input::IsMouseButtonPressed(KeyCode button)
 	{
-		auto window = static_cast<GLFWwindow*>(Application::Get().GetMainWindow().GetNativeWindow());
+		auto window = static_cast<GLFWwindow*>(GET_MAIN_NATIVE_WINDOW);
 		auto state = glfwGetMouseButton(window, (int)button);
 		return state == (int)KeyTrigger::Press;
 	}
 
 	Vector2 Input::GetMousePosition()
 	{
-		auto window = static_cast<GLFWwindow*>(Application::Get().GetMainWindow().GetNativeWindow());
+		auto window = static_cast<GLFWwindow*>(GET_MAIN_NATIVE_WINDOW);
 		double xpos, ypos;
 		glfwGetCursorPos(window, &xpos, &ypos);
 

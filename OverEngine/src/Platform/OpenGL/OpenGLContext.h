@@ -9,7 +9,7 @@ namespace OverEngine
 	class OpenGLContext : public RendererContext
 	{
 	public:
-		OpenGLContext(Window* windowHandle);
+		OpenGLContext(Window* window);
 
 		virtual void Init() override;
 		virtual void SwapBuffers() override;
@@ -20,9 +20,6 @@ namespace OverEngine
 		virtual const char* GetInfoVendor()   override;
 		virtual const char* GetInfoRenderer() override;
 	private:
-		Window* m_GenericWindowHandle;
 		GLFWwindow* m_WindowHandle;
-
-		static unsigned int s_ContextCount;
 	};
 }

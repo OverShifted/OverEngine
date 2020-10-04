@@ -93,6 +93,9 @@ namespace OverEngine
 		// use 'assets://' to get the root Resource
 		Ref<Resource> GetResource(const String& path);
 
+		// Returns the matching Resource with the path
+		inline Ref<Resource> GetResource(const Guid& guid);
+
 		bool ResourceExists(const String& path);
 	private:
 		Ref<Resource> m_RootResource;

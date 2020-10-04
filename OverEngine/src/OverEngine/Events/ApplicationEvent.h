@@ -2,8 +2,8 @@
 
 #include "Event.h"
 
-namespace OverEngine {
-
+namespace OverEngine
+{
 	class WindowCloseEvent : public Event
 	{
 	public:

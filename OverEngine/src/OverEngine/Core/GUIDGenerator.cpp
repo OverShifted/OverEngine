@@ -90,7 +90,7 @@ namespace OverEngine
 		string = other.string;
 	}
 
-	bool Guid::operator==(const Guid& other)
+	bool Guid::operator==(const Guid& other) const
 	{
 		for (int32_t i = 0; i < 16; i++)
 			if (data[i] != other.data[i])

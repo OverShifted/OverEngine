@@ -34,7 +34,7 @@ namespace OverEngine
 
 	void Renderer::BeginScene(const Mat4x4& viewMatrix, const Camera& camera)
 	{
-		s_SceneData->ViewProjectionMatrix = viewMatrix * camera.GetProjectionMatrix();
+		s_SceneData->ViewProjectionMatrix = viewMatrix * camera.GetProjection();
 	}
 
 	void Renderer::BeginScene(const Mat4x4& viewMatrix, const Mat4x4& projectionMatrix)
@@ -46,7 +46,7 @@ namespace OverEngine
 	{
 	}
 
-	void Renderer::Submit(const Ref<Shader>& shader, const Ref<VertexArray>& vertexArray, const Math::Mat4x4& transform /*= Math::Mat4x4(1.0f)*/)
+	void Renderer::Submit(const Ref<Shader>& shader, const Ref<VertexArray>& vertexArray, const Math::Mat4x4& transform)
 	{
 		shader->Bind();
 		shader->UploadUniformMat4("u_ViewProjMatrix", s_SceneData->ViewProjectionMatrix);

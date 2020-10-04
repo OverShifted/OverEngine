@@ -1,73 +1,77 @@
 #pragma once
 
 #include "OverEngine/Core/Math/Math.h"
+#include "OverEngine/Renderer/ClearFlags.h"
 
 namespace OverEngine
 {
-	enum class CameraType
-	{
-		Orthographic, Prespective
-	};
-
 	class Camera
 	{
 	public:
-		// Camera(const Mat4x4& viewMat, const Mat4x4& projMat, CameraType type, float aspectRatio, float orthoSizeOrFov);
-		Camera(CameraType type, float orthoSizeOrFov, float aspectRatio, float zNear, float zFar);
 		Camera() = default;
+		Camera(const Mat4x4& projection)
+			: m_Projection(projection) {}
 
-		~Camera() = default;
+		virtual ~Camera() = default;
 
-		void MakeOrthographic(float size, float aspectRatio, float zNear = -1.0f, float zFar = 1.0f);
-		void MakePrespective(float fov, float aspectRatio, float zNear = 0.05f, float zFar = 100.0f);
+		const Mat4x4& GetProjection() const { return m_Projection; }
+	protected:
+		Mat4x4 m_Projection = IDENTITY_MAT4X4;
+	};
 
-		inline const Mat4x4& GetProjectionMatrix() const { return m_ProjectionMatrix; }
+	class SceneCamera : public Camera
+	{
+	public:
+		enum class ProjectionType { Orthographic, Perspective };
+	public:
+		SceneCamera();
+		virtual ~SceneCamera() = default;
 
-		inline void SetProjectionMatrix(const Mat4x4& projMatrix) { m_ProjectionMatrix = projMatrix; RecalculateProjectionMatrix(); }
+		void SetOrthographic(float size, float nearClip, float farClip);
+		void SetPerspective(float verticalFOV, float nearClip, float farClip);
 
-		inline CameraType GetType() { return m_Type; }
-		inline void SetType(CameraType type) { m_Type = type; RecalculateProjectionMatrix(); }
+		void SetViewportSize(uint32_t width, uint32_t height);
 
-		inline bool IsOrthographic() const { return m_Type == CameraType::Orthographic; }
-		inline bool IsPrespective() const { return m_Type == CameraType::Prespective; }
+		float GetPerspectiveVerticalFOV() const { return m_PerspectiveFOV; }
+		void SetPerspectiveVerticalFOV(float verticalFov) { m_PerspectiveFOV = verticalFov; RecalculateProjection(); }
+		float GetPerspectiveNearClip() const { return m_PerspectiveNear; }
+		void SetPerspectiveNearClip(float nearClip) { m_PerspectiveNear = nearClip; RecalculateProjection(); }
+		float GetPerspectiveFarClip() const { return m_PerspectiveFar; }
+		void SetPerspectiveFarClip(float farClip) { m_PerspectiveFar = farClip; RecalculateProjection(); }
 
-		inline void SetAspectRatio(float aspectRatio) { m_AspectRatio = aspectRatio; RecalculateProjectionMatrix(); }
-		inline float GetAspectRatio() const { return m_AspectRatio; }
+		float GetOrthographicSize() const { return m_OrthographicSize; }
+		void SetOrthographicSize(float size) { m_OrthographicSize = size; RecalculateProjection(); }
+		float GetOrthographicNearClip() const { return m_OrthographicNear; }
+		void SetOrthographicNearClip(float nearClip) { m_OrthographicNear = nearClip; RecalculateProjection(); }
+		float GetOrthographicFarClip() const { return m_OrthographicFar; }
+		void SetOrthographicFarClip(float farClip) { m_OrthographicFar = farClip; RecalculateProjection(); }
 
-		inline void SetOrthographicSize(float orthographicSize) { m_OrthographicSize = orthographicSize; RecalculateProjectionMatrix(); }
-		inline float GetOrthographicSize() const { return m_OrthographicSize; }
-
-		inline void SetFieldOfView(float fov) { m_FieldOfView = fov; RecalculateProjectionMatrix(); }
-		inline float GetFieldOfView() const { return m_FieldOfView; }
-
-		inline void SetZNear(float value) { m_ZNear = value; RecalculateProjectionMatrix(); }
-		inline float GetZNear() const { return m_ZNear; }
-
-		inline void SetZFar(float value) { m_ZFar = value; RecalculateProjectionMatrix(); }
-		inline float GetZFar() const { return m_ZFar; }
+		ProjectionType GetProjectionType() const { return m_ProjectionType; }
+		void SetProjectionType(ProjectionType type) { m_ProjectionType = type; RecalculateProjection(); }
 
 		inline void SetClearColor(const Color& color) { m_ClearColor = color; }
-		inline const Color& GetClearColor() { return m_ClearColor; }
+		inline const Color& GetClearColor() const { return m_ClearColor; }
 
-		inline void SetIsClearingColor(bool value) { m_IsClearingColor = value; }
-		inline bool GetIsClearingColor() { return m_IsClearingColor; }
+		inline bool IsClearingColor() const { return m_ClearFlags & ClearFlags_ClearColor; }
+		inline bool IsClearingDepth() const { return m_ClearFlags & ClearFlags_ClearDepth; }
 
-		inline void SetIsClearingDepth(bool value) { m_IsClearingDepth = value; }
-		inline bool GetIsClearingDepth() { return m_IsClearingDepth; }
+		inline ClearFlags& GetClearFlags() { return m_ClearFlags; }
+		inline const ClearFlags& GetClearFlags() const { return m_ClearFlags; }
+		inline void SetClearFlags(const ClearFlags& flags) { m_ClearFlags = flags; }
 	protected:
-		void RecalculateProjectionMatrix();
+		void RecalculateProjection();
 	protected:
-		// Projection Stuff
-		CameraType m_Type;
-		float m_AspectRatio;
-		float m_ZNear, m_ZFar;
-		union { float m_FieldOfView, m_OrthographicSize; };
+		ProjectionType m_ProjectionType = ProjectionType::Orthographic;
 
-		// Runtime
-		Mat4x4 m_ProjectionMatrix;
+		float m_PerspectiveFOV = glm::radians(45.0f);
+		float m_PerspectiveNear = 0.01f, m_PerspectiveFar = 1000.0f;
 
-		bool m_IsClearingColor = true;
-		bool m_IsClearingDepth = true;
+		float m_OrthographicSize = 10.0f;
+		float m_OrthographicNear = -1.0f, m_OrthographicFar = 1.0f;
+
+		float m_AspectRatio = 0.0f;
+
+		ClearFlags m_ClearFlags = ClearFlags_ClearColor | ClearFlags_ClearDepth;
 		Color m_ClearColor = Color(0.0f, 0.1f, 0.5f, 1.0f);
 	};
 }

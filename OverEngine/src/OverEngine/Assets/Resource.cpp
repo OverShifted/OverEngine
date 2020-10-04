@@ -233,6 +233,26 @@ namespace OverEngine
 		return currentResource;
 	}
 
+	static Ref<Resource> FindResByGuidRecursive(Ref<Resource> res, const Guid& guid)
+	{
+		if (res->GetGuid() == guid)
+			return res;
+
+		if (!res->IsDirectory())
+			return nullptr;
+
+		for (const auto& r : res->GetChildren())
+			if (auto result = FindResByGuidRecursive(r, guid))
+				return result;
+
+		return nullptr;
+	};
+
+	inline Ref<Resource> ResourceCollection::GetResource(const Guid& guid)
+	{
+		return FindResByGuidRecursive(m_RootResource, guid);
+	}
+
 	bool ResourceCollection::ResourceExists(const String& path)
 	{
 		if (std::string_view(path.c_str(), 9) != "assets://")

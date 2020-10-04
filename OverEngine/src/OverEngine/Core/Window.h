@@ -10,15 +10,13 @@ namespace OverEngine {
 	struct WindowProps
 	{
 		String Title;
-		unsigned int Width;
-		unsigned int Height;
-		bool DoubleBuffered;
+		uint32_t Width;
+		uint32_t Height;
 
 		WindowProps(const String& title = "OverEngine",
-			        unsigned int width = 800,
-			        unsigned int height = 600,
-			        bool doubleBuffered = true)
-			: Title(title), Width(width), Height(height), DoubleBuffered(doubleBuffered)
+					uint32_t width = 1280,
+					uint32_t height = 720)
+			: Title(title), Width(width), Height(height)
 		{
 		}
 	};
@@ -37,19 +35,28 @@ namespace OverEngine {
 
 		virtual void OnUpdate() = 0;
 
-		virtual unsigned int GetWidth() const = 0;
-		virtual unsigned int GetHeight() const = 0;
+		virtual uint32_t GetWidth() const = 0;
+		virtual uint32_t GetHeight() const = 0;
 
 		// Window attributes
 		virtual void SetEventCallback(const EventCallbackFn& callback) = 0;
 		virtual void SetVSync(bool enabled) = 0;
 		virtual bool IsVSync() const = 0;
-		virtual bool IsDoubleBuffered() const = 0;
 
+		virtual void SetTitle(const char* title) = 0;
+
+		// Mouse position
+		virtual void SetMousePosition(Vector2 position) = 0;
+		virtual Vector2 GetMousePosition() = 0;
+
+		// Clipboard
+		virtual void SetClipboardText(const char* text) = 0;
+		virtual const char* GetClipboardText() = 0;
+
+		// Internal stuff
 		virtual void* GetNativeWindow() const = 0;
 		virtual RendererContext& GetRendererContext() const = 0;
 
 		static Scope<Window> Create(const WindowProps& props = WindowProps());
 	};
-
 }

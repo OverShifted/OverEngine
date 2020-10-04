@@ -2,29 +2,37 @@
 #include "Application.h"
 
 #include "OverEngine/Core/Log.h"
-#include "OverEngine/Input/Input.h"
+#include "OverEngine/Core/Random.h"
 #include "OverEngine/Input/InputSystem.h"
 
 #include "OverEngine/ImGui/ImGuiLayer.h"
 
 #include "OverEngine/Renderer/Renderer.h"
-#include "OverEngine/Renderer/Renderer2D.h"
 
 namespace OverEngine
 {
 	Application* Application::s_Instance = nullptr;
 
-	Application::Application(String name, bool useInternalRenderer)
-		: m_UseInternalRenderer(useInternalRenderer)
+	Application::Application(const ApplicationProps& props)
 	{
 		s_Instance = this;
 
-		WindowProps props = WindowProps(name, 1280, 720, true);
-		m_Window = Window::Create(props);
+		// Init features
+		Runtime::Init(props.RuntimeType);
+		Log::Init();
+		Random::Init();
+
+		// Some window should exist to init Renderer
+		m_Window = Window::Create(props.MainWindowProps);
 		m_Window->SetEventCallback(BIND_FN(Application::OnEvent));
 
-		if (m_UseInternalRenderer)
-			Renderer::Init();
+		Renderer::Init();
+
+		#ifdef _MSC_VER
+		OE_CORE_INFO("OverEngine v0.0 [MSC {0}]", _MSC_VER);
+		#else
+		OE_CORE_INFO("OverEngine v0.0");
+		#endif
 
 		m_ImGuiLayer = new ImGuiLayer();
 		PushOverlay(m_ImGuiLayer);
@@ -32,8 +40,7 @@ namespace OverEngine
 
 	Application::~Application()
 	{
-		if (m_UseInternalRenderer)
-			Renderer::Shutdown();
+		Renderer::Shutdown();
 	}
 
 	void Application::PushLayer(Layer* layer)
@@ -76,7 +83,7 @@ namespace OverEngine
 				m_ImGuiLayer->End();
 			}
 			
-			GetMainWindow().OnUpdate();
+			m_Window->OnUpdate();
 			Time::RecalculateDeltaTime();
 			InputSystem::OnUpdate();
 		}

@@ -5,7 +5,7 @@
 #include "OverEngine/Events/MouseEvent.h"
 #include "OverEngine/Events/KeyEvent.h"
 
-#include "OverEngine/Core/Application.h"
+#include "OverEngine/Core/Runtime/Application.h"
 
 #include "OverEngine/Renderer/RendererContext.h"
 #include "OverEngine/Renderer/RendererAPI.h"
@@ -36,10 +36,9 @@ namespace OverEngine
 
 	void WindowsWindow::Init(const WindowProps& props)
 	{
-		m_Data.Title          = props.Title;
-		m_Data.Width          = props.Width;
-		m_Data.Height         = props.Height;
-		m_Data.DoubleBuffered = props.DoubleBuffered;
+		m_Data.Title = props.Title;
+		m_Data.Width = props.Width;
+		m_Data.Height = props.Height;
 
 		OE_CORE_INFO("Creating window {0} ({1}, {2})", props.Title, props.Width, props.Height);
 
@@ -58,9 +57,6 @@ namespace OverEngine
 			if (RendererAPI::GetAPI() == RendererAPI::API::OpenGL)
 				glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
 		#endif
-
-		if (!m_Data.DoubleBuffered)
-			glfwWindowHint(GLFW_DOUBLEBUFFER, false);
 
 		m_Window = glfwCreateWindow((int)props.Width, (int)props.Height, m_Data.Title.c_str(), nullptr, nullptr);
 		s_WindowCount++;
@@ -116,13 +112,13 @@ namespace OverEngine
 			}
 		});
 
-		glfwSetCharCallback(m_Window, [](GLFWwindow* window, unsigned int keycode)
-			{
-				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+		glfwSetCharCallback(m_Window, [](GLFWwindow* window, uint32_t keycode)
+		{
+			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
 
-				KeyTypedEvent event(keycode);
-				data.EventCallback(event);
-			});
+			KeyTypedEvent event(keycode);
+			data.EventCallback(event);
+		});
 
 		glfwSetMouseButtonCallback(m_Window, [](GLFWwindow* window, int button, int action, int mods)
 		{
@@ -215,9 +211,30 @@ namespace OverEngine
 		return m_Data.VSync;
 	}
 
-
-	bool WindowsWindow::IsDoubleBuffered() const
+	void WindowsWindow::SetTitle(const char* title)
 	{
-		return m_Data.DoubleBuffered;
+		glfwSetWindowTitle(m_Window, title);
+	}
+
+	void WindowsWindow::SetMousePosition(Vector2 position)
+	{
+		glfwSetCursorPos(m_Window, (double)position.x, (double)position.y);
+	}
+
+	Vector2 WindowsWindow::GetMousePosition()
+	{
+		double x, y;
+		glfwGetCursorPos(m_Window, &x, &y);
+		return { x, y };
+	}
+
+	void WindowsWindow::SetClipboardText(const char* text)
+	{
+		glfwSetClipboardString(m_Window, text);
+	}
+
+	const char* WindowsWindow::GetClipboardText()
+	{
+		return glfwGetClipboardString(m_Window);
 	}
 }

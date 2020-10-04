@@ -50,7 +50,6 @@ namespace OverEngine
 
 		s_ManagerData->MasterTextures.push_back(texture);
 
-
 		if (s_ManagerData->GPUTextures.empty())
 		{
 			s_ManagerData->GPUTextures.push_back(GAPI::Texture2D::Create());

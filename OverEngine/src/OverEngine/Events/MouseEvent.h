@@ -2,8 +2,8 @@
 
 #include "Event.h"
 
-namespace OverEngine {
-
+namespace OverEngine
+{
 	class MouseMovedEvent : public Event
 	{
 	public:
@@ -92,5 +92,4 @@ namespace OverEngine {
 
 		EVENT_CLASS_TYPE(MouseButtonReleased)
 	};
-
 }

@@ -8,91 +8,77 @@ using namespace OverEngine;
 #include <OverEngine/Assets/Asset.h>
 #include <OverEngine/Core/FileSystem/FileSystem.h>
 
-#include "ViewportPanel.h"
+#include "SceneEditor.h"
+#include "Panels/ViewportPanel.h"
+#include "Panels/SceneHierarchyPanel.h"
+#include "Panels/ConsolePanel.h"
+#include "Panels/AssetsPanel.h"
 
-class EditorProject;
-
-Ref<EditorProject> NewProject(const String& name, String directoryPath);
-
-class EditorProject
+namespace OverEditor
 {
-public:
-	EditorProject() = default;
-	EditorProject(const String& path);
+	class EditorProject;
+	class EditorLayer;
 
-	inline const String& GetRootPath() { return m_RootPath; }
-	inline const String& GetAssetsDirectoryPath() { return m_AssetsDirectoryPath; }
-	inline ResourceCollection& GetResources() { return m_Resources; }
+	Ref<EditorProject> NewProject(const String& name, String directoryPath);
 
-	String ResolvePhysicalAssetPath(const String& virtualPath);
-private:
-	
-private:
-	String m_Name;
-
-	String m_ProjectFilePath;
-	String m_RootPath;
-	String m_AssetsDirectoryPath;
-
-	ResourceCollection m_Resources;
-
-	FileWatcher m_Watcher;
-};
-
-class Editor
-{
-public:
-	Editor();
-
-	void OnUpdate();
-	void OnImGuiRender();
-	void OnEvent(Event& event);
-
-	inline void EditProject(const Ref<EditorProject>& project) { m_EditingProject = project; }
-	inline Ref<EditorProject> GetProject() { return m_EditingProject; }
-
-	inline void EditScene(const Ref<Scene>& scene, String path)
+	class EditorProject
 	{
-		m_OpenScene = scene;
-		m_OpenScenePath = path;
-		m_ViewportPanel.SetContext(m_OpenScene);
-		m_SelectedEntities.clear();
-	}
+	public:
+		EditorProject() = default;
+		EditorProject(const String& path);
 
-	inline Ref<Scene> GetScene() { return m_OpenScene; }
-private:
-	void OnMainMenubarGUI();
-	void OnMainDockSpaceGUI();
-	void OnToolbarGUI();
-	
-	void OnProjectManagerGUI();
+		inline const String& GetRootPath() { return m_RootPath; }
+		inline const String& GetAssetsDirectoryPath() { return m_AssetsDirectoryPath; }
+		inline ResourceCollection& GetResources() { return m_Resources; }
 
-	void OnSceneGraphGUI();
-	void OnInspectorGUI();
+		String ResolvePhysicalAssetPath(const String& virtualPath);
+	private:
 
-	void OnAssetsGUI();
-	void OnAssetImportGUI();
+	private:
+		String m_Name;
 
-	void OnConsoleGUI();
-private:
-	Ref<EditorProject> m_EditingProject;
-	Ref<Texture2D> m_IconsTexture;
-	UnorderedMap<String, Ref<Texture2D>> m_Icons;
+		String m_ProjectFilePath;
+		String m_RootPath;
+		String m_AssetsDirectoryPath;
 
-	bool m_IsProjectManagerOpen = true;
-	bool m_IsSceneGraphOpen     = true;
-	bool m_IsViewportOpen       = true;
-	bool m_IsAssetsBrowserOpen  = true;
+		ResourceCollection m_Resources;
 
-	Ref<Scene> m_OpenScene;
-	String m_OpenScenePath;
-	Vector<Entity> m_SelectedEntities;
+		FileWatcher m_Watcher;
+	};
 
-	ViewportPanel m_ViewportPanel;
+	class Editor
+	{
+	public:
+		Editor();
 
-	Vector<Ref<Resource>> m_SelectedResources;
-	bool m_AssetBrowserOneColumnView = false;
-	int m_AssetThumbnailSize = 100;
-	int m_AssetThumbnailSizeMin = 50;
-	int m_AssetThumbnailSizeMax = 300;
-};
+		void OnUpdate();
+		void OnImGuiRender();
+
+		inline Ref<EditorProject>& GetProject() { return m_EditingProject; }
+		inline UnorderedMap<String, Ref<Texture2D>>& GetIcons() { return m_Icons; }
+
+		void EditScene(const Ref<Scene>& scene, String path);
+	private:
+		void OnMainMenubarGUI();
+		void OnMainDockSpaceGUI();
+		void OnToolbarGUI();
+
+		void OnProjectManagerGUI();
+		void OnInspectorGUI();
+	private:
+		Ref<EditorProject> m_EditingProject;
+		Ref<Texture2D> m_IconsTexture;
+		UnorderedMap<String, Ref<Texture2D>> m_Icons;
+
+		bool m_IsProjectManagerOpen = true;
+
+		Ref<SceneEditor> m_SceneContext;
+
+		ViewportPanel m_ViewportPanel;
+		SceneHierarchyPanel m_SceneHierarchyPanel;
+		ConsolePanel m_ConsolePanel;
+		AssetsPanel m_AssetsPanel;
+
+		friend class EditorLayer;
+	};
+}

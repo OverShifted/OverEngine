@@ -108,15 +108,15 @@ namespace OverEngine
 		virtual void Bind() const = 0;
 		virtual void Unbind() const = 0;
 
-		virtual void BufferData(float* vertices, uint32_t size, bool staticDraw = true) const = 0;
-		virtual void BufferSubData(float* vertices, uint32_t size, uint32_t offset = 0) const = 0;
+		virtual void BufferData(const float* vertices, uint32_t size, bool staticDraw = true) const = 0;
+		virtual void BufferSubData(const float* vertices, uint32_t size, uint32_t offset = 0) const = 0;
 		virtual void AllocateStorage(uint32_t size) const = 0;
 
 		virtual const BufferLayout& GetLayout() const = 0;
 		virtual void SetLayout(const BufferLayout& layout) = 0;
 
 		static Ref<VertexBuffer> Create();
-		static Ref<VertexBuffer> Create(float* vertices, uint32_t size, bool staticDraw = true);
+		static Ref<VertexBuffer> Create(const float* vertices, uint32_t size, bool staticDraw = true);
 	};
 
 	class IndexBuffer
@@ -127,13 +127,13 @@ namespace OverEngine
 		virtual void Bind() const = 0;
 		virtual void Unbind() const = 0;
 
-		virtual void BufferData(uint32_t* indices, uint32_t count, bool staticDraw = true) const = 0;
-		virtual void BufferSubData(uint32_t* indices, uint32_t count, uint32_t offset = 0) const = 0;
+		virtual void BufferData(const uint32_t* indices, uint32_t count, bool staticDraw = true) const = 0;
+		virtual void BufferSubData(const uint32_t* indices, uint32_t count, uint32_t offset = 0) const = 0;
 		virtual void AllocateStorage(uint32_t count) const = 0;
 
 		virtual uint32_t GetCount() const = 0;
 
 		static Ref<IndexBuffer> Create();
-		static Ref<IndexBuffer> Create(uint32_t* indices, uint32_t count, bool staticDraw = true);
+		static Ref<IndexBuffer> Create(const uint32_t* indices, uint32_t count, bool staticDraw = true);
 	};
 }

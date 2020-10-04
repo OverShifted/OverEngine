@@ -8,24 +8,21 @@
 
 namespace OverEngine
 {
-	unsigned int OpenGLContext::s_ContextCount = 0;
-
-	OpenGLContext::OpenGLContext(Window* windowHandle)
-		: m_WindowHandle(static_cast<GLFWwindow*>(windowHandle->GetNativeWindow())),
-		m_GenericWindowHandle(windowHandle)
+	OpenGLContext::OpenGLContext(Window* window)
 	{
-		OE_CORE_ASSERT(windowHandle, "Window handle is null!")
+		m_WindowHandle = static_cast<GLFWwindow*>(window->GetNativeWindow());
+		OE_CORE_ASSERT(window, "Window handle is null!")
 	}
 
 	void OpenGLContext::Init()
 	{
-		glfwMakeContextCurrent(m_WindowHandle);
-		if (s_ContextCount == 0)
+		static bool glLoaded = false;
+		if (!glLoaded)
 		{
+			glfwMakeContextCurrent(m_WindowHandle);
 			int status = gladLoadGL(glfwGetProcAddress);
 			OE_CORE_ASSERT(status, "Failed to initialize Glad!");
 		}
-		s_ContextCount++;
 
 		OE_CORE_INFO("OpenGL info");
 		OE_CORE_INFO("    Version  : {0}", GetInfoVersion());
@@ -41,10 +38,7 @@ namespace OverEngine
 
 	void OpenGLContext::SwapBuffers()
 	{
-		if (m_GenericWindowHandle->IsDoubleBuffered())
-			glfwSwapBuffers(m_WindowHandle);
-		else
-			glFlush();
+		glfwSwapBuffers(m_WindowHandle);
 	}
 
 	void OpenGLContext::Current()

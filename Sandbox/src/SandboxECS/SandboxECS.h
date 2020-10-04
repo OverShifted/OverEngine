@@ -14,7 +14,6 @@ public:
 	void OnImGuiRender() override;
 	void OnEvent(Event& event) override;
 
-	bool OnWindowResizeEvent(WindowResizeEvent& event);
 	bool OnMouseScrolledEvent(MouseScrolledEvent& event);
 private:
 
@@ -33,5 +32,5 @@ private:
 	Entity m_Player;
 	Entity m_MainCamera;
 	TransformComponent* m_MainCameraTransform;
-	Camera* m_MainCameraCameraHandle;
+	SceneCamera* m_MainCameraCameraHandle;
 };

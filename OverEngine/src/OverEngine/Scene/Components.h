@@ -66,89 +66,23 @@ namespace OverEngine
 
 	struct TransformComponent : public Component
 	{
-	public:
-		TransformComponent(
-			Entity& entity,
-			const Vector3& Position = Vector3(0.0f),
-			const Quaternion& Rotation = Quaternion(1.0, 0.0, 0.0, 0.0),
-			const Vector3& Scale = Vector3(1.0f)
-		)
-			: Component(entity), m_Position(Position), m_Rotation(Rotation), m_EulerAngles(Vector3(0)), m_Scale(Scale)
-		{
-			RecalculateTransformationMatrix();
-		}
+		OverEngine::Transform Transform;
 
-		~TransformComponent() = default;
+		TransformComponent() = default;
+		TransformComponent(const TransformComponent&) = default;
 
-		void RecalculateTransformationMatrix()
-		{
-			m_TransformationMatrix =
-				glm::translate(Mat4x4(1.0), m_Position) *
-				glm::mat4_cast(m_Rotation) *
-				glm::scale(Mat4x4(1.0), m_Scale);
-		}
+		TransformComponent(Entity & entity, const OverEngine::Transform& transform)
+			: Component(entity), Transform(transform) {}
 
-		inline const Mat4x4& GetTransformationMatrix() const { return m_TransformationMatrix; }
-		inline void SetTransformationMatrix(const Mat4x4& transformationMatrix)
-		{
-			m_TransformationMatrix = transformationMatrix;
-			m_Changed = true;
-			m_ChangedByPhysics = false;
-		}
+		TransformComponent(Entity & entity)
+			: Component(entity) {}
 
-		inline const Vector3& GetPosition() const { return m_Position; }
-		inline const Vector3& GetEulerAngles() const { return m_EulerAngles; }
-		inline const Quaternion& GetRotation() const { return m_Rotation; }
-		inline const Vector3& GetScale() const { return m_Scale; }
-
-		inline void SetPosition(const Vector3& position)
-		{
-			m_Position = position;
-			m_Changed = true;
-			m_ChangedByPhysics = false;
-		}
-
-		inline void SetRotation(const Quaternion& rotation)
-		{
-			m_Rotation = rotation;
-			m_EulerAngles = QuaternionEulerAngles(m_Rotation);
-			m_Changed = true;
-			m_ChangedByPhysics = false;
-		}
-
-		inline void SetEulerAngles(const Vector3& rotation)
-		{
-			m_EulerAngles = rotation;
-			m_Rotation = QuaternionEuler(m_EulerAngles);
-			m_Changed = true;
-			m_ChangedByPhysics = false;
-		}
-
-		inline void SetScale(const Vector3& scale)
-		{
-			m_Scale = scale;
-			m_Changed = true;
-			m_ChangedByPhysics = false;
-		}
-
-		operator Mat4x4& () { return m_TransformationMatrix; }
-		operator const Mat4x4& () const { return m_TransformationMatrix; }
-
-		inline bool IsChanged() { return m_Changed; }
+		operator Mat4x4() const { return Transform.GetMatrix(); }
+		operator const Mat4x4&() { return Transform.GetMatrix(); }
+		const OverEngine::Transform* operator->() const { return &Transform; }
+		OverEngine::Transform* operator->() { return &Transform; }
 
 		COMPONENT_TYPE(TransformComponent)
-	private:
-		Vector3 m_Position;
-		Vector3 m_EulerAngles;
-		Quaternion m_Rotation;
-		Vector3 m_Scale;
-
-		// Runtime
-		bool m_Changed = true;
-		bool m_ChangedByPhysics = false;
-		Mat4x4 m_TransformationMatrix;
-
-		friend class Scene;
 	};
 
 	////////////////////////////////////////////////////////
@@ -157,12 +91,12 @@ namespace OverEngine
 
 	struct CameraComponent : public Component
 	{
-		OverEngine::Camera Camera;
+		SceneCamera Camera;
 
 		CameraComponent() = default;
 		CameraComponent(const CameraComponent&) = default;
 
-		CameraComponent(Entity& entity, const OverEngine::Camera& camera)
+		CameraComponent(Entity& entity, const SceneCamera& camera)
 			: Component(entity), Camera(camera) {}
 
 		CameraComponent(Entity& entity)

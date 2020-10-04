@@ -129,6 +129,7 @@ namespace OverEngine
 
 		std::array<GLenum, 2> glShaderIDs;
 		int glShaderIdIndex = 0;
+		bool allCompiled = true;
 
 		for (auto& src : shaderSources)
 		{
@@ -137,7 +138,7 @@ namespace OverEngine
 
 			GLuint shader = glCreateShader(type);
 
-			glShaderSource(shader, 1, &source, 0);
+			glShaderSource(shader, 1, &source, nullptr);
 
 			glCompileShader(shader);
 
@@ -149,12 +150,15 @@ namespace OverEngine
 				glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &maxLength);
 
 				Vector<GLchar> infoLog(maxLength);
-				glGetShaderInfoLog(shader, maxLength, &maxLength, &infoLog[0]);
+				glGetShaderInfoLog(shader, maxLength, &maxLength, infoLog.data());
 
 				glDeleteShader(shader);
+				glDeleteProgram(program);
 
 				OE_CORE_ERROR("{0}", infoLog.data());
-				OE_CORE_ASSERT(false, "Shader compilation failure!");
+				OE_THROW(Exception("Shader compilation failure!"));
+				allCompiled = false;
+
 				break;
 			}
 
@@ -163,39 +167,42 @@ namespace OverEngine
 			glShaderIDs[glShaderIdIndex++] = shader;
 		}
 
-		m_RendererID = program;
-
-		glLinkProgram(program);
-
-		GLint isLinked = 0;
-		glGetProgramiv(program, GL_LINK_STATUS, &isLinked);
-		if (isLinked == GL_FALSE)
+		if (allCompiled)
 		{
-			GLint maxLength = 0;
-			glGetProgramiv(program, GL_INFO_LOG_LENGTH, &maxLength);
+			m_RendererID = program;
 
-			Vector<GLchar> infoLog(maxLength);
-			glGetProgramInfoLog(program, maxLength, &maxLength, &infoLog[0]);
+			glLinkProgram(program);
 
-			glDeleteProgram(program);
+			GLint isLinked = 0;
+			glGetProgramiv(program, GL_LINK_STATUS, &isLinked);
+			if (isLinked == GL_FALSE)
+			{
+				GLint maxLength = 0;
+				glGetProgramiv(program, GL_INFO_LOG_LENGTH, &maxLength);
+
+				Vector<GLchar> infoLog(maxLength);
+				glGetProgramInfoLog(program, maxLength, &maxLength, infoLog.data());
+
+				glDeleteProgram(program);
+
+				for (auto id : glShaderIDs)
+					glDeleteShader(id);
+
+				std::ofstream a("log.txt");
+				a << infoLog.data();
+				a.flush();
+				a.close();
+
+				OE_CORE_ERROR("{0}", infoLog.data());
+				OE_CORE_ASSERT(false, "Shader link failure!");
+				return;
+			}
 
 			for (auto id : glShaderIDs)
+			{
+				glDetachShader(program, id);
 				glDeleteShader(id);
-
-			std::ofstream a("log.txt");
-			a << infoLog.data();
-			a.flush();
-			a.close();
-
-			OE_CORE_ERROR("{0}", infoLog.data());
-			OE_CORE_ASSERT(false, "Shader link failure!");
-			return;
-		}
-
-		for (auto id : glShaderIDs)
-		{
-			glDetachShader(program, id);
-			glDeleteShader(id);
+			}
 		}
 	}
 
@@ -209,51 +216,51 @@ namespace OverEngine
 		glUseProgram(0);
 	}
 
-	void OpenGLShader::UploadUniformInt(const String& name, int value)
+	void OpenGLShader::UploadUniformInt(const char* name, int value)
 	{
-		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
+		GLint location = glGetUniformLocation(m_RendererID, name);
 		glUniform1i(location, value);
 	}
 
-	void OpenGLShader::UploadUniformIntArray(const String& name, const int* value, int count)
+	void OpenGLShader::UploadUniformIntArray(const char* name, const int* value, int count)
 	{
-		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
+		GLint location = glGetUniformLocation(m_RendererID, name);
 		glUniform1iv(location, count, value);
 	}
 
-	void OpenGLShader::UploadUniformFloat(const String& name, float value)
+	void OpenGLShader::UploadUniformFloat(const char* name, float value)
 	{
-		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
+		GLint location = glGetUniformLocation(m_RendererID, name);
 		glUniform1f(location, value);
 	}
 
-	void OpenGLShader::UploadUniformFloat2(const String& name, const Math::Vector2& value)
+	void OpenGLShader::UploadUniformFloat2(const char* name, const Math::Vector2& value)
 	{
-		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
+		GLint location = glGetUniformLocation(m_RendererID, name);
 		glUniform2f(location, value.x, value.y);
 	}
 
-	void OpenGLShader::UploadUniformFloat3(const String& name, const Math::Vector3& value)
+	void OpenGLShader::UploadUniformFloat3(const char* name, const Math::Vector3& value)
 	{
-		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
+		GLint location = glGetUniformLocation(m_RendererID, name);
 		glUniform3f(location, value.x, value.y, value.z);
 	}
 
-	void OpenGLShader::UploadUniformFloat4(const String& name, const Math::Vector4& value)
+	void OpenGLShader::UploadUniformFloat4(const char* name, const Math::Vector4& value)
 	{
-		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
+		GLint location = glGetUniformLocation(m_RendererID, name);
 		glUniform4f(location, value.x, value.y, value.z, value.w);
 	}
 
-	void OpenGLShader::UploadUniformMat3(const String& name, const Math::Mat3x3& matrix)
+	void OpenGLShader::UploadUniformMat3(const char* name, const Math::Mat3x3& matrix)
 	{
-		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
+		GLint location = glGetUniformLocation(m_RendererID, name);
 		glUniformMatrix3fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
 	}
 
-	void OpenGLShader::UploadUniformMat4(const String& name, const Math::Mat4x4& matrix)
+	void OpenGLShader::UploadUniformMat4(const char* name, const Math::Mat4x4& matrix)
 	{
-		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
+		GLint location = glGetUniformLocation(m_RendererID, name);
 		glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
 	}
 

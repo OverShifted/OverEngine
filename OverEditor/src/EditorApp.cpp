@@ -5,13 +5,23 @@
 
 using namespace OverEngine;
 
+static ApplicationProps GenApplicationProps()
+{
+	ApplicationProps props;
+	props.MainWindowProps.Title = "OverEditor";
+	props.MainWindowProps.Width = 1366;
+	props.MainWindowProps.Height = 768;
+	props.RuntimeType = RuntimeType::Editor;
+	return props;
+}
+
 class EditorApp : public Application
 {
 public:
 	EditorApp(int argc, char** argv)
-		: Application("OverEditor", true)
+		: Application(GenApplicationProps())
 	{
-		PushLayer(new EditorLayer());
+		PushLayer(new OverEditor::EditorLayer());
 		m_ImGuiEnabled = true;
 
 		for (int i = 0; i < argc; i++)

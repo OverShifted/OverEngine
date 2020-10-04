@@ -14,6 +14,13 @@ namespace OverEngine
 		const char* message,
 		const void* userParam)
 	{
+		// Suppress some useless warnings
+		switch (id)
+		{
+		// NVIDIA: "shader will be recompiled due to GL state mismatches"
+		case 131218: return;
+		}
+
 		switch (severity)
 		{
 		case GL_DEBUG_SEVERITY_HIGH:         OE_CORE_CRITICAL(message); return;
@@ -57,12 +64,12 @@ namespace OverEngine
 		glClearDepth(depth);
 	}
 
-	void OpenGLRendererAPI::Clear(bool clearColorBuffer, bool clearDepthBuffer)
+	void OpenGLRendererAPI::Clear(const ClearFlags& flags)
 	{
 		GLbitfield mask = 0;
-		if (clearColorBuffer)
+		if (flags & ClearFlags_ClearColor)
 			mask |= GL_COLOR_BUFFER_BIT;
-		if (clearDepthBuffer)
+		if (flags & ClearFlags_ClearDepth)
 			mask |= GL_DEPTH_BUFFER_BIT;
 		glClear(mask);
 	}

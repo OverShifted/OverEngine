@@ -16,16 +16,16 @@ namespace OverEngine
 
 		virtual const String& GetName() const = 0;
 
-		virtual void UploadUniformInt(const String& name, int value) = 0;
-		virtual void UploadUniformIntArray(const String& name, const int* value, int count) = 0;
+		virtual void UploadUniformInt(const char* name, int value) = 0;
+		virtual void UploadUniformIntArray(const char* name, const int* value, int count) = 0;
 
-		virtual void UploadUniformFloat(const String& name, float value) = 0;
-		virtual void UploadUniformFloat2(const String& name, const Math::Vector2& value) = 0;
-		virtual void UploadUniformFloat3(const String& name, const Math::Vector3& value) = 0;
-		virtual void UploadUniformFloat4(const String& name, const Math::Vector4& value) = 0;
+		virtual void UploadUniformFloat(const char* name, float value) = 0;
+		virtual void UploadUniformFloat2(const char* name, const Math::Vector2& value) = 0;
+		virtual void UploadUniformFloat3(const char* name, const Math::Vector3& value) = 0;
+		virtual void UploadUniformFloat4(const char* name, const Math::Vector4& value) = 0;
 
-		virtual void UploadUniformMat3(const String& name, const Math::Mat3x3& matrix) = 0;
-		virtual void UploadUniformMat4(const String& name, const Math::Mat4x4& matrix) = 0;
+		virtual void UploadUniformMat3(const char* name, const Math::Mat3x3& matrix) = 0;
+		virtual void UploadUniformMat4(const char* name, const Math::Mat4x4& matrix) = 0;
 
 		virtual bool Reload(String filePath = String()) = 0;
 		virtual bool Reload(const String& vertexSrc, const String& fragmentSrc) = 0;

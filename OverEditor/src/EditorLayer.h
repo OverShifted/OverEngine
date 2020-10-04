@@ -1,25 +1,22 @@
 #pragma once
 
 #include "Editor.h"
-
 #include <OverEngine.h>
 
-using namespace OverEngine;
-
-class EditorLayer : public Layer
+namespace OverEditor
 {
-public:
-	EditorLayer();
-		
-	void OnAttach() override {};
-	void OnUpdate(TimeStep DeltaTime) override;
-	void OnImGuiRender() override;
-	void OnEvent(Event& event) override;
+	using namespace OverEngine;
 
-	static EditorLayer& Get() { return *s_Instance; }
-	Editor& GetEditor() { return m_Editor; }
-private:
-	static EditorLayer* s_Instance;
+	class EditorLayer : public Layer
+	{
+	public:
+		EditorLayer();
 
-	Editor m_Editor;
-};
+		void OnAttach() override {};
+		void OnUpdate(TimeStep DeltaTime) override;
+		void OnImGuiRender() override;
+		void OnEvent(Event& event) override;
+	private:
+		Editor m_Editor;
+	};
+}

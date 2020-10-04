@@ -1,12 +1,14 @@
 #pragma once
 
+// For type aliases
 #include <memory>
 #include <vector>
 #include <string>
 #include <unordered_map>
 #include <map>
+
+// For OE(_CORE)_ASSERT
 #include "OverEngine/Core/Log.h"
-#include "OverEngine/Core/Structs/List.h"
 // #include "OverEngine/Core/Memory/Allocator.h"
 
 // Platform detection using predefined macros
@@ -38,7 +40,7 @@
 		#error "Unknown Apple platform!"
 	#endif
 /* We also have to check __ANDROID__ before __linux__
- * since android is based on the linux kernel
+ * since android is based on the Linux kernel
  * it has __linux__ defined */
 #elif defined(__ANDROID__)
 	#define OE_PLATFORM_ANDROID
@@ -94,6 +96,9 @@
 
 #define OE_ARRAY_SIZE(a) (sizeof(a) / sizeof(*a))
 
+#define IMVEC2_2_VECTOR2(imvec2) (::OverEngine::Vector2(imvec2.x, imvec2.y))
+#define IMVEC4_2_VECTOR2(imvec4) (::OverEngine::Vector4(imvec4.x, imvec4.y, imvec4.z, imvec4.w))
+
 namespace OverEngine
 {
 	// Scope ////////////////////////////////////////////////////////////////////
@@ -131,17 +136,4 @@ namespace OverEngine
 	// Map //////////////////////////////////////////////////////////////////////
 	template<typename T, typename U>
 	using Map = std::map<T, U>;
-
-	// List /////////////////////////////////////////////////////////////////////
-	template<typename T>
-	using List = Structs::List<T>;
-
-	// TripleBinding ////////////////////////////////////////////////////////////
-	template<typename A, typename B, typename C>
-	struct TripleBinding
-	{
-		A first;
-		B middle;
-		C last;
-	};
 }

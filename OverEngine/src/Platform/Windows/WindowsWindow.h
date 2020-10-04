@@ -13,16 +13,23 @@ namespace OverEngine
 		WindowsWindow(const WindowProps& props);
 		virtual ~WindowsWindow();
 
-		void OnUpdate() override;
+		virtual void OnUpdate() override;
 
-		inline unsigned int GetWidth() const override { return m_Data.Width; }
-		inline unsigned int GetHeight() const override { return m_Data.Height; }
+		inline virtual uint32_t GetWidth() const override { return m_Data.Width; }
+		inline virtual uint32_t GetHeight() const override { return m_Data.Height; }
 
 		// Window attributes
-		inline void SetEventCallback(const EventCallbackFn& callback) override { m_Data.EventCallback = callback; }
-		void SetVSync(bool enabled) override;
-		bool IsVSync() const override;
-		bool IsDoubleBuffered() const override;
+		inline virtual void SetEventCallback(const EventCallbackFn& callback) override { m_Data.EventCallback = callback; }
+		virtual void SetVSync(bool enabled) override;
+		virtual bool IsVSync() const override;
+
+		virtual void SetTitle(const char* title) override;
+
+		virtual void SetMousePosition(Vector2 position) override;
+		virtual Vector2 GetMousePosition() override;
+
+		virtual void SetClipboardText(const char* text) override;
+		virtual const char* GetClipboardText() override;
 
 		inline virtual void* GetNativeWindow() const { return m_Window; }
 		inline virtual RendererContext& GetRendererContext() const { return *m_Context; }
@@ -38,9 +45,8 @@ namespace OverEngine
 		struct WindowData
 		{
 			String Title;
-			unsigned int Width, Height;
+			uint32_t Width, Height;
 			bool VSync;
-			bool DoubleBuffered;
 
 			EventCallbackFn EventCallback;
 		};

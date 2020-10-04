@@ -30,9 +30,9 @@ namespace OverEngine
 			s_RendererAPI->SetClearDepth(depth);
 		}
 
-		inline static void Clear(bool clearColorBuffer = true, bool clearDepthBuffer = true)
+		inline static void Clear(const ClearFlags& flags = ClearFlags_ClearColor | ClearFlags_ClearDepth)
 		{
-			s_RendererAPI->Clear(clearColorBuffer, clearDepthBuffer);
+			s_RendererAPI->Clear(flags);
 		}
 
 		inline static void DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0)

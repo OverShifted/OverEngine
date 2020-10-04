@@ -5,6 +5,7 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/constants.hpp>
+#include <glm/gtx/fast_square_root.hpp>
 
 #include "Color.h"
 
@@ -21,10 +22,38 @@ namespace OverEngine
 
 		using Mat3x3 = glm::mat3;
 		using Mat4x4 = glm::mat4;
+		#define IDENTITY_MAT3X3 ::OverEngine::Math::Mat3x3(1.0f)
+		#define IDENTITY_MAT4X4 ::OverEngine::Math::Mat4x4(1.0f)
 
 		using Quaternion = glm::quat;
+		#define IDENTITY_QUATERNION ::OverEngine::Math::Quaternion(1.0, 0.0, 0.0, 0.0)
+		
+		struct Angle
+		{
+			Angle() = default;
+			Angle(float value, bool inRadians = true)
+				: Radians(inRadians ? value : glm::radians(value)) {}
 
-		inline Quaternion QuaternionEuler(Vector3 rot)
+			inline float GetRadians() const { return Radians; }
+			inline float GetDegrees() const { return glm::degrees(Radians); }
+
+			inline void SetRadians(float angle) { Radians = angle; }
+			inline void SetDegrees(float angle) { Radians = glm::radians(angle); }
+		private:
+			float Radians = 0;
+		};
+
+		enum class Direction
+		{
+			None, Up, Down, Right, Left
+		};
+
+		enum class Axis
+		{
+			None, X, Y, Z
+		};
+
+		inline Quaternion EulerAnglesToQuaternion(Vector3 rot)
 		{
 			return
 				glm::angleAxis(glm::radians(rot.x), Vector3{ 1, 0, 0 }) *
@@ -32,23 +61,26 @@ namespace OverEngine
 				glm::angleAxis(glm::radians(rot.z), Vector3{ 0, 0, 1 });
 		}
 
-		inline Vector3 QuaternionEulerAngles(Quaternion rot)
+		// Returns EulerAngles in degrees
+		inline Vector3 QuaternionToEulerAngles(Quaternion rot)
 		{
 			Vector3 val = glm::eulerAngles(rot);
-			return Vector3(glm::degrees(val.x), glm::degrees(val.y), glm::degrees(val.z));
+			return { glm::degrees(val.x), glm::degrees(val.y), glm::degrees(val.z) };
 		}
 
-		inline Vector3 QuaternionEulerAnglesRadians(Quaternion rot) { return  glm::eulerAngles(rot); }
+		// Returns EulerAngles in radians
+		inline Vector3 QuaternionToEulerAnglesRadians(Quaternion rot) { return glm::eulerAngles(rot); }
 
 		template<typename T>
 		T Clamp(T val, T min, T max)
 		{
 			if (val > max)
 				return max;
-			if (val < min)
+			else if (val < min)
 				return min;
 			return val;
 		}
 	}
+
 	using namespace Math;
 }

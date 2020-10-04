@@ -9,5 +9,7 @@ namespace OverEngine
 		virtual ~ImGuiPanel() = default;
 
 		virtual void OnImGuiRender() {}
+		virtual void SetIsOpen(bool isOpen) {}
+		virtual bool GetIsOpen() { return true; }
 	};
 }

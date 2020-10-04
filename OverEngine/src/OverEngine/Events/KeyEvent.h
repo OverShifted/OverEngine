@@ -2,8 +2,8 @@
 
 #include "Event.h"
 
-namespace OverEngine {
-
+namespace OverEngine
+{
 	class KeyEvent : public Event
 	{
 	public:

@@ -2,7 +2,6 @@
 
 #include "pcheader.h"
 
-#include "Init.h"
 #include <fstream>
 
 extern OverEngine::Application* OverEngine::CreateApplication(int argc, char** argv);
@@ -10,7 +9,6 @@ extern OverEngine::Application* OverEngine::CreateApplication(int argc, char** a
 int OverMain(int argc, char** argv) // Platform agnostic entry point
 {
 	OE_PROFILE_BEGIN_SESSION("StartUp", "OverEngineProfile-StartUp.json");
-	OverEngine::Initialize();
 	auto app = OverEngine::CreateApplication(argc, argv);
 	OE_PROFILE_END_SESSION();
 

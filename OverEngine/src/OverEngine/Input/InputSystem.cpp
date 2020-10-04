@@ -83,7 +83,7 @@ namespace OverEngine
 			info.x = value.first;
 			info.y = value.second;
 
-			for (InputActionCallBackFn callback : m_CallBacks)
+			for (auto& callback : m_CallBacks)
 				callback(info);
 		}
 		else
@@ -111,7 +111,7 @@ namespace OverEngine
 				info.x = value.first;
 				info.y = value.second;
 
-				for (InputActionCallBackFn callback : m_CallBacks)
+				for (auto& callback : m_CallBacks)
 					callback(info);
 			}
 			else
@@ -134,7 +134,7 @@ namespace OverEngine
 				info.bindingMode = m_Mode;
 				info.x = value.first;
 
-				for (InputActionCallBackFn callback : m_CallBacks)
+				for (auto& callback : m_CallBacks)
 					callback(info);
 				
 			}

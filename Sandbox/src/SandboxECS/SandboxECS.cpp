@@ -24,15 +24,15 @@ SandboxECS::SandboxECS()
 			{KeyCode::Down}, {KeyCode::Up}
 		}
 	});
-	CameraMovement.AddCallBack([&](InputAction::TriggerInfo& info) {
-		m_CameraMovementDirection = info.ReadValue<Vector2>();
+	CameraMovement.AddCallBack([&](const InputAction::TriggerInfo& info) {
+		m_CameraMovementDirection = { info.x, info.y };
 	});
 	actionMap->AddAction(CameraMovement);
 
 	InputAction CameraRotation(InputActionType::Button, {
 		{ {KeyCode::Q}, {KeyCode::E} }
 	});
-	CameraRotation.AddCallBack([&](InputAction::TriggerInfo& info) {
+	CameraRotation.AddCallBack([&](const InputAction::TriggerInfo& info) {
 		m_CameraRotationDirection = -info.x;
 	});
 	actionMap->AddAction(CameraRotation);
@@ -40,9 +40,9 @@ SandboxECS::SandboxECS()
 	InputAction EscapeKeyAction(InputActionType::Button, {
 		{ {KeyCode::Escape, true, false} }
 	});
-	EscapeKeyAction.AddCallBack([&](InputAction::TriggerInfo& info) {
-		m_MainCameraTransform->SetPosition({ 0.0f, 0.0f, 0.0f });
-		m_MainCameraTransform->SetRotation(QuaternionEuler({ 0.0f, 0.0f, 0.0f }));
+	EscapeKeyAction.AddCallBack([&](const InputAction::TriggerInfo& info) {
+		m_MainCameraTransform->Transform.SetPosition({ 0.0f, 0.0f, 0.0f });
+		m_MainCameraTransform->Transform.SetEulerAngles({ 0.0f, 0.0f, 0.0f });
 		m_MainCameraCameraHandle->SetOrthographicSize(10.0f);
 	});
 	actionMap->AddAction(EscapeKeyAction);
@@ -109,9 +109,9 @@ SandboxECS::SandboxECS()
 	obstacle.AddComponent<PhysicsBody2DComponent>(obstacleBodyProps);
 
 	auto& obstacleTransform = obstacle.GetComponent<TransformComponent>();
-	obstacleTransform.SetPosition({ 0.0f, -2.0f, 0.0f });
-	obstacleTransform.SetScale({ 4.0f, 1.0f, 1.0f });
-	obstacleTransform.SetRotation(QuaternionEuler({ 0.0f, 0.0f, 45.0f }));
+	obstacleTransform->SetPosition({ 0.0f, -2.0f, 0.0f });
+	obstacleTransform->SetScale({ 4.0f, 1.0f, 1.0f });
+	obstacleTransform->SetEulerAngles({ 0.0f, 0.0f, 45.0f });
 
 	// PhysicsCollider2D
 	auto& colliderList = obstacle.AddComponent<PhysicsColliders2DComponent>();
@@ -138,8 +138,8 @@ SandboxECS::SandboxECS()
 
 
 	auto& obstacle2Transform = obstacle2.GetComponent<TransformComponent>();
-	obstacle2Transform.SetScale({ 40.0f, 1.0f, 1.0f });
-	obstacle2Transform.SetPosition({ 0.0f, -8.0f, 0.0f });
+	obstacle2Transform->SetScale({ 40.0f, 1.0f, 1.0f });
+	obstacle2Transform->SetPosition({ 0.0f, -8.0f, 0.0f });
 
 	// PhysicsCollider2D
 	auto& colliderList2 = obstacle2.AddComponent<PhysicsColliders2DComponent>();
@@ -154,7 +154,8 @@ SandboxECS::SandboxECS()
 	m_MainCamera = m_Scene->CreateEntity("MainCamera");
 	auto& app = Application::Get();
 	float aspectRatio = (float)app.GetMainWindow().GetWidth() / (float)app.GetMainWindow().GetHeight();
-	m_MainCameraCameraHandle = &m_MainCamera.AddComponent<CameraComponent>(Camera(CameraType::Orthographic, 10.0f, aspectRatio, -1.0f, 1.0f)).Camera;
+	m_MainCameraCameraHandle = &m_MainCamera.AddComponent<CameraComponent>().Camera;
+	m_MainCameraCameraHandle->SetOrthographic(10.0f, -1.0f, 1.0f);
 	m_MainCameraTransform = &m_MainCamera.GetComponent<TransformComponent>();
 #pragma endregion
 }
@@ -173,10 +174,10 @@ void SandboxECS::OnUpdate(TimeStep DeltaTime)
 	// Update
 	Vector3 offset(m_CameraMovementDirection, 0.0f);
 	offset = offset * (m_CameraSpeed * DeltaTime * m_MainCameraCameraHandle->GetOrthographicSize());
-	Mat4x4 rotationMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(QuaternionEulerAngles(m_MainCameraTransform->GetRotation()).z), Vector3(0, 0, 1));
-	m_MainCameraTransform->SetPosition(Vector4(m_MainCameraTransform->GetPosition(), 0.0f) + (rotationMatrix * Vector4(offset, 1.0f)));
+	Mat4x4 rotationMatrix = glm::rotate(IDENTITY_MAT4X4, glm::radians(m_MainCameraTransform->Transform.GetEulerAngles().z), Vector3(0, 0, 1));
+	m_MainCameraTransform->Transform.SetPosition(Vector4(m_MainCameraTransform->Transform.GetPosition(), 0.0f) + (rotationMatrix * Vector4(offset, 1.0f)));
 
-	m_MainCameraTransform->SetRotation(QuaternionEuler({ 0.0f, 0.0f, QuaternionEulerAngles(m_MainCameraTransform->GetRotation()).z + m_CameraRotationDirection * DeltaTime * 80.0f }));
+	m_MainCameraTransform->Transform.SetEulerAngles({ 0.0f, 0.0f, m_MainCameraTransform->Transform.GetEulerAngles().z + m_CameraRotationDirection * DeltaTime * 80.0f });
 
 	for (uint32_t i = 0; i < (uint32_t)((int)s_FPSSamples.size() - 1); i++)
 	{
@@ -188,9 +189,9 @@ void SandboxECS::OnUpdate(TimeStep DeltaTime)
 		s_FPSSamples[(int)s_FPSSamples.size() - 1] = 0;
 	
 	sprintf_s(fpsText, 32, "%i", (int)s_FPSSamples[(int)s_FPSSamples.size() - 1]);
-
 	
-	m_Scene->OnUpdate(DeltaTime, {m_MainCameraCameraHandle->GetAspectRatio(), 1});
+	Window& win = Application::Get().GetMainWindow();
+	m_Scene->OnUpdate(DeltaTime, { win.GetWidth(), win.GetHeight()});
 }
 
 void SandboxECS::OnImGuiRender()
@@ -198,7 +199,7 @@ void SandboxECS::OnImGuiRender()
 	OE_PROFILE_FUNCTION();
 
 	ImGui::Begin("Camera");
-	ImGui::DragFloat2("Position", glm::value_ptr(const_cast<Vector3&>(m_MainCameraTransform->GetPosition())), m_MainCameraCameraHandle->GetOrthographicSize() / 20);
+	ImGui::DragFloat2("Position", glm::value_ptr(const_cast<Vector3&>(m_MainCameraTransform->Transform.GetPosition())), m_MainCameraCameraHandle->GetOrthographicSize() / 20);
 	// ImGui::DragFloat("Rotation", glm::value_ptr(const_cast<Vector3&>(m_Camera.GetRotation())));
 	// ImGui::DragFloat("Size", &(const_cast<float&>(m_Camera.GetOrthographicSize())));
 	ImGui::End();
@@ -272,16 +273,7 @@ void SandboxECS::OnEvent(Event& event)
 	OE_PROFILE_FUNCTION();
 
 	EventDispatcher dispatcher(event);
-	dispatcher.Dispatch<WindowResizeEvent>(BIND_FN(SandboxECS::OnWindowResizeEvent));
 	dispatcher.Dispatch<MouseScrolledEvent>(BIND_FN(SandboxECS::OnMouseScrolledEvent));
-}
-
-bool SandboxECS::OnWindowResizeEvent(WindowResizeEvent& event)
-{
-	OE_PROFILE_FUNCTION();
-
-	m_MainCameraCameraHandle->SetAspectRatio((float)event.GetWidth() / (float)event.GetHeight());
-	return false;
 }
 
 bool SandboxECS::OnMouseScrolledEvent(MouseScrolledEvent& event)

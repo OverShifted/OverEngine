@@ -82,6 +82,30 @@ namespace OverEditor
 
 		static bool CheckboxField(const char* fieldName, const char* fieldID, bool* value);
 
+		template <typename FlagType>
+		static bool CheckboxFlagsField(const char* fieldName, const char* fieldID, FlagType* flags, FlagType value)
+		{
+			ImGui::TextUnformatted(fieldName);
+			ImGui::NextColumn();
+
+			ImGui::PushItemWidth(-1);
+
+			bool v = ((*flags & value) == value);
+			bool pressed = ImGui::Checkbox(fieldID, &v);
+			if (pressed)
+			{
+				if (v)
+					*flags |= value;
+				else
+					*flags &= ~value;
+			}
+
+			ImGui::PopItemWidth();
+			ImGui::NextColumn();
+
+			return pressed;
+		}
+
 		// Useful for Vectors .etc
 		static bool DragFloatNField(const char* fieldName, const char* fieldID, float* value, uint32_t count = 1, float speed = 1.0f, float min = 0.0f, float max = 0.0f, const char* format = "%.3f");
 		static bool DragFloatField(const char* fieldName, const char* fieldID, float* value, float speed = 1.0f, float min = 0.0f, float max = 0.0f, const char* format = "%.3f");

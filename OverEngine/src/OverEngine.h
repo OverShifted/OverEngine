@@ -3,7 +3,8 @@
 #include "pcheader.h"
 
 // To be used in OverApps
-#include "OverEngine/Core/Application.h"
+#include "OverEngine/Core/Runtime/Runtime.h"
+#include "OverEngine/Core/Runtime/Application.h"
 #include "OverEngine/Core/Log.h"
 #include "OverEngine/Core/Time/Time.h"
 #include "OverEngine/Core/Math/Math.h"
@@ -46,6 +47,6 @@
 
 // ------- Entry Point ---------------
 #ifdef OE_CLIENT_INCLUDE_ENTRY_POINT
-#include "OverEngine/Core/EntryPoint.h"
+#include "OverEngine/Core/Runtime/EntryPoint.h"
 #endif
 //------------------------------------

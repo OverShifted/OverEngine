@@ -35,7 +35,7 @@ namespace OverEngine
 
 		Vector<DrawQuadVertices> Vertices;
 		Vector<DrawQuadIndices> Indices;
-		Vector<float> IndicesZ;
+		Vector<float> QuadsZIndices;
 		uint32_t QuadCapacity;
 
 		uint32_t OpaqueInsertIndex = 0;
@@ -65,30 +65,49 @@ namespace OverEngine
 
 	static Renderer2DData* s_Data;
 
-	static void InsertIndices(bool transparent, const float& z, const DrawQuadIndices& indices)
+	static void InsertVertices(bool transparent, const float& z, const DrawQuadVertices& vertices)
 	{
 		if (transparent)
 		{
-			for (auto idx = s_Data->Indices.begin() + s_Data->OpaqueInsertIndex; idx < s_Data->Indices.end(); idx++)
+			for (auto idx = s_Data->Vertices.begin() + s_Data->OpaqueInsertIndex; idx < s_Data->Vertices.end(); idx++)
 			{
-				auto i = idx - s_Data->Indices.begin();
-				if (z <= s_Data->IndicesZ[i])
+				auto i = idx - s_Data->Vertices.begin();
+				if (z < s_Data->QuadsZIndices[i])
 				{
-					s_Data->Indices.emplace(idx, indices);
-					s_Data->IndicesZ.emplace(s_Data->IndicesZ.begin() + i, z);
+					s_Data->Vertices.emplace(idx, vertices);
+					s_Data->QuadsZIndices.emplace(s_Data->QuadsZIndices.begin() + i, z);
 					return;
 				}
 			}
 
-			s_Data->Indices.emplace_back(indices);
-			s_Data->IndicesZ.emplace_back(z);
+			s_Data->Vertices.emplace_back(vertices);
+			s_Data->QuadsZIndices.emplace_back(z);
 			return;
 		}
 
 		// Opaque
-		s_Data->Indices.emplace(s_Data->Indices.begin() + s_Data->OpaqueInsertIndex, indices);
-		s_Data->IndicesZ.emplace(s_Data->IndicesZ.begin() + s_Data->OpaqueInsertIndex, z);
+		s_Data->Vertices.emplace(s_Data->Vertices.begin(), vertices);
+		s_Data->QuadsZIndices.emplace(s_Data->QuadsZIndices.begin(), z);
 		s_Data->OpaqueInsertIndex++;
+	}
+
+	static void GenIndices(uint32_t quadCount, uint32_t indexCount)
+	{
+		// Allocate storage on GPU memory
+		s_Data->indexBuffer->AllocateStorage(indexCount);
+
+		s_Data->Indices.reserve(quadCount);
+		for (uint32_t i = (uint32_t)s_Data->Indices.size(); i < quadCount; i++)
+		{
+			// Generate indices
+			DrawQuadIndices indices;
+			for (uint32_t j = 0; j < 6; j++)
+				indices[j] = Renderer2DData::QuadIndices[j] + 4 * i;
+			s_Data->Indices.push_back(indices);
+		}
+
+		// Upload data to GPU
+		s_Data->indexBuffer->BufferSubData((uint32_t*)s_Data->Indices.data(), indexCount);
 	}
 
 	void Renderer2D::Init(uint32_t initQuadCapacity)
@@ -104,9 +123,9 @@ namespace OverEngine
 			{ ShaderDataType::Float4, "a_Position" },
 			{ ShaderDataType::Float4, "a_Color" },
 
-			{ ShaderDataType::Float, "a_TextureSlot" },
-			{ ShaderDataType::Float, "a_TextureFilter" },
-			{ ShaderDataType::Float, "a_TextureAlphaClippingThreshold" },
+			{ ShaderDataType::Float , "a_TextureSlot" },
+			{ ShaderDataType::Float , "a_TextureFilter" },
+			{ ShaderDataType::Float , "a_TextureAlphaClippingThreshold" },
 			{ ShaderDataType::Float2, "a_TextureWrapping" },
 			{ ShaderDataType::Float4, "a_TextureBorderColor" },
 			{ ShaderDataType::Float4, "a_TextureRect" },
@@ -120,8 +139,8 @@ namespace OverEngine
 		s_Data->vertexArray->SetIndexBuffer(s_Data->indexBuffer);
 
 		s_Data->Vertices.reserve(initQuadCapacity);
-		s_Data->Indices.reserve(initQuadCapacity);
-		s_Data->IndicesZ.reserve(initQuadCapacity);
+		GenIndices(initQuadCapacity, 6 * initQuadCapacity);
+		s_Data->QuadsZIndices.reserve(initQuadCapacity);
 
 		s_Data->BatchRenderer2DShader = Shader::Create("assets/shaders/BatchRenderer2D.glsl");
 		//s_Data->BatchRenderer2DShader = Shader::Create("BatchRenderer2D", BatchRenderer2DVertexShaderSrc, BatchRenderer2DFragmentShaderSrc);
@@ -144,8 +163,7 @@ namespace OverEngine
 	void Renderer2D::Reset()
 	{
 		s_Data->Vertices.clear();
-		s_Data->Indices.clear();
-		s_Data->IndicesZ.clear();
+		s_Data->QuadsZIndices.clear();
 		s_Data->OpaqueInsertIndex = 0;
 
 		s_Statistics.Reset();
@@ -160,7 +178,7 @@ namespace OverEngine
 	void Renderer2D::BeginScene(const Mat4x4& viewMatrix, const Camera& camera)
 	{
 		Reset();
-		s_Data->ViewProjectionMatrix = camera.GetProjectionMatrix() * viewMatrix;
+		s_Data->ViewProjectionMatrix = camera.GetProjection() * viewMatrix;
 	}
 
 	void Renderer2D::BeginScene(const Mat4x4& viewMatrix, const Mat4x4& projectionMatrix)
@@ -174,19 +192,18 @@ namespace OverEngine
 		if (!s_Statistics.QuadCount) // Nothing to draw
 			return;
 
+		uint32_t indexCount = s_Statistics.GetIndexCount();
+
 		// Grow GPU Buffers
 		if (s_Data->QuadCapacity < s_Statistics.QuadCount)
 		{
 			s_Data->QuadCapacity = s_Statistics.QuadCount;
 			s_Data->vertexBuffer->AllocateStorage(s_Data->QuadCapacity * 4 * sizeof(Vertex));
-			s_Data->indexBuffer->AllocateStorage(s_Data->QuadCapacity * 6);
+			GenIndices(s_Data->QuadCapacity, indexCount);
 		}
-
-		uint32_t indexCount = s_Statistics.GetIndexCount();
 
 		// Upload Data
 		s_Data->vertexBuffer->BufferSubData((float*)s_Data->Vertices.data(), s_Statistics.GetVertexCount() * sizeof(Vertex));
-		s_Data->indexBuffer->BufferSubData((uint32_t*)s_Data->Indices.data(), indexCount);
 
 		// Bind Textures
 		for (auto& t : s_Data->TextureBindList)
@@ -229,13 +246,13 @@ namespace OverEngine
 
 		bool transparent = color.a < 1.0f;
 
-		std::array<Vertex, 4> vertices;
+		DrawQuadVertices vertices;
 
 		for (int i = 0; i < 4; i++)
 		{
 			Vertex& vertex = vertices[i];
 
-			vertex.a_Position.x = Renderer2DData::QuadVertices[    3 * i];
+			vertex.a_Position.x = Renderer2DData::QuadVertices[3 * i];
 			vertex.a_Position.y = Renderer2DData::QuadVertices[1 + 3 * i];
 			vertex.a_Position.z = Renderer2DData::QuadVertices[2 + 3 * i];
 			vertex.a_Position.w = 1.0f;
@@ -244,13 +261,7 @@ namespace OverEngine
 			vertex.a_Color = color;
 		}
 
-		s_Data->Vertices.push_back(vertices);
-
-		DrawQuadIndices indices;
-		for (uint32_t i = 0; i < 6; i++)
-			indices[i] = Renderer2DData::QuadIndices[i] + 4 * s_Statistics.QuadCount;
-
-		InsertIndices(transparent, 1 - vertices[0].a_Position.z, indices);
+		InsertVertices(transparent, transform[3].z, vertices);
 
 		s_Statistics.QuadCount++;
 	}
@@ -281,7 +292,7 @@ namespace OverEngine
 
 		bool transparent = extraData.tint.a < 1.0f || texture->GetFormat() == TextureFormat::RGBA;
 
-		std::array<Vertex, 4> vertices;
+		DrawQuadVertices vertices;
 
 		for (int i = 0; i < 4; i++)
 		{
@@ -369,13 +380,7 @@ namespace OverEngine
 			}
 		}
 
-		s_Data->Vertices.push_back(vertices);
-
-		DrawQuadIndices indices;
-		for (uint32_t i = 0; i < 6; i++)
-			indices[i] = Renderer2DData::QuadIndices[i] + 4 * s_Statistics.QuadCount;
-
-		InsertIndices(transparent, 1 - vertices[0].a_Position.z, indices);
+		InsertVertices(transparent, transform[3].z, vertices);
 
 		s_Statistics.QuadCount++;
 	}

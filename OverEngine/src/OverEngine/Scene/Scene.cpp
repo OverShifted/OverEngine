@@ -42,7 +42,6 @@ namespace OverEngine
 	void Scene::OnUpdate(TimeStep deltaTime, Vector2 renderSurface)
 	{
 		OnPhysicsUpdate(deltaTime); // TODO: use a FixedUpdate (just like Unity)
-		OnTransformUpdate();
 		OnRender(renderSurface);
 	}
 
@@ -52,6 +51,8 @@ namespace OverEngine
 		// Physics & Transform //////////////////////////////
 		/////////////////////////////////////////////////////
 
+		// TODO: Mix everything in a Physics(2D)Component
+		// and remove this code
 		{
 			auto view = m_Registry.view<PhysicsColliders2DComponent>();
 			for (auto entity : view)
@@ -71,6 +72,7 @@ namespace OverEngine
 			}
 		}
 
+		// Update Physics
 		m_PhysicsWorld2D.OnUpdate(DeltaTime, 8, 3);
 
 		{
@@ -82,34 +84,28 @@ namespace OverEngine
 
 				if (body2D.Enabled)
 				{
-					if (!transform.m_ChangedByPhysics && transform.m_Changed)
+					auto& changedFlags = transform->GetChangedFlags();
+					if (changedFlags & Transform::WaitingForPhysicsPush)
 					{
-						body2D.Body->SetPosition({ transform.GetPosition().x, transform.GetPosition().y });
-						body2D.Body->SetRotation(QuaternionEulerAnglesRadians(transform.GetRotation()).z);
-						transform.m_ChangedByPhysics = false;
+						// Push changes to Box2D world
+						const auto& pos = transform->GetPosition();
+						body2D.Body->SetPosition({ pos.x, pos.y });
+						body2D.Body->SetRotation(glm::radians(transform->GetEulerAngles().z));
 					}
-				
-					transform.SetPosition(Vector3(body2D.Body->GetPosition(), 0));
-					transform.SetRotation(QuaternionEuler(Vector3(0.0f, 0.0f, glm::degrees(body2D.Body->GetRotation()))));
-					transform.m_ChangedByPhysics = true;
+					else
+					{
+						// Push changes to OverEngine transform system
+						transform->SetPosition(Vector3(body2D.Body->GetPosition(), 0));
+						const auto& angles = transform->GetEulerAngles();
+						transform->SetEulerAngles({ angles.x, angles.y, glm::degrees(body2D.Body->GetRotation()) });
+					}
+
+					// In both cases; we need to perform this
+					// 1. we've pushed the changes to physics system and we need to remove the flag
+					// 2. we've pushed the changes to OverEngine transform system and it added the
+					//    flag which we don't want
+					changedFlags ^= Transform::WaitingForPhysicsPush;
 				}
-			}
-		}
-	}
-
-	void Scene::OnTransformUpdate()
-	{
-		{
-			auto view = m_Registry.view<TransformComponent>();
-			for (auto entity : view)
-			{
-				TransformComponent& transform = view.get<TransformComponent>(entity);
-
-				if (!transform.IsChanged())
-					continue;
-
-				transform.m_Changed = false;
-				transform.RecalculateTransformationMatrix();
 			}
 		}
 	}
@@ -132,12 +128,12 @@ namespace OverEngine
 
 			activeCameras++;
 
-			camera.Camera.SetAspectRatio(renderSurface.x / renderSurface.y);
+			camera.Camera.SetViewportSize((uint32_t)renderSurface.x, (uint32_t)renderSurface.y);
 
 			RenderCommand::SetClearColor(camera.Camera.GetClearColor());
-			RenderCommand::Clear(camera.Camera.GetIsClearingColor(), camera.Camera.GetIsClearingDepth());
+			RenderCommand::Clear(camera.Camera.GetClearFlags());
 				
-			Renderer2D::BeginScene(glm::inverse(transform.GetTransformationMatrix()), camera.Camera);
+			Renderer2D::BeginScene(glm::inverse(transform->GetMatrix()), camera.Camera);
 
 			{
 				auto spritesGroup = m_Registry.group<SpriteRendererComponent>(entt::get<TransformComponent>);
@@ -178,6 +174,48 @@ namespace OverEngine
 
 		// Returns false if nothing is rendered
 		return activeCameras;
+	}
+
+	void Scene::OnRender(const SceneCamera& camera, const Mat4x4& cameraTransform)
+	{
+		RenderCommand::SetClearColor(camera.GetClearColor());
+		RenderCommand::Clear(camera.GetClearFlags());
+
+		Renderer2D::BeginScene(glm::inverse(cameraTransform), camera);
+
+		auto spritesGroup = m_Registry.group<SpriteRendererComponent>(entt::get<TransformComponent>);
+		for (auto sp : spritesGroup)
+		{
+			auto& sprite = spritesGroup.get<SpriteRendererComponent>(sp);
+			if (sprite.Enabled)
+			{
+				auto& sptransform = spritesGroup.get<TransformComponent>(sp);
+
+				if (sprite.Sprite)
+				{
+					TexturedQuadExtraData data;
+					data.tint = sprite.Tint;
+					data.tilingFactorX = sprite.TilingFactorX;
+					data.tilingFactorY = sprite.TilingFactorY;
+					data.flipX = sprite.FlipX;
+					data.flipY = sprite.FlipY;
+					data.overrideSTextureWrapping = sprite.OverrideSWrapping;
+					data.overrideTTextureWrapping = sprite.OverrideTWrapping;
+					data.overrideTextureFiltering = sprite.OverrideFiltering;
+					data.alphaClippingThreshold = sprite.AlphaClippingThreshold;
+					if (sprite.IsOverrideTextureBorderColor)
+						data.overrideTextureBorderColor = sprite.OverrideTextureBorderColor;
+
+					Renderer2D::DrawQuad(sptransform, sprite.Sprite->GetAsset(), data);
+				}
+				else
+				{
+					Renderer2D::DrawQuad(sptransform, sprite.Tint, sprite.AlphaClippingThreshold);
+				}
+			}
+		}
+
+		Renderer2D::EndScene();
 	}
 
 	uint32_t Scene::GetEntityCount()
@@ -264,19 +302,19 @@ namespace OverEngine
 			auto& transform = entity.GetComponent<TransformComponent>();
 			auto& transformJson = entityJson["Transform"];
 
-			transform.SetPosition({
+			transform->SetPosition({
 				transformJson["Position"]["x"],
 				transformJson["Position"]["y"],
 				transformJson["Position"]["z"]
 			});
 
-			transform.SetEulerAngles({
+			transform->SetEulerAngles({
 				transformJson["Rotation"]["x"],
 				transformJson["Rotation"]["y"],
 				transformJson["Rotation"]["z"]
 			});
 
-			transform.SetScale({
+			transform->SetScale({
 				transformJson["Scale"]["x"],
 				transformJson["Scale"]["y"],
 				transformJson["Scale"]["z"]
@@ -290,19 +328,22 @@ namespace OverEngine
 				{
 					if (componentJson["m_Type"] == "Orthographic")
 					{
-						Camera cam = Camera(
-							CameraType::Orthographic, componentJson["m_OrthographicSize"],
-							1, componentJson["m_ZNear"], componentJson["m_ZFar"]
-						);
+						SceneCamera cam;
+						cam.SetOrthographic(componentJson["m_OrthographicSize"], componentJson["m_ZNear"], componentJson["m_ZFar"]);
 
-						cam.SetIsClearingColor(componentJson["m_IsClearingColor"]);
+						if (componentJson["m_IsClearingColor"])
+							cam.GetClearFlags() |= ClearFlags_ClearColor;
+
+						if (componentJson["m_IsClearingDepth"])
+							cam.GetClearFlags() |= ClearFlags_ClearDepth;
+
 						cam.SetClearColor({
 							componentJson["m_ClearColor"]["r"],
 							componentJson["m_ClearColor"]["g"],
 							componentJson["m_ClearColor"]["b"],
 							componentJson["m_ClearColor"]["a"]
-							});
-						cam.SetIsClearingDepth(componentJson["m_IsClearingDepth"]);
+						});
+
 						entity.AddComponent<CameraComponent>(cam);
 					}
 					// TODO: Perspective cameras
@@ -314,7 +355,7 @@ namespace OverEngine
 						componentJson["m_Tint"]["g"],
 						componentJson["m_Tint"]["b"],
 						componentJson["m_Tint"]["a"]
-						});
+					});
 				}
 			}
 			i++;
@@ -379,21 +420,21 @@ namespace OverEngine
 				auto& transform = entity.GetComponent<TransformComponent>();
 
 				entityJson["Transform"]["Position"] = {
-					{ "x", transform.GetPosition().x },
-					{ "y", transform.GetPosition().y },
-					{ "z", transform.GetPosition().z }
+					{ "x", transform->GetPosition().x },
+					{ "y", transform->GetPosition().y },
+					{ "z", transform->GetPosition().z }
 				};
 
 				entityJson["Transform"]["Rotation"] = {
-					{ "x", transform.GetEulerAngles().x },
-					{ "y", transform.GetEulerAngles().y },
-					{ "z", transform.GetEulerAngles().z }
+					{ "x", transform->GetEulerAngles().x },
+					{ "y", transform->GetEulerAngles().y },
+					{ "z", transform->GetEulerAngles().z }
 				};
 
 				entityJson["Transform"]["Scale"] = {
-					{ "x", transform.GetScale().x },
-					{ "y", transform.GetScale().y },
-					{ "z", transform.GetScale().z }
+					{ "x", transform->GetScale().x },
+					{ "y", transform->GetScale().y },
+					{ "z", transform->GetScale().z }
 				};
 			}
 			else
@@ -413,22 +454,22 @@ namespace OverEngine
 
 					componentJson["TypeName"] = "_CameraComponent";
 
-					if (camera.Camera.IsOrthographic())
+					if (camera.Camera.GetProjectionType() == SceneCamera::ProjectionType::Orthographic)
 					{
 						componentJson["m_Type"] = "Orthographic";
 						componentJson["m_OrthographicSize"] = camera.Camera.GetOrthographicSize();
 
-						componentJson["m_ZNear"] = camera.Camera.GetZNear();
-						componentJson["m_ZFar"] = camera.Camera.GetZFar();
+						componentJson["m_ZNear"] = camera.Camera.GetOrthographicNearClip();
+						componentJson["m_ZFar"] = camera.Camera.GetOrthographicFarClip();
 
-						componentJson["m_IsClearingColor"] = camera.Camera.GetIsClearingColor();
+						componentJson["m_IsClearingColor"] = camera.Camera.IsClearingColor();
 						componentJson["m_ClearColor"] = {
 							{ "r", camera.Camera.GetClearColor().r },
 							{ "g", camera.Camera.GetClearColor().g },
 							{ "b", camera.Camera.GetClearColor().b },
 							{ "a", camera.Camera.GetClearColor().a }
 						};
-						componentJson["m_IsClearingDepth"] = camera.Camera.GetIsClearingDepth();
+						componentJson["m_IsClearingDepth"] = camera.Camera.IsClearingDepth();
 					}
 					// TODO: Perspective cameras
 
@@ -446,6 +487,20 @@ namespace OverEngine
 						{ "b", spriteRenderer.Tint.b },
 						{ "a", spriteRenderer.Tint.a }
 					};
+
+					//componentJson[""]
+
+					/*Ref<Texture2DAsset> Sprite;
+					Color Tint{ 1.0f, 1.0f, 1.0f, 1.0f };
+					float TilingFactorX = 1.0f;
+					float TilingFactorY = 1.0f;
+					bool FlipX = false, FlipY = false;
+					TextureWrapping OverrideSWrapping = TextureWrapping::None;
+					TextureWrapping OverrideTWrapping = TextureWrapping::None;
+					TextureFiltering OverrideFiltering = TextureFiltering::None;
+					float AlphaClippingThreshold = 0.0f;
+					bool IsOverrideTextureBorderColor = false;
+					Color OverrideTextureBorderColor = Color(1);*/
 
 					componentParsed = true;
 				}

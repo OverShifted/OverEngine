@@ -48,24 +48,24 @@ namespace OverEngine
 
 		InputBinding(InputTrigger trigger)
 		{
-			m_Triggers[0] = trigger;
 			m_Mode = InputActionMode::TriggerBinding;
+			m_Triggers[0] = trigger;
 		}
 
 		InputBinding(InputTrigger triggerMin, InputTrigger triggerMax)
 		{
+			m_Mode = InputActionMode::AxisBinding;
 			m_Triggers[0] = triggerMin;
 			m_Triggers[1] = triggerMax;
-			m_Mode = InputActionMode::AxisBinding;
 		}
 
 		InputBinding(InputTrigger triggerXMin, InputTrigger triggerXMax, InputTrigger triggerYMin, InputTrigger triggerYMax)
 		{
+			m_Mode = InputActionMode::DpadBinding;
 			m_Triggers[0] = triggerXMin;
 			m_Triggers[1] = triggerXMax;
 			m_Triggers[2] = triggerYMin;
 			m_Triggers[3] = triggerYMax;
-			m_Mode = InputActionMode::DpadBinding;
 		}
 
 		InputBinding(const std::initializer_list<InputTrigger>& triggersInitializerList)
@@ -75,20 +75,20 @@ namespace OverEngine
 			switch (triggers.size())
 			{
 			case 1:
-				m_Triggers[0] = triggers[0];
 				m_Mode = InputActionMode::TriggerBinding;
+				m_Triggers[0] = triggers[0];
 				break;
 			case 2:
+				m_Mode = InputActionMode::AxisBinding;
 				m_Triggers[0] = triggers[0];
 				m_Triggers[1] = triggers[1];
-				m_Mode = InputActionMode::AxisBinding;
 				break;
 			case 4:
+				m_Mode = InputActionMode::DpadBinding;
 				m_Triggers[0] = triggers[0];
 				m_Triggers[1] = triggers[1];
 				m_Triggers[2] = triggers[2];
 				m_Triggers[3] = triggers[3];
-				m_Mode = InputActionMode::DpadBinding;
 				break;
 			default:
 				OE_CORE_ASSERT(false, "{0} is too many for an InputBinding!", triggers.size())
@@ -125,7 +125,7 @@ namespace OverEngine
 			}
 		};
 
-		using InputActionCallBackFn = std::function<void(TriggerInfo&)>;
+		using InputActionCallBackFn = std::function<void(const TriggerInfo&)>;
 
 		InputAction(InputActionType type, const std::initializer_list<InputBinding>& bindings)
 			: m_Bindings(bindings), m_Mode(m_Bindings[0].GetMode()), m_Type(type)

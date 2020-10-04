@@ -7,6 +7,7 @@
 
 namespace OverEngine
 {
+	class SceneCamera;
 	class Entity;
 	class Scene;
 
@@ -52,8 +53,9 @@ namespace OverEngine
 		void OnUpdate(TimeStep deltaTime, Vector2 renderSurface);
 
 		void OnPhysicsUpdate(TimeStep DeltaTime);
-		void OnTransformUpdate();
+
 		bool OnRender(Vector2 renderSurface);
+		void OnRender(const SceneCamera& camera, const Mat4x4& cameraTransform);
 
 		inline PhysicsWorld2D& GetPhysicsWorld2D() { return m_PhysicsWorld2D; }
 		inline const PhysicsWorld2D& GetPhysicsWorld2D() const { return m_PhysicsWorld2D; }
