@@ -1,33 +1,15 @@
+file(GLOB_RECURSE overeditor_source_files "src/*.cpp")
+file(GLOB_RECURSE overeditor_header_files "src/*.h")
+
 add_executable(OverEditor 
-    "src/ComponentEditor.h"
-
-    "src/Editor.h"
-    "src/Editor.cpp"
-    
-    "src/EditorLayer.h"
-    "src/EditorLayer.cpp"
-    "src/EditorApp.cpp"
-
-    "src/SceneLoaderAndSaver.h"
-    "src/SceneLoaderAndSaver.cpp"
+    ${overeditor_source_files}
+    ${overeditor_header_files}
 )
 
-include_directories(
+target_include_directories(OverEditor PRIVATE
     "src"
-	"../OverEngine/src"
-	"../OverEngine/res"
-	"../OverEngine/vendor"
-	"../OverEngine/vendor/spdlog/include"
-	# "../OverEngine/vendor/imgui"
-	"../OverEngine/vendor/glm"
-	"../OverEngine/vendor/entt/include"
-	"../OverEngine/vendor/box2d/include"
-	"../OverEngine/vendor/json/include"
 )
 
-add_compile_definitions(
-	"_CRT_SECURE_NO_WARNINGS"
-	"OE_BUILD_STATIC"
-)
+set_property(TARGET OverEditor PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/OverEditor")
 
-target_link_libraries(OverEditor PUBLIC OverEngine)
+target_link_libraries(OverEditor PRIVATE OverEngine)

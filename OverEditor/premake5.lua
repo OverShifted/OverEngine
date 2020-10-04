@@ -21,6 +21,7 @@ project "OverEditor"
 
 	includedirs
 	{
+		"src",
 		"../OverEngine/src",
 		"../OverEngine/vendor",
 		"../%{IncludeDir.spdlog}",
@@ -29,6 +30,7 @@ project "OverEditor"
 		"../%{IncludeDir.entt}",
 		"../%{IncludeDir.Box2D}",
 		"../%{IncludeDir.json}",
+		"../%{IncludeDir.fmt}",
 	}
 
 	links "OverEngine"

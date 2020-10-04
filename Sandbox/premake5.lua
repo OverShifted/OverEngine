@@ -29,6 +29,7 @@ project "Sandbox"
 		"../%{IncludeDir.entt}",
 		"../%{IncludeDir.Box2D}",
 		"../%{IncludeDir.json}",
+		"../%{IncludeDir.fmt}",
 	}
 
 	links "OverEngine"

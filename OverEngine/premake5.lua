@@ -55,6 +55,7 @@ project "OverEngine"
 		"../%{IncludeDir.entt}",
 		"../%{IncludeDir.Box2D}",
 		"../%{IncludeDir.json}",
+		"../%{IncludeDir.fmt}",
 	}
 
 	defines

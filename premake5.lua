@@ -29,6 +29,7 @@ workspace "OverEngine"
 
 	flags
 	{
+		-- Enable multi threaded compilation in VisualStudio
 		"MultiProcessorCompile"
 	}
 
@@ -38,17 +39,18 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 -- include directories related to Solution folder
 IncludeDir = {}
-IncludeDir["GLFW"]          = "OverEngine/vendor/GLFW/include"
-IncludeDir["Glad"]          = "OverEngine/vendor/Glad/include"
-IncludeDir["spdlog"]        = "OverEngine/vendor/spdlog/include"
-IncludeDir["ImGui"]         = "OverEngine/vendor/imgui"
-IncludeDir["glm"]           = "OverEngine/vendor/glm"
-IncludeDir["lua"]           = "OverEngine/vendor/lua/src"
-IncludeDir["stb_image"]     = "OverEngine/vendor/stb_image"
-IncludeDir["stb_rectpack"]  = "OverEngine/vendor/stb_rectpack"
-IncludeDir["entt"]          = "OverEngine/vendor/entt/include"
-IncludeDir["Box2D"]         = "OverEngine/vendor/box2d/include"
-IncludeDir["json"]          = "OverEngine/vendor/json/include"
+IncludeDir["GLFW"]         = "OverEngine/vendor/GLFW/include"
+IncludeDir["Glad"]         = "OverEngine/vendor/Glad/include"
+IncludeDir["spdlog"]       = "OverEngine/vendor/spdlog/include"
+IncludeDir["ImGui"]        = "OverEngine/vendor/imgui"
+IncludeDir["glm"]          = "OverEngine/vendor/glm"
+IncludeDir["lua"]          = "OverEngine/vendor/lua/src"
+IncludeDir["stb_image"]    = "OverEngine/vendor/stb_image"
+IncludeDir["stb_rectpack"] = "OverEngine/vendor/stb_rectpack"
+IncludeDir["entt"]         = "OverEngine/vendor/entt/include"
+IncludeDir["Box2D"]        = "OverEngine/vendor/box2d/include"
+IncludeDir["json"]         = "OverEngine/vendor/json/include"
+IncludeDir["fmt"]          = "OverEngine/vendor/fmt/include"
 
 LinkLibs = {
 	"GLFW",
