@@ -231,7 +231,7 @@ namespace OverEditor
 			if (!resource->IsDirectory())
 				node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
 
-			bool nodeIsOpen = ImGui::TreeNodeEx(resource->GetGuid().ToString().c_str(), node_flags, resource->GetName().c_str());
+			bool nodeIsOpen = ImGui::TreeNodeEx(resource->GetGuid().ToString().c_str(), node_flags, "%s", resource->GetName().c_str());
 
 			// EXTREAMLY TEMPO
 			if (resource->GetType() == ResourceType::Texture2D)

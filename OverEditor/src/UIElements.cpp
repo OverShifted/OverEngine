@@ -70,7 +70,7 @@ namespace OverEditor
 		auto txtSize = sizeof(txt) / sizeof(char);
 
 		if (!asset)
-			sprintf_s(txt, txtSize, "None (Texture2DAsset)");
+			strcpy_s(txt, txtSize, "None (Texture2DAsset)");
 		else if (asset->GetResource()) // Asset belong to a resource
 			sprintf_s(txt, txtSize, "%s.%s",
 				asset->GetResource()->GetName().c_str(),

@@ -15,7 +15,7 @@ namespace OverEngine
 		return s_Type;
 	}
 
-	void Runtime::HandleException(Exception& exception)
+	void Runtime::HandleException(const Exception& exception)
 	{
 		OE_CORE_ERROR(exception.What());
 	}

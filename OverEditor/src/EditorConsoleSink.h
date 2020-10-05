@@ -23,7 +23,7 @@ namespace OverEditor
 
 			// If needed (very likely but not mandatory), the sink formats the message before sending it to its final destination:
 			spdlog::memory_buf_t formatted;
-			base_sink<Mutex>::formatter_->format(msg, formatted);
+			spdlog::sinks::base_sink<Mutex>::formatter_->format(msg, formatted);
 
 			m_Message.LoggerName = fmt::to_string(msg.logger_name);
 			m_Message.MessageString = fmt::to_string(formatted);

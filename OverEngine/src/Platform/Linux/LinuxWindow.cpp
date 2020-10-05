@@ -5,9 +5,10 @@
 #include "OverEngine/Events/MouseEvent.h"
 #include "OverEngine/Events/KeyEvent.h"
 
-#include "OverEngine/Core/Application.h"
+#include "OverEngine/Core/Runtime/Application.h"
 
 #include "OverEngine/Renderer/RendererContext.h"
+#include "OverEngine/Renderer/RendererAPI.h"
 
 namespace OverEngine
 {
@@ -18,9 +19,9 @@ namespace OverEngine
 		OE_CORE_ERROR("GLFW Error ({0}): {1}", error, description);
 	}
 
-	Window* Window::Create(const WindowProps& props)
+	Scope<Window> Window::Create(const WindowProps& props)
 	{
-		return new LinuxWindow(props);
+		return CreateScope<LinuxWindow>(props);
 	}
 
 	LinuxWindow::LinuxWindow(const WindowProps& props)
@@ -38,24 +39,26 @@ namespace OverEngine
 		m_Data.Title          = props.Title;
 		m_Data.Width          = props.Width;
 		m_Data.Height         = props.Height;
-		m_Data.DoubleBuffered = props.DoubleBuffered;
 
 		OE_CORE_INFO("Creating window {0} ({1}, {2})", props.Title, props.Width, props.Height);
 
 		if (s_WindowCount == 0)
 		{
-			// TODO: glfwTerminate on system shutdown
 			int success = glfwInit();
 			OE_CORE_ASSERT(success, "Could not initialize GLFW!");
 			glfwSetErrorCallback(GLFWErrorCallback);
 		}
 
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
-		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+		if (RendererAPI::GetAPI() == RendererAPI::API::OpenGL)
+		{
+			glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+			glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+			glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-		if (!m_Data.DoubleBuffered)
-			glfwWindowHint(GLFW_DOUBLEBUFFER, false);
+			#ifdef OE_DEBUG
+				glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
+			#endif
+		}
 
 		m_Window = glfwCreateWindow((int)props.Width, (int)props.Height, m_Data.Title.c_str(), nullptr, nullptr);
 		s_WindowCount++;
@@ -210,9 +213,30 @@ namespace OverEngine
 		return m_Data.VSync;
 	}
 
-
-	bool LinuxWindow::IsDoubleBuffered() const
+	void LinuxWindow::SetTitle(const char* title)
 	{
-		return m_Data.DoubleBuffered;
+		glfwSetWindowTitle(m_Window, title);
+	}
+
+	void LinuxWindow::SetMousePosition(Vector2 position)
+	{
+		glfwSetCursorPos(m_Window, (double)position.x, (double)position.y);
+	}
+
+	Vector2 LinuxWindow::GetMousePosition()
+	{
+		double x, y;
+		glfwGetCursorPos(m_Window, &x, &y);
+		return { x, y };
+	}
+
+	void LinuxWindow::SetClipboardText(const char* text)
+	{
+		glfwSetClipboardString(m_Window, text);
+	}
+
+	const char* LinuxWindow::GetClipboardText()
+	{
+		return glfwGetClipboardString(m_Window);
 	}
 }

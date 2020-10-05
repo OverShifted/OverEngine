@@ -14,7 +14,7 @@ namespace OverEngine
 		static void Init(RuntimeType type);
 		static const RuntimeType& GetType();
 
-		static void HandleException(Exception& exception);
+		static void HandleException(const Exception& exception);
 	private:
 		static RuntimeType s_Type;
 	};
@@ -27,7 +27,7 @@ namespace OverEngine
 		{
 		}
 
-		virtual const char* What() { return m_Message.empty() ? "Unknown Exception!" : m_Message.c_str(); }
+		virtual const char* What() const { return m_Message.empty() ? "Unknown Exception!" : m_Message.c_str(); }
 	protected:
 		String m_Message;
 	};

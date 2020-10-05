@@ -129,7 +129,7 @@ namespace OverEditor
 
 			ImGui::Begin("Renderer2D");
 			ImGui::Columns(2);
-			ImGui::Text(Renderer2D::GetShader()->GetName().c_str());
+			ImGui::TextUnformatted(Renderer2D::GetShader()->GetName().c_str());
 			ImGui::NextColumn();
 			if (ImGui::Button("Reload"))
 				Renderer2D::GetShader()->Reload();

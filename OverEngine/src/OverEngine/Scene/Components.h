@@ -54,7 +54,7 @@ namespace OverEngine
 
 		BaseComponent() = default;
 		BaseComponent(const BaseComponent&) = default;
-		BaseComponent(Entity& entity, const String& name, Entity& parent = Entity())
+		BaseComponent(Entity& entity, const String& name, Entity parent = Entity())
 			: Component(entity), Name(name), Parent(parent)
 		{
 			if (parent)
@@ -71,10 +71,10 @@ namespace OverEngine
 		TransformComponent() = default;
 		TransformComponent(const TransformComponent&) = default;
 
-		TransformComponent(Entity & entity, const OverEngine::Transform& transform)
+		TransformComponent(Entity& entity, const OverEngine::Transform& transform)
 			: Component(entity), Transform(transform) {}
 
-		TransformComponent(Entity & entity)
+		TransformComponent(Entity& entity)
 			: Component(entity) {}
 
 		operator Mat4x4() const { return Transform.GetMatrix(); }

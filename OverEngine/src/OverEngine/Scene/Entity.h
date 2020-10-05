@@ -8,15 +8,7 @@
 namespace OverEngine
 {
 	template<typename T>
-	struct ComponentRef
-	{
-		ComponentRef(Entity entity) : AttachedEntity(entity) {}
-		Entity AttachedEntity;
-
-		operator T& () { return AttachedEntity.GetComponent<T>(); }
-		T* operator ->() { return &AttachedEntity.GetComponent<T>(); }
-		T& operator *() { return AttachedEntity.GetComponent<T>(); }
-	};
+	struct ComponentRef;
 
 	template<typename T>
 	uint32_t GetComponentTypeID()
@@ -106,5 +98,16 @@ namespace OverEngine
 	private:
 		entt::entity m_EntityHandle{ entt::null };
 		Scene* m_Scene;
+	};
+
+	template<typename T>
+	struct ComponentRef
+	{
+		ComponentRef(Entity entity) : AttachedEntity(entity) {}
+		Entity AttachedEntity;
+
+		operator T& () { return AttachedEntity.GetComponent<T>(); }
+		T* operator ->() { return &AttachedEntity.GetComponent<T>(); }
+		T& operator *() { return AttachedEntity.GetComponent<T>(); }
 	};
 }

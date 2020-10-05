@@ -22,10 +22,17 @@ namespace OverEngine
 		inline void SetEventCallback(const EventCallbackFn& callback) override { m_Data.EventCallback = callback; }
 		void SetVSync(bool enabled) override;
 		bool IsVSync() const override;
-		bool IsDoubleBuffered() const override;
+
+		virtual void SetTitle(const char* title) override;
+
+		virtual void SetMousePosition(Vector2 position) override;
+		virtual Vector2 GetMousePosition() override;
+
+		virtual void SetClipboardText(const char* text) override;
+		virtual const char* GetClipboardText() override;
 
 		inline virtual void* GetNativeWindow() const { return m_Window; }
-		inline virtual RendererContext* GetRendererContext() const { return m_Context; }
+		inline virtual RendererContext& GetRendererContext() const { return *m_Context; }
 	private:
 		virtual void Init(const WindowProps& props);
 		virtual void Shutdown();
@@ -33,14 +40,13 @@ namespace OverEngine
 		static uint32_t s_WindowCount;
 	private:
 		GLFWwindow* m_Window;
-		RendererContext* m_Context;
+		Scope<RendererContext> m_Context;
 
 		struct WindowData
 		{
 			std::string Title;
 			unsigned int Width, Height;
 			bool VSync;
-			bool DoubleBuffered;
 
 			EventCallbackFn EventCallback;
 		};

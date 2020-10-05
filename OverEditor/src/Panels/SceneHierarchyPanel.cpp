@@ -90,7 +90,7 @@ namespace OverEditor
 
 			ImVec2 textSize = ImGui::CalcTextSize(text);
 			ImVec2 windowSize = ImGui::GetContentRegionAvail();
-			ImGui::Text(text);
+			ImGui::TextUnformatted(text);
 
 			ImGui::End();
 		}
@@ -126,7 +126,7 @@ namespace OverEditor
 				nodeFlags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
 
 			const char* name = entity.GetComponent<BaseComponent>().Name.c_str();
-			bool nodeIsOpen = ImGui::TreeNodeEx((void*)(intptr_t)(entity.GetRuntimeID()), nodeFlags, name);
+			bool nodeIsOpen = ImGui::TreeNodeEx((void*)(intptr_t)(entity.GetRuntimeID()), nodeFlags, "%s", name);
 
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 10.0f, 10.0f });
 			if (ImGui::BeginDragDropSource())

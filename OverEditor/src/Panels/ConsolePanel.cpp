@@ -37,7 +37,7 @@ namespace OverEditor
 				case Level::Error   : color = { 1.0f, 0.0f, 0.0f, 1.0f }; break;
 				case Level::Critical: color = { 1.0f, 0.0f, 0.0f, 1.0f }; break;
 				}
-				ImGui::TextColored(color, message->MessageString.c_str());
+				ImGui::TextColored(color, "%s", message->MessageString.c_str());
 			}
 		}
 		ImGui::EndChild();

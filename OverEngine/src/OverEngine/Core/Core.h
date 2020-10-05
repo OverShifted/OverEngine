@@ -72,11 +72,20 @@
 #endif // OE_DEBUG
 
 #ifdef OE_ENABLE_ASSERTS
-	#define OE_ASSERT(x, ...) { if(!(x)) { OE_ERROR("========== Assertion Failed =========="); OE_ERROR(__VA_ARGS__); OE_ERROR("======================================"); OE_DEBUGBREAK; } }
-	#define OE_CORE_ASSERT(x, ...) { if(!(x)) { OE_CORE_ERROR("========== Assertion Failed =========="); OE_CORE_ERROR(__VA_ARGS__); OE_CORE_ERROR("======================================"); OE_DEBUGBREAK; } }
+#define ASSERT_FAILED_START_TXT "========== Assertion Failed =========="
+#define ASSERT_FAILED_END_TXT "========== Assertion Failed =========="
+#define OE_ASSERT(x, ...) { if(!(x)) { OE_ERROR(ASSERT_FAILED_START_TXT); OE_ERROR(__VA_ARGS__); OE_ERROR(ASSERT_FAILED_END_TXT); OE_DEBUGBREAK; } }
+#define OE_CORE_ASSERT(x, ...) { if(!(x)) { OE_CORE_ERROR(ASSERT_FAILED_START_TXT); OE_CORE_ERROR(__VA_ARGS__); OE_CORE_ERROR(ASSERT_FAILED_END_TXT); OE_DEBUGBREAK; } }
 #else
 	#define OE_ASSERT( ... )
 	#define OE_CORE_ASSERT( ... )
+#endif
+
+#if !defined(_MSC_VER)
+	#define sprintf_s(a, b, c, ...) sprintf(a, c, __VA_ARGS__)
+	#define strcpy_s(a, b, c) strcpy(a, c)
+	#define strcat_s(a, b, c) strcat(a, c)
+	#define sscanf_s sscanf
 #endif
 
 #define BIT(x) (1 << x)
