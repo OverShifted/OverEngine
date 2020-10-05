@@ -1,14 +1,14 @@
-cmake_minimum_required(VERSION 3.18)
+cmake_minimum_required(VERSION 3.16)
 
 if(${CMAKE_VERSION} VERSION_LESS 3.12)
-cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
+	cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
 endif()
 
 set(CMAKE_CXX_STANDARD 17)
 project(OverEngine
-		VERSION 0.0
-		DESCRIPTION "Opensource game engine under MIT license"
-		LANGUAGES C CXX)
+        VERSION 0.0
+        DESCRIPTION "Opensource game engine under MIT license"
+        LANGUAGES C CXX)
 
 # vendor
 add_subdirectory(OverEngine/vendor/GLFW)
