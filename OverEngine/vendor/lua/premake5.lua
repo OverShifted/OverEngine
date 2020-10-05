@@ -1,4 +1,4 @@
-project "Lua"
+project "lua"
     kind "StaticLib"
     language "C"
     

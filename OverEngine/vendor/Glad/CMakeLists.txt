@@ -1,4 +1,4 @@
-add_library(Glad
+add_library(glad
     "include/glad/gl.h"
     "include/KHR/khrplatform.h"
     "src/gl.c"

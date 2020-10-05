@@ -44,7 +44,7 @@ target_precompile_headers(OverEngine PUBLIC "src/pcheader.h")
 target_include_directories(OverEngine PRIVATE
 	"res"
 	"vendor/GLFW/include"
-	"vendor/Glad/include"
+	"vendor/glad/include"
 	"vendor/stb_image"
 	"vendor/stb_rectpack"
 )
@@ -83,5 +83,5 @@ if (CMAKE_BUILD_TYPE STREQUAL "MinSizeRel")
 	add_compile_definitions("OE_RELEASE")
 endif()
 
-target_link_libraries(OverEngine PRIVATE glfw Glad)
-target_link_libraries(OverEngine PUBLIC ImGui lua box2d)
+target_link_libraries(OverEngine PRIVATE glfw glad)
+target_link_libraries(OverEngine PUBLIC imgui lua box2d)
