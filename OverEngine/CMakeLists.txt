@@ -39,6 +39,9 @@ add_library(OverEngine STATIC ${OE_CROSS_PLATFORM_FILES} ${OE_OS_FILES}
 	${opengl_platform_header_files}
 )
 
+# enable unity build and precompiled header for ultra fast build
+set_target_properties(OverEngine PROPERTIES UNITY_BUILD ON)
+set_target_properties(OverEngine PROPERTIES UNITY_BUILD_BATCH_SIZE 20)
 target_precompile_headers(OverEngine PUBLIC "src/pcheader.h")
 
 target_include_directories(OverEngine PRIVATE
