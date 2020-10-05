@@ -12,6 +12,7 @@
 
 ## Cool things in use:
 * [premake](https://github.com/premake/premake-core)
+* [CMake](https://cmake.org)
 * [spdlog](https://github.com/gabime/spdlog)
 * [GLFW](https://github.com/glfw/GLFW)
 * [Glad2](https://gen.glad.sh/)
@@ -22,20 +23,29 @@
 * [EnTT](https://github.com/skypjack/entt)
 * [box2d](https://github.com/erincatto/box2d)
 
-## Build from sourcecode
-Windows (Python3):
-```
-python build.py -b
-```
+## Setup development environment for OverEngine
+this is my own ideal way to develop OverEngine:
+### On Windows
+On Windows, I use `GenerateProjectFiles.bat` to generate project files for Visual Studio 2019 using Premake. Premake's VS project generator is fast and clean.
 
-Linux :
-```
-python3 build.py -b
+### On Linux
+On Linux on the other hand; Preamke's `gmake2` generator is just trash. it's dependency manager is garbage and build's are too slow because of `make`.
+I use `CMake`'s `ninja` generator to build. Ninja it super fast and uses all cpu core's. You can use make but its slow.
+```bash
+# we are in project's root directory
+# 'mkdir build' is not needed
+cmake -S . -B build -G Ninja
+
+# To build
+cmake --build build
+# or
+cd build
+ninja
 ```
 
 ## IDE / Build tool - platform - compiler support
 * Visual Studio 2019 - Windows - MSVC
-* Makefile - Linux - GCC / G++
+* CMake (with make or ninja) - Linux - GCC / G++
 
 ![WindowsBuilt](https://img.shields.io/badge/Windows-built-green?logo=windows)
 ![LinuxBuilt](https://img.shields.io/badge/Linux-built-green?logo=Linux)
