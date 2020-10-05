@@ -199,7 +199,9 @@ void SandboxECS::OnImGuiRender()
 	OE_PROFILE_FUNCTION();
 
 	ImGui::Begin("Camera");
-	ImGui::DragFloat2("Position", glm::value_ptr(const_cast<Vector3&>(m_MainCameraTransform->Transform.GetPosition())), m_MainCameraCameraHandle->GetOrthographicSize() / 20);
+	Vector3 pos = m_MainCameraTransform->Transform.GetPosition();
+	if (ImGui::DragFloat3("Position", glm::value_ptr(pos), m_MainCameraCameraHandle->GetOrthographicSize() / 20))
+		m_MainCameraTransform->Transform.SetPosition(pos);
 	// ImGui::DragFloat("Rotation", glm::value_ptr(const_cast<Vector3&>(m_Camera.GetRotation())));
 	// ImGui::DragFloat("Size", &(const_cast<float&>(m_Camera.GetOrthographicSize())));
 	ImGui::End();

@@ -21,4 +21,4 @@ add_subdirectory(OverEngine/vendor/box2d)
 # OverEngine
 add_subdirectory(OverEngine)
 add_subdirectory(OverEditor)
-#add_subdirectory(Sandbox)
+add_subdirectory(Sandbox)
