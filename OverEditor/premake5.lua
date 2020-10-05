@@ -25,10 +25,10 @@ project "OverEditor"
 		"../OverEngine/src",
 		"../OverEngine/vendor",
 		"../%{IncludeDir.spdlog}",
-		"../%{IncludeDir.ImGui}",
+		"../%{IncludeDir.imgui}",
 		"../%{IncludeDir.glm}",
 		"../%{IncludeDir.entt}",
-		"../%{IncludeDir.Box2D}",
+		"../%{IncludeDir.box2d}",
 		"../%{IncludeDir.json}",
 		"../%{IncludeDir.fmt}",
 	}
