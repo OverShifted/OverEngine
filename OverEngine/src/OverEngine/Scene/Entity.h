@@ -76,15 +76,13 @@ namespace OverEngine
 		const Vector<uint32_t>& GetComponentsTypeIDList() const { return m_Scene->m_EntitiesComponentsTypeIDList[m_EntityHandle]; }
 		Vector<uint32_t>& GetComponentsTypeIDList() { return m_Scene->m_EntitiesComponentsTypeIDList[m_EntityHandle]; }
 
-		// Sets entity parent to scene
-		void ClearParent();
-		void SetParent(Entity parent);
 		void Destroy();
 
-		inline uint32_t GetRuntimeID() const { OE_CORE_ASSERT(m_EntityHandle != entt::null, "Entity handle is null!"); return (uint32_t)m_EntityHandle; }
+		inline entt::entity GetRuntimeID() const { OE_CORE_ASSERT(m_EntityHandle != entt::null, "Entity handle is null!"); return m_EntityHandle; }
 
 		operator bool() const { return m_EntityHandle != entt::null; }
-		operator uint32_t() const { return GetRuntimeID(); }
+		operator uint32_t() const { return (uint32_t)GetRuntimeID(); }
+		operator entt::entity() const { return GetRuntimeID(); }
 
 		bool operator==(const Entity& other) const
 		{

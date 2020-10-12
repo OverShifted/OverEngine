@@ -75,7 +75,7 @@ namespace OverEditor
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("_SCENE_HIERARCHY_ENTITY_DRAG"))
 				{
 					Entity* otherEntity = static_cast<Entity*>(payload->Data);
-					otherEntity->ClearParent();
+					otherEntity->GetComponent<TransformComponent>().DetachFromParent();
 				}
 				ImGui::EndDragDropTarget();
 			}
@@ -107,20 +107,22 @@ namespace OverEditor
 
 		Entity selectedEntity;
 
-		Vector<Entity>* entityList;
+		Vector<entt::entity>* entityList;
 		if (parentEntity)
-			entityList = &(parentEntity.GetComponent<BaseComponent>().Children);
+			entityList = &(parentEntity.GetComponent<TransformComponent>().GetChildrenHandles());
 		else
-			entityList = &(m_Context->Context->GetRootEntities());
+			entityList = &(m_Context->Context->GetRootHandles());
 
-		for (auto entity : *(entityList))
+		for (auto entityHandle : *(entityList))
 		{
+			Entity entity{ entityHandle, m_Context->Context.get() };
+
 			ImGuiTreeNodeFlags nodeFlags = baseNodeFlags;
 
 			if (std::find(m_Context->SelectionContext.begin(), m_Context->SelectionContext.end(), entity) != m_Context->SelectionContext.end())
 				nodeFlags |= ImGuiTreeNodeFlags_Selected;
 
-			bool entityIsParent = entity.GetComponent<BaseComponent>().Children.size();
+			bool entityIsParent = entity.GetComponent<TransformComponent>().GetChildrenHandles().size();
 
 			if (!entityIsParent)
 				nodeFlags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
@@ -142,7 +144,7 @@ namespace OverEditor
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("_SCENE_HIERARCHY_ENTITY_DRAG"))
 				{
 					Entity* otherEntity = static_cast<Entity*>(payload->Data);
-					otherEntity->SetParent(entity);
+					otherEntity->GetComponent<TransformComponent>().SetParent(entity);
 				}
 				ImGui::EndDragDropTarget();
 			}

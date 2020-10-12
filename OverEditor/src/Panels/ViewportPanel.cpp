@@ -134,7 +134,7 @@ namespace OverEditor
 
 				// Focus
 				if (hovered && fDown && !m_FDownLastFrame)
-					m_CameraTransform.SetPosition(entityTransform->GetPosition());
+					m_CameraTransform.SetPosition(entityTransform.GetPosition());
 			}
 
 			m_FDownLastFrame = fDown;
@@ -272,13 +272,13 @@ namespace OverEditor
 				return m_HoveredTranslateAxis == axis || m_ActiveTranslateAxis == axis;
 			};
 
-			gizmoTransform.SetPosition({ entityTransform->GetPosition().x + offset, entityTransform->GetPosition().y, 0.0f });
+			gizmoTransform.SetPosition({ entityTransform.GetPosition().x + offset, entityTransform.GetPosition().y, 0.0f });
 			s_Data->GizmoShader->UploadUniformMat4("u_ViewProjMatrix", m_Camera.GetProjection() * glm::inverse((Mat4x4)m_CameraTransform));
 			s_Data->GizmoShader->UploadUniformMat4("u_Transform", gizmoTransform);
 			s_Data->GizmoShader->UploadUniformFloat4("u_Color", { 1.0, 0.0, 0.0, highlightAxis(Axis::X) ? 1.0 : 0.7 });
 			RenderCommand::DrawIndexed(s_Data->GizmoVA);
 
-			gizmoTransform.SetPosition({ entityTransform->GetPosition().x, entityTransform->GetPosition().y + offset, 0.0f });
+			gizmoTransform.SetPosition({ entityTransform.GetPosition().x, entityTransform.GetPosition().y + offset, 0.0f });
 			gizmoTransform.SetEulerAngles({ 0.0f, 0.0f, 90.0f });
 			s_Data->GizmoShader->UploadUniformMat4("u_ViewProjMatrix", m_Camera.GetProjection() * glm::inverse((Mat4x4)m_CameraTransform));
 			s_Data->GizmoShader->UploadUniformMat4("u_Transform", gizmoTransform);
@@ -311,10 +311,10 @@ namespace OverEditor
 				cameraRay.Direction = (Vector3)glm::fastNormalize(rayEnd - rayStart);
 				cameraRay.T = FLT_MAX;
 
-				xAxisRay = { entityTransform->GetPosition(), { 1.0f, 0.0, 0.0 }, FLT_MAX };
+				xAxisRay = { entityTransform.GetPosition(), { 1.0f, 0.0, 0.0 }, FLT_MAX };
 				float distanceToXHandle = ClosestDistanceBetweenLines(xAxisRay, cameraRay);
 
-				yAxisRay = { entityTransform->GetPosition(), { 0.0f, 1.0, 0.0 }, FLT_MAX };
+				yAxisRay = { entityTransform.GetPosition(), { 0.0f, 1.0, 0.0 }, FLT_MAX };
 				float distanceToYHandle = ClosestDistanceBetweenLines(yAxisRay, cameraRay);
 
 				if (m_ActiveTranslateAxis == Axis::None)
@@ -359,7 +359,7 @@ namespace OverEditor
 				else if (m_ActiveTranslateAxis == Axis::Y)
 					intersect = yAxisRay.Origin + yAxisRay.Direction * yAxisRay.T;
 
-				entityTransform->SetPosition(entityTransform->GetPosition() + intersect - m_Translate2DToolLastIntersect);
+				entityTransform.SetPosition(entityTransform.GetPosition() + intersect - m_Translate2DToolLastIntersect);
 				m_Translate2DToolLastIntersect = intersect;
 			}
 		}

@@ -3,6 +3,7 @@
 
 #include "Entity.h"
 #include "Components.h"
+#include "TransformComponent.h"
 
 #include "OverEngine/Renderer/Renderer2D.h"
 #include "OverEngine/Physics/PhysicsWorld2D.h"
@@ -26,7 +27,7 @@ namespace OverEngine
 		Entity entity = { m_Registry.create(), this };
 		entity.AddComponent<BaseComponent>(name.empty() ? "Entity" : name);
 		entity.AddComponent<TransformComponent>();
-		m_RootEntities.push_back(entity);
+		m_RootHandles.push_back(entity.GetRuntimeID());
 		return entity;
 	}
 
@@ -34,8 +35,8 @@ namespace OverEngine
 	{
 		OE_CORE_ASSERT(parent, "Parent is null!");
 		Entity entity = { m_Registry.create(), this };
-		entity.AddComponent<BaseComponent>(name.empty() ? "Entity" : name, parent);
-		entity.AddComponent<TransformComponent>();
+		entity.AddComponent<BaseComponent>(name.empty() ? "Entity" : name);
+		entity.AddComponent<TransformComponent>(parent);
 		return entity;
 	}
 
@@ -82,30 +83,30 @@ namespace OverEngine
 				auto& body2D = group.get<PhysicsBody2DComponent>(entity);
 				auto& transform = group.get<TransformComponent>(entity);
 
-				if (body2D.Enabled)
+				/*if (body2D.Enabled)
 				{
-					auto& changedFlags = transform->GetChangedFlags();
-					if (changedFlags & Transform::WaitingForPhysicsPush)
+					auto& changedFlags = transform.GetChangedFlags();
+					if (changedFlags & SceneTransform::WaitingForPhysicsPush)
 					{
 						// Push changes to Box2D world
-						const auto& pos = transform->GetPosition();
+						const auto& pos = transform.GetPosition();
 						body2D.Body->SetPosition({ pos.x, pos.y });
-						body2D.Body->SetRotation(glm::radians(transform->GetEulerAngles().z));
+						body2D.Body->SetRotation(glm::radians(transform.GetEulerAngles().z));
 					}
 					else
 					{
 						// Push changes to OverEngine transform system
-						transform->SetPosition(Vector3(body2D.Body->GetPosition(), 0));
-						const auto& angles = transform->GetEulerAngles();
-						transform->SetEulerAngles({ angles.x, angles.y, glm::degrees(body2D.Body->GetRotation()) });
+						transform.SetPosition(Vector3(body2D.Body->GetPosition(), 0));
+						const auto& angles = transform.GetEulerAngles();
+						transform.SetEulerAngles({ angles.x, angles.y, glm::degrees(body2D.Body->GetRotation()) });
 					}
 
 					// In both cases; we need to perform this
 					// 1. we've pushed the changes to physics system and we need to remove the flag
 					// 2. we've pushed the changes to OverEngine transform system and it added the
 					//    flag which we don't want
-					changedFlags ^= Transform::WaitingForPhysicsPush;
-				}
+					changedFlags ^= SceneTransform::WaitingForPhysicsPush;
+				}*/
 			}
 		}
 	}
@@ -133,7 +134,7 @@ namespace OverEngine
 			RenderCommand::SetClearColor(camera.Camera.GetClearColor());
 			RenderCommand::Clear(camera.Camera.GetClearFlags());
 				
-			Renderer2D::BeginScene(glm::inverse(transform->GetMatrix()), camera.Camera);
+			Renderer2D::BeginScene(glm::inverse(transform.GetLocalToWorld()), camera.Camera);
 
 			{
 				auto spritesGroup = m_Registry.group<SpriteRendererComponent>(entt::get<TransformComponent>);
@@ -258,8 +259,8 @@ namespace OverEngine
 		auto& Physics2DGravityJson = sceneJson["Settings"]["Physics2DSettings"]["Gravity"];
 
 		SceneSettings settings;
-		settings.physics2DSettings.gravity.x = Physics2DGravityJson["x"];
-		settings.physics2DSettings.gravity.y = Physics2DGravityJson["y"];
+		settings.physics2DSettings.gravity.x = Physics2DGravityJson[0];
+		settings.physics2DSettings.gravity.y = Physics2DGravityJson[1];
 		Ref<Scene> scene = CreateRef<Scene>(settings);
 
 		Vector<Entity> entities;
@@ -275,7 +276,7 @@ namespace OverEngine
 			{
 				if (it->second <= i)
 				{
-					entities[it->first].SetParent(entities[it->second]);
+					entities[it->first].GetComponent<TransformComponent>().SetParent(entities[it->second]);
 					it = entityParentAssignList.erase(it);
 				}
 				else
@@ -291,7 +292,7 @@ namespace OverEngine
 			if (!parentJson.is_null())
 			{
 				if (parentJson < i)
-					entity.SetParent(entities[parentJson]);
+					entity.GetComponent<TransformComponent>().SetParent(entities[parentJson]);
 				else
 					entityParentAssignList[i] = parentJson.get<uint32_t>();
 			}
@@ -302,22 +303,22 @@ namespace OverEngine
 			auto& transform = entity.GetComponent<TransformComponent>();
 			auto& transformJson = entityJson["Transform"];
 
-			transform->SetPosition({
-				transformJson["Position"]["x"],
-				transformJson["Position"]["y"],
-				transformJson["Position"]["z"]
+			transform.SetLocalPosition({
+				transformJson["Position"][0],
+				transformJson["Position"][1],
+				transformJson["Position"][2]
 			});
 
-			transform->SetEulerAngles({
-				transformJson["Rotation"]["x"],
-				transformJson["Rotation"]["y"],
-				transformJson["Rotation"]["z"]
+			transform.SetLocalEulerAngles({
+				transformJson["Rotation"][0],
+				transformJson["Rotation"][1],
+				transformJson["Rotation"][2]
 			});
 
-			transform->SetScale({
-				transformJson["Scale"]["x"],
-				transformJson["Scale"]["y"],
-				transformJson["Scale"]["z"]
+			transform.SetLocalScale({
+				transformJson["Scale"][0],
+				transformJson["Scale"][1],
+				transformJson["Scale"][2]
 			});
 
 			auto& componentsJson = entityJson["Components"];
@@ -338,10 +339,10 @@ namespace OverEngine
 							cam.GetClearFlags() |= ClearFlags_ClearDepth;
 
 						cam.SetClearColor({
-							componentJson["m_ClearColor"]["r"],
-							componentJson["m_ClearColor"]["g"],
-							componentJson["m_ClearColor"]["b"],
-							componentJson["m_ClearColor"]["a"]
+							componentJson["m_ClearColor"][0],
+							componentJson["m_ClearColor"][1],
+							componentJson["m_ClearColor"][2],
+							componentJson["m_ClearColor"][3]
 						});
 
 						entity.AddComponent<CameraComponent>(cam);
@@ -351,10 +352,10 @@ namespace OverEngine
 				else if (componentJson["TypeName"] == "_SpriteRendererComponent")
 				{
 					entity.AddComponent<SpriteRendererComponent>(nullptr, Color{
-						componentJson["m_Tint"]["r"],
-						componentJson["m_Tint"]["g"],
-						componentJson["m_Tint"]["b"],
-						componentJson["m_Tint"]["a"]
+						componentJson["m_Tint"][0],
+						componentJson["m_Tint"][1],
+						componentJson["m_Tint"][2],
+						componentJson["m_Tint"][3]
 					});
 				}
 			}
@@ -372,11 +373,11 @@ namespace OverEngine
 		const auto& Physics2DGravity = scene->GetPhysicsWorld2D().GetGravity();
 
 		sceneJson["Settings"]["Physics2DSettings"]["Gravity"] = {
-			{ "x", Physics2DGravity.x },
-			{ "y", Physics2DGravity.y }
+			Physics2DGravity.x,
+			Physics2DGravity.y
 		};
 
-		Vector<uint32_t> entityIDs;
+		Vector<entt::entity> entityIDs;
 		Vector<nlohmann::json> entitiesJson;
 		uint32_t size = scene->GetEntityCount();
 		entityIDs.reserve(size);
@@ -384,7 +385,7 @@ namespace OverEngine
 
 		scene->Each([&](Entity entity)
 		{
-				entityIDs.push_back(entity.GetRuntimeID());
+			entityIDs.push_back(entity.GetRuntimeID());
 		});
 
 		uint32_t i = 0;
@@ -396,18 +397,19 @@ namespace OverEngine
 			auto& entityJson = entitiesJson[i];
 
 			const auto& base = entity.GetComponent<BaseComponent>();
+			const auto& transform = entity.GetComponent<TransformComponent>();
 
 			// Name
 			entityJson["Name"] = base.Name;
 
 			// Family
-			if (!base.Parent)
+			if (!transform.GetParent())
 			{
 				entityJson["Parent"] = nullptr;
 			}
 			else
 			{
-				auto it = std::find(entityIDs.begin(), entityIDs.end(), base.Parent.GetRuntimeID());
+				auto it = std::find(entityIDs.begin(), entityIDs.end(), transform.GetParent().GetRuntimeID());
 				OE_CORE_ASSERT(it != entityIDs.end(), "Parent not found!");
 				entityJson["Parent"] = it - entityIDs.begin();
 			}
@@ -415,32 +417,23 @@ namespace OverEngine
 			entityJson["GUID"] = base.ID.ToString();
 
 			// Transform
-			if (entity.HasComponent<TransformComponent>())
-			{
-				auto& transform = entity.GetComponent<TransformComponent>();
+			entityJson["Transform"]["Position"] = {
+				transform.GetLocalPosition().x,
+				transform.GetLocalPosition().y,
+				transform.GetLocalPosition().z
+			};
 
-				entityJson["Transform"]["Position"] = {
-					{ "x", transform->GetPosition().x },
-					{ "y", transform->GetPosition().y },
-					{ "z", transform->GetPosition().z }
-				};
+			entityJson["Transform"]["Rotation"] = {
+				transform.GetLocalEulerAngles().x,
+				transform.GetLocalEulerAngles().y,
+				transform.GetLocalEulerAngles().z
+			};
 
-				entityJson["Transform"]["Rotation"] = {
-					{ "x", transform->GetEulerAngles().x },
-					{ "y", transform->GetEulerAngles().y },
-					{ "z", transform->GetEulerAngles().z }
-				};
-
-				entityJson["Transform"]["Scale"] = {
-					{ "x", transform->GetScale().x },
-					{ "y", transform->GetScale().y },
-					{ "z", transform->GetScale().z }
-				};
-			}
-			else
-			{
-				entityJson["Transform"] = nullptr;
-			}
+			entityJson["Transform"]["Scale"] = {
+				transform.GetLocalScale().x,
+				transform.GetLocalScale().y,
+				transform.GetLocalScale().z
+			};
 
 			entityJson["Components"] = Vector<nlohmann::json>();
 			for (const auto& componentTypeID : componentList)
@@ -464,10 +457,10 @@ namespace OverEngine
 
 						componentJson["m_IsClearingColor"] = camera.Camera.IsClearingColor();
 						componentJson["m_ClearColor"] = {
-							{ "r", camera.Camera.GetClearColor().r },
-							{ "g", camera.Camera.GetClearColor().g },
-							{ "b", camera.Camera.GetClearColor().b },
-							{ "a", camera.Camera.GetClearColor().a }
+							camera.Camera.GetClearColor().r,
+							camera.Camera.GetClearColor().g,
+							camera.Camera.GetClearColor().b,
+							camera.Camera.GetClearColor().a
 						};
 						componentJson["m_IsClearingDepth"] = camera.Camera.IsClearingDepth();
 					}
@@ -482,10 +475,10 @@ namespace OverEngine
 					componentJson["TypeName"] = "_SpriteRendererComponent";
 
 					componentJson["m_Tint"] = {
-						{ "r", spriteRenderer.Tint.r },
-						{ "g", spriteRenderer.Tint.g },
-						{ "b", spriteRenderer.Tint.b },
-						{ "a", spriteRenderer.Tint.a }
+						spriteRenderer.Tint.r,
+						spriteRenderer.Tint.g,
+						spriteRenderer.Tint.b,
+						spriteRenderer.Tint.a
 					};
 
 					//componentJson[""]

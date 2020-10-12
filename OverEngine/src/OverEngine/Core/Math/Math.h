@@ -27,6 +27,11 @@ namespace OverEngine
 
 		using Quaternion = glm::quat;
 		#define IDENTITY_QUATERNION ::OverEngine::Math::Quaternion(1.0, 0.0, 0.0, 0.0)
+
+		#define SCALE_MAT4X4(_s) Mat4x4(_s.x, 0.0f, 0.0f, 0.0f, \
+										0.0f, _s.y, 0.0f, 0.0f, \
+										0.0f, 0.0f, _s.z, 0.0f, \
+										0.0f, 0.0f, 0.0f, 1.0f)
 		
 		struct Angle
 		{
@@ -64,8 +69,7 @@ namespace OverEngine
 		// Returns EulerAngles in degrees
 		inline Vector3 QuaternionToEulerAngles(Quaternion rot)
 		{
-			Vector3 val = glm::eulerAngles(rot);
-			return { glm::degrees(val.x), glm::degrees(val.y), glm::degrees(val.z) };
+			return { glm::degrees(pitch(rot)), glm::degrees(yaw(rot)), glm::degrees(roll(rot)) };
 		}
 
 		// Returns EulerAngles in radians

@@ -49,40 +49,12 @@ namespace OverEngine
 		String Name;
 		Guid ID = GUIDGenerator::GenerateVersion4();
 
-		Entity Parent;
-		Vector<Entity> Children;
-
 		BaseComponent() = default;
 		BaseComponent(const BaseComponent&) = default;
-		BaseComponent(Entity& entity, const String& name, Entity parent = Entity())
-			: Component(entity), Name(name), Parent(parent)
-		{
-			if (parent)
-				parent.GetComponent<BaseComponent>().Children.push_back(entity);
-		}
+		BaseComponent(Entity& entity, const String& name)
+			: Component(entity), Name(name) {}
 
 		COMPONENT_TYPE(BaseComponent)
-	};
-
-	struct TransformComponent : public Component
-	{
-		OverEngine::Transform Transform;
-
-		TransformComponent() = default;
-		TransformComponent(const TransformComponent&) = default;
-
-		TransformComponent(Entity& entity, const OverEngine::Transform& transform)
-			: Component(entity), Transform(transform) {}
-
-		TransformComponent(Entity& entity)
-			: Component(entity) {}
-
-		operator Mat4x4() const { return Transform.GetMatrix(); }
-		operator const Mat4x4&() { return Transform.GetMatrix(); }
-		const OverEngine::Transform* operator->() const { return &Transform; }
-		OverEngine::Transform* operator->() { return &Transform; }
-
-		COMPONENT_TYPE(TransformComponent)
 	};
 
 	////////////////////////////////////////////////////////

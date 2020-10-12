@@ -2,6 +2,7 @@
 #include "Entity.h"
 
 #include "OverEngine/Scene/Components.h"
+#include "OverEngine/Scene/TransformComponent.h"
 
 namespace OverEngine
 {
@@ -10,69 +11,20 @@ namespace OverEngine
 	{
 	}
 
-	void Entity::ClearParent()
-	{
-		auto& base = GetComponent<BaseComponent>();
-
-		if (!base.Parent)
-			return;
-
-		auto& lastParentChildren = base.Parent.GetComponent<BaseComponent>().Children;
-		auto it = std::find(lastParentChildren.begin(), lastParentChildren.end(), *this);
-		OE_CORE_ASSERT(it != lastParentChildren.end(), "Entity is not in it's parent's child entities list!");
-		lastParentChildren.erase(it);
-
-		base.Parent = Entity(); // Null entity
-		m_Scene->GetRootEntities().push_back(*this);
-	}
-
-	void Entity::SetParent(Entity parent)
-	{
-		auto& base = GetComponent<BaseComponent>();
-
-		if (parent == base.Parent)
-			return;
-
-		parent.GetComponent<BaseComponent>().Children.push_back(*this);
-
-		if (base.Parent)
-		{
-			auto& lastParentChildren = base.Parent.GetComponent<BaseComponent>().Children;
-
-			auto it = std::find(lastParentChildren.begin(), lastParentChildren.end(), *this);
-			OE_CORE_ASSERT(it != lastParentChildren.end(), "Entity is not in it's parent's child entities list!");
-			lastParentChildren.erase(it);
-		}
-		else
-		{
-			auto it = std::find(m_Scene->GetRootEntities().begin(), m_Scene->GetRootEntities().end(), *this);
-			OE_CORE_ASSERT(it != m_Scene->GetRootEntities().end(), "Entity is not in the Scene's root entities!")
-			m_Scene->GetRootEntities().erase(it);
-		}
-
-		base.Parent = parent;
-	}
-
 	void Entity::Destroy()
 	{
-		auto& base = GetComponent<BaseComponent>();
+		// TODO: Move to transform destructor
 
-		while (base.Children.size() > 0)
-			Entity(base.Children[0]).Destroy(); // Copy to prevent self-editing
+		auto& transform = GetComponent<TransformComponent>();
 
-		if (!base.Parent)
-		{
-			auto it = std::find(m_Scene->m_RootEntities.begin(), m_Scene->m_RootEntities.end(), *this);
-			OE_CORE_ASSERT(it != m_Scene->m_RootEntities.end(), "Entity is not in the Scene's root entities!");
-			m_Scene->m_RootEntities.erase(it);
-		}
-		else
-		{
-			auto& parentChildren = base.Parent.GetComponent<BaseComponent>().Children;
-			auto it = std::find(parentChildren.begin(), parentChildren.end(), *this);
-			OE_CORE_ASSERT(it != parentChildren.end(), "Entity is not in it's parent's child entities!");
-			parentChildren.erase(it);
-		}
+		transform.DetachFromParent();
+
+		while (transform.GetChildrenHandles().size() > 0)
+			Entity{ transform.GetChildrenHandles()[0], m_Scene }.Destroy();
+
+		auto it = std::find(m_Scene->m_RootHandles.begin(), m_Scene->m_RootHandles.end(), m_EntityHandle);
+		OE_CORE_ASSERT(it != m_Scene->m_RootHandles.end(), "Entity is not in the Scene's root entities!");
+		m_Scene->m_RootHandles.erase(it);
 
 		m_Scene->m_Registry.destroy(m_EntityHandle);
 	}

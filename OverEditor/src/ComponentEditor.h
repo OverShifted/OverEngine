@@ -24,26 +24,31 @@ namespace OverEditor
 			UIElements::BeginFieldGroup();
 
 			auto& transform = entity.GetComponent<TransformComponent>();
-			Vector3 position = transform->GetPosition();
-			Vector3 rotation = transform->GetEulerAngles();
-			Vector3 scale = transform->GetScale();
+			Vector3 position = transform.GetLocalPosition();
+			Vector3 rotation = transform.GetLocalEulerAngles();
+			Vector3 scale = transform.GetLocalScale();
 
 			if (UIElements::DragFloat3Field("Position", "##Position", glm::value_ptr(position), 0.2f))
-				transform->SetPosition(position);
+				transform.SetLocalPosition(position);
 
 			if (UIElements::DragFloat3Field("Rotation", "##Rotation", glm::value_ptr(rotation), 0.2f))
-				transform->SetEulerAngles(rotation);
+				transform.SetLocalEulerAngles(rotation);
 
 			if (UIElements::DragFloat3Field("Scale", "##Scale", glm::value_ptr(scale), 0.2f))
-				transform->SetScale(scale);
+				transform.SetLocalScale(scale);
 
 			UIElements::EndFieldGroup();
 
+			if (ImGui::Button("FIRE!"))
+			{
+				transform.SetEulerAngles(Vector3(0.0f, 0.0f, 90.0f));
+			}
+
 			ImGui::PushItemWidth(-1);
-			ImGui::InputFloat4("", (float*)&transform->GetMatrix()[0].x, "%.3f", ImGuiInputTextFlags_ReadOnly);
-			ImGui::InputFloat4("", (float*)&transform->GetMatrix()[1].x, "%.3f", ImGuiInputTextFlags_ReadOnly);
-			ImGui::InputFloat4("", (float*)&transform->GetMatrix()[2].x, "%.3f", ImGuiInputTextFlags_ReadOnly);
-			ImGui::InputFloat4("", (float*)&transform->GetMatrix()[3].x, "%.3f", ImGuiInputTextFlags_ReadOnly);
+			ImGui::InputFloat4("", (float*)&transform.GetLocalToWorld()[0].x, "%.3f", ImGuiInputTextFlags_ReadOnly);
+			ImGui::InputFloat4("", (float*)&transform.GetLocalToWorld()[1].x, "%.3f", ImGuiInputTextFlags_ReadOnly);
+			ImGui::InputFloat4("", (float*)&transform.GetLocalToWorld()[2].x, "%.3f", ImGuiInputTextFlags_ReadOnly);
+			ImGui::InputFloat4("", (float*)&transform.GetLocalToWorld()[3].x, "%.3f", ImGuiInputTextFlags_ReadOnly);
 			ImGui::PopItemWidth();
 		}
 	}

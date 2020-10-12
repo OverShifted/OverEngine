@@ -17,6 +17,7 @@
 #include "OverEngine/Scene/Scene.h"
 #include "OverEngine/Scene/Entity.h"
 #include "OverEngine/Scene/Components.h"
+#include "OverEngine/Scene/TransformComponent.h"
 // -----------------------------------
 
 // ------- Renderer ------------------

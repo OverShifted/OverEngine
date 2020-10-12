@@ -34,10 +34,9 @@ namespace OverEngine
 		Entity CreateEntity(const String& name = String());
 		Entity CreateEntity(Entity& parent, const String& name = String());
 
-		/*
+		/**
 		 * Func should be void(*func)(Entity);
-		 * Using template allow func (probably a lambda expression)
-		 * to be able to use capture flags
+		 * Using template allow func to be a capturing lambda
 		 */
 
 		template <typename Func>
@@ -60,20 +59,20 @@ namespace OverEngine
 		inline PhysicsWorld2D& GetPhysicsWorld2D() { return m_PhysicsWorld2D; }
 		inline const PhysicsWorld2D& GetPhysicsWorld2D() const { return m_PhysicsWorld2D; }
 
-		inline const Vector<Entity>& GetRootEntities() const { return m_RootEntities; }
-		inline Vector<Entity>& GetRootEntities() { return m_RootEntities; }
+		inline const Vector<entt::entity>& GetRootHandles() const { return m_RootHandles; }
+		inline Vector<entt::entity>& GetRootHandles() { return m_RootHandles; }
 
 		inline uint32_t GetEntityCount();
 	private:
 		entt::registry m_Registry;
 		PhysicsWorld2D m_PhysicsWorld2D;
 
-		/* 
+		/**
 		 * To hold entities with nullptr parent.
 		 * Useful for drawing graphs / trees.
 		 */
 
-		Vector<Entity> m_RootEntities;
+		Vector<entt::entity> m_RootHandles;
 
 		UnorderedMap<entt::entity, Vector<uint32_t>> m_EntitiesComponentsTypeIDList;
 

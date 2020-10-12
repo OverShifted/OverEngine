@@ -4,6 +4,13 @@
 
 namespace OverEngine
 {
+	/**
+	 * Transform utility class
+	 * Helps to calculate a transformation matrix for some position, rotation and scale
+	 * Not suitable to use in scenes. Instead; use SceneTransform defined in OverEngine/Scene
+	 * This class nose not support nesting
+	 */
+
 	class Transform
 	{
 	public:
@@ -31,16 +38,14 @@ namespace OverEngine
 		inline const Vector3& GetScale() const { return m_Scale; }
 		void SetScale(const Vector3& scale);
 
+		// Returns true if transform is changed since last matrix recalculation
+		inline bool IsChanged() const { return m_ChangedFlags & Changed; }
+	private:
 		enum ChangedFlags
 		{
-			None = 0, Changed = BIT(1), WaitingForPhysicsPush = BIT(2), RotationChanged = BIT(3)
+			None = 0, Changed = BIT(1), RecalculateNeeded = BIT(2), RotationChanged = BIT(3)
 		};
 
-		const int8_t& GetChangedFlags() const { return m_ChangedFlags; }
-		int8_t& GetChangedFlags() { return m_ChangedFlags; }
-
-		void SetChangedFlags(const uint8_t& flags) { m_ChangedFlags = flags; }
-	private:
 		inline void RecalculateMatrix() { RecalculateMatrix(GetPosition()); }
 		void RecalculateMatrix(const Vector3& position);
 	private:

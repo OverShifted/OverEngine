@@ -233,6 +233,14 @@ namespace OverEditor
 
 				ImGui::Separator();
 
+				if (ImGui::Button("Open Test Project"))
+				{
+					auto project = CreateRef<EditorProject>("D:/overenginedev/SuperMario/project.oep");
+					m_EditingProject = project;
+				}
+
+				ImGui::Separator();
+
 				if (m_EditingProject && ImGui::Button("Create Scene"))
 				{
 					std::stringstream extension;
@@ -303,7 +311,7 @@ namespace OverEditor
 			auto& selectedEntity = m_SceneContext->SelectionContext[0];
 
 			char id[100];
-			sprintf_s(id, sizeof(id) / sizeof(char), "INSPECTOR_ENTITY_EDITOR%i", selectedEntity.GetRuntimeID());
+			sprintf_s(id, sizeof(id) / sizeof(char), "INSPECTOR_ENTITY_EDITOR%i", (uint32_t)selectedEntity);
 			ImGui::PushID(id);
 
 			auto& base = selectedEntity.GetComponent<BaseComponent>();

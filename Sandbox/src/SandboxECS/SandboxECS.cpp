@@ -41,8 +41,8 @@ SandboxECS::SandboxECS()
 		{ {KeyCode::Escape, true, false} }
 	});
 	EscapeKeyAction.AddCallBack([&](const InputAction::TriggerInfo& info) {
-		m_MainCameraTransform->Transform.SetPosition({ 0.0f, 0.0f, 0.0f });
-		m_MainCameraTransform->Transform.SetEulerAngles({ 0.0f, 0.0f, 0.0f });
+		m_MainCameraTransform->SetPosition({ 0.0f, 0.0f, 0.0f });
+		m_MainCameraTransform->SetEulerAngles({ 0.0f, 0.0f, 0.0f });
 		m_MainCameraCameraHandle->SetOrthographicSize(10.0f);
 	});
 	actionMap->AddAction(EscapeKeyAction);
@@ -109,9 +109,9 @@ SandboxECS::SandboxECS()
 	obstacle.AddComponent<PhysicsBody2DComponent>(obstacleBodyProps);
 
 	auto& obstacleTransform = obstacle.GetComponent<TransformComponent>();
-	obstacleTransform->SetPosition({ 0.0f, -2.0f, 0.0f });
-	obstacleTransform->SetScale({ 4.0f, 1.0f, 1.0f });
-	obstacleTransform->SetEulerAngles({ 0.0f, 0.0f, 45.0f });
+	obstacleTransform.SetLocalPosition({ 0.0f, -2.0f, 0.0f });
+	obstacleTransform.SetLocalScale({ 4.0f, 1.0f, 1.0f });
+	obstacleTransform.SetLocalEulerAngles({ 0.0f, 0.0f, 45.0f });
 
 	// PhysicsCollider2D
 	auto& colliderList = obstacle.AddComponent<PhysicsColliders2DComponent>();
@@ -138,8 +138,8 @@ SandboxECS::SandboxECS()
 
 
 	auto& obstacle2Transform = obstacle2.GetComponent<TransformComponent>();
-	obstacle2Transform->SetScale({ 40.0f, 1.0f, 1.0f });
-	obstacle2Transform->SetPosition({ 0.0f, -8.0f, 0.0f });
+	obstacle2Transform.SetLocalScale({ 40.0f, 1.0f, 1.0f });
+	obstacle2Transform.SetLocalPosition({ 0.0f, -8.0f, 0.0f });
 
 	// PhysicsCollider2D
 	auto& colliderList2 = obstacle2.AddComponent<PhysicsColliders2DComponent>();
@@ -174,10 +174,10 @@ void SandboxECS::OnUpdate(TimeStep DeltaTime)
 	// Update
 	Vector3 offset(m_CameraMovementDirection, 0.0f);
 	offset = offset * (m_CameraSpeed * DeltaTime * m_MainCameraCameraHandle->GetOrthographicSize());
-	Mat4x4 rotationMatrix = glm::rotate(IDENTITY_MAT4X4, glm::radians(m_MainCameraTransform->Transform.GetEulerAngles().z), Vector3(0, 0, 1));
-	m_MainCameraTransform->Transform.SetPosition(Vector4(m_MainCameraTransform->Transform.GetPosition(), 0.0f) + (rotationMatrix * Vector4(offset, 1.0f)));
+	Mat4x4 rotationMatrix = glm::rotate(IDENTITY_MAT4X4, glm::radians(m_MainCameraTransform->GetEulerAngles().z), { 0, 0, 1 });
+	m_MainCameraTransform->SetPosition(Vector4(m_MainCameraTransform->GetPosition(), 0.0f) + (rotationMatrix * Vector4(offset, 1.0f)));
 
-	m_MainCameraTransform->Transform.SetEulerAngles({ 0.0f, 0.0f, m_MainCameraTransform->Transform.GetEulerAngles().z + m_CameraRotationDirection * DeltaTime * 80.0f });
+	m_MainCameraTransform->SetEulerAngles({ 0.0f, 0.0f, m_MainCameraTransform->GetEulerAngles().z + m_CameraRotationDirection * DeltaTime * 80.0f });
 
 	for (uint32_t i = 0; i < (uint32_t)((int)s_FPSSamples.size() - 1); i++)
 	{
@@ -199,9 +199,9 @@ void SandboxECS::OnImGuiRender()
 	OE_PROFILE_FUNCTION();
 
 	ImGui::Begin("Camera");
-	Vector3 pos = m_MainCameraTransform->Transform.GetPosition();
+	Vector3 pos = m_MainCameraTransform->GetPosition();
 	if (ImGui::DragFloat3("Position", glm::value_ptr(pos), m_MainCameraCameraHandle->GetOrthographicSize() / 20))
-		m_MainCameraTransform->Transform.SetPosition(pos);
+		m_MainCameraTransform->SetPosition(pos);
 	// ImGui::DragFloat("Rotation", glm::value_ptr(const_cast<Vector3&>(m_Camera.GetRotation())));
 	// ImGui::DragFloat("Size", &(const_cast<float&>(m_Camera.GetOrthographicSize())));
 	ImGui::End();
