@@ -11,7 +11,7 @@
 #include "OverEngine/Physics/PhysicsBody2D.h"
 #include "OverEngine/Physics/PhysicsCollider2D.h"
 
-#include "OverEngine/Renderer/Camera.h"
+#include "OverEngine/Scene/SceneCamera.h"
 
 namespace OverEngine
 {

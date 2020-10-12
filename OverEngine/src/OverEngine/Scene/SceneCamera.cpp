@@ -1,5 +1,5 @@
 #include "pcheader.h"
-#include "Camera.h"
+#include "SceneCamera.h"
 
 namespace OverEngine
 {
