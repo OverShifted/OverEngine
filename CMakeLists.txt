@@ -19,6 +19,7 @@ option(BOX2D_BUILD_TESTBED "Build the Box2D testbed" OFF)
 add_subdirectory(OverEngine/vendor/box2d)
 
 # OverEngine
+option(OE_ENABLE_UNITY_BUILD "Enables unity build for OverEngine target" OFF)
 add_subdirectory(OverEngine)
 add_subdirectory(OverEditor)
 add_subdirectory(Sandbox)
