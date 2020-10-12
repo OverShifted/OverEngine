@@ -7,6 +7,8 @@
 
 namespace OverEngine
 {
+	class Scene;
+
 	class TransformComponent : public Component
 	{
 	public:
@@ -23,9 +25,6 @@ namespace OverEngine
 
 			Invalidate();
 		}
-
-		inline const Mat4x4& GetLocalToWorld() { Invalidate(); return m_LocalToWorld; }
-		inline operator const Mat4x4& () { return GetLocalToWorld(); }
 
 		inline const Mat4x4& GetLocalToWorld() const { return m_LocalToWorld; }
 		inline operator const Mat4x4& () const { return GetLocalToWorld(); }
@@ -79,6 +78,8 @@ namespace OverEngine
 				func({ child, AttachedEntity.GetScene() });
 		}
 
+		bool IsChanged() const { return m_ChangedFlags & ChangedFlags_Changed; }
+
 		operator bool() const { return AttachedEntity; }
 
 		bool operator==(const TransformComponent& other) const
@@ -99,21 +100,25 @@ namespace OverEngine
 		{
 			ChangedFlags_None,
 			ChangedFlags_Changed = BIT(1),
+			ChangedFlags_ChangedForPhysics = BIT(2),
 			// RN = Recalculation Needed
-			ChangedFlags_LocalToParent_RN = BIT(2),
-			ChangedFlags_LocalToWorld_RN = BIT(1)
+			ChangedFlags_LocalToParent_RN = BIT(3),
+			ChangedFlags_LocalToWorld_RN = BIT(4)
 		};
 
 		void Invalidate();
 		void Change();
 	private:
+		friend class Scene;
+
 		// Use of entt::entity(uint32_t) instead of Entity
 		// 1. We don't need to include Entity.h
 		// 2. We don't need to store Scene* per child on the heap
 		entt::entity m_Parent = entt::null;
 		Vector<entt::entity> m_Children;
 
-		ChangedFlags m_ChangedFlags = ChangedFlags_None;
+		// Push changes to physics in first update
+		ChangedFlags m_ChangedFlags = ChangedFlags_ChangedForPhysics;
 
 		Mat4x4 m_LocalToParent = IDENTITY_MAT4X4; // Local Matrix
 		Mat4x4 m_LocalToWorld = IDENTITY_MAT4X4; // Parent's Local Matrix * Local Matrix

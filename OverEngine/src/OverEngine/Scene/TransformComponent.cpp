@@ -20,6 +20,7 @@ namespace OverEngine
 
 		Change();
 		m_ChangedFlags |= ChangedFlags_LocalToWorld_RN;
+		Invalidate();
 	}
 
 	Vector3 TransformComponent::GetLocalPosition() const
@@ -35,10 +36,14 @@ namespace OverEngine
 
 		Change();
 		m_ChangedFlags |= ChangedFlags_LocalToWorld_RN;
+		Invalidate();
 	}
 
 	Vector3 TransformComponent::GetEulerAngles()
 	{
+		if (m_Parent == entt::null)
+			return GetLocalEulerAngles();
+
 		return QuaternionToEulerAngles(GetRotation());
 	}
 
@@ -58,10 +63,14 @@ namespace OverEngine
 
 		Change();
 		m_ChangedFlags |= ChangedFlags_LocalToParent_RN;
+		Invalidate();
 	}
 
 	Quaternion TransformComponent::GetRotation()
 	{
+		if (m_Parent == entt::null)
+			return GetLocalRotation();
+
 		Mat3x3 rotationMat = {
 			m_LocalToWorld[0].x, m_LocalToWorld[0].y, m_LocalToWorld[0].z,
 			m_LocalToWorld[1].x, m_LocalToWorld[1].y, m_LocalToWorld[1].z,
@@ -92,6 +101,7 @@ namespace OverEngine
 
 		Change();
 		m_ChangedFlags |= ChangedFlags_LocalToParent_RN;
+		Invalidate();
 	}
 
 	void TransformComponent::SetLocalScale(const Vector3& scale)
@@ -100,6 +110,7 @@ namespace OverEngine
 
 		Change();
 		m_ChangedFlags |= ChangedFlags_LocalToParent_RN;
+		Invalidate();
 	}
 
 	Vector3 TransformComponent::GetLossyScale() const
@@ -126,6 +137,7 @@ namespace OverEngine
 
 			Change();
 			m_ChangedFlags |= ChangedFlags_LocalToWorld_RN;
+			Invalidate();
 		}
 	}
 
@@ -155,6 +167,7 @@ namespace OverEngine
 
 			Change();
 			m_ChangedFlags |= ChangedFlags_LocalToWorld_RN;
+			Invalidate();
 		}
 		else
 		{
@@ -188,7 +201,7 @@ namespace OverEngine
 	// Add changed flag and force all children to update
 	void TransformComponent::Change()
 	{
-		m_ChangedFlags |= ChangedFlags_Changed;
+		m_ChangedFlags |= ChangedFlags_Changed | ChangedFlags_ChangedForPhysics;
 
 		for (const auto& child : m_Children)
 			ENTITY_HANDLE_TRANSFORM(child).m_ChangedFlags |= ChangedFlags_LocalToWorld_RN;

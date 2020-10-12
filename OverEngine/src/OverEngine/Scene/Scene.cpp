@@ -83,10 +83,9 @@ namespace OverEngine
 				auto& body2D = group.get<PhysicsBody2DComponent>(entity);
 				auto& transform = group.get<TransformComponent>(entity);
 
-				/*if (body2D.Enabled)
+				if (body2D.Enabled)
 				{
-					auto& changedFlags = transform.GetChangedFlags();
-					if (changedFlags & SceneTransform::WaitingForPhysicsPush)
+					if (transform.m_ChangedFlags & TransformComponent::ChangedFlags_ChangedForPhysics)
 					{
 						// Push changes to Box2D world
 						const auto& pos = transform.GetPosition();
@@ -103,10 +102,10 @@ namespace OverEngine
 
 					// In both cases; we need to perform this
 					// 1. we've pushed the changes to physics system and we need to remove the flag
-					// 2. we've pushed the changes to OverEngine transform system and it added the
+					// 2. we've pushed the changes to OverEngine's transform system and it added the
 					//    flag which we don't want
-					changedFlags ^= SceneTransform::WaitingForPhysicsPush;
-				}*/
+					transform.m_ChangedFlags ^= TransformComponent::ChangedFlags_ChangedForPhysics;
+				}
 			}
 		}
 	}

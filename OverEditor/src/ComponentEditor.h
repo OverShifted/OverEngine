@@ -39,11 +39,6 @@ namespace OverEditor
 
 			UIElements::EndFieldGroup();
 
-			if (ImGui::Button("FIRE!"))
-			{
-				transform.SetEulerAngles(Vector3(0.0f, 0.0f, 90.0f));
-			}
-
 			ImGui::PushItemWidth(-1);
 			ImGui::InputFloat4("", (float*)&transform.GetLocalToWorld()[0].x, "%.3f", ImGuiInputTextFlags_ReadOnly);
 			ImGui::InputFloat4("", (float*)&transform.GetLocalToWorld()[1].x, "%.3f", ImGuiInputTextFlags_ReadOnly);
