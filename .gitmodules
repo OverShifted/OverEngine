@@ -16,3 +16,6 @@
 [submodule "OverEngine/vendor/fmt"]
 	path = OverEngine/vendor/fmt
 	url = https://github.com/fmtlib/fmt.git
+[submodule "OverEngine/vendor/yaml-cpp"]
+	path = OverEngine/vendor/yaml-cpp
+	url = https://github.com/jbeder/yaml-cpp
