@@ -51,13 +51,15 @@ IncludeDir["entt"]         = "OverEngine/vendor/entt/include"
 IncludeDir["box2d"]        = "OverEngine/vendor/box2d/include"
 IncludeDir["json"]         = "OverEngine/vendor/json/include"
 IncludeDir["fmt"]          = "OverEngine/vendor/fmt/include"
+IncludeDir["yaml-cpp"]     = "OverEngine/vendor/yaml-cpp/include"
 
 LinkLibs = {
 	"GLFW",
 	"glad",
 	"imgui",
 	"lua",
-	"box2d"
+	"box2d",
+	"yaml-cpp"
 }
 
 group "Dependencies"
@@ -66,6 +68,7 @@ group "Dependencies"
 	include "OverEngine/vendor/imgui"
 	include "OverEngine/vendor/box2d"
 	include "OverEngine/vendor/lua"
+	include "OverEngine/vendor/yaml-cpp"
 group ""
 
 include "OverEngine"

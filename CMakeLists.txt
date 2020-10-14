@@ -17,6 +17,7 @@ add_subdirectory(OverEngine/vendor/imgui)
 add_subdirectory(OverEngine/vendor/lua)
 option(BOX2D_BUILD_TESTBED "Build the Box2D testbed" OFF)
 add_subdirectory(OverEngine/vendor/box2d)
+add_subdirectory(OverEngine/vendor/yaml-cpp)
 
 # OverEngine
 option(OE_ENABLE_UNITY_BUILD "Enables unity build for OverEngine target" OFF)
