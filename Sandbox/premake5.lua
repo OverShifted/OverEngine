@@ -30,6 +30,7 @@ project "Sandbox"
 		"../%{IncludeDir.box2d}",
 		"../%{IncludeDir.json}",
 		"../%{IncludeDir.fmt}",
+		"../%{IncludeDir.yaml_cpp}",
 	}
 
 	links "OverEngine"

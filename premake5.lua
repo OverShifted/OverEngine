@@ -51,7 +51,7 @@ IncludeDir["entt"]         = "OverEngine/vendor/entt/include"
 IncludeDir["box2d"]        = "OverEngine/vendor/box2d/include"
 IncludeDir["json"]         = "OverEngine/vendor/json/include"
 IncludeDir["fmt"]          = "OverEngine/vendor/fmt/include"
-IncludeDir["yaml-cpp"]     = "OverEngine/vendor/yaml-cpp/include"
+IncludeDir["yaml_cpp"]     = "OverEngine/vendor/yaml-cpp/include"
 
 LinkLibs = {
 	"GLFW",
