@@ -66,6 +66,7 @@ target_include_directories(OverEngine PUBLIC
 	"vendor/box2d/include"
 	"vendor/json/include"
 	"vendor/fmt/include"
+	"vendor/yaml-cpp/include"
 )
 
 target_compile_definitions(OverEngine PRIVATE
