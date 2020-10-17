@@ -6,7 +6,7 @@
 namespace OverEditor
 {
 	static float gridZoom = 6.0f;
-	static float gridKernel = 0.3f;
+	static float gridKernel = 0.2f;
 
 	struct ViewportPanelData
 	{

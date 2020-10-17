@@ -3,6 +3,7 @@
 #include "pcheader.h"
 
 #include <fstream>
+#include <stdlib.h>
 
 extern OverEngine::Application* OverEngine::CreateApplication(int argc, char** argv);
 
@@ -23,7 +24,24 @@ int OverMain(int argc, char** argv) // Platform agnostic entry point
 }
 
 #ifdef OE_PLATFORM_WINDOWS
-//int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+
+/*#include <shellapi.h>
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+{
+	int numArgs = 0;
+	LPWSTR* args = CommandLineToArgvW(lpCmdLine, &numArgs);
+
+	char** buffer = malloc(numArgs * sizeof(char*));
+
+	for (size_t i = 0; i < numArgs; i++)
+	{
+		auto len = wcslen(args[i]);
+		buffer[i] = (char*)(malloc(len * sizeof(char)));
+		wcstombs(buffer[i], args[i], len);
+	}
+
+	return OverMain(numArgs, buffer);
+}*/
 
 int main(int argc, char** argv)
 {

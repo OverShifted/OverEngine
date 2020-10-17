@@ -22,17 +22,17 @@ namespace OverEngine
 		Log::Init();
 		Random::Init();
 
+		#ifdef _MSC_VER
+		OE_CORE_INFO("OverEngine v0.0 [MSC {}]", _MSC_VER);
+		#else
+		OE_CORE_INFO("OverEngine v0.0");
+		#endif
+
 		// Some window should exist to init Renderer
 		m_Window = Window::Create(props.MainWindowProps);
 		m_Window->SetEventCallback(BIND_FN(Application::OnEvent));
 
 		Renderer::Init();
-
-		#ifdef _MSC_VER
-		OE_CORE_INFO("OverEngine v0.0 [MSC {0}]", _MSC_VER);
-		#else
-		OE_CORE_INFO("OverEngine v0.0");
-		#endif
 
 		m_ImGuiLayer = new ImGuiLayer();
 		PushOverlay(m_ImGuiLayer);
