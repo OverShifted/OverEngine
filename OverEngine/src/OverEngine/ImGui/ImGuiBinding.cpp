@@ -5,8 +5,8 @@
 #include "OverEngine/Core/Window.h"
 
 #define IMGUI_IMPL_OPENGL_LOADER_DONT_CARE
-#include <imgui/examples/imgui_impl_opengl3.h>
-#include <imgui/examples/imgui_impl_glfw.h>
+#include <imgui/backends/imgui_impl_opengl3.h>
+#include <imgui/backends/imgui_impl_glfw.h>
 
 struct GLFWwindow;
 
