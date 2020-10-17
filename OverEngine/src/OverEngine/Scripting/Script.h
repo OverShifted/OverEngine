@@ -1,27 +1,21 @@
 #pragma once
 
-namespace OverEngine
+namespace OverEngine::Scripting
 {
-	namespace Scripting
+	class ScriptEngine
 	{
-		class Script
-		{
-		public:
-			enum class Kind { Lua };
-			enum class CodeLoadingMode { CodeString, File };
-		protected:
-			Script(Kind kind, CodeLoadingMode codeLoadMode)
-				: m_Kind(kind), m_CodeLoadMode(codeLoadMode)
-			{
-			}
+	public:
+		enum class Language { Lua };
 
-		public:
-			~Script() = default;
-			virtual int Run() = 0;
+	public:
+		~ScriptEngine() = default;
 
-		protected:
-			Kind m_Kind;
-			CodeLoadingMode m_CodeLoadMode;
-		};
-	}
+		virtual void Init() = 0;
+
+		// Runs the script and returns the returned value by script
+		virtual int Run() = 0;
+
+	protected:
+		Language m_Language;
+	};
 }
