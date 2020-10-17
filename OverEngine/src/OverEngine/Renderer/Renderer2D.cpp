@@ -34,7 +34,9 @@ namespace OverEngine
 		Vector<DrawQuadVertices> Vertices;
 		Vector<DrawQuadIndices> Indices;
 		Vector<float> QuadsZIndices;
+
 		uint32_t QuadCapacity;
+		uint32_t FlushingQuadCount;
 
 		uint32_t OpaqueInsertIndex = 0;
 
@@ -163,6 +165,8 @@ namespace OverEngine
 		s_Data->Vertices.clear();
 		s_Data->QuadsZIndices.clear();
 		s_Data->OpaqueInsertIndex = 0;
+		s_Data->FlushingQuadCount = 0;
+		s_Data->TextureBindList.clear();
 
 		s_Statistics.Reset();
 	}
@@ -187,15 +191,20 @@ namespace OverEngine
 
 	void Renderer2D::EndScene()
 	{
-		if (!s_Statistics.QuadCount) // Nothing to draw
+		Flush();
+	}
+
+	void Renderer2D::Flush()
+	{
+		if (s_Data->FlushingQuadCount == 0) // Nothing to draw
 			return;
 
 		uint32_t indexCount = s_Statistics.GetIndexCount();
 
 		// Grow GPU Buffers
-		if (s_Data->QuadCapacity < s_Statistics.QuadCount)
+		if (s_Data->QuadCapacity < s_Data->FlushingQuadCount)
 		{
-			s_Data->QuadCapacity = s_Statistics.QuadCount;
+			s_Data->QuadCapacity = s_Data->FlushingQuadCount;
 			s_Data->vertexBuffer->AllocateStorage(s_Data->QuadCapacity * 4 * sizeof(Vertex));
 			GenIndices(s_Data->QuadCapacity, indexCount);
 		}
@@ -216,6 +225,17 @@ namespace OverEngine
 		// DrawCall
 		RenderCommand::DrawIndexed(s_Data->vertexArray, indexCount);
 		s_Statistics.DrawCalls++;
+	}
+
+	void Renderer2D::FlushAndReset()
+	{
+		Flush();
+
+		s_Data->Vertices.clear();
+		s_Data->QuadsZIndices.clear();
+		s_Data->OpaqueInsertIndex = 0;
+		s_Data->FlushingQuadCount = 0;
+		s_Data->TextureBindList.clear();
 	}
 
 	/////////////////////////////////////////////////////////
@@ -262,6 +282,7 @@ namespace OverEngine
 		InsertVertices(transparent, transform[3].z, vertices);
 
 		s_Statistics.QuadCount++;
+		s_Data->FlushingQuadCount++;
 	}
 
 	/////////////////////////////////////////////////////////
@@ -285,6 +306,36 @@ namespace OverEngine
 
 	void Renderer2D::DrawQuad(const Mat4x4& transform, Ref<Texture2D> texture, const TexturedQuadExtraData& extraData)
 	{
+		Ref<GAPI::Texture2D> textureToBind;
+
+		if (texture->GetType() == TextureType::Master)
+			textureToBind = texture->m_MasterTextureData.m_MappedTexture;
+		else
+			textureToBind = texture->m_SubTextureData.m_Parent->m_MasterTextureData.m_MappedTexture;
+
+		int textureSlot = -1;
+		for (const auto& t : s_Data->TextureBindList)
+		{
+			if (*t.second == *textureToBind)
+			{
+				textureSlot = t.first;
+				break;
+			}
+		}
+
+		if (textureSlot == -1)
+		{
+			uint32_t slot = (uint32_t)s_Data->TextureBindList.size();
+			if (slot + 1 > RenderCommand::GetMaxTextureSlotCount())
+			{
+				Flush();
+				Reset();
+				slot = 0;
+			}
+			s_Data->TextureBindList[slot] = textureToBind;
+			textureSlot = slot;
+		}
+
 		if (extraData.alphaClippingThreshold >= 1.0f || extraData.tint.a <= extraData.alphaClippingThreshold)
 			return;
 
@@ -305,35 +356,7 @@ namespace OverEngine
 			vertex.a_Color = extraData.tint;
 
 			// a_TextureSlot
-			{
-				Ref<GAPI::Texture2D> textureToBind;
-
-				if (texture->GetType() == TextureType::Master)
-					textureToBind = texture->m_MasterTextureData.m_MappedTexture;
-				else
-					textureToBind = texture->m_SubTextureData.m_Parent->m_MasterTextureData.m_MappedTexture;
-
-				bool textureFound = false;
-				uint32_t textureSlot = 0;
-				for (const auto& t : s_Data->TextureBindList)
-				{
-					if (*t.second == *textureToBind)
-					{
-						textureFound = true;
-						textureSlot = t.first;
-						break;
-					}
-				}
-
-				if (!textureFound)
-				{
-					uint32_t slot = (uint32_t)s_Data->TextureBindList.size();
-					s_Data->TextureBindList[slot] = textureToBind;
-					textureSlot = slot;
-				}
-
-				vertex.a_TextureSlot = (float)textureSlot;
-			}
+			vertex.a_TextureSlot = (float)textureSlot;
 
 			// a_TextureFilter
 			if (extraData.overrideTextureFiltering != TextureFiltering::None)
@@ -381,5 +404,6 @@ namespace OverEngine
 		InsertVertices(transparent, transform[3].z, vertices);
 
 		s_Statistics.QuadCount++;
+		s_Data->FlushingQuadCount++;
 	}
 }

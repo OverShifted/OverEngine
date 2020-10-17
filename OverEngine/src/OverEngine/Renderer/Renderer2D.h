@@ -34,7 +34,10 @@ namespace OverEngine
 		static void BeginScene(const Mat4x4& viewProjectionMatrix);
 		static void BeginScene(const Mat4x4& viewMatrix, const Camera& camera);
 		static void BeginScene(const Mat4x4& viewMatrix, const Mat4x4& projectionMatrix);
+
 		static void EndScene();
+		static void Flush();
+		static void FlushAndReset();
 
 		inline static void DrawQuad(const Vector2& position, float rotation, const Vector2& size, const Color& color, float alphaClippingThreshold = 0.0f);
 		static void DrawQuad(const Vector3& position, float rotation, const Vector2& size, const Color& color, float alphaClippingThreshold = 0.0f);
