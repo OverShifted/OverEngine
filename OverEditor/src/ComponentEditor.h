@@ -39,12 +39,16 @@ namespace OverEditor
 
 			UIElements::EndFieldGroup();
 
+			#if 0
+			ImGui::Text("%i", transform.GetChangedFlags());
+
 			ImGui::PushItemWidth(-1);
 			ImGui::InputFloat4("", (float*)&transform.GetLocalToWorld()[0].x, "%.3f", ImGuiInputTextFlags_ReadOnly);
 			ImGui::InputFloat4("", (float*)&transform.GetLocalToWorld()[1].x, "%.3f", ImGuiInputTextFlags_ReadOnly);
 			ImGui::InputFloat4("", (float*)&transform.GetLocalToWorld()[2].x, "%.3f", ImGuiInputTextFlags_ReadOnly);
 			ImGui::InputFloat4("", (float*)&transform.GetLocalToWorld()[3].x, "%.3f", ImGuiInputTextFlags_ReadOnly);
 			ImGui::PopItemWidth();
+			#endif
 		}
 	}
 
@@ -71,21 +75,21 @@ namespace OverEditor
 					{ 0, "None (Use texture default value)" }, { 1, "Repeat" },
 					{ 2, "MirroredRepeat" }, { 3, "ClampToEdge" },{ 4, "ClampToBorder" }
 				};
-				UIElements::BasicEnum("SWrapping", "##SWrapping", wrappingValues, (int*)&spriteRenderer.OverrideSWrapping);
-				UIElements::BasicEnum("TWrapping", "##TWrapping", wrappingValues, (int*)&spriteRenderer.OverrideTWrapping);
+				UIElements::BasicEnum("SWrapping", "##SWrapping", wrappingValues, (int8_t*)&spriteRenderer.OverrideSWrapping);
+				UIElements::BasicEnum("TWrapping", "##TWrapping", wrappingValues, (int8_t*)&spriteRenderer.OverrideTWrapping);
 
 				static UIElements::EnumValues filteringValues = {
 					{ 0, "None (Use texture default value)" }, { 1, "Point" }, { 2, "Linear" }
 				};
-				UIElements::BasicEnum("Filtering", "##Filtering", filteringValues, (int*)&spriteRenderer.OverrideFiltering);
+				UIElements::BasicEnum("Filtering", "##Filtering", filteringValues, (int8_t*)&spriteRenderer.OverrideFiltering);
 
 				UIElements::DragFloatField("TilingFactorX", "##TilingFactorX", &spriteRenderer.TilingFactorX);
 				UIElements::DragFloatField("TilingFactorY", "##TilingFactorY", &spriteRenderer.TilingFactorY);
 
 				UIElements::CheckboxField("OverrideTextureBorderColor (for ClampToBorder wrapping)",
-					"##OverrideTextureBorderColor", &spriteRenderer.IsOverrideTextureBorderColor);
+					"##OverrideTextureBorderColor", &spriteRenderer.IsOverridingTextureBorderColor);
 
-				if (spriteRenderer.IsOverrideTextureBorderColor)
+				if (spriteRenderer.IsOverridingTextureBorderColor)
 					UIElements::Color4Field("BorderColor (for ClampToBorder wrapping)",
 						"##BorderColor", glm::value_ptr(spriteRenderer.OverrideTextureBorderColor));
 			}

@@ -78,7 +78,10 @@ namespace OverEngine
 				func({ child, AttachedEntity.GetScene() });
 		}
 
+		using ChangedFlags = int8;
+
 		bool IsChanged() const { return m_ChangedFlags & ChangedFlags_Changed; }
+		ChangedFlags GetChangedFlags() const { return m_ChangedFlags; }
 
 		operator bool() const { return AttachedEntity; }
 
@@ -92,18 +95,33 @@ namespace OverEngine
 			return !(*this == other);
 		}
 		
+		static SerializationContext* Reflect()
+		{
+			static bool initialized = false;
+			static SerializationContext ctx;
+
+			if (!initialized)
+			{
+				initialized = true;
+
+				ctx.AddField(SerializableDataType::Float3, OffsetOf(&TransformComponent::m_LocalToParent) + 12 * sizeof(float), "m_LocalPosition");
+				ctx.AddField(SerializableDataType::Float3, SERIALIZE_FIELD(TransformComponent, m_LocalEulerAngles));
+				ctx.AddField(SerializableDataType::Float3, SERIALIZE_FIELD(TransformComponent, m_LocalScale));
+			}
+
+			return &ctx;
+		}
+
 		COMPONENT_TYPE(TransformComponent)
 	private:
-		using ChangedFlags = int8;
-
 		enum ChangedFlags_ : ChangedFlags
 		{
 			ChangedFlags_None,
-			ChangedFlags_Changed = BIT(1),
-			ChangedFlags_ChangedForPhysics = BIT(2),
+			ChangedFlags_Changed = BIT(0),
+			ChangedFlags_ChangedForPhysics = BIT(1),
 			// RN = Recalculation Needed
-			ChangedFlags_LocalToParent_RN = BIT(3),
-			ChangedFlags_LocalToWorld_RN = BIT(4)
+			ChangedFlags_LocalToParent_RN = BIT(2),
+			ChangedFlags_LocalToWorld_RN = BIT(3)
 		};
 
 		void Invalidate();

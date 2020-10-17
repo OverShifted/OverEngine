@@ -105,35 +105,4 @@ namespace OverEditor
 
 		ImGui::NextColumn();
 	}
-
-	bool UIElements::BasicEnum(const char* fieldName, const char* fieldID, EnumValues& values, int* currentValue)
-	{
-		ImGui::TextUnformatted(fieldName);
-		ImGui::NextColumn();
-
-		ImGui::PushItemWidth(-1);
-		bool changed = false;
-		if (ImGui::BeginCombo(fieldID, values[*currentValue].c_str()))
-		{
-			for (const auto& value : values)
-			{
-				const bool selected = (value.first == *currentValue);
-				if (ImGui::Selectable(value.second.c_str(), selected))
-				{
-					*currentValue = value.first;
-					changed = true;
-				}
-
-				// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
-				if (selected)
-					ImGui::SetItemDefaultFocus();
-			}
-			ImGui::EndCombo();
-		}
-		ImGui::PopItemWidth();
-
-		ImGui::NextColumn();
-
-		return changed;
-	}
 }

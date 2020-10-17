@@ -13,7 +13,6 @@ namespace OverEngine
 
 	Ref<Scene> CreateSceneOnDisk(const String& path);
 	Ref<Scene> LoadSceneFromFile(const String& path);
-	void SaveSceneToFile(const String& path, Ref<Scene> scene);
 
 	struct Physics2DSettings
 	{
@@ -44,7 +43,7 @@ namespace OverEngine
 		{
 			m_Registry.each([&](auto entityID)
 			{
-				Entity entity{ entityID , this };
+				Entity entity(entityID, this);
 				func(entity);
 			});
 		}
@@ -56,13 +55,15 @@ namespace OverEngine
 		bool OnRender(Vector2 renderSurface);
 		void OnRender(const SceneCamera& camera, const Mat4x4& cameraTransform);
 
+		void Dump(const String& filePath);
+
 		inline PhysicsWorld2D& GetPhysicsWorld2D() { return m_PhysicsWorld2D; }
 		inline const PhysicsWorld2D& GetPhysicsWorld2D() const { return m_PhysicsWorld2D; }
 
 		inline const Vector<entt::entity>& GetRootHandles() const { return m_RootHandles; }
 		inline Vector<entt::entity>& GetRootHandles() { return m_RootHandles; }
 
-		inline uint32_t GetEntityCount();
+		inline uint32_t GetEntityCount() const;
 	private:
 		entt::registry m_Registry;
 		PhysicsWorld2D m_PhysicsWorld2D;

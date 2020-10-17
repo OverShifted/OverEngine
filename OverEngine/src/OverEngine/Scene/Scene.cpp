@@ -9,7 +9,11 @@
 #include "OverEngine/Physics/PhysicsWorld2D.h"
 
 #include <fstream>
+
 #include <json.hpp>
+
+#include "OverEngine/Core/Serialization/YamlConverters.h"
+#include <yaml-cpp/yaml.h>
 
 namespace OverEngine
 {
@@ -156,7 +160,7 @@ namespace OverEngine
 							data.overrideTTextureWrapping = sprite.OverrideTWrapping;
 							data.overrideTextureFiltering = sprite.OverrideFiltering;
 							data.alphaClippingThreshold = sprite.AlphaClippingThreshold;
-							if (sprite.IsOverrideTextureBorderColor)
+							if (sprite.IsOverridingTextureBorderColor)
 								data.overrideTextureBorderColor = sprite.OverrideTextureBorderColor;
 
 							Renderer2D::DrawQuad(sptransform, sprite.Sprite->GetAsset(), data);
@@ -203,7 +207,7 @@ namespace OverEngine
 					data.overrideTTextureWrapping = sprite.OverrideTWrapping;
 					data.overrideTextureFiltering = sprite.OverrideFiltering;
 					data.alphaClippingThreshold = sprite.AlphaClippingThreshold;
-					if (sprite.IsOverrideTextureBorderColor)
+					if (sprite.IsOverridingTextureBorderColor)
 						data.overrideTextureBorderColor = sprite.OverrideTextureBorderColor;
 
 					Renderer2D::DrawQuad(sptransform, sprite.Sprite->GetAsset(), data);
@@ -218,7 +222,78 @@ namespace OverEngine
 		Renderer2D::EndScene();
 	}
 
-	uint32_t Scene::GetEntityCount()
+	void Scene::Dump(const String& filePath)
+	{
+		YAML::Node sceneNode;
+
+		// Physics2D Settings
+		sceneNode["Physics2DSettings"]["Gravity"] = GetPhysicsWorld2D().GetGravity();
+
+		Vector<entt::entity> entityIDs;
+		Vector<YAML::Node> entityNodes;
+		entityIDs.reserve(GetEntityCount());
+		entityNodes.reserve(GetEntityCount());
+
+		Each([&](Entity entity)
+			{
+				entityIDs.push_back(entity.GetRuntimeID());
+			});
+
+		Each([&](Entity entity)
+		{
+			const auto& componentList = entity.GetComponentsTypeIDList();
+
+			entityNodes.push_back(YAML::Node());
+			auto& entityNode = entityNodes[entityNodes.size() - 1];
+
+			const auto& transform = entity.GetComponent<TransformComponent>();
+
+			// Name and Guid
+			const auto& base = entity.GetComponent<BaseComponent>();
+			entityNode["Name"] = base.Name;
+			entityNode["GUID"] = base.ID.ToString();
+
+			// Family
+			if (!transform.GetParent())
+			{
+				entityNode["Parent"] = YAML::Node(YAML::NodeType::Null);
+			}
+			else
+			{
+				auto it = std::find(entityIDs.begin(), entityIDs.end(), transform.GetParent().GetRuntimeID());
+				OE_CORE_ASSERT(it != entityIDs.end(), "Parent not found!");
+				entityNode["Parent"] = it - entityIDs.begin();
+			}
+
+			auto transformAlias = entityNode["Transform"];
+			Serializer::SerializeToYaml(*TransformComponent::Reflect(), (void*)&transform, transformAlias);
+
+			#define SERIALIZE_COMPONENT(type) (componentTypeID == GetComponentTypeID<type>()) {\
+			componentNode["TypeName"] = type::GetStaticName();\
+			Serializer::SerializeToYaml(*type::Reflect(), (void*)&entity.GetComponent<type>(), componentNode); }
+
+			entityNode["Components"] = Vector<YAML::Node>();
+			for (const auto& componentTypeID : componentList)
+			{
+				YAML::Node componentNode(YAML::NodeType::Null);
+
+				if SERIALIZE_COMPONENT(CameraComponent)
+				else if SERIALIZE_COMPONENT(SpriteRendererComponent)
+
+					if (!componentNode.IsNull())
+						entityNode["Components"].push_back(componentNode);
+			}
+		});
+
+		sceneNode["Entities"] = entityNodes;
+
+		std::ofstream sceneFile(filePath);
+		sceneFile << sceneNode;
+		sceneFile.flush();
+		sceneFile.close();
+	}
+
+	uint32_t Scene::GetEntityCount() const
 	{
 		return (uint32_t)m_Registry.size<BaseComponent>();
 	}
@@ -229,6 +304,10 @@ namespace OverEngine
 
 	Ref<Scene> CreateSceneOnDisk(const String& path)
 	{
+		OE_DEBUGBREAK;
+		// Invalid Code
+		OE_CORE_ASSERT(false, "Deprecated");
+		OE_CORE_ERROR("Deprecated");
 		nlohmann::json json;
 
 		if (path.size() == 0)
@@ -250,24 +329,18 @@ namespace OverEngine
 
 	Ref<Scene> LoadSceneFromFile(const String& path)
 	{
-		// read a JSON file
-		std::ifstream sceneFile(path);
-		nlohmann::json sceneJson;
-		sceneFile >> sceneJson;
-
-		auto& Physics2DGravityJson = sceneJson["Settings"]["Physics2DSettings"]["Gravity"];
+		YAML::Node sceneNode = YAML::LoadFile(path);
 
 		SceneSettings settings;
-		settings.physics2DSettings.gravity.x = Physics2DGravityJson[0];
-		settings.physics2DSettings.gravity.y = Physics2DGravityJson[1];
+		settings.physics2DSettings.gravity = sceneNode["Physics2DSettings"]["Gravity"].as<Vector2>();
 		Ref<Scene> scene = CreateRef<Scene>(settings);
 
 		Vector<Entity> entities;
 		Map<uint32_t, uint32_t> entityParentAssignList;
-		uint32_t i = 0;
-		for (auto& entityJson : sceneJson["Entities"])
+
+		for (uint32_t i = 0; i < sceneNode["Entities"].size(); i++)
 		{
-			Entity entity = scene->CreateEntity(entityJson["Name"]);
+			Entity entity = scene->CreateEntity(sceneNode["Entities"][i]["Name"].as<String>());
 			entities.push_back(entity);
 
 			auto it = entityParentAssignList.begin();
@@ -285,231 +358,91 @@ namespace OverEngine
 			}
 
 			// Family
-			auto& base = entity.GetComponent<BaseComponent>();
-
-			auto parentJson = entityJson["Parent"];
-			if (!parentJson.is_null())
+			if (!sceneNode["Entities"][i]["Parent"].IsNull())
 			{
-				if (parentJson < i)
-					entity.GetComponent<TransformComponent>().SetParent(entities[parentJson]);
+				uint32_t parentNodeInt = sceneNode["Entities"][i]["Parent"].as<uint32_t>();
+				if (parentNodeInt < i)
+					entity.GetComponent<TransformComponent>().SetParent(entities[parentNodeInt]);
 				else
-					entityParentAssignList[i] = parentJson.get<uint32_t>();
+					entityParentAssignList[i] = parentNodeInt;
 			}
 
-			base.ID = Guid(entityJson["GUID"]);
+			auto& base = entity.GetComponent<BaseComponent>();
+			base.ID = Guid(sceneNode["Entities"][i]["GUID"].as<String>());
 
 			// Transform
 			auto& transform = entity.GetComponent<TransformComponent>();
-			auto& transformJson = entityJson["Transform"];
 
-			transform.SetLocalPosition({
-				transformJson["Position"][0],
-				transformJson["Position"][1],
-				transformJson["Position"][2]
-			});
+			transform.SetLocalPosition(sceneNode["Entities"][i]["Transform"]["m_LocalPosition"].as<Vector3>());
+			transform.SetLocalEulerAngles(sceneNode["Entities"][i]["Transform"]["m_LocalEulerAngles"].as<Vector3>());
+			transform.SetLocalScale(sceneNode["Entities"][i]["Transform"]["m_LocalScale"].as<Vector3>());
 
-			transform.SetLocalEulerAngles({
-				transformJson["Rotation"][0],
-				transformJson["Rotation"][1],
-				transformJson["Rotation"][2]
-			});
-
-			transform.SetLocalScale({
-				transformJson["Scale"][0],
-				transformJson["Scale"][1],
-				transformJson["Scale"][2]
-			});
-
-			auto& componentsJson = entityJson["Components"];
-
-			for (auto& componentJson : componentsJson)
+			for (uint32_t j = 0; j < sceneNode["Entities"][i]["Components"].size(); j++)
 			{
-				if (componentJson["TypeName"] == "_CameraComponent")
+				if (sceneNode["Entities"][i]["Components"][j]["TypeName"].as<String>() == "CameraComponent")
 				{
-					if (componentJson["m_Type"] == "Orthographic")
+					auto& camera = entity.AddComponent<CameraComponent>();
+
+					if (!Serializer::GlobalEnumExists("ProjectionType"))
 					{
-						SceneCamera cam;
-						cam.SetOrthographic(componentJson["m_OrthographicSize"], componentJson["m_ZNear"], componentJson["m_ZFar"]);
-
-						if (componentJson["m_IsClearingColor"])
-							cam.GetClearFlags() |= ClearFlags_ClearColor;
-
-						if (componentJson["m_IsClearingDepth"])
-							cam.GetClearFlags() |= ClearFlags_ClearDepth;
-
-						cam.SetClearColor({
-							componentJson["m_ClearColor"][0],
-							componentJson["m_ClearColor"][1],
-							componentJson["m_ClearColor"][2],
-							componentJson["m_ClearColor"][3]
+						Serializer::DefineGlobalEnum("ProjectionType", {
+							{ 0, "Orthographic" },
+							{ 1, "Perspective" }
 						});
-
-						entity.AddComponent<CameraComponent>(cam);
 					}
-					// TODO: Perspective cameras
+
+					camera.Camera.SetProjectionType((SceneCamera::ProjectionType)Serializer::GetGlobalEnumValue("ProjectionType", sceneNode["Entities"][i]["Components"][j]["m_ProjectionType"].as<String>()));
+
+					camera.Camera.SetPerspectiveVerticalFOV(sceneNode["Entities"][i]["Components"][j]["m_PerspectiveFOV"].as<float>());
+					camera.Camera.SetPerspectiveNearClip(sceneNode["Entities"][i]["Components"][j]["m_PerspectiveNear"].as<float>());
+					camera.Camera.SetPerspectiveFarClip(sceneNode["Entities"][i]["Components"][j]["m_PerspectiveFar"].as<float>());
+
+					camera.Camera.SetOrthographicSize(sceneNode["Entities"][i]["Components"][j]["m_OrthographicSize"].as<float>());
+					camera.Camera.SetOrthographicNearClip(sceneNode["Entities"][i]["Components"][j]["m_OrthographicNear"].as<float>());
+					camera.Camera.SetOrthographicFarClip(sceneNode["Entities"][i]["Components"][j]["m_OrthographicFar"].as<float>());
+
+					camera.Camera.SetClearFlags(sceneNode["Entities"][i]["Components"][j]["m_ClearFlags"].as<uint8_t>());
+					camera.Camera.SetClearColor(sceneNode["Entities"][i]["Components"][j]["m_ClearColor"].as<Color>());
 				}
-				else if (componentJson["TypeName"] == "_SpriteRendererComponent")
+				else if (sceneNode["Entities"][i]["Components"][j]["TypeName"].as<String>() == "SpriteRendererComponent")
 				{
-					entity.AddComponent<SpriteRendererComponent>(nullptr, Color{
-						componentJson["m_Tint"][0],
-						componentJson["m_Tint"][1],
-						componentJson["m_Tint"][2],
-						componentJson["m_Tint"][3]
-					});
+					auto& sp = entity.AddComponent<SpriteRendererComponent>();
+
+					if (!Serializer::GlobalEnumExists("TextureWrapping"))
+					{
+						Serializer::DefineGlobalEnum("TextureWrapping", {
+							{ 0, "None" },
+							{ 1, "Repeat" },
+							{ 2, "MirroredRepeat" },
+							{ 3, "ClampToEdge" },
+							{ 4, "ClampToBorder" }
+						});
+					}
+
+					if (!Serializer::GlobalEnumExists("TextureFiltering"))
+					{
+						Serializer::DefineGlobalEnum("TextureFiltering", {
+							{ 0, "None" },
+							{ 1, "Nearest" },
+							{ 2, "Linear" }
+						});
+					}
+
+					sp.Tint = sceneNode["Entities"][i]["Components"][j]["Tint"].as<Color>();
+					sp.TilingFactorX = sceneNode["Entities"][i]["Components"][j]["TilingFactorX"].as<float>();
+					sp.TilingFactorY = sceneNode["Entities"][i]["Components"][j]["TilingFactorY"].as<float>();
+					sp.FlipX = sceneNode["Entities"][i]["Components"][j]["FlipX"].as<bool>();
+					sp.FlipY = sceneNode["Entities"][i]["Components"][j]["FlipY"].as<bool>();
+					sp.OverrideSWrapping = (TextureWrapping)Serializer::GetGlobalEnumValue("TextureWrapping", sceneNode["Entities"][i]["Components"][j]["OverrideSWrapping"].as<String>());
+					sp.OverrideTWrapping = (TextureWrapping)Serializer::GetGlobalEnumValue("TextureWrapping", sceneNode["Entities"][i]["Components"][j]["OverrideTWrapping"].as<String>());
+					sp.OverrideFiltering = (TextureFiltering)Serializer::GetGlobalEnumValue("TextureFiltering", sceneNode["Entities"][i]["Components"][j]["OverrideFiltering"].as<String>());
+					sp.AlphaClippingThreshold = sceneNode["Entities"][i]["Components"][j]["AlphaClippingThreshold"].as<float>();
+					sp.IsOverridingTextureBorderColor = sceneNode["Entities"][i]["Components"][j]["IsOverridingTextureBorderColor"].as<bool>();
+					sp.OverrideTextureBorderColor = sceneNode["Entities"][i]["Components"][j]["OverrideTextureBorderColor"].as<Color>();
 				}
 			}
-			i++;
 		}
 
 		return scene;
 	}
-
-	void SaveSceneToFile(const String& path, Ref<Scene> scene)
-	{
-		nlohmann::json sceneJson;
-
-		// Physics2D Settings
-		const auto& Physics2DGravity = scene->GetPhysicsWorld2D().GetGravity();
-
-		sceneJson["Settings"]["Physics2DSettings"]["Gravity"] = {
-			Physics2DGravity.x,
-			Physics2DGravity.y
-		};
-
-		Vector<entt::entity> entityIDs;
-		Vector<nlohmann::json> entitiesJson;
-		uint32_t size = scene->GetEntityCount();
-		entityIDs.reserve(size);
-		entitiesJson.reserve(size);
-
-		scene->Each([&](Entity entity)
-		{
-			entityIDs.push_back(entity.GetRuntimeID());
-		});
-
-		uint32_t i = 0;
-		scene->Each([&](Entity entity)
-		{
-			const auto& componentList = entity.GetComponentsTypeIDList();
-
-			entitiesJson.push_back({ nlohmann::json() });
-			auto& entityJson = entitiesJson[i];
-
-			const auto& base = entity.GetComponent<BaseComponent>();
-			const auto& transform = entity.GetComponent<TransformComponent>();
-
-			// Name
-			entityJson["Name"] = base.Name;
-
-			// Family
-			if (!transform.GetParent())
-			{
-				entityJson["Parent"] = nullptr;
-			}
-			else
-			{
-				auto it = std::find(entityIDs.begin(), entityIDs.end(), transform.GetParent().GetRuntimeID());
-				OE_CORE_ASSERT(it != entityIDs.end(), "Parent not found!");
-				entityJson["Parent"] = it - entityIDs.begin();
-			}
-
-			entityJson["GUID"] = base.ID.ToString();
-
-			// Transform
-			entityJson["Transform"]["Position"] = {
-				transform.GetLocalPosition().x,
-				transform.GetLocalPosition().y,
-				transform.GetLocalPosition().z
-			};
-
-			entityJson["Transform"]["Rotation"] = {
-				transform.GetLocalEulerAngles().x,
-				transform.GetLocalEulerAngles().y,
-				transform.GetLocalEulerAngles().z
-			};
-
-			entityJson["Transform"]["Scale"] = {
-				transform.GetLocalScale().x,
-				transform.GetLocalScale().y,
-				transform.GetLocalScale().z
-			};
-
-			entityJson["Components"] = Vector<nlohmann::json>();
-			for (const auto& componentTypeID : componentList)
-			{
-				nlohmann::json componentJson;
-				bool componentParsed = false;
-
-				if (componentTypeID == GetComponentTypeID<CameraComponent>())
-				{
-					auto& camera = entity.GetComponent<CameraComponent>();
-
-					componentJson["TypeName"] = "_CameraComponent";
-
-					if (camera.Camera.GetProjectionType() == SceneCamera::ProjectionType::Orthographic)
-					{
-						componentJson["m_Type"] = "Orthographic";
-						componentJson["m_OrthographicSize"] = camera.Camera.GetOrthographicSize();
-
-						componentJson["m_ZNear"] = camera.Camera.GetOrthographicNearClip();
-						componentJson["m_ZFar"] = camera.Camera.GetOrthographicFarClip();
-
-						componentJson["m_IsClearingColor"] = camera.Camera.IsClearingColor();
-						componentJson["m_ClearColor"] = {
-							camera.Camera.GetClearColor().r,
-							camera.Camera.GetClearColor().g,
-							camera.Camera.GetClearColor().b,
-							camera.Camera.GetClearColor().a
-						};
-						componentJson["m_IsClearingDepth"] = camera.Camera.IsClearingDepth();
-					}
-					// TODO: Perspective cameras
-
-					componentParsed = true;
-				}
-				else if (componentTypeID == GetComponentTypeID<SpriteRendererComponent>())
-				{
-					auto& spriteRenderer = entity.GetComponent<SpriteRendererComponent>();
-
-					componentJson["TypeName"] = "_SpriteRendererComponent";
-
-					componentJson["m_Tint"] = {
-						spriteRenderer.Tint.r,
-						spriteRenderer.Tint.g,
-						spriteRenderer.Tint.b,
-						spriteRenderer.Tint.a
-					};
-
-					//componentJson[""]
-
-					/*Ref<Texture2DAsset> Sprite;
-					Color Tint{ 1.0f, 1.0f, 1.0f, 1.0f };
-					float TilingFactorX = 1.0f;
-					float TilingFactorY = 1.0f;
-					bool FlipX = false, FlipY = false;
-					TextureWrapping OverrideSWrapping = TextureWrapping::None;
-					TextureWrapping OverrideTWrapping = TextureWrapping::None;
-					TextureFiltering OverrideFiltering = TextureFiltering::None;
-					float AlphaClippingThreshold = 0.0f;
-					bool IsOverrideTextureBorderColor = false;
-					Color OverrideTextureBorderColor = Color(1);*/
-
-					componentParsed = true;
-				}
-
-				if (componentParsed)
-					entityJson["Components"].push_back(componentJson);
-			}
-
-			i++;
-		});
-
-		sceneJson["Entities"] = entitiesJson;
-
-		std::ofstream sceneFile(path);
-		sceneFile << sceneJson.dump(1, '\t');
-		sceneFile.flush();
-		sceneFile.close();
-	}
-
 }

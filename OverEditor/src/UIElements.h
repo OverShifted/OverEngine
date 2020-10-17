@@ -121,6 +121,37 @@ namespace OverEditor
 
 		// Combobox useful for enums
 		using EnumValues = Map<int, String>;
-		static bool BasicEnum(const char* fieldName, const char* fieldID, EnumValues& values, int* currentValue);
+
+		template <typename T>
+		static bool BasicEnum(const char* fieldName, const char* fieldID, EnumValues& values, T* currentValue)
+		{
+			ImGui::TextUnformatted(fieldName);
+			ImGui::NextColumn();
+
+			ImGui::PushItemWidth(-1);
+			bool changed = false;
+			if (ImGui::BeginCombo(fieldID, values[(int)(*currentValue)].c_str()))
+			{
+				for (const auto& value : values)
+				{
+					const bool selected = (value.first == *currentValue);
+					if (ImGui::Selectable(value.second.c_str(), selected))
+					{
+						*currentValue = value.first;
+						changed = true;
+					}
+
+					// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+					if (selected)
+						ImGui::SetItemDefaultFocus();
+				}
+				ImGui::EndCombo();
+			}
+			ImGui::PopItemWidth();
+
+			ImGui::NextColumn();
+
+			return changed;
+		}
 	};
 }

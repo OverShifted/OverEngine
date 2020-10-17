@@ -6,6 +6,8 @@ namespace OverEngine
 
 	enum ClearFlags_ : ClearFlags
 	{
-		ClearFlags_None = 0, ClearFlags_ClearColor = 1, ClearFlags_ClearDepth = 2
+		ClearFlags_None = 0,
+		ClearFlags_ClearColor = BIT(0),
+		ClearFlags_ClearDepth = BIT(1)
 	};
 }

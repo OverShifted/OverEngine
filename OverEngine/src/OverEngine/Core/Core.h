@@ -110,6 +110,13 @@
 
 namespace OverEngine
 {
+	// Calculates offset of a member from pointer to member
+	template<typename T, typename U>
+	uint32_t OffsetOf(U T::*member)
+	{
+		return (uint32_t)((char*)&((T*)nullptr->*member) - (char*)nullptr);
+	}
+
 	// Scope ////////////////////////////////////////////////////////////////////
 	template<typename T>
 	using Scope = std::unique_ptr<T>;
