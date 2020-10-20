@@ -1,2 +1,2 @@
-## For testing only
-this project is a test only one and wont include in the workspace bt default.
+## The "OverEditor" project
+An executable application made with low level OverAPI. Which you can make games with!
