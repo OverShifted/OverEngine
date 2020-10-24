@@ -55,6 +55,9 @@ namespace OverEngine
 	{
 		m_SubTextureData.m_Parent = masterTexture;
 		m_SubTextureData.m_Rect = rect;
+
+		m_Width = (uint32_t)rect.z;
+		m_Height = (uint32_t)rect.w;
 	}
 
 	Texture2D::~Texture2D()
