@@ -289,7 +289,7 @@ namespace OverEditor
 
 		if (m_SceneContext->Context && ImGui::Button("Save Scene"))
 		{
-			auto pathToSave = m_EditingProject->GetAssetsDirectoryPath() + "/" + m_SceneContext->ContextResourcePath.substr(9, m_SceneContext->ContextResourcePath.size());
+			auto pathToSave = m_EditingProject->GetAssetsDirectoryPath() + m_SceneContext->ContextResourcePath;
 			m_SceneContext->Context->Dump(pathToSave);
 		}
 

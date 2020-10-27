@@ -48,4 +48,37 @@ namespace OverEngine
 		auto lastSlash = m_Path.find_last_of('/');
 		return m_Collection->GetAsset(m_Path.substr(0, lastSlash));
 	}
+
+	FolderAsset* Asset::GetFolderAsset()
+	{
+		if (m_Type != AssetType::Folder)
+		{
+			OE_CORE_ASSERT(false, "Cannot convert this asset to FolderAsset");
+			return nullptr;
+		}
+
+		return (FolderAsset*)this;
+	}
+
+	Texture2DAsset* Asset::GetTexture2DAsset()
+	{
+		if (m_Type != AssetType::Texture2D)
+		{
+			OE_CORE_ASSERT(false, "Cannot convert this asset to Texture2DAsset");
+			return nullptr;
+		}
+
+		return (Texture2DAsset*)this;
+	}
+
+	SceneAsset* Asset::GetSceneAsset()
+	{
+		if (m_Type != AssetType::Scene)
+		{
+			OE_CORE_ASSERT(false, "Cannot convert this asset to SceneAsset");
+			return nullptr;
+		}
+
+		return (SceneAsset*)this;
+	}
 }

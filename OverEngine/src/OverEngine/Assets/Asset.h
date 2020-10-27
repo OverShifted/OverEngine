@@ -12,6 +12,10 @@ namespace OverEngine
 
 	class AssetCollection;
 
+	class FolderAsset;
+	class Texture2DAsset;
+	class SceneAsset;
+
 	class Asset
 	{
 	public:
@@ -33,6 +37,10 @@ namespace OverEngine
 		inline void SetGuid(const Guid& guid) { m_Guid = guid; }
 
 		inline const AssetType& GetType() const { return m_Type; }
+
+		FolderAsset* GetFolderAsset();
+		Texture2DAsset* GetTexture2DAsset();
+		SceneAsset* GetSceneAsset();
 	protected:
 		AssetType m_Type = AssetType::None;
 		String m_Name;

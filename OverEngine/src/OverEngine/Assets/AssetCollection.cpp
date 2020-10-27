@@ -86,7 +86,7 @@ namespace OverEngine
 		}
 
 		auto parentAsset = GetAsset(path.substr(0, lastSlash + 1));
-		auto& parentAssetChildren = TYPE_PAWN(parentAsset, Ref<FolderAsset>)->GetAssets();
+		auto& parentAssetChildren = parentAsset->GetFolderAsset()->GetAssets();
 
 		for (auto& a : parentAssetChildren)
 		{
@@ -169,7 +169,7 @@ namespace OverEngine
 		if (!asset->IsFolder())
 			return nullptr;
 
-		for (const auto& child : TYPE_PAWN(asset, Ref<FolderAsset>)->GetAssets())
+		for (const auto& child : asset->GetFolderAsset()->GetAssets())
 			if (auto result = FindAssetByGuidRecursive(child, guid))
 				return result;
 

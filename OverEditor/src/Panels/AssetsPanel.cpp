@@ -114,7 +114,7 @@ namespace OverEditor
 			for (const auto& a : m_SelectionContext)
 			{
 				if (a->IsFolder())
-					count += (uint32_t)(TYPE_PAWN(a, Ref<FolderAsset>)->GetAssets().size());
+					count += (uint32_t)a->GetFolderAsset()->GetAssets().size();
 				else
 					count++;
 			}
@@ -131,12 +131,12 @@ namespace OverEditor
 				if (!a->IsFolder())
 					continue;
 
-				for (const auto& asset : TYPE_PAWN(a, Ref<FolderAsset>)->GetAssets())
+				for (const auto& asset : a->GetFolderAsset()->GetAssets())
 				{
 					ImGui::PushID(n);
 					if (asset->GetType() == AssetType::Texture2D)
 					{
-						ImGui::ImageButton(TYPE_PAWN(asset, Ref<Texture2DAsset>)->GetTextures()[0].second, thumbnailSize);
+						ImGui::ImageButton(asset->GetTexture2DAsset()->GetTextures()[0].second, thumbnailSize);
 
 						if (ImGui::IsItemHovered())
 						{
@@ -148,7 +148,7 @@ namespace OverEditor
 						ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 10.0f, 10.0f });
 						if (ImGui::BeginDragDropSource())
 						{
-							ImGui::SetDragDropPayload("_TEXTURE2D_DRAG", &(TYPE_PAWN(asset, Ref<Texture2DAsset>)->GetTextures()[0].second), sizeof(Ref<Texture2D>));
+							ImGui::SetDragDropPayload("_TEXTURE2D_DRAG", &asset->GetTexture2DAsset()->GetTextures()[0].second, sizeof(Ref<Texture2D>));
 							ImGui::TextUnformatted(asset->GetName().c_str());
 							ImGui::EndDragDropSource();
 						}
@@ -176,7 +176,7 @@ namespace OverEditor
 							}
 							else if (asset->GetType() == AssetType::Scene)
 							{
-								m_Editor->EditScene(TYPE_PAWN(asset, Ref<SceneAsset>)->GetScene(), asset->GetPath());
+								m_Editor->EditScene(asset->GetSceneAsset()->GetScene(), asset->GetPath());
 							}
 						}
 
@@ -227,7 +227,7 @@ namespace OverEditor
 	{
 		Ref<Asset> selectedItem;
 
-		for (const auto& asset : TYPE_PAWN(assetToDraw, Ref<FolderAsset>)->GetAssets())
+		for (const auto& asset : assetToDraw->GetFolderAsset()->GetAssets())
 		{
 			if (!m_OneColumnView && !asset->IsFolder())
 				continue;
@@ -248,16 +248,16 @@ namespace OverEditor
 				{
 					ImGui::BeginTooltip();
 					ImGui::TextUnformatted(asset->GetName().c_str());
-					ImGui::Image(TYPE_PAWN(asset, Ref<Texture2DAsset>)->GetTextures()[0].second, { 128, 128 });
+					ImGui::Image(asset->GetTexture2DAsset()->GetTextures()[0].second, { 128, 128 });
 					ImGui::EndTooltip();
 				}
 
 				ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 10.0f, 10.0f });
 				if (ImGui::BeginDragDropSource())
 				{
-					ImGui::SetDragDropPayload("_TEXTURE2D_DRAG", &(TYPE_PAWN(asset, Ref<Texture2DAsset>)->GetTextures()[0]), sizeof(Ref<Texture2D>));
+					ImGui::SetDragDropPayload("_TEXTURE2D_DRAG", &(asset->GetTexture2DAsset()->GetTextures()[0].second), sizeof(Ref<Texture2D>));
 					ImGui::TextUnformatted(asset->GetName().c_str());
-					ImGui::Image(TYPE_PAWN(asset, Ref<Texture2DAsset>)->GetTextures()[0].second, { 128, 128 });
+					ImGui::Image(asset->GetTexture2DAsset()->GetTextures()[0].second, { 128, 128 });
 					ImGui::EndDragDropSource();
 				}
 				ImGui::PopStyleVar();
@@ -268,7 +268,7 @@ namespace OverEditor
 				if (!asset->IsFolder() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
 				{
 					if (asset->GetType() == AssetType::Scene)
-						m_Editor->EditScene(TYPE_PAWN(asset, Ref<SceneAsset>)->GetScene(), asset->GetPath());
+						m_Editor->EditScene(asset->GetSceneAsset()->GetScene(), asset->GetPath());
 				}
 
 				selectedItem = asset;
