@@ -9,8 +9,8 @@ static ApplicationProps GenApplicationProps()
 {
 	ApplicationProps props;
 	props.MainWindowProps.Title = "OverEditor";
-	props.MainWindowProps.Width = 1366;
-	props.MainWindowProps.Height = 768;
+	props.MainWindowProps.Width = 1600;
+	props.MainWindowProps.Height = 900;
 	props.RuntimeType = RuntimeType::Editor;
 	return props;
 }
