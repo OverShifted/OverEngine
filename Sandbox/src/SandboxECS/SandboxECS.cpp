@@ -49,22 +49,23 @@ SandboxECS::SandboxECS()
 #pragma endregion
 
 #pragma region Textures
-	m_CheckerBoardTexture = Texture2D::MasterFromFile("assets/textures/Checkerboard.png");
-	m_CheckerBoardTexture->SetSWrapping(TextureWrapping::ClampToBorder);
-	m_CheckerBoardTexture->SetTWrapping(TextureWrapping::ClampToBorder);
+	m_CheckerBoardTexture = Texture2D::CreateMaster("assets/textures/Checkerboard.png");
+	m_CheckerBoardTexture->SetXWrapping(TextureWrapping::ClampToBorder);
+	m_CheckerBoardTexture->SetYWrapping(TextureWrapping::ClampToBorder);
 	m_CheckerBoardTexture->SetBorderColor({ 0.0f, 1.0f, 1.0f, 1.0f });
 	m_CheckerBoardTexture->SetFilter(TextureFiltering::Nearest);
 
-	m_OELogoTexture = Texture2D::MasterFromFile("assets/textures/OELogo.png");
+	m_OELogoTexture = Texture2D::CreateMaster("assets/textures/OELogo.png");
+	m_OELogoTexture->SetFilter(TextureFiltering::Linear);
 
-	m_SpriteSheet = Texture2D::MasterFromFile("assets/textures/platformPack_tilesheet@2.png");
-	m_SpriteSheet->SetSWrapping(TextureWrapping::ClampToBorder);
-	m_SpriteSheet->SetTWrapping(TextureWrapping::ClampToBorder);
+	m_SpriteSheet = Texture2D::CreateMaster("assets/textures/platformPack_tilesheet@2.png");
+	m_SpriteSheet->SetXWrapping(TextureWrapping::ClampToBorder);
+	m_SpriteSheet->SetYWrapping(TextureWrapping::ClampToBorder);
 	m_SpriteSheet->SetBorderColor({ 0.0f, 1.0f, 1.0f, 1.0f });
-	m_SpriteSheet->SetFilter(TextureFiltering::Nearest);
+	m_SpriteSheet->SetFilter(TextureFiltering::Linear);
 
-	m_Sprite = Texture2D::SubTextureFromExistingOne(m_SpriteSheet, { 128 * 4, 128 * 2, 128, 128 });
-	m_ObstacleSprite = Texture2D::SubTextureFromExistingOne(m_SpriteSheet, { 128 * 0, 128 * 0, 128, 128 });
+	m_Sprite = Texture2D::CreateSubTexture(m_SpriteSheet, { 128 * 4, 128 * 2, 128, 128 });
+	m_ObstacleSprite = Texture2D::CreateSubTexture(m_SpriteSheet, { 128 * 0, 128 * 0, 128, 128 });
 #pragma endregion
 
 #pragma region ECS
@@ -77,7 +78,7 @@ SandboxECS::SandboxECS()
 	m_Player = m_Scene->CreateEntity("Player");
 
 	// SpriteRenderer
-	m_Player.AddComponent<SpriteRendererComponent>(CreateRef<Texture2DAsset>(m_Sprite));
+	m_Player.AddComponent<SpriteRendererComponent>(m_Sprite);
 
 	// PhysicsBody2D
 	PhysicsBodyProps props;
@@ -98,10 +99,10 @@ SandboxECS::SandboxECS()
 	Entity obstacle = m_Scene->CreateEntity("Obstacle");
 
 	// SpriteRenderer
-	auto& spriteRenderer = obstacle.AddComponent<SpriteRendererComponent>(CreateRef<Texture2DAsset>(m_ObstacleSprite));
-	spriteRenderer.TilingFactorX = 4.0f;
-	spriteRenderer.OverrideSWrapping = TextureWrapping::Repeat;
-	spriteRenderer.OverrideTWrapping = TextureWrapping::Repeat;
+	auto& spriteRenderer = obstacle.AddComponent<SpriteRendererComponent>(m_ObstacleSprite);
+	spriteRenderer.Tiling.x = 4.0f;
+	spriteRenderer.Wrapping.x = TextureWrapping::Repeat;
+	spriteRenderer.Wrapping.y = TextureWrapping::Repeat;
 
 	// PhysicsBody2D
 	PhysicsBodyProps obstacleBodyProps;
@@ -126,10 +127,10 @@ SandboxECS::SandboxECS()
 	Entity obstacle2 = m_Scene->CreateEntity("Obstacle2");
 
 	// SpriteRenderer
-	auto& spriteRenderer2 = obstacle2.AddComponent<SpriteRendererComponent>(CreateRef<Texture2DAsset>(m_ObstacleSprite));
-	spriteRenderer2.TilingFactorX = 40.0f;
-	spriteRenderer2.OverrideSWrapping = TextureWrapping::Repeat;
-	spriteRenderer2.OverrideTWrapping = TextureWrapping::Repeat;
+	auto& spriteRenderer2 = obstacle2.AddComponent<SpriteRendererComponent>(m_ObstacleSprite);
+	spriteRenderer2.Tiling.x = 40.0f;
+	spriteRenderer2.Wrapping.x = TextureWrapping::Repeat;
+	spriteRenderer2.Wrapping.y = TextureWrapping::Repeat;
 
 	// PhysicsBody2D
 	PhysicsBodyProps obstacle2BodyProps;
@@ -257,6 +258,9 @@ void SandboxECS::OnImGuiRender()
 	ImGui::Text("QuadCount : %i", Renderer2D::GetStatistics().QuadCount);
 	ImGui::Text("IndexCount : %i", Renderer2D::GetStatistics().GetIndexCount());
 	ImGui::Text("VertexCount : %i", Renderer2D::GetStatistics().GetVertexCount());
+
+	if (ImGui::Button("Reload"))
+		Renderer2D::GetShader()->Reload();
 
 	ImGui::End();
 

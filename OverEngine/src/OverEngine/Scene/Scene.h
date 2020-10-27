@@ -12,7 +12,6 @@ namespace OverEngine
 	class Scene;
 
 	Ref<Scene> CreateSceneOnDisk(const String& path);
-	Ref<Scene> LoadSceneFromFile(const String& path);
 
 	struct Physics2DSettings
 	{
@@ -55,8 +54,6 @@ namespace OverEngine
 		bool OnRender(Vector2 renderSurface);
 		void OnRender(const SceneCamera& camera, const Mat4x4& cameraTransform);
 
-		void Dump(const String& filePath);
-
 		inline PhysicsWorld2D& GetPhysicsWorld2D() { return m_PhysicsWorld2D; }
 		inline const PhysicsWorld2D& GetPhysicsWorld2D() const { return m_PhysicsWorld2D; }
 
@@ -64,6 +61,9 @@ namespace OverEngine
 		inline Vector<entt::entity>& GetRootHandles() { return m_RootHandles; }
 
 		inline uint32_t GetEntityCount() const;
+
+		void Dump(const String& filePath);
+		static Ref<Scene> LoadFile(const String& filePath);
 	private:
 		entt::registry m_Registry;
 		PhysicsWorld2D m_PhysicsWorld2D;

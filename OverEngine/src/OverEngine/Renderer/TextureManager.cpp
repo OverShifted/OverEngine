@@ -65,8 +65,8 @@ namespace OverEngine
 			s_ManagerData->GPUTextures[0]->AllocateStorage(TextureFormat::RGBA, texture->GetWidth(), texture->GetHeight());
 			s_ManagerData->GPUTextures[0]->SubImage(texture->GetPixels(), texture->GetWidth(), texture->GetHeight(), texture->GetFormat());
 			s_ManagerData->GPUTextures[0]->GetMemberTextures().push_back(texture);
-			texture->m_MasterTextureData.m_MappedTexture = s_ManagerData->GPUTextures[0];
-			texture->m_MasterTextureData.m_MappedTextureRect = {
+			texture->m_MasterTextureData.MappedTexture = s_ManagerData->GPUTextures[0];
+			texture->m_MasterTextureData.MappedTextureRect = {
 				0, 0, texture->GetWidth(), texture->GetHeight()
 			};
 
@@ -165,13 +165,13 @@ namespace OverEngine
 					s_ManagerData->RectCache[i].x, s_ManagerData->RectCache[i].y
 				);
 
-				currentGPUTextureMembers[i]->m_MasterTextureData.m_MappedTextureRect = {
+				currentGPUTextureMembers[i]->m_MasterTextureData.MappedTextureRect = {
 					s_ManagerData->RectCache[i].x, s_ManagerData->RectCache[i].y,
 					s_ManagerData->RectCache[i].w, s_ManagerData->RectCache[i].h
 				};
 			}
 
-			texture->m_MasterTextureData.m_MappedTexture = currentGPUTexture;
+			texture->m_MasterTextureData.MappedTexture = currentGPUTexture;
 			return;
 		}
 
@@ -191,8 +191,8 @@ namespace OverEngine
 		currentGPUTexture->AllocateStorage(TextureFormat::RGBA, texture->GetWidth(), texture->GetHeight());
 		currentGPUTexture->SubImage(texture->GetPixels(), texture->GetWidth(), texture->GetHeight(), texture->GetFormat());
 		currentGPUTexture->GetMemberTextures().push_back(texture);
-		texture->m_MasterTextureData.m_MappedTexture = currentGPUTexture;
-		texture->m_MasterTextureData.m_MappedTextureRect = {
+		texture->m_MasterTextureData.MappedTexture = currentGPUTexture;
+		texture->m_MasterTextureData.MappedTextureRect = {
 			0, 0, texture->GetWidth(), texture->GetHeight()
 		};
 	}

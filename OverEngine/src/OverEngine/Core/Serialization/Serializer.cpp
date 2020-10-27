@@ -1,6 +1,8 @@
 #include "pcheader.h"
 #include "Serializer.h"
 
+#include "OverEngine/Core/GUIDGenerator.h"
+
 namespace OverEngine
 {
 	UnorderedMap<String, Serializer::EnumValues> Serializer::s_Enums;

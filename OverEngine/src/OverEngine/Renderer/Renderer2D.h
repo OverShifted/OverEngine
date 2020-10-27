@@ -10,16 +10,22 @@ namespace OverEngine
 {
 	struct TexturedQuadExtraData
 	{
-		Color tint = Color(1.0f);
-		float tilingFactorX = 1.0f;
-		float tilingFactorY = 1.0f;
-		bool flipX = false;
-		bool flipY = false;
-		TextureWrapping overrideSTextureWrapping = TextureWrapping::None;
-		TextureWrapping overrideTTextureWrapping = TextureWrapping::None;
-		TextureFiltering overrideTextureFiltering = TextureFiltering::None;
-		float alphaClippingThreshold = 0.0f;
-		Color overrideTextureBorderColor = Color(-1);
+		Color Tint = Color(1.0f);
+
+		Vector2 Tiling = Vector2(1.0f);
+		Vector2 Offset = Vector2(0.0f);
+		Vec2T<bool> Flip{ false, false };
+
+		Vec2T<TextureWrapping> Wrapping{ TextureWrapping::None, TextureWrapping::None };
+		TextureFiltering Filtering = TextureFiltering::None;
+
+		float AlphaClipThreshold = 0.0f;
+
+		/**
+		 * first : Is overriding TextureBorderColor?
+		 * second : Override TextureBorderColor to what?
+		 */
+		std::pair<bool, Color> TextureBorderColor{ false, Color(1.0f) };
 	};
 
 	class Renderer2D

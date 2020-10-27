@@ -7,9 +7,8 @@
 #include "OverEngine/Core/Math/Math.h"
 #include "OverEngine/Core/GUIDGenerator.h"
 
-#include "OverEngine/Assets/Asset.h"
-
 #include "OverEngine/Physics/PhysicsBody2D.h"
+#include "OverEngine/Renderer/Texture.h"
 #include "OverEngine/Physics/PhysicsCollider2D.h"
 
 #include "OverEngine/Scene/SceneCamera.h"
@@ -102,76 +101,36 @@ namespace OverEngine
 
 	struct SpriteRendererComponent : public Component
 	{
-		Ref<Texture2DAsset> Sprite;
-		Color Tint = Color(1);
-		float TilingFactorX = 1.0f;
-		float TilingFactorY = 1.0f;
-		bool FlipX = false, FlipY = false;
-		TextureWrapping OverrideSWrapping = TextureWrapping::None;
-		TextureWrapping OverrideTWrapping = TextureWrapping::None;
-		TextureFiltering OverrideFiltering = TextureFiltering::None;
-		float AlphaClippingThreshold = 0.0f;
-		bool IsOverridingTextureBorderColor = false;
-		Color OverrideTextureBorderColor = Color(1);
+		Ref<Texture2D> Sprite;
 
+		Color Tint = Color(1.0f);
+
+		Vector2 Tiling = Vector2(1.0f);
+		Vector2 Offset = Vector2(0.0f);
+		Vec2T<bool> Flip{ false, false };
+		
+		Vec2T<TextureWrapping> Wrapping{ TextureWrapping::None, TextureWrapping::None };
+		TextureFiltering Filtering = TextureFiltering::None;
+
+		float AlphaClipThreshold = 0.0f;
+
+		/**
+		 * first : Is overriding TextureBorderColor?
+		 * second : Override TextureBorderColor to what?
+		 */
+		std::pair<bool, Color> TextureBorderColor{ false, Color(1.0f) };
+
+	public:
 		SpriteRendererComponent() = default;
 		SpriteRendererComponent(const SpriteRendererComponent&) = default;
 
-		SpriteRendererComponent(Entity& entity, Ref<Texture2DAsset> sprite = nullptr)
+		SpriteRendererComponent(Entity& entity, Ref<Texture2D> sprite = nullptr)
 			: Component(entity), Sprite(sprite) {}
 
-		SpriteRendererComponent(Entity& entity, Ref<Texture2DAsset> sprite, const Color& tint)
+		SpriteRendererComponent(Entity& entity, Ref<Texture2D> sprite, const Color& tint)
 			: Component(entity), Sprite(sprite), Tint(tint) {}
 
-		static SerializationContext* Reflect()
-		{
-			static bool initialized = false;
-			static SerializationContext ctx;
-
-			if (!initialized)
-			{
-				initialized = true;
-
-				if (!Serializer::GlobalEnumExists("TextureWrapping"))
-				{
-					Serializer::DefineGlobalEnum("TextureWrapping", {
-						{ 0, "None" },
-						{ 1, "Repeat" },
-						{ 2, "MirroredRepeat" },
-						{ 3, "ClampToEdge" },
-						{ 4, "ClampToBorder" }
-					});
-				}
-
-				if (!Serializer::GlobalEnumExists("TextureFiltering"))
-				{
-					Serializer::DefineGlobalEnum("TextureFiltering", {
-						{ 0, "None" },
-						{ 1, "Nearest" },
-						{ 2, "Linear" }
-					});
-				}
-
-				ctx.AddField(SerializableDataType::Float4, SERIALIZE_FIELD(SpriteRendererComponent, Tint));
-
-				ctx.AddField(SerializableDataType::Float, SERIALIZE_FIELD(SpriteRendererComponent, TilingFactorX));
-				ctx.AddField(SerializableDataType::Float, SERIALIZE_FIELD(SpriteRendererComponent, TilingFactorY));
-
-				ctx.AddField(SerializableDataType::Bool, SERIALIZE_FIELD(SpriteRendererComponent, FlipX));
-				ctx.AddField(SerializableDataType::Bool, SERIALIZE_FIELD(SpriteRendererComponent, FlipY));
-
-				ctx.AddEnumField(SerializableDataType::Int8Enum, "TextureWrapping", SERIALIZE_FIELD(SpriteRendererComponent, OverrideSWrapping));
-				ctx.AddEnumField(SerializableDataType::Int8Enum, "TextureWrapping", SERIALIZE_FIELD(SpriteRendererComponent, OverrideTWrapping));
-				ctx.AddEnumField(SerializableDataType::Int8Enum, "TextureFiltering", SERIALIZE_FIELD(SpriteRendererComponent, OverrideFiltering));
-
-				ctx.AddField(SerializableDataType::Float, SERIALIZE_FIELD(SpriteRendererComponent, AlphaClippingThreshold));
-
-				ctx.AddField(SerializableDataType::Bool, SERIALIZE_FIELD(SpriteRendererComponent, IsOverridingTextureBorderColor));
-				ctx.AddField(SerializableDataType::Float4, SERIALIZE_FIELD(SpriteRendererComponent, OverrideTextureBorderColor));
-			}
-
-			return &ctx;
-		}
+		static SerializationContext* Reflect();
 
 		COMPONENT_TYPE(SpriteRendererComponent)
 	};

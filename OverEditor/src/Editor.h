@@ -4,9 +4,10 @@
 using namespace OverEngine;
 
 #include <OverEngine/Core/GUIDGenerator.h>
-#include <OverEngine/Assets/Resource.h>
-#include <OverEngine/Assets/Asset.h>
 #include <OverEngine/Core/FileSystem/FileSystem.h>
+
+#include <OverEngine/Assets/Asset.h>
+#include <OverEngine/Assets/AssetCollection.h>
 
 #include "SceneEditor.h"
 #include "Panels/ViewportPanel.h"
@@ -27,9 +28,11 @@ namespace OverEditor
 		EditorProject() = default;
 		EditorProject(const String& path);
 
+		inline const String& GetName() { return m_Name; }
+
 		inline const String& GetRootPath() { return m_RootPath; }
 		inline const String& GetAssetsDirectoryPath() { return m_AssetsDirectoryPath; }
-		inline ResourceCollection& GetResources() { return m_Resources; }
+		inline AssetCollection& GetAssets() { return m_Assets; }
 
 		String ResolvePhysicalAssetPath(const String& virtualPath);
 	private:
@@ -41,7 +44,7 @@ namespace OverEditor
 		String m_RootPath;
 		String m_AssetsDirectoryPath;
 
-		ResourceCollection m_Resources;
+		AssetCollection m_Assets;
 
 		FileWatcher m_Watcher;
 	};
@@ -67,17 +70,19 @@ namespace OverEditor
 		void OnInspectorGUI();
 	private:
 		Ref<EditorProject> m_EditingProject;
+		Ref<SceneEditor> m_SceneContext;
+
+		// Editor Icons
 		Ref<Texture2D> m_IconsTexture;
 		UnorderedMap<String, Ref<Texture2D>> m_Icons;
 
-		bool m_IsProjectManagerOpen = true;
-
-		Ref<SceneEditor> m_SceneContext;
-
+		// Panels
 		ViewportPanel m_ViewportPanel;
 		SceneHierarchyPanel m_SceneHierarchyPanel;
 		ConsolePanel m_ConsolePanel;
 		AssetsPanel m_AssetsPanel;
+
+		bool m_IsProjectManagerOpen = true;
 
 		friend class EditorLayer;
 	};

@@ -3,6 +3,8 @@
 #include "SerializableElement.h"
 
 #include <json.hpp>
+
+#include "OverEngine/Core/Serialization/YamlConverters.h"
 #include <yaml-cpp/yaml.h>
 
 namespace OverEngine

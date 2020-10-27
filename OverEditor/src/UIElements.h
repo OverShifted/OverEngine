@@ -1,18 +1,14 @@
 #pragma once
 
+#include <OverEngine/Renderer/Texture.h>
 #include <OverEngine/Scene/Entity.h>
 #include <imgui.h>
 
-using namespace OverEngine;
-
-namespace OverEngine
-{
-	class Texture2DAsset;
-}
-
 namespace OverEditor
 {
-	/*
+	using namespace OverEngine;
+
+	/**
 	 * A class which contains OverEditor's common
 	 * Graphical User Interface elements.
 	 */
@@ -116,8 +112,8 @@ namespace OverEditor
 		// For RGBA colors
 		static bool Color4Field(const char* fieldName, const char* fieldID, float value[4]);
 
-		// For Drag and Drop Asset fields
-		static void Texture2DAssetField(const char* fieldName, const char* fieldID, Ref<Texture2DAsset>& asset);
+		// For Drag and Drop fields
+		static void Texture2DField(const char* fieldName, const char* fieldID, Ref<Texture2D>& texture);
 
 		// Combobox useful for enums
 		using EnumValues = Map<int, String>;

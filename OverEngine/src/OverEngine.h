@@ -13,6 +13,13 @@
 
 #include "OverEngine/ImGui/ImGuiLayer.h"
 
+// ------- Assets --------------------
+#include "OverEngine/Assets/AssetCollection.h"
+#include "OverEngine/Assets/Asset.h"
+#include "OverEngine/Assets/FolderAsset.h"
+#include "OverEngine/Assets/Texture2DAsset.h"
+// -----------------------------------
+
 // ------- Scenes --------------------
 #include "OverEngine/Scene/Scene.h"
 #include "OverEngine/Scene/Entity.h"

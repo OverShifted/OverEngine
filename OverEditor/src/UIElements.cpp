@@ -1,8 +1,5 @@
 #include "UIElements.h"
 
-#include <OverEngine/Assets/Asset.h>
-#include <OverEngine/Assets/Resource.h>
-
 namespace OverEditor
 {
 	bool UIElements::CheckboxField(const char* fieldName, const char* fieldID, bool* value)
@@ -61,7 +58,7 @@ namespace OverEditor
 		return changed;
 	}
 
-	void UIElements::Texture2DAssetField(const char* fieldName, const char* fieldID, Ref<Texture2DAsset>& asset)
+	void UIElements::Texture2DField(const char* fieldName, const char* fieldID, Ref<Texture2D>& texture)
 	{
 		ImGui::TextUnformatted(fieldName);
 		ImGui::NextColumn();
@@ -69,16 +66,12 @@ namespace OverEditor
 		char txt[128];
 		auto txtSize = sizeof(txt) / sizeof(char);
 
-		if (!asset)
-			strcpy_s(txt, txtSize, "None (Texture2DAsset)");
-		else if (asset->GetResource()) // Asset belong to a resource
-			sprintf_s(txt, txtSize, "%s.%s",
-				asset->GetResource()->GetName().c_str(),
-				asset->GetName().c_str());
+		if (!texture)
+			strcpy_s(txt, txtSize, "None (Texture2D)");
 		else
-			sprintf_s(txt, txtSize, "%s", asset->GetName().c_str());
+			strcpy_s(txt, txtSize, texture->GetName().c_str());
 
-		if (!asset)
+		if (!texture)
 			ImGui::PushItemWidth(-1);
 		else
 			ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize("X").x - ImGui::GetStyle().FramePadding.x * 3);
@@ -88,19 +81,20 @@ namespace OverEditor
 
 		if (ImGui::BeginDragDropTarget())
 		{
-			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("_ASSET_DRAG"))
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("_TEXTURE2D_DRAG"))
 			{
-				Ref<Texture2DAsset>& incomingAsset = *static_cast<Ref<Texture2DAsset>*>(payload->Data);
-				asset = incomingAsset;
+				Ref<Texture2D>& incomingTexture = *static_cast<Ref<Texture2D>*>(payload->Data);
+				OE_CORE_INFO("DRAG_END {}", (void*)incomingTexture.get());
+				texture = incomingTexture;
 			}
 			ImGui::EndDragDropTarget();
 		}
 
-		if (asset)
+		if (texture)
 		{
 			ImGui::SameLine();
 			if (ImGui::Button("X"))
-			asset = nullptr;
+			texture = nullptr;
 		}
 
 		ImGui::NextColumn();

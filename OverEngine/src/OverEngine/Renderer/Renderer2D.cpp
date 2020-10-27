@@ -309,9 +309,9 @@ namespace OverEngine
 		Ref<GAPI::Texture2D> textureToBind;
 
 		if (texture->GetType() == TextureType::Master)
-			textureToBind = texture->m_MasterTextureData.m_MappedTexture;
+			textureToBind = texture->m_MasterTextureData.MappedTexture;
 		else
-			textureToBind = texture->m_SubTextureData.m_Parent->m_MasterTextureData.m_MappedTexture;
+			textureToBind = texture->m_SubTextureData.Parent->m_MasterTextureData.MappedTexture;
 
 		int textureSlot = -1;
 		for (const auto& t : s_Data->TextureBindList)
@@ -336,10 +336,10 @@ namespace OverEngine
 			textureSlot = slot;
 		}
 
-		if (extraData.alphaClippingThreshold >= 1.0f || extraData.tint.a <= extraData.alphaClippingThreshold)
+		if (extraData.AlphaClipThreshold >= 1.0f || extraData.Tint.a <= extraData.AlphaClipThreshold)
 			return;
 
-		bool transparent = extraData.tint.a < 1.0f || texture->GetFormat() == TextureFormat::RGBA;
+		bool transparent = extraData.Tint.a < 1.0f || texture->GetFormat() == TextureFormat::RGBA;
 
 		DrawQuadVertices vertices;
 
@@ -353,36 +353,33 @@ namespace OverEngine
 			vertex.a_Position.w = 1.0f;
 			vertex.a_Position = s_Data->ViewProjectionMatrix * transform * vertex.a_Position;
 
-			vertex.a_Color = extraData.tint;
+			vertex.a_Color = extraData.Tint;
 
 			// a_TextureSlot
 			vertex.a_TextureSlot = (float)textureSlot;
 
 			// a_TextureFilter
-			if (extraData.overrideTextureFiltering != TextureFiltering::None)
-				vertex.a_TextureFilter = (float)extraData.overrideTextureFiltering;
+			if (extraData.Filtering != TextureFiltering::None)
+				vertex.a_TextureFilter = (float)extraData.Filtering;
 			else
 				vertex.a_TextureFilter = (float)texture->GetFilter();
 
-			vertex.a_TextureAlphaClippingThreshold = extraData.alphaClippingThreshold;
+			vertex.a_TextureAlphaClippingThreshold = extraData.AlphaClipThreshold;
 
 			// a_TextureSWrapping & a_TextureTWrapping
-			if (extraData.overrideSTextureWrapping != TextureWrapping::None)
-				vertex.a_TextureWrapping.x = (float)extraData.overrideSTextureWrapping;
+			if (extraData.Wrapping.x != TextureWrapping::None)
+				vertex.a_TextureWrapping.x = (float)extraData.Wrapping.x;
 			else
-				vertex.a_TextureWrapping.x = (float)texture->GetSWrapping();
+				vertex.a_TextureWrapping.x = (float)texture->GetXWrapping();
 
-			if (extraData.overrideTTextureWrapping != TextureWrapping::None)
-				vertex.a_TextureWrapping.y = (float)extraData.overrideTTextureWrapping;
+			if (extraData.Wrapping.y != TextureWrapping::None)
+				vertex.a_TextureWrapping.y = (float)extraData.Wrapping.y;
 			else
-				vertex.a_TextureWrapping.y = (float)texture->GetTWrapping();
+				vertex.a_TextureWrapping.y = (float)texture->GetYWrapping();
 
 			// a_TextureBorderColor
-			if (   extraData.overrideTextureBorderColor.r >= 0.0f
-				&& extraData.overrideTextureBorderColor.g >= 0.0f
-				&& extraData.overrideTextureBorderColor.b >= 0.0f
-				&& extraData.overrideTextureBorderColor.a >= 0.0f)
-				vertex.a_TextureBorderColor = extraData.overrideTextureBorderColor;
+			if (extraData.TextureBorderColor.first)
+				vertex.a_TextureBorderColor = extraData.TextureBorderColor.second;
 			else
 				vertex.a_TextureBorderColor = texture->GetBorderColor();
 
@@ -394,10 +391,10 @@ namespace OverEngine
 
 			// a_TextureCoord
 			{
-				float xTexCoord = Renderer2DData::QuadVertices[    3 * i] > 0.0f ? extraData.tilingFactorX : 0.0f;
-				float yTexCoord = Renderer2DData::QuadVertices[1 + 3 * i] > 0.0f ? extraData.tilingFactorY : 0.0f;
-				vertex.a_TextureCoord.x = extraData.flipX ? extraData.tilingFactorX - xTexCoord : xTexCoord;
-				vertex.a_TextureCoord.y = extraData.flipY ? extraData.tilingFactorY - yTexCoord : yTexCoord;
+				float xTexCoord = Renderer2DData::QuadVertices[    3 * i] > 0.0f ? extraData.Tiling.x + extraData.Offset.x : extraData.Offset.x;
+				float yTexCoord = Renderer2DData::QuadVertices[1 + 3 * i] > 0.0f ? extraData.Tiling.y + extraData.Offset.y : extraData.Offset.y;
+				vertex.a_TextureCoord.x = extraData.Flip.x ? extraData.Tiling.x - xTexCoord : xTexCoord;
+				vertex.a_TextureCoord.y = extraData.Flip.y ? extraData.Tiling.y - yTexCoord : yTexCoord;
 			}
 		}
 

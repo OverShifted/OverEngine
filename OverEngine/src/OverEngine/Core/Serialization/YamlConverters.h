@@ -1,6 +1,9 @@
 #pragma once
 
+#include "OverEngine/Core/Core.h"
 #include "OverEngine/Core/Math/Math.h"
+#include "OverEngine/Core/GUIDGenerator.h"
+
 #include <yaml-cpp/yaml.h>
 
 namespace YAML
@@ -75,6 +78,22 @@ namespace YAML
 			rhs.g = node[1].as<float>();
 			rhs.b = node[2].as<float>();
 			rhs.a = node[3].as<float>();
+			return true;
+		}
+	};
+
+	template<>
+	struct convert<OverEngine::Guid>
+	{
+		static Node encode(const OverEngine::Guid& rhs)
+		{
+			Node node = Node(rhs.ToString());
+			return node;
+		}
+
+		static bool decode(const Node& node, OverEngine::Guid& rhs)
+		{
+			rhs = OverEngine::Guid(node.as<OverEngine::String>());
 			return true;
 		}
 	};

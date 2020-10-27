@@ -3,12 +3,12 @@
 
 namespace OverEngine
 {
-	Ref<Vector<String>> SplitString(const String& string, const String& delimiters)
+	RefVec<String> SplitString(const String& string, const String& delimiters)
 	{
 		size_t start = 0;
 		size_t end = string.find_first_of(delimiters);
 
-		Ref<Vector<String>> result = CreateRef<Vector<String>>();
+		RefVec<String> result = CreateRef<Vector<String>>();
 
 		while (end <= String::npos)
 		{
@@ -26,7 +26,7 @@ namespace OverEngine
 		return result;
 	}
 
-	Ref<Vector<String>> SplitString(const String& string, const char delimiter)
+	RefVec<String> SplitString(const String& string, const char delimiter)
 	{
 		return SplitString(string, String(1, delimiter));
 	}

@@ -9,6 +9,7 @@
 
 // For OE(_CORE)_ASSERT
 #include "OverEngine/Core/Log.h"
+#include "OverEngine/Core/Math/Math.h"
 // #include "OverEngine/Core/Memory/Allocator.h"
 
 // Platform detection using predefined macros
@@ -108,6 +109,8 @@
 #define IMVEC2_2_VECTOR2(imvec2) (::OverEngine::Vector2(imvec2.x, imvec2.y))
 #define IMVEC4_2_VECTOR2(imvec4) (::OverEngine::Vector4(imvec4.x, imvec4.y, imvec4.z, imvec4.w))
 
+#define TYPE_PAWN(var, T) (*((T*)&var))
+
 namespace OverEngine
 {
 	// Calculates offset of a member from pointer to member
@@ -145,6 +148,12 @@ namespace OverEngine
 	using Vector = std::vector<T>;
 	//using Vector = std::vector<T, OverEngine::Allocator<T>>;
 
+	template<typename T>
+	using RefVec = Ref<Vector<T>>;
+
+	template<typename T, typename U>
+	using VecPair = Vector<std::pair<T, U>>;
+
 	// UnorderedMap /////////////////////////////////////////////////////////////
 	template<typename T, typename U>
 	using UnorderedMap = std::unordered_map<T, U>;
@@ -152,4 +161,7 @@ namespace OverEngine
 	// Map //////////////////////////////////////////////////////////////////////
 	template<typename T, typename U>
 	using Map = std::map<T, U>;
+
+	template<typename T>
+	struct Vec2T { T x, y; };
 }

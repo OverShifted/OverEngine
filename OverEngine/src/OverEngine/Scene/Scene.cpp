@@ -151,23 +151,20 @@ namespace OverEngine
 						if (sprite.Sprite)
 						{
 							TexturedQuadExtraData data;
-							data.tint = sprite.Tint;
-							data.tilingFactorX = sprite.TilingFactorX;
-							data.tilingFactorY = sprite.TilingFactorY;
-							data.flipX = sprite.FlipX;
-							data.flipY = sprite.FlipY;
-							data.overrideSTextureWrapping = sprite.OverrideSWrapping;
-							data.overrideTTextureWrapping = sprite.OverrideTWrapping;
-							data.overrideTextureFiltering = sprite.OverrideFiltering;
-							data.alphaClippingThreshold = sprite.AlphaClippingThreshold;
-							if (sprite.IsOverridingTextureBorderColor)
-								data.overrideTextureBorderColor = sprite.OverrideTextureBorderColor;
+							data.Tint = sprite.Tint;
+							data.Tiling = sprite.Tiling;
+							data.Offset = sprite.Offset;
+							data.Flip = sprite.Flip;
+							data.Wrapping = sprite.Wrapping;
+							data.Filtering = sprite.Filtering;
+							data.AlphaClipThreshold = sprite.AlphaClipThreshold;
+							data.TextureBorderColor = sprite.TextureBorderColor;
 
-							Renderer2D::DrawQuad(sptransform, sprite.Sprite->GetAsset(), data);
+							Renderer2D::DrawQuad(sptransform, sprite.Sprite, data);
 						}
 						else
 						{
-							Renderer2D::DrawQuad(sptransform, sprite.Tint, sprite.AlphaClippingThreshold);
+							Renderer2D::DrawQuad(sptransform, sprite.Tint, sprite.AlphaClipThreshold);
 						}
 					}
 				}
@@ -198,28 +195,30 @@ namespace OverEngine
 				if (sprite.Sprite)
 				{
 					TexturedQuadExtraData data;
-					data.tint = sprite.Tint;
-					data.tilingFactorX = sprite.TilingFactorX;
-					data.tilingFactorY = sprite.TilingFactorY;
-					data.flipX = sprite.FlipX;
-					data.flipY = sprite.FlipY;
-					data.overrideSTextureWrapping = sprite.OverrideSWrapping;
-					data.overrideTTextureWrapping = sprite.OverrideTWrapping;
-					data.overrideTextureFiltering = sprite.OverrideFiltering;
-					data.alphaClippingThreshold = sprite.AlphaClippingThreshold;
-					if (sprite.IsOverridingTextureBorderColor)
-						data.overrideTextureBorderColor = sprite.OverrideTextureBorderColor;
+					data.Tint = sprite.Tint;
+					data.Tiling = sprite.Tiling;
+					data.Offset = sprite.Offset;
+					data.Flip = sprite.Flip;
+					data.Wrapping = sprite.Wrapping;
+					data.Filtering = sprite.Filtering;
+					data.AlphaClipThreshold = sprite.AlphaClipThreshold;
+					data.TextureBorderColor = sprite.TextureBorderColor;
 
-					Renderer2D::DrawQuad(sptransform, sprite.Sprite->GetAsset(), data);
+					Renderer2D::DrawQuad(sptransform, sprite.Sprite, data);
 				}
 				else
 				{
-					Renderer2D::DrawQuad(sptransform, sprite.Tint, sprite.AlphaClippingThreshold);
+					Renderer2D::DrawQuad(sptransform, sprite.Tint, sprite.AlphaClipThreshold);
 				}
 			}
 		}
 
 		Renderer2D::EndScene();
+	}
+
+	uint32_t Scene::GetEntityCount() const
+	{
+		return (uint32_t)m_Registry.size<BaseComponent>();
 	}
 
 	void Scene::Dump(const String& filePath)
@@ -235,9 +234,9 @@ namespace OverEngine
 		entityNodes.reserve(GetEntityCount());
 
 		Each([&](Entity entity)
-			{
-				entityIDs.push_back(entity.GetRuntimeID());
-			});
+		{
+			entityIDs.push_back(entity.GetRuntimeID());
+		});
 
 		Each([&](Entity entity)
 		{
@@ -269,7 +268,7 @@ namespace OverEngine
 			Serializer::SerializeToYaml(*TransformComponent::Reflect(), (void*)&transform, transformAlias);
 
 			#define SERIALIZE_COMPONENT(type) (componentTypeID == GetComponentTypeID<type>()) {\
-			componentNode["TypeName"] = type::GetStaticName();\
+			componentNode["Type"] = type::GetStaticName();\
 			Serializer::SerializeToYaml(*type::Reflect(), (void*)&entity.GetComponent<type>(), componentNode); }
 
 			entityNode["Components"] = Vector<YAML::Node>();
@@ -278,10 +277,20 @@ namespace OverEngine
 				YAML::Node componentNode(YAML::NodeType::Null);
 
 				if SERIALIZE_COMPONENT(CameraComponent)
-				else if SERIALIZE_COMPONENT(SpriteRendererComponent)
+				else if (componentTypeID == GetComponentTypeID<SpriteRendererComponent>())
+				{
+					auto& sp = entity.GetComponent<SpriteRendererComponent>();
 
-					if (!componentNode.IsNull())
-						entityNode["Components"].push_back(componentNode);
+					componentNode["Type"] = SpriteRendererComponent::GetStaticName();
+					/*componentNode["Sprite"] = YAML::Node(YAML::NodeType::Null);
+					if (sp.Sprite)
+						componentNode["Sprite"] = sp.Sprite->GetGuid();*/
+
+					Serializer::SerializeToYaml(*SpriteRendererComponent::Reflect(), (void*)&sp, componentNode);
+				}
+
+				if (!componentNode.IsNull())
+					entityNode["Components"].push_back(componentNode);
 			}
 		});
 
@@ -293,43 +302,9 @@ namespace OverEngine
 		sceneFile.close();
 	}
 
-	uint32_t Scene::GetEntityCount() const
+	Ref<Scene> Scene::LoadFile(const String& filePath)
 	{
-		return (uint32_t)m_Registry.size<BaseComponent>();
-	}
-
-	////////////////////////////////////////////////////////////
-	// Scene loading and saving ////////////////////////////////
-	////////////////////////////////////////////////////////////
-
-	Ref<Scene> CreateSceneOnDisk(const String& path)
-	{
-		OE_DEBUGBREAK;
-		// Invalid Code
-		OE_CORE_ASSERT(false, "Deprecated");
-		OE_CORE_ERROR("Deprecated");
-		nlohmann::json json;
-
-		if (path.size() == 0)
-			return nullptr;
-
-		json["Settings"]["Physics2DSettings"]["Gravity"]["x"] = 0.0f;
-		json["Settings"]["Physics2DSettings"]["Gravity"]["y"] = -9.8f;
-
-		json["Entities"] = nlohmann::json::array();
-
-		std::ofstream sceneFile(path);
-
-		sceneFile << json.dump(1, '\t');
-		sceneFile.flush();
-		sceneFile.close();
-
-		return LoadSceneFromFile(path);
-	}
-
-	Ref<Scene> LoadSceneFromFile(const String& path)
-	{
-		YAML::Node sceneNode = YAML::LoadFile(path);
+		YAML::Node sceneNode = YAML::LoadFile(filePath);
 
 		SceneSettings settings;
 		settings.physics2DSettings.gravity = sceneNode["Physics2DSettings"]["Gravity"].as<Vector2>();
@@ -377,34 +352,34 @@ namespace OverEngine
 			transform.SetLocalEulerAngles(sceneNode["Entities"][i]["Transform"]["m_LocalEulerAngles"].as<Vector3>());
 			transform.SetLocalScale(sceneNode["Entities"][i]["Transform"]["m_LocalScale"].as<Vector3>());
 
-			for (uint32_t j = 0; j < sceneNode["Entities"][i]["Components"].size(); j++)
+			for (auto componentNode : sceneNode["Entities"][i]["Components"])
 			{
-				if (sceneNode["Entities"][i]["Components"][j]["TypeName"].as<String>() == "CameraComponent")
+				if (componentNode["Type"].as<String>() == "CameraComponent")
 				{
 					auto& camera = entity.AddComponent<CameraComponent>();
 
-					if (!Serializer::GlobalEnumExists("ProjectionType"))
+					if (!Serializer::GlobalEnumExists("SceneCamera::ProjectionType"))
 					{
-						Serializer::DefineGlobalEnum("ProjectionType", {
+						Serializer::DefineGlobalEnum("SceneCamera::ProjectionType", {
 							{ 0, "Orthographic" },
 							{ 1, "Perspective" }
 						});
 					}
 
-					camera.Camera.SetProjectionType((SceneCamera::ProjectionType)Serializer::GetGlobalEnumValue("ProjectionType", sceneNode["Entities"][i]["Components"][j]["m_ProjectionType"].as<String>()));
+					camera.Camera.SetProjectionType((SceneCamera::ProjectionType)Serializer::GetGlobalEnumValue("SceneCamera::ProjectionType", componentNode["m_ProjectionType"].as<String>()));
 
-					camera.Camera.SetPerspectiveVerticalFOV(sceneNode["Entities"][i]["Components"][j]["m_PerspectiveFOV"].as<float>());
-					camera.Camera.SetPerspectiveNearClip(sceneNode["Entities"][i]["Components"][j]["m_PerspectiveNear"].as<float>());
-					camera.Camera.SetPerspectiveFarClip(sceneNode["Entities"][i]["Components"][j]["m_PerspectiveFar"].as<float>());
+					camera.Camera.SetPerspectiveVerticalFOV(componentNode["m_PerspectiveFOV"].as<float>());
+					camera.Camera.SetPerspectiveNearClip(componentNode["m_PerspectiveNear"].as<float>());
+					camera.Camera.SetPerspectiveFarClip(componentNode["m_PerspectiveFar"].as<float>());
 
-					camera.Camera.SetOrthographicSize(sceneNode["Entities"][i]["Components"][j]["m_OrthographicSize"].as<float>());
-					camera.Camera.SetOrthographicNearClip(sceneNode["Entities"][i]["Components"][j]["m_OrthographicNear"].as<float>());
-					camera.Camera.SetOrthographicFarClip(sceneNode["Entities"][i]["Components"][j]["m_OrthographicFar"].as<float>());
+					camera.Camera.SetOrthographicSize(componentNode["m_OrthographicSize"].as<float>());
+					camera.Camera.SetOrthographicNearClip(componentNode["m_OrthographicNear"].as<float>());
+					camera.Camera.SetOrthographicFarClip(componentNode["m_OrthographicFar"].as<float>());
 
-					camera.Camera.SetClearFlags(sceneNode["Entities"][i]["Components"][j]["m_ClearFlags"].as<uint8_t>());
-					camera.Camera.SetClearColor(sceneNode["Entities"][i]["Components"][j]["m_ClearColor"].as<Color>());
+					camera.Camera.SetClearFlags(componentNode["m_ClearFlags"].as<uint8_t>());
+					camera.Camera.SetClearColor(componentNode["m_ClearColor"].as<Color>());
 				}
-				else if (sceneNode["Entities"][i]["Components"][j]["TypeName"].as<String>() == "SpriteRendererComponent")
+				else if (componentNode["Type"].as<String>() == "SpriteRendererComponent")
 				{
 					auto& sp = entity.AddComponent<SpriteRendererComponent>();
 
@@ -428,21 +403,42 @@ namespace OverEngine
 						});
 					}
 
-					sp.Tint = sceneNode["Entities"][i]["Components"][j]["Tint"].as<Color>();
-					sp.TilingFactorX = sceneNode["Entities"][i]["Components"][j]["TilingFactorX"].as<float>();
-					sp.TilingFactorY = sceneNode["Entities"][i]["Components"][j]["TilingFactorY"].as<float>();
-					sp.FlipX = sceneNode["Entities"][i]["Components"][j]["FlipX"].as<bool>();
-					sp.FlipY = sceneNode["Entities"][i]["Components"][j]["FlipY"].as<bool>();
-					sp.OverrideSWrapping = (TextureWrapping)Serializer::GetGlobalEnumValue("TextureWrapping", sceneNode["Entities"][i]["Components"][j]["OverrideSWrapping"].as<String>());
-					sp.OverrideTWrapping = (TextureWrapping)Serializer::GetGlobalEnumValue("TextureWrapping", sceneNode["Entities"][i]["Components"][j]["OverrideTWrapping"].as<String>());
-					sp.OverrideFiltering = (TextureFiltering)Serializer::GetGlobalEnumValue("TextureFiltering", sceneNode["Entities"][i]["Components"][j]["OverrideFiltering"].as<String>());
-					sp.AlphaClippingThreshold = sceneNode["Entities"][i]["Components"][j]["AlphaClippingThreshold"].as<float>();
-					sp.IsOverridingTextureBorderColor = sceneNode["Entities"][i]["Components"][j]["IsOverridingTextureBorderColor"].as<bool>();
-					sp.OverrideTextureBorderColor = sceneNode["Entities"][i]["Components"][j]["OverrideTextureBorderColor"].as<Color>();
+					sp.Tint = componentNode["Tint"].as<Color>();
+					sp.Tiling = componentNode["Tiling"].as<Vector2>();
+					sp.Flip.x = componentNode["Flip.x"].as<bool>();
+					sp.Flip.y = componentNode["Flip.y"].as<bool>();
+					sp.Wrapping.x = (TextureWrapping)Serializer::GetGlobalEnumValue("TextureWrapping", componentNode["Wrapping.x"].as<String>());
+					sp.Wrapping.y = (TextureWrapping)Serializer::GetGlobalEnumValue("TextureWrapping", componentNode["Wrapping.y"].as<String>());
+					sp.Filtering = (TextureFiltering)Serializer::GetGlobalEnumValue("TextureFiltering", componentNode["Filtering"].as<String>());
+					sp.AlphaClipThreshold = componentNode["AlphaClipThreshold"].as<float>();
+					sp.TextureBorderColor.first = componentNode["IsOverridingTextureBorderColor"].as<bool>();
+					sp.TextureBorderColor.second = componentNode["TextureBorderColor"].as<Color>();
 				}
 			}
 		}
 
 		return scene;
+	}
+
+	////////////////////////////////////////////////////////////
+	// Scene loading and saving ////////////////////////////////
+	////////////////////////////////////////////////////////////
+
+	Ref<Scene> CreateSceneOnDisk(const String& path)
+	{
+		YAML::Node node;
+
+		node["Physics2DSettings"]["Gravity"].push_back(0.0f);
+		node["Physics2DSettings"]["Gravity"].push_back(-9.8f);
+		node["Physics2DSettings"]["Gravity"].SetStyle(YAML::EmitterStyle::Flow);
+
+		node["Entities"] = YAML::Node(YAML::NodeType::Sequence);
+
+		std::ofstream sceneFile(path);
+		sceneFile << node;
+		sceneFile.flush();
+		sceneFile.close();
+		
+		return Scene::LoadFile(path);
 	}
 }

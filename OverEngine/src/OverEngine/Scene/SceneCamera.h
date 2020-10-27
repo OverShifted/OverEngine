@@ -55,15 +55,15 @@ namespace OverEngine
 			{
 				initialized = true;
 
-				if (!Serializer::GlobalEnumExists("ProjectionType"))
+				if (!Serializer::GlobalEnumExists("SceneCamera::ProjectionType"))
 				{
-					Serializer::DefineGlobalEnum("ProjectionType", {
+					Serializer::DefineGlobalEnum("SceneCamera::ProjectionType", {
 						{ 0, "Orthographic" },
 						{ 1, "Perspective" }
 					});
 				}
 
-				ctx.AddEnumField(SerializableDataType::IntEnum, "ProjectionType", SERIALIZE_FIELD(SceneCamera, m_ProjectionType));
+				ctx.AddEnumField(SerializableDataType::IntEnum, "SceneCamera::ProjectionType", SERIALIZE_FIELD(SceneCamera, m_ProjectionType));
 
 				ctx.AddField(SerializableDataType::Float, SERIALIZE_FIELD(SceneCamera, m_PerspectiveFOV));
 				ctx.AddField(SerializableDataType::Float, SERIALIZE_FIELD(SceneCamera, m_PerspectiveNear));

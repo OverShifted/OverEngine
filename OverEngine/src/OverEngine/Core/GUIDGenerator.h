@@ -5,11 +5,12 @@ namespace OverEngine
 	struct Guid
 	{
 		Guid() = default;
+		Guid(const Guid&) = default;
 		Guid(const String& source);
 
 		inline const String& ToString() const { return string; }
 		void RecalculateString();
-		void operator =(const Guid& other);
+		void operator =(const Guid& other); 
 		bool operator ==(const Guid& other) const;
 
 		String string;

@@ -1,19 +1,20 @@
 #include "pcheader.h"
 #include "Texture.h"
+#include "OverEngine/Assets/Texture2DAsset.h"
 
 #include "OverEngine/Renderer/TextureManager.h"
 #include <stb_image.h>
 
 namespace OverEngine
 {
-	Ref<Texture2D> Texture2D::MasterFromFile(const String& path)
+	Ref<Texture2D> Texture2D::CreateMaster(const String& path)
 	{
 		Ref<Texture2D> texture = CreateRef<Texture2D>(path);
 		TextureManager::AddTexture(texture);
 		return texture;
 	}
 
-	Ref<Texture2D> Texture2D::SubTextureFromExistingOne(Ref<Texture2D> masterTexture, Rect rect)
+	Ref<Texture2D> Texture2D::CreateSubTexture(Ref<Texture2D> masterTexture, Rect rect)
 	{
 		if (masterTexture->GetType() == TextureType::Subtexture)
 		{
@@ -45,16 +46,16 @@ namespace OverEngine
 		}
 		OE_CORE_ASSERT(format != TextureFormat::None, "Unsupported image format");
 
-		m_MasterTextureData.m_Format = format;
-		m_MasterTextureData.m_Filter = TextureFiltering::Linear;
-		m_MasterTextureData.m_Pixels = data;
+		m_MasterTextureData.Format = format;
+		m_MasterTextureData.Filtering = TextureFiltering::Linear;
+		m_MasterTextureData.Pixels = data;
 	}
 
 	Texture2D::Texture2D(Ref<Texture2D> masterTexture, Rect rect)
 		: m_Type(TextureType::Subtexture), m_SubTextureData()
 	{
-		m_SubTextureData.m_Parent = masterTexture;
-		m_SubTextureData.m_Rect = rect;
+		m_SubTextureData.Parent = masterTexture;
+		m_SubTextureData.Rect = rect;
 
 		m_Width = (uint32_t)rect.z;
 		m_Height = (uint32_t)rect.w;
@@ -63,6 +64,22 @@ namespace OverEngine
 	Texture2D::~Texture2D()
 	{
 		if (m_Type == TextureType::Master)
-			stbi_image_free(m_MasterTextureData.m_Pixels);
+			stbi_image_free(m_MasterTextureData.Pixels);
+	}
+
+	const String& Texture2D::GetName() const
+	{
+		static String untitled = "Untitled Texture";
+
+		Texture2DAsset* asset = nullptr;
+		if (m_Type == TextureType::Master)
+			asset = m_MasterTextureData.Asset;
+		else
+			asset = m_SubTextureData.Parent->m_MasterTextureData.Asset;
+
+		if (asset)
+			return asset->GetName();
+
+		return untitled;
 	}
 }

@@ -67,20 +67,20 @@ namespace OverEditor
 
 		m_Name = projectJson["Name"];
 		m_AssetsDirectoryPath = m_RootPath + "/" + projectJson["AssetsRoot"].get<String>();
-		m_Resources.InitFromAssetsDirectory(m_AssetsDirectoryPath, projectJson["AssetsRootGuid"].get<String>());
+		m_Assets.InitFromAssetsDirectory(m_AssetsDirectoryPath, projectJson["AssetsRootGuid"].get<String>());
 
 		m_Watcher.Reset(m_AssetsDirectoryPath, std::chrono::milliseconds(250));
 		m_Watcher.Start([](String s, FileWatcherEvent e)
-			{
-				String message;
-				if (e == FileWatcherEvent::Created)
-					message = "Created";
-				else if (e == FileWatcherEvent::Deleted)
-					message = "Deleted";
-				else
-					message = "Modified";
-				OE_CORE_INFO("file : {}, {}", s, message);
-			});
+		{
+			String message;
+			if (e == FileWatcherEvent::Created)
+				message = "Created";
+			else if (e == FileWatcherEvent::Deleted)
+				message = "Deleted";
+			else
+				message = "Modified";
+			OE_CORE_INFO("file : {}, {}", s, message);
+		});
 	}
 
 	String EditorProject::ResolvePhysicalAssetPath(const String& virtualPath)
@@ -99,9 +99,9 @@ namespace OverEditor
 		m_ViewportPanel.SetContext(m_SceneContext);
 		m_SceneHierarchyPanel.SetContext(m_SceneContext);
 
-		m_IconsTexture = Texture2D::MasterFromFile("assets/textures/Icons.png");
-		m_Icons["FolderIcon"] = Texture2D::SubTextureFromExistingOne(m_IconsTexture, { 256, 0, 256, 256 });
-		m_Icons["SceneIcon"] = Texture2D::SubTextureFromExistingOne(m_IconsTexture, { 0, 0, 256, 256 });
+		m_IconsTexture = Texture2D::CreateMaster("assets/textures/Icons.png");
+		m_Icons["FolderIcon"] = Texture2D::CreateSubTexture(m_IconsTexture, { 256, 0, 256, 256 });
+		m_Icons["SceneIcon"] = Texture2D::CreateSubTexture(m_IconsTexture, { 0, 0, 256, 256 });
 	}
 
 	void Editor::OnUpdate()
@@ -143,6 +143,10 @@ namespace OverEditor
 		m_SceneContext->Context = scene;
 		m_SceneContext->ContextResourcePath = path;
 		m_SceneContext->SelectionContext.clear();
+
+		char buf[128];
+		sprintf_s(buf, OE_ARRAY_SIZE(buf), "OverEditor - %s - %s", m_EditingProject->GetName().c_str(), FileSystem::ExtractFileNameFromPath(path).c_str());
+		Application::Get().GetMainWindow().SetTitle(buf);
 	}
 
 	void Editor::OnMainMenubarGUI()
@@ -228,6 +232,10 @@ namespace OverEditor
 
 						auto project = CreateRef<EditorProject>(filePath);
 						m_EditingProject = project;
+
+						char buf[128];
+						sprintf_s(buf, OE_ARRAY_SIZE(buf), "OverEditor - %s", project->GetName().c_str());
+						Application::Get().GetMainWindow().SetTitle(buf);
 					}
 				}
 
@@ -237,6 +245,10 @@ namespace OverEditor
 				{
 					auto project = CreateRef<EditorProject>("D:/overenginedev/SuperMario/project.oep");
 					m_EditingProject = project;
+
+					char buf[128];
+					sprintf_s(buf, OE_ARRAY_SIZE(buf), "OverEditor - %s", project->GetName().c_str());
+					Application::Get().GetMainWindow().SetTitle(buf);
 				}
 
 				ImGui::Separator();
@@ -315,7 +327,7 @@ namespace OverEditor
 			ImGui::PushID(id);
 
 			auto& base = selectedEntity.GetComponent<BaseComponent>();
-			ImGui::InputText("Name", &base.Name);
+			ImGui::InputText("##Name", &base.Name);
 
 			bool wannaDestroy = false;
 			if (ImGui::SmallButton("Destroy Entity"))
@@ -323,7 +335,7 @@ namespace OverEditor
 
 			ImGui::SameLine();
 
-			ImGui::Text("GUID: %s", base.ID.ToString().c_str());
+			ImGui::TextWrapped("GUID: %s", base.ID.ToString().c_str());
 
 			ImGui::Separator();
 

@@ -63,35 +63,35 @@ namespace OverEditor
 
 			UIElements::Color4Field("Tint", "##Tint", glm::value_ptr(spriteRenderer.Tint));
 			UIElements::DragFloatField("AlphaClippingThreshold",
-				"##AlphaClippingThreshold", &spriteRenderer.AlphaClippingThreshold, 1.0f, 0.0f, 1.0f);
-			UIElements::Texture2DAssetField("Sprite", "##Sprite", spriteRenderer.Sprite);
+				"##AlphaClippingThreshold", &spriteRenderer.AlphaClipThreshold, 1.0f, 0.0f, 1.0f);
+			UIElements::Texture2DField("Sprite", "##Sprite", spriteRenderer.Sprite);
 
 			if (spriteRenderer.Sprite)
 			{
-				UIElements::CheckboxField("FlipX", "##FlipX", &spriteRenderer.FlipX);
-				UIElements::CheckboxField("FlipY", "##FlipY", &spriteRenderer.FlipY);
+				UIElements::CheckboxField("Flip.x", "##Flip.x", &spriteRenderer.Flip.x);
+				UIElements::CheckboxField("Flip.y", "##Flip.y", &spriteRenderer.Flip.y);
+
+				UIElements::DragFloat2Field("Tiling", "##Tiling", glm::value_ptr(spriteRenderer.Tiling), 0.02f);
+				UIElements::DragFloat2Field("Offset", "##Offset", glm::value_ptr(spriteRenderer.Offset), 0.02f);
 
 				static UIElements::EnumValues wrappingValues = {
 					{ 0, "None (Use texture default value)" }, { 1, "Repeat" },
 					{ 2, "MirroredRepeat" }, { 3, "ClampToEdge" },{ 4, "ClampToBorder" }
 				};
-				UIElements::BasicEnum("SWrapping", "##SWrapping", wrappingValues, (int8_t*)&spriteRenderer.OverrideSWrapping);
-				UIElements::BasicEnum("TWrapping", "##TWrapping", wrappingValues, (int8_t*)&spriteRenderer.OverrideTWrapping);
+				UIElements::BasicEnum("Wrapping.x", "##Wrapping.x", wrappingValues, (int8_t*)&spriteRenderer.Wrapping.x);
+				UIElements::BasicEnum("Wrapping.y", "##Wrapping.y", wrappingValues, (int8_t*)&spriteRenderer.Wrapping.y);
 
 				static UIElements::EnumValues filteringValues = {
 					{ 0, "None (Use texture default value)" }, { 1, "Point" }, { 2, "Linear" }
 				};
-				UIElements::BasicEnum("Filtering", "##Filtering", filteringValues, (int8_t*)&spriteRenderer.OverrideFiltering);
-
-				UIElements::DragFloatField("TilingFactorX", "##TilingFactorX", &spriteRenderer.TilingFactorX);
-				UIElements::DragFloatField("TilingFactorY", "##TilingFactorY", &spriteRenderer.TilingFactorY);
+				UIElements::BasicEnum("Filtering", "##Filtering", filteringValues, (int8_t*)&spriteRenderer.Filtering);
 
 				UIElements::CheckboxField("OverrideTextureBorderColor (for ClampToBorder wrapping)",
-					"##OverrideTextureBorderColor", &spriteRenderer.IsOverridingTextureBorderColor);
+					"##OverrideTextureBorderColor", &spriteRenderer.TextureBorderColor.first);
 
-				if (spriteRenderer.IsOverridingTextureBorderColor)
-					UIElements::Color4Field("BorderColor (for ClampToBorder wrapping)",
-						"##BorderColor", glm::value_ptr(spriteRenderer.OverrideTextureBorderColor));
+				if (spriteRenderer.TextureBorderColor.first)
+					UIElements::Color4Field("TextureBorderColor (for ClampToBorder wrapping)",
+						"##BorderColor", glm::value_ptr(spriteRenderer.TextureBorderColor.second));
 			}
 
 			UIElements::EndFieldGroup();
