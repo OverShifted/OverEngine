@@ -120,7 +120,7 @@ namespace OverEngine
 		if (path.size() == 1) // path == "/"
 			return m_RootAsset;
 
-		auto nodesNames = SplitString(FileSystem::FixFileSystemPath(path), '/');
+		auto nodesNames = SplitString(FileSystem::FixPath(path), '/');
 
 		uint32_t currentPathNodeIndex = 0;
 		Ref<FolderAsset> currentAsset = m_RootAsset;

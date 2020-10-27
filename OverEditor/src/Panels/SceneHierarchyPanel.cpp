@@ -1,10 +1,30 @@
 #include "SceneHierarchyPanel.h"
 
 #include <OverEngine/Scene/Components.h>
+#include "ComponentEditor.h"
+
+#include <OverEngine/ImGui/ExtraImGui.h>
 #include <imgui/imgui.h>
 
 namespace OverEditor
 {
+	template<typename T>
+	static void CheckComponentEditor(uint32_t componentTypeID, Entity entity)
+	{
+		if (componentTypeID == entt::type_info<T>::id())
+		{
+			ComponentEditor<T>(entity, componentTypeID);
+			ImGui::Separator();
+		}
+	}
+
+	template<typename T, typename... Args>
+	static void CheckAddComponent(Entity& entity, const char* label, Args&&... args)
+	{
+		if (!entity.HasComponent<T>() && ImGui::Selectable(label))
+			entity.AddComponent<T>(std::forward<Args>(args)...);
+	}
+
 	SceneHierarchyPanel::SceneHierarchyPanel(const Ref<SceneEditor>& context)
 		: m_Context(context)
 	{
@@ -94,6 +114,67 @@ namespace OverEditor
 
 			ImGui::End();
 		}
+
+		ImGui::Begin("Inspector");
+
+		if (m_Context->SelectionContext.size() == 1)
+		{
+			auto& selectedEntity = m_Context->SelectionContext[0];
+
+			char id[100];
+			sprintf_s(id, sizeof(id) / sizeof(char), "INSPECTOR_ENTITY_EDITOR%i", (uint32_t)selectedEntity);
+			ImGui::PushID(id);
+
+			auto& base = selectedEntity.GetComponent<BaseComponent>();
+			ImGui::InputText("##Name", &base.Name);
+
+			bool wannaDestroy = false;
+			if (ImGui::SmallButton("Destroy Entity"))
+				wannaDestroy = true;
+
+			ImGui::SameLine();
+
+			ImGui::TextWrapped("GUID: %s", base.ID.ToString().c_str());
+
+			ImGui::Separator();
+
+			for (const auto& componentTypeID : selectedEntity.GetComponentsTypeIDList())
+			{
+				CheckComponentEditor<TransformComponent>(componentTypeID, selectedEntity);
+				CheckComponentEditor<SpriteRendererComponent>(componentTypeID, selectedEntity);
+				CheckComponentEditor<CameraComponent>(componentTypeID, selectedEntity);
+			}
+
+			if (ImGui::Button("Add Component##Button", ImVec2(-1.0f, 40.0f)))
+				ImGui::OpenPopup("Add Component##Popup");
+
+			if (ImGui::BeginPopup("Add Component##Popup"))
+			{
+				CheckAddComponent<TransformComponent>(selectedEntity, "Transform Component##AddComponentPopup");
+				CheckAddComponent<SpriteRendererComponent>(selectedEntity, "SpriteRenderer Component##AddComponentPopup", nullptr);
+				CheckAddComponent<CameraComponent>(selectedEntity, "Camera Component##AddComponentPopup");
+
+				ImGui::EndPopup();
+			}
+
+			ImGui::PopID();
+
+			if (wannaDestroy)
+			{
+				selectedEntity.Destroy();
+				m_Context->SelectionContext.clear();
+			}
+		}
+		else if (m_Context->SelectionContext.size() > 1)
+		{
+			ImGui::TextUnformatted("Cannot edit multiple entities at the same time!");
+		}
+		else
+		{
+			ImGui::TextUnformatted("Please select some thing to edit!");
+		}
+
+		ImGui::End();
 	}
 
 	void SceneHierarchyPanel::SetContext(const Ref<SceneEditor>& context)

@@ -56,7 +56,7 @@ namespace OverEngine
 		return std::filesystem::is_directory(path);
 	}
 
-	String FileSystem::FixFileSystemPath(String path)
+	String FileSystem::FixPath(String path)
 	{
 		size_t backSlash = path.find_first_of('\\');
 		while (backSlash != String::npos)
@@ -68,7 +68,7 @@ namespace OverEngine
 		return path;
 	}
 
-	void FileSystem::FixFileSystemPath(String* path)
+	void FileSystem::FixPath(String* path)
 	{
 		size_t backSlash = path->find_first_of('\\');
 		while (backSlash != String::npos)
@@ -78,7 +78,7 @@ namespace OverEngine
 		}
 	}
 
-	void FileSystem::FixFileSystemPath(char* path)
+	void FileSystem::FixPath(char* path)
 	{
 		for (uint32_t i = 0; path[i] != '\0'; i++)
 			if (path[i] == '\\')

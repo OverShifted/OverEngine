@@ -36,8 +36,6 @@ namespace OverEditor
 
 		String ResolvePhysicalAssetPath(const String& virtualPath);
 	private:
-
-	private:
 		String m_Name;
 
 		String m_ProjectFilePath;
@@ -62,12 +60,7 @@ namespace OverEditor
 
 		void EditScene(const Ref<Scene>& scene, String path);
 	private:
-		void OnMainMenubarGUI();
-		void OnMainDockSpaceGUI();
-		void OnToolbarGUI();
-
 		void OnProjectManagerGUI();
-		void OnInspectorGUI();
 	private:
 		Ref<EditorProject> m_EditingProject;
 		Ref<SceneEditor> m_SceneContext;
