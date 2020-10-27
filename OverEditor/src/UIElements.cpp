@@ -84,7 +84,6 @@ namespace OverEditor
 			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("_TEXTURE2D_DRAG"))
 			{
 				Ref<Texture2D>& incomingTexture = *static_cast<Ref<Texture2D>*>(payload->Data);
-				OE_CORE_INFO("DRAG_END {}", (void*)incomingTexture.get());
 				texture = incomingTexture;
 			}
 			ImGui::EndDragDropTarget();

@@ -149,7 +149,6 @@ namespace OverEditor
 						if (ImGui::BeginDragDropSource())
 						{
 							ImGui::SetDragDropPayload("_TEXTURE2D_DRAG", &(TYPE_PAWN(asset, Ref<Texture2DAsset>)->GetTextures()[0].second), sizeof(Ref<Texture2D>));
-							OE_CORE_INFO("DRAG_BEGIN {}", (void*)TYPE_PAWN(asset, Ref<Texture2DAsset>)->GetTextures()[0].second.get());
 							ImGui::TextUnformatted(asset->GetName().c_str());
 							ImGui::EndDragDropSource();
 						}
