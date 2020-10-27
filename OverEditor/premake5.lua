@@ -22,16 +22,16 @@ project "OverEditor"
 	includedirs
 	{
 		"src",
-		"../OverEngine/src",
-		"../OverEngine/vendor",
-		"../%{IncludeDir.spdlog}",
-		"../%{IncludeDir.imgui}",
-		"../%{IncludeDir.glm}",
-		"../%{IncludeDir.entt}",
-		"../%{IncludeDir.box2d}",
-		"../%{IncludeDir.json}",
-		"../%{IncludeDir.fmt}",
-		"../%{IncludeDir.yaml_cpp}",
+		"%{wks.location}/OverEngine/src",
+		"%{wks.location}/OverEngine/vendor",
+		"%{IncludeDir.spdlog}",
+		"%{IncludeDir.imgui}",
+		"%{IncludeDir.glm}",
+		"%{IncludeDir.entt}",
+		"%{IncludeDir.box2d}",
+		"%{IncludeDir.json}",
+		"%{IncludeDir.fmt}",
+		"%{IncludeDir.yaml_cpp}",
 	}
 
 	links "OverEngine"

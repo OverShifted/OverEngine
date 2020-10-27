@@ -39,19 +39,19 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 -- include directories related to Solution folder
 IncludeDir = {}
-IncludeDir["GLFW"]         = "OverEngine/vendor/GLFW/include"
-IncludeDir["glad"]         = "OverEngine/vendor/glad/include"
-IncludeDir["spdlog"]       = "OverEngine/vendor/spdlog/include"
-IncludeDir["imgui"]        = "OverEngine/vendor/imgui"
-IncludeDir["glm"]          = "OverEngine/vendor/glm"
-IncludeDir["lua"]          = "OverEngine/vendor/lua/src"
-IncludeDir["stb_image"]    = "OverEngine/vendor/stb_image"
-IncludeDir["stb_rectpack"] = "OverEngine/vendor/stb_rectpack"
-IncludeDir["entt"]         = "OverEngine/vendor/entt/include"
-IncludeDir["box2d"]        = "OverEngine/vendor/box2d/include"
-IncludeDir["json"]         = "OverEngine/vendor/json/include"
-IncludeDir["fmt"]          = "OverEngine/vendor/fmt/include"
-IncludeDir["yaml_cpp"]     = "OverEngine/vendor/yaml-cpp/include"
+IncludeDir["GLFW"]         = "%{wks.location}/OverEngine/vendor/GLFW/include"
+IncludeDir["glad"]         = "%{wks.location}/OverEngine/vendor/glad/include"
+IncludeDir["spdlog"]       = "%{wks.location}/OverEngine/vendor/spdlog/include"
+IncludeDir["imgui"]        = "%{wks.location}/OverEngine/vendor/imgui"
+IncludeDir["glm"]          = "%{wks.location}/OverEngine/vendor/glm"
+IncludeDir["lua"]          = "%{wks.location}/OverEngine/vendor/lua/src"
+IncludeDir["stb_image"]    = "%{wks.location}/OverEngine/vendor/stb_image"
+IncludeDir["stb_rectpack"] = "%{wks.location}/OverEngine/vendor/stb_rectpack"
+IncludeDir["entt"]         = "%{wks.location}/OverEngine/vendor/entt/include"
+IncludeDir["box2d"]        = "%{wks.location}/OverEngine/vendor/box2d/include"
+IncludeDir["json"]         = "%{wks.location}/OverEngine/vendor/json/include"
+IncludeDir["fmt"]          = "%{wks.location}/OverEngine/vendor/fmt/include"
+IncludeDir["yaml_cpp"]     = "%{wks.location}/OverEngine/vendor/yaml-cpp/include"
 
 LinkLibs = {
 	"GLFW",
