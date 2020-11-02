@@ -5,7 +5,7 @@
 
 namespace OverEngine
 {
-	FolderAsset::FolderAsset(const String& path, const Guid& guid)
+	FolderAsset::FolderAsset(const String& path, const uint64_t& guid)
 	{
 		m_Type = AssetType::Folder;
 		auto splitted = SplitString(path, '/');
@@ -14,7 +14,7 @@ namespace OverEngine
 		m_Guid = guid;
 	}
 
-	FolderAsset::FolderAsset(const String& name, const String& path, const Guid& guid)
+	FolderAsset::FolderAsset(const String& name, const String& path, const uint64_t& guid)
 	{
 		m_Type = AssetType::Folder;
 		m_Name = name;

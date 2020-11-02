@@ -8,7 +8,7 @@ namespace OverEngine
 	{
 		None = 0,
 		// Float components
-		Float, Float2, Float3, Float4, Mat3, Mat4,
+		Float, Float2, Float3, Float4,
 		// Int components
 		Int, UInt, Int8, UInt8,
 		IntEnum, UIntEnum, Int8Enum, UInt8Enum,

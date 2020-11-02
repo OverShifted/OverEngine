@@ -1,6 +1,7 @@
 #include "Editor.h"
 
 #include <OverEngine/Core/FileSystem/FileSystem.h>
+#include <OverEngine/Scene/SceneSerializer.h>
 #include <OverEngine/Core/Extentions.h>
 
 #include <imgui/imgui.h>
@@ -58,7 +59,8 @@ namespace OverEditor
 
 		m_Name = projectNode["Name"].as<String>();
 		m_AssetsDirectoryPath = m_RootPath + "/" + projectNode["AssetsRoot"].as<String>();
-		m_Assets.InitFromAssetsDirectory(m_AssetsDirectoryPath, projectNode["AssetsRootGuid"].as<String>());
+		//m_Assets.InitFromAssetsDirectory(m_AssetsDirectoryPath, projectNode["AssetsRootGuid"].as<String>());
+		m_Assets.InitFromAssetsDirectory(m_AssetsDirectoryPath, 2354645635);
 
 		m_Watcher.Reset(m_AssetsDirectoryPath, std::chrono::milliseconds(250));
 		m_Watcher.Start([](String s, FileWatcherEvent e)
@@ -159,7 +161,11 @@ namespace OverEditor
 		ImGui::SameLine();
 
 		if (m_SceneContext->Context && ImGui::Button("Save Scene"))
-			m_SceneContext->Context->Dump(m_EditingProject->GetAssetsDirectoryPath() + m_SceneContext->ContextResourcePath);
+		{
+			//m_SceneContext->Context->Dump(m_EditingProject->GetAssetsDirectoryPath() + m_SceneContext->ContextResourcePath);
+			SceneSerializer sceneSerializer(m_SceneContext->Context);
+			sceneSerializer.Serialize(m_EditingProject->GetAssetsDirectoryPath() + m_SceneContext->ContextResourcePath);
+		}
 
 		ImGui::PopStyleVar();
 		ImGui::End();
@@ -255,7 +261,7 @@ namespace OverEditor
 
 				ImGui::Separator();
 
-				if (m_EditingProject && ImGui::Button("Create Scene"))
+				/*if (m_EditingProject && ImGui::Button("Create Scene"))
 				{
 					std::stringstream extension;
 					extension << "*." << OE_SCENE_FILE_EXTENSION;
@@ -264,7 +270,7 @@ namespace OverEditor
 					{
 						EditScene(CreateSceneOnDisk(scenePath), scenePath);
 					}
-				}
+				}*/
 			}
 
 			ImGui::End();

@@ -1,5 +1,6 @@
 #include "pcheader.h"
 #include "SceneAsset.h"
+#include "OverEngine/Scene/SceneSerializer.h"
 
 namespace OverEngine
 {
@@ -8,8 +9,9 @@ namespace OverEngine
 		m_Type = AssetType::Scene;
 		m_Name = node["Name"].as<String>();
 		m_Path = node["Path"].as<String>();
-		m_Guid = node["Guid"].as<Guid>();
+		m_Guid = node["Guid"].as<uint64_t>();
 
-		m_Scene = Scene::LoadFile(assetsDirectoryRoot + m_Path);
+		m_Scene = CreateRef<Scene>();
+		SceneSerializer(m_Scene).Deserialize(assetsDirectoryRoot + m_Path);
 	}
 }

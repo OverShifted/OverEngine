@@ -14,11 +14,11 @@ namespace OverEngine
 		// Load asset from YAML definition
 		Texture2DAsset(YAML::Node node, const String& assetsDirectoryRoot);
 
-		const Guid& GetTextureGuid(const Ref<Texture2D>& texture);
-		const Guid& GetTextureGuid(Texture2D* texture);
+		const uint64_t& GetTextureGuid(const Ref<Texture2D>& texture);
+		const uint64_t& GetTextureGuid(Texture2D* texture);
 
 		const auto& GetTextures() const { return m_Textures; }
 	private:
-		VecPair<Guid, Ref<Texture2D>> m_Textures;
+		UnorderedMap<uint64_t, Ref<Texture2D>> m_Textures;
 	};
 }

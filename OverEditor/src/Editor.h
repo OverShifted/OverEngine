@@ -3,11 +3,9 @@
 #include <OverEngine.h>
 using namespace OverEngine;
 
-#include <OverEngine/Core/GUIDGenerator.h>
-#include <OverEngine/Core/FileSystem/FileSystem.h>
-
 #include <OverEngine/Assets/Asset.h>
 #include <OverEngine/Assets/AssetCollection.h>
+#include <OverEngine/Core/FileSystem/FileSystem.h>
 
 #include "SceneEditor.h"
 #include "Panels/ViewportPanel.h"

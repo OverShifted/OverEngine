@@ -8,12 +8,11 @@
 #include "OverEngine/Renderer/Renderer2D.h"
 #include "OverEngine/Physics/PhysicsWorld2D.h"
 
-#include <fstream>
-
-#include <json.hpp>
+#include "OverEngine/Core/Random.h"
 
 #include "OverEngine/Core/Serialization/YamlConverters.h"
 #include <yaml-cpp/yaml.h>
+#include <fstream>
 
 namespace OverEngine
 {
@@ -26,20 +25,22 @@ namespace OverEngine
 	{
 	}
 
-	Entity Scene::CreateEntity(const String& name /*= String()*/)
+	Entity Scene::CreateEntity(const String& name, uint64_t uuid)
 	{
 		Entity entity = { m_Registry.create(), this };
-		entity.AddComponent<BaseComponent>(name.empty() ? "Entity" : name);
+		entity.AddComponent<NameComponent>(name.empty() ? "Entity" : name);
+		entity.AddComponent<IDComponent>(uuid);
 		entity.AddComponent<TransformComponent>();
 		m_RootHandles.push_back(entity.GetRuntimeID());
 		return entity;
 	}
 
-	Entity Scene::CreateEntity(Entity& parent, const String& name /*= String()*/)
+	Entity Scene::CreateEntity(Entity& parent, const String& name, uint64_t uuid)
 	{
 		OE_CORE_ASSERT(parent, "Parent is null!");
 		Entity entity = { m_Registry.create(), this };
-		entity.AddComponent<BaseComponent>(name.empty() ? "Entity" : name);
+		entity.AddComponent<NameComponent>(name.empty() ? "Entity" : name);
+		entity.AddComponent<IDComponent>(uuid);
 		entity.AddComponent<TransformComponent>(parent);
 		return entity;
 	}
@@ -218,227 +219,6 @@ namespace OverEngine
 
 	uint32_t Scene::GetEntityCount() const
 	{
-		return (uint32_t)m_Registry.size<BaseComponent>();
-	}
-
-	void Scene::Dump(const String& filePath)
-	{
-		YAML::Node sceneNode;
-
-		// Physics2D Settings
-		sceneNode["Physics2DSettings"]["Gravity"] = GetPhysicsWorld2D().GetGravity();
-
-		Vector<entt::entity> entityIDs;
-		Vector<YAML::Node> entityNodes;
-		entityIDs.reserve(GetEntityCount());
-		entityNodes.reserve(GetEntityCount());
-
-		Each([&](Entity entity)
-		{
-			entityIDs.push_back(entity.GetRuntimeID());
-		});
-
-		Each([&](Entity entity)
-		{
-			const auto& componentList = entity.GetComponentsTypeIDList();
-
-			entityNodes.push_back(YAML::Node());
-			auto& entityNode = entityNodes[entityNodes.size() - 1];
-
-			const auto& transform = entity.GetComponent<TransformComponent>();
-
-			// Name and Guid
-			const auto& base = entity.GetComponent<BaseComponent>();
-			entityNode["Name"] = base.Name;
-			entityNode["GUID"] = base.ID.ToString();
-
-			// Family
-			if (!transform.GetParent())
-			{
-				entityNode["Parent"] = YAML::Node(YAML::NodeType::Null);
-			}
-			else
-			{
-				auto it = std::find(entityIDs.begin(), entityIDs.end(), transform.GetParent().GetRuntimeID());
-				OE_CORE_ASSERT(it != entityIDs.end(), "Parent not found!");
-				entityNode["Parent"] = it - entityIDs.begin();
-			}
-
-			auto transformAlias = entityNode["Transform"];
-			Serializer::SerializeToYaml(*TransformComponent::Reflect(), (void*)&transform, transformAlias);
-
-			#define SERIALIZE_COMPONENT(type) (componentTypeID == GetComponentTypeID<type>()) {\
-			componentNode["Type"] = type::GetStaticName();\
-			Serializer::SerializeToYaml(*type::Reflect(), (void*)&entity.GetComponent<type>(), componentNode); }
-
-			entityNode["Components"] = Vector<YAML::Node>();
-			for (const auto& componentTypeID : componentList)
-			{
-				YAML::Node componentNode(YAML::NodeType::Null);
-
-				if SERIALIZE_COMPONENT(CameraComponent)
-				else if (componentTypeID == GetComponentTypeID<SpriteRendererComponent>())
-				{
-					auto& sp = entity.GetComponent<SpriteRendererComponent>();
-
-					componentNode["Type"] = SpriteRendererComponent::GetStaticName();
-					/*componentNode["Sprite"] = YAML::Node(YAML::NodeType::Null);
-					if (sp.Sprite)
-						componentNode["Sprite"] = sp.Sprite->GetGuid();*/
-
-					Serializer::SerializeToYaml(*SpriteRendererComponent::Reflect(), (void*)&sp, componentNode);
-				}
-
-				if (!componentNode.IsNull())
-					entityNode["Components"].push_back(componentNode);
-			}
-		});
-
-		sceneNode["Entities"] = entityNodes;
-
-		std::ofstream sceneFile(filePath);
-		sceneFile << sceneNode;
-		sceneFile.flush();
-		sceneFile.close();
-	}
-
-	Ref<Scene> Scene::LoadFile(const String& filePath)
-	{
-		YAML::Node sceneNode = YAML::LoadFile(filePath);
-
-		SceneSettings settings;
-		settings.physics2DSettings.gravity = sceneNode["Physics2DSettings"]["Gravity"].as<Vector2>();
-		Ref<Scene> scene = CreateRef<Scene>(settings);
-
-		Vector<Entity> entities;
-		Map<uint32_t, uint32_t> entityParentAssignList;
-
-		for (uint32_t i = 0; i < sceneNode["Entities"].size(); i++)
-		{
-			Entity entity = scene->CreateEntity(sceneNode["Entities"][i]["Name"].as<String>());
-			entities.push_back(entity);
-
-			auto it = entityParentAssignList.begin();
-			while (it != entityParentAssignList.end())
-			{
-				if (it->second <= i)
-				{
-					entities[it->first].GetComponent<TransformComponent>().SetParent(entities[it->second]);
-					it = entityParentAssignList.erase(it);
-				}
-				else
-				{
-					it++;
-				}
-			}
-
-			// Family
-			if (!sceneNode["Entities"][i]["Parent"].IsNull())
-			{
-				uint32_t parentNodeInt = sceneNode["Entities"][i]["Parent"].as<uint32_t>();
-				if (parentNodeInt < i)
-					entity.GetComponent<TransformComponent>().SetParent(entities[parentNodeInt]);
-				else
-					entityParentAssignList[i] = parentNodeInt;
-			}
-
-			auto& base = entity.GetComponent<BaseComponent>();
-			base.ID = Guid(sceneNode["Entities"][i]["GUID"].as<String>());
-
-			// Transform
-			auto& transform = entity.GetComponent<TransformComponent>();
-
-			transform.SetLocalPosition(sceneNode["Entities"][i]["Transform"]["m_LocalPosition"].as<Vector3>());
-			transform.SetLocalEulerAngles(sceneNode["Entities"][i]["Transform"]["m_LocalEulerAngles"].as<Vector3>());
-			transform.SetLocalScale(sceneNode["Entities"][i]["Transform"]["m_LocalScale"].as<Vector3>());
-
-			for (auto componentNode : sceneNode["Entities"][i]["Components"])
-			{
-				if (componentNode["Type"].as<String>() == "CameraComponent")
-				{
-					auto& camera = entity.AddComponent<CameraComponent>();
-
-					if (!Serializer::GlobalEnumExists("SceneCamera::ProjectionType"))
-					{
-						Serializer::DefineGlobalEnum("SceneCamera::ProjectionType", {
-							{ 0, "Orthographic" },
-							{ 1, "Perspective" }
-						});
-					}
-
-					camera.Camera.SetProjectionType((SceneCamera::ProjectionType)Serializer::GetGlobalEnumValue("SceneCamera::ProjectionType", componentNode["m_ProjectionType"].as<String>()));
-
-					camera.Camera.SetPerspectiveVerticalFOV(componentNode["m_PerspectiveFOV"].as<float>());
-					camera.Camera.SetPerspectiveNearClip(componentNode["m_PerspectiveNear"].as<float>());
-					camera.Camera.SetPerspectiveFarClip(componentNode["m_PerspectiveFar"].as<float>());
-
-					camera.Camera.SetOrthographicSize(componentNode["m_OrthographicSize"].as<float>());
-					camera.Camera.SetOrthographicNearClip(componentNode["m_OrthographicNear"].as<float>());
-					camera.Camera.SetOrthographicFarClip(componentNode["m_OrthographicFar"].as<float>());
-
-					camera.Camera.SetClearFlags(componentNode["m_ClearFlags"].as<uint8_t>());
-					camera.Camera.SetClearColor(componentNode["m_ClearColor"].as<Color>());
-				}
-				else if (componentNode["Type"].as<String>() == "SpriteRendererComponent")
-				{
-					auto& sp = entity.AddComponent<SpriteRendererComponent>();
-
-					if (!Serializer::GlobalEnumExists("TextureWrapping"))
-					{
-						Serializer::DefineGlobalEnum("TextureWrapping", {
-							{ 0, "None" },
-							{ 1, "Repeat" },
-							{ 2, "MirroredRepeat" },
-							{ 3, "ClampToEdge" },
-							{ 4, "ClampToBorder" }
-						});
-					}
-
-					if (!Serializer::GlobalEnumExists("TextureFiltering"))
-					{
-						Serializer::DefineGlobalEnum("TextureFiltering", {
-							{ 0, "None" },
-							{ 1, "Nearest" },
-							{ 2, "Linear" }
-						});
-					}
-
-					sp.Tint = componentNode["Tint"].as<Color>();
-					sp.Tiling = componentNode["Tiling"].as<Vector2>();
-					sp.Flip.x = componentNode["Flip.x"].as<bool>();
-					sp.Flip.y = componentNode["Flip.y"].as<bool>();
-					sp.Wrapping.x = (TextureWrapping)Serializer::GetGlobalEnumValue("TextureWrapping", componentNode["Wrapping.x"].as<String>());
-					sp.Wrapping.y = (TextureWrapping)Serializer::GetGlobalEnumValue("TextureWrapping", componentNode["Wrapping.y"].as<String>());
-					sp.Filtering = (TextureFiltering)Serializer::GetGlobalEnumValue("TextureFiltering", componentNode["Filtering"].as<String>());
-					sp.AlphaClipThreshold = componentNode["AlphaClipThreshold"].as<float>();
-					sp.TextureBorderColor.first = componentNode["IsOverridingTextureBorderColor"].as<bool>();
-					sp.TextureBorderColor.second = componentNode["TextureBorderColor"].as<Color>();
-				}
-			}
-		}
-
-		return scene;
-	}
-
-	////////////////////////////////////////////////////////////
-	// Scene loading and saving ////////////////////////////////
-	////////////////////////////////////////////////////////////
-
-	Ref<Scene> CreateSceneOnDisk(const String& path)
-	{
-		YAML::Node node;
-
-		node["Physics2DSettings"]["Gravity"].push_back(0.0f);
-		node["Physics2DSettings"]["Gravity"].push_back(-9.8f);
-		node["Physics2DSettings"]["Gravity"].SetStyle(YAML::EmitterStyle::Flow);
-
-		node["Entities"] = YAML::Node(YAML::NodeType::Sequence);
-
-		std::ofstream sceneFile(path);
-		sceneFile << node;
-		sceneFile.flush();
-		sceneFile.close();
-		
-		return Scene::LoadFile(path);
+		return (uint32_t)m_Registry.size<IDComponent>();
 	}
 }

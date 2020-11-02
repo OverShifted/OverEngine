@@ -1,6 +1,7 @@
 #include "pcheader.h"
 #include "Texture2DAsset.h"
 
+#include "OverEngine/Core/Random.h"
 #include "OverEngine/Core/Serialization/Serializer.h"
 
 namespace OverEngine
@@ -10,7 +11,7 @@ namespace OverEngine
 		m_Type = AssetType::Texture2D;
 		m_Name = node["Name"].as<String>();
 		m_Path = node["Path"].as<String>();
-		m_Guid = node["Guid"].as<Guid>();
+		m_Guid = node["Guid"].as<uint64_t>();
 
 		if (!Serializer::GlobalEnumExists("TextureType"))
 		{
@@ -26,28 +27,28 @@ namespace OverEngine
 			{
 				auto tex = Texture2D::CreateMaster(assetsDirectoryRoot + m_Path);
 				tex->m_MasterTextureData.Asset = this;
-				m_Textures.push_back({ Guid("fcbf7858-4013-4b9a-8d17-0d16ce4c25a4"), tex });
+				m_Textures[Random::UInt64()] = tex;
 			}
 		}
 	}
 
-	const Guid& Texture2DAsset::GetTextureGuid(const Ref<Texture2D>& texture)
+	const uint64_t& Texture2DAsset::GetTextureGuid(const Ref<Texture2D>& texture)
 	{
 		for (const auto& t : m_Textures)
 			if (t.second == texture)
 				return t.first;
 
 		OE_CORE_ASSERT(false, "Texture doesn't belongs to this asset");
-		return NULL_REF(Guid);
+		return NULL_REF(uint64_t);
 	}
 
-	const Guid& Texture2DAsset::GetTextureGuid(Texture2D* texture)
+	const uint64_t& Texture2DAsset::GetTextureGuid(Texture2D* texture)
 	{
 		for (const auto& t : m_Textures)
 			if (t.second.get() == texture)
 				return t.first;
 
 		OE_CORE_ASSERT(false, "Texture doesn't belongs to this asset");
-		return NULL_REF(Guid);
+		return NULL_REF(uint64_t);
 	}
 }

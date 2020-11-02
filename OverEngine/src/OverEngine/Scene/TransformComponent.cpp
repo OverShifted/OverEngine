@@ -14,7 +14,18 @@ namespace OverEngine
 	void TransformComponent::SetPosition(const Vector3& position)
 	{
 		if (m_Parent != entt::null)
-			SetLocalPosition(Vector3(glm::inverse(ENTITY_HANDLE_TRANSFORM(m_Parent).GetLocalToWorld()) * Vector4(position, 1.0f)));
+		{
+			auto mvm = ENTITY_HANDLE_TRANSFORM(m_Parent).GetLocalToWorld();
+
+			for (uint8_t i = 0; i < 3; i++)
+			{
+				if (mvm[i][i] == 0.0f)
+					mvm[i][i] = 1.0;
+			}
+
+			mvm = glm::inverse(mvm);
+			SetLocalPosition(Vector3(mvm * Vector4(position, 1.0f)));
+		}
 		else
 			SetLocalPosition(position);
 	}
@@ -154,12 +165,23 @@ namespace OverEngine
 		{
 			// Add to parent children list
 			ENTITY_HANDLE_TRANSFORM(parent).m_Children.push_back(AttachedEntity.GetRuntimeID());
-			m_Parent = parent.GetRuntimeID();
+			
+			if (m_Parent == entt::null)
+			{
+				auto& sceneRootHandles = AttachedEntity.GetScene()->GetRootHandles();
+				auto it = std::find(sceneRootHandles.begin(), sceneRootHandles.end(), AttachedEntity.GetRuntimeID());
+				OE_CORE_ASSERT(it != sceneRootHandles.end(), "Cannot find Entity in scene root list!");
+				sceneRootHandles.erase(it);
+			}
+			else
+			{
+				auto& parentChildren = ENTITY_HANDLE_TRANSFORM(m_Parent).m_Children;
+				auto it = std::find(parentChildren.begin(), parentChildren.end(), AttachedEntity.GetRuntimeID());
+				OE_CORE_ASSERT(it != parentChildren.end(), "Cannot find Entity in parent's children list!");
+				parentChildren.erase(it);
+			}
 
-			auto& sceneRootHandles = AttachedEntity.GetScene()->GetRootHandles();
-			auto it = std::find(sceneRootHandles.begin(), sceneRootHandles.end(), AttachedEntity.GetRuntimeID());
-			OE_CORE_ASSERT(it != sceneRootHandles.end(), "Cannot find Entity in scene root list!");
-			sceneRootHandles.erase(it);
+			m_Parent = parent.GetRuntimeID();
 
 			m_ChangedFlags |= ChangedFlags_LocalToWorld_RN;
 			Invalidate();
@@ -169,6 +191,36 @@ namespace OverEngine
 		{
 			DetachFromParent();
 		}
+	}
+
+	uint32_t TransformComponent::GetSiblingIndex()
+	{
+		if (m_Parent == entt::null)
+		{
+			const auto& rootEntities = AttachedEntity.GetScene()->GetRootHandles();
+			auto it = std::find(rootEntities.begin(), rootEntities.end(), AttachedEntity.GetRuntimeID());
+			return (uint32_t)(it - rootEntities.begin());
+		}
+
+		const auto& parentChildren = ENTITY_HANDLE_TRANSFORM(m_Parent).GetChildrenHandles();
+		auto it = std::find(parentChildren.begin(), parentChildren.end(), AttachedEntity.GetRuntimeID());
+		return (uint32_t)(it - parentChildren.begin());
+	}
+
+	void TransformComponent::SetSiblingIndex(uint32_t index)
+	{
+		if (m_Parent == entt::null)
+		{
+			auto& rootEntities = AttachedEntity.GetScene()->GetRootHandles();
+			auto it = std::find(rootEntities.begin(), rootEntities.end(), AttachedEntity.GetRuntimeID());
+			Move(rootEntities, it - rootEntities.begin(), index);
+
+			return;
+		}
+
+		auto& parentChildren = ENTITY_HANDLE_TRANSFORM(m_Parent).GetChildrenHandles();
+		auto it = std::find(parentChildren.begin(), parentChildren.end(), AttachedEntity.GetRuntimeID());
+		Move(parentChildren, it - parentChildren.begin(), index);
 	}
 
 	void TransformComponent::Invalidate()
@@ -204,8 +256,8 @@ namespace OverEngine
 		{
 			auto& childTransform = ENTITY_HANDLE_TRANSFORM(child);
 			childTransform.m_ChangedFlags |= ChangedFlags_LocalToWorld_RN;
-			childTransform.Change();
 			childTransform.Invalidate();
+			childTransform.Change();
 		}
 	}
 }

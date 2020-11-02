@@ -2,7 +2,7 @@
 #include "AssetCollection.h"
 
 #include "OverEngine/Core/FileSystem/FileSystem.h"
-#include "OverEngine/Core/GUIDGenerator.h"
+#include "OverEngine/Core/Random.h"
 #include "OverEngine/Core/Extentions.h"
 #include "OverEngine/Core/String.h"
 #include <filesystem>
@@ -10,12 +10,12 @@
 namespace OverEngine
 {
 	AssetCollection::AssetCollection()
-		: m_RootAsset(CreateRef<FolderAsset>("Assets", "/", GUIDGenerator::GenerateVersion4()))
+		: m_RootAsset(CreateRef<FolderAsset>("Assets", "/", Random::UInt64()))
 	{
 		m_RootAsset->m_Collection = this;
 	}
 
-	void AssetCollection::InitFromAssetsDirectory(const String& assetsDirectoryPath, const Guid& assetsDirectoryGuid)
+	void AssetCollection::InitFromAssetsDirectory(const String& assetsDirectoryPath, const uint64_t& assetsDirectoryGuid)
 	{
 		m_RootAsset->SetGuid(assetsDirectoryGuid);
 
@@ -69,7 +69,7 @@ namespace OverEngine
 
 				if (!founded)
 				{
-					auto newAsset = CreateRef<FolderAsset>(currentAsset->GetPath() + "/" + nodeName, GUIDGenerator::GenerateVersion4());
+					auto newAsset = CreateRef<FolderAsset>(currentAsset->GetPath() + "/" + nodeName, Random::UInt64());
 					currentAsset->GetAssets().push_back(newAsset);
 					currentAsset = newAsset;
 					currentAsset->m_Collection = this;
@@ -78,7 +78,7 @@ namespace OverEngine
 			}
 			else
 			{
-				auto newAsset = CreateRef<FolderAsset>(currentAsset->GetPath() + "/" + nodeName, GUIDGenerator::GenerateVersion4());
+				auto newAsset = CreateRef<FolderAsset>(currentAsset->GetPath() + "/" + nodeName, Random::UInt64());
 				currentAsset->GetAssets().push_back(newAsset);
 				currentAsset = newAsset;
 				currentAsset->m_Collection = this;
@@ -161,7 +161,7 @@ namespace OverEngine
 		return nullptr;
 	}
 
-	static Ref<Asset> FindAssetByGuidRecursive(Ref<Asset> asset, const Guid& guid)
+	static Ref<Asset> FindAssetByGuidRecursive(Ref<Asset> asset, const uint64_t& guid)
 	{
 		if (asset->GetGuid() == guid)
 			return asset;
@@ -176,7 +176,7 @@ namespace OverEngine
 		return nullptr;
 	};
 
-	inline Ref<Asset> AssetCollection::GetAsset(const Guid& guid)
+	inline Ref<Asset> AssetCollection::GetAsset(const uint64_t& guid)
 	{
 		return FindAssetByGuidRecursive(m_RootAsset, guid);
 	}

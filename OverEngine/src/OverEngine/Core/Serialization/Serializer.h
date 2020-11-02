@@ -14,6 +14,7 @@ namespace OverEngine
 	public:
 		static void SerializeToJson(const SerializationContext& ctx, void* source, nlohmann::json& out);
 		static void SerializeToYaml(const SerializationContext& ctx, void* source, YAML::Node& out);
+		static void SerializeToYaml(const SerializationContext& ctx, void* source, YAML::Emitter& out);
 
 		using EnumValues = UnorderedMap<int, String>;
 		static void DefineGlobalEnum(const String& name, const EnumValues& values);

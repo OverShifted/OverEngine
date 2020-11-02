@@ -10,7 +10,7 @@ namespace OverEngine
 	public:
 		AssetCollection();
 
-		void InitFromAssetsDirectory(const String& assetsDirectoryPath, const Guid& assetsDirectoryGuid);
+		void InitFromAssetsDirectory(const String& assetsDirectoryPath, const uint64_t& assetsDirectoryGuid);
 
 		void AddAsset(const Ref<Asset> resource, bool loading = false);
 		void AddAsset(const Ref<Asset> resource, const String& path, bool loading = false);
@@ -20,7 +20,7 @@ namespace OverEngine
 		Ref<Asset> GetAsset(const String& path);
 
 		// Returns the matching Asset with the path
-		inline Ref<Asset> GetAsset(const Guid& guid);
+		inline Ref<Asset> GetAsset(const uint64_t& guid);
 
 		bool AssetExists(const String& path);
 	private:

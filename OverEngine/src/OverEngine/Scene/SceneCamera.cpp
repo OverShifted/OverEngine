@@ -3,6 +3,40 @@
 
 namespace OverEngine
 {
+	SerializationContext* SceneCamera::Reflect()
+	{
+		static bool initialized = false;
+		static SerializationContext ctx;
+
+		if (!initialized)
+		{
+			initialized = true;
+
+			if (!Serializer::GlobalEnumExists("SceneCamera::ProjectionType"))
+			{
+				Serializer::DefineGlobalEnum("SceneCamera::ProjectionType", {
+					{ 0, "Orthographic" },
+					{ 1, "Perspective" }
+				});
+			}
+
+			ctx.AddEnumField(SerializableDataType::IntEnum, "SceneCamera::ProjectionType", &SceneCamera::m_ProjectionType, "ProjectionType");
+
+			ctx.AddField(SerializableDataType::Float, &SceneCamera::m_PerspectiveFOV, "PerspectiveFOV");
+			ctx.AddField(SerializableDataType::Float, &SceneCamera::m_PerspectiveNear, "PerspectiveNear");
+			ctx.AddField(SerializableDataType::Float, &SceneCamera::m_PerspectiveFar, "PerspectiveFar");
+
+			ctx.AddField(SerializableDataType::Float, &SceneCamera::m_OrthographicSize, "OrthographicSize");
+			ctx.AddField(SerializableDataType::Float, &SceneCamera::m_OrthographicNear, "OrthographicNear");
+			ctx.AddField(SerializableDataType::Float, &SceneCamera::m_OrthographicFar, "OrthographicFar");
+
+			ctx.AddField(SerializableDataType::Int8, &SceneCamera::m_ClearFlags, "ClearFlags");
+			ctx.AddField(SerializableDataType::Float4, &SceneCamera::m_ClearColor, "ClearColor");
+		}
+
+		return &ctx;
+	}
+
 	SceneCamera::SceneCamera()
 	{
 		RecalculateProjection();

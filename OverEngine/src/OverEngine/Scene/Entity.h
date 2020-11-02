@@ -11,7 +11,7 @@ namespace OverEngine
 	struct ComponentRef;
 
 	template<typename T>
-	uint32_t GetComponentTypeID()
+	entt::id_type GetComponentTypeID()
 	{
 		return entt::type_info<T>::id();
 	}
@@ -29,7 +29,7 @@ namespace OverEngine
 		T& AddComponent(Args&&... args)
 		{
 			OE_CORE_ASSERT(!HasComponent<T>(), "Entity already has component!");
-			m_Scene->m_EntitiesComponentsTypeIDList[m_EntityHandle].push_back(entt::type_info<T>::id());
+			m_Scene->m_ComponentList[m_EntityHandle].push_back(entt::type_info<T>::id());
 			return m_Scene->m_Registry.emplace<T>(m_EntityHandle, *this, std::forward<Args>(args)...);
 		}
 
@@ -37,7 +37,7 @@ namespace OverEngine
 		T& AddComponentDontPassEntity(Args&&... args)
 		{
 			OE_CORE_ASSERT(!HasComponent<T>(), "Entity already has component!");
-			m_Scene->m_EntitiesComponentsTypeIDList[m_EntityHandle].push_back(entt::type_info<T>::id());
+			m_Scene->m_ComponentList[m_EntityHandle].push_back(entt::type_info<T>::id());
 			return m_Scene->m_Registry.emplace<T>(m_EntityHandle, std::forward<Args>(args)...);
 		}
 
@@ -67,14 +67,14 @@ namespace OverEngine
 			OE_CORE_ASSERT(HasComponent<T>(), "Entity does not have component!");
 			m_Scene->m_Registry.remove<T>(m_EntityHandle);
 
-			auto& componentList = m_Scene->m_EntitiesComponentsTypeIDList[m_EntityHandle];
+			auto& componentList = m_Scene->m_ComponentList[m_EntityHandle];
 			auto it = std::find(componentList.begin(), componentList.end(), entt::type_info<T>::id());
 			if (it != componentList.end())
 				componentList.erase(it);
 		}
 
-		const Vector<uint32_t>& GetComponentsTypeIDList() const { return m_Scene->m_EntitiesComponentsTypeIDList[m_EntityHandle]; }
-		Vector<uint32_t>& GetComponentsTypeIDList() { return m_Scene->m_EntitiesComponentsTypeIDList[m_EntityHandle]; }
+		const Vector<entt::id_type>& GetComponentsTypeIDList() const { return m_Scene->m_ComponentList[m_EntityHandle]; }
+		Vector<entt::id_type>& GetComponentsTypeIDList() { return m_Scene->m_ComponentList[m_EntityHandle]; }
 
 		void Destroy();
 

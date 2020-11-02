@@ -5,7 +5,7 @@
 #include "OverEngine/Core/Core.h"
 #include "OverEngine/Core/Serialization/Serializer.h"
 #include "OverEngine/Core/Math/Math.h"
-#include "OverEngine/Core/GUIDGenerator.h"
+#include "OverEngine/Core/Random.h"
 
 #include "OverEngine/Physics/PhysicsBody2D.h"
 #include "OverEngine/Renderer/Texture.h"
@@ -19,9 +19,9 @@ namespace OverEngine
 
 	enum class ComponentType
 	{
-		BaseComponent, TransformComponent, CameraComponent,
-		SpriteRendererComponent, PhysicsBody2DComponent,
-		PhysicsColliders2DComponent
+		NameComponent, IDComponent, TransformComponent,
+		CameraComponent, SpriteRendererComponent,
+		PhysicsBody2DComponent, PhysicsColliders2DComponent
 	};
 
 	#define COMPONENT_TYPE(type) static ComponentType GetStaticType() { return ComponentType::type; }\
@@ -45,17 +45,28 @@ namespace OverEngine
 	// Common Components ///////////////////////////////////
 	////////////////////////////////////////////////////////
 
-	struct BaseComponent : public Component
+	struct NameComponent : public Component
 	{
-		String Name;
-		Guid ID = GUIDGenerator::GenerateVersion4();
+		String Name = String();
 
-		BaseComponent() = default;
-		BaseComponent(const BaseComponent&) = default;
-		BaseComponent(Entity& entity, const String& name)
+		NameComponent() = default;
+		NameComponent(const NameComponent&) = default;
+		NameComponent(Entity& entity, const String& name)
 			: Component(entity), Name(name) {}
 
-		COMPONENT_TYPE(BaseComponent)
+		COMPONENT_TYPE(NameComponent)
+	};
+
+	struct IDComponent : public Component
+	{
+		uint64_t ID = Random::UInt64();
+
+		IDComponent() = default;
+		IDComponent(const IDComponent&) = default;
+		IDComponent(Entity& entity, const uint64_t& id)
+			: Component(entity), ID(id) {}
+
+		COMPONENT_TYPE(IDComponent)
 	};
 
 	////////////////////////////////////////////////////////
@@ -118,7 +129,7 @@ namespace OverEngine
 		 * first : Is overriding TextureBorderColor?
 		 * second : Override TextureBorderColor to what?
 		 */
-		std::pair<bool, Color> TextureBorderColor{ false, Color(1.0f) };
+		std::pair<bool, Color> TextureBorderColor{ false, Color(0.0f) };
 
 	public:
 		SpriteRendererComponent() = default;

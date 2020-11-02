@@ -5,6 +5,7 @@
 
 #include <OverEngine/ImGui/ExtraImGui.h>
 #include <imgui/imgui.h>
+#include <imgui/imgui_internal.h>
 
 namespace OverEditor
 {
@@ -121,20 +122,17 @@ namespace OverEditor
 		{
 			auto& selectedEntity = m_Context->SelectionContext[0];
 
-			char id[100];
-			sprintf_s(id, sizeof(id) / sizeof(char), "INSPECTOR_ENTITY_EDITOR%i", (uint32_t)selectedEntity);
-			ImGui::PushID(id);
+			char buffer[35];
+			sprintf_s(buffer, OE_ARRAY_SIZE(buffer), "INSPECTOR_ENTITY_EDITOR%i", (uint32_t)selectedEntity);
+			ImGui::PushID(buffer);
 
-			auto& base = selectedEntity.GetComponent<BaseComponent>();
-			ImGui::InputText("##Name", &base.Name);
+			sprintf_s(buffer, OE_ARRAY_SIZE(buffer), "0x%llx", selectedEntity.GetComponent<IDComponent>().ID);
+
+			ImGui::InputText(buffer, &selectedEntity.GetComponent<NameComponent>().Name);
 
 			bool wannaDestroy = false;
-			if (ImGui::SmallButton("Destroy Entity"))
+			if (ImGui::Button("Destroy Entity"))
 				wannaDestroy = true;
-
-			ImGui::SameLine();
-
-			ImGui::TextWrapped("GUID: %s", base.ID.ToString().c_str());
 
 			ImGui::Separator();
 
@@ -184,8 +182,6 @@ namespace OverEditor
 
 	Entity SceneHierarchyPanel::RecursiveDraw(Entity parentEntity)
 	{
-		ImGuiTreeNodeFlags baseNodeFlags = OE_IMGUI_BASE_TREE_VIEW_FLAGS;
-
 		Entity selectedEntity;
 
 		Vector<entt::entity>* entityList;
@@ -198,18 +194,21 @@ namespace OverEditor
 		{
 			Entity entity{ entityHandle, m_Context->Context.get() };
 
-			ImGuiTreeNodeFlags nodeFlags = baseNodeFlags;
+			ImGuiTreeNodeFlags nodeFlags = OE_IMGUI_BASE_TREE_VIEW_FLAGS | ImGuiTreeNodeFlags_AllowItemOverlap;
 
 			if (std::find(m_Context->SelectionContext.begin(), m_Context->SelectionContext.end(), entity) != m_Context->SelectionContext.end())
 				nodeFlags |= ImGuiTreeNodeFlags_Selected;
 
-			bool entityIsParent = entity.GetComponent<TransformComponent>().GetChildrenHandles().size();
+			auto& tc = entity.GetComponent<TransformComponent>();
+			bool entityIsParent = tc.GetChildrenHandles().size();
 
 			if (!entityIsParent)
 				nodeFlags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
 
-			const char* name = entity.GetComponent<BaseComponent>().Name.c_str();
-			bool nodeIsOpen = ImGui::TreeNodeEx((void*)(intptr_t)(entity.GetRuntimeID()), nodeFlags, "%s", name);
+			const char* name = entity.GetComponent<NameComponent>().Name.c_str();
+			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, { 0.0f, 0.0f });
+			bool nodeIsOpen = ImGui::TreeNodeBehavior(ImGui::GetCurrentWindow()->GetID((void*)(intptr_t)(entity.GetRuntimeID())), nodeFlags, name);
+			ImGui::PopStyleVar();
 
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 10.0f, 10.0f });
 			if (ImGui::BeginDragDropSource())
@@ -232,6 +231,34 @@ namespace OverEditor
 
 			if (ImGui::IsItemClicked())
 				selectedEntity = entity;
+
+			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, { 0.0f, 0.0f });
+			ImGui::InvisibleButton("_ENTITY_ORDER_SETER", { -1, 5 });
+			ImGui::PopStyleVar();
+
+			if (ImGui::BeginDragDropTarget())
+			{
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("_SCENE_HIERARCHY_ENTITY_DRAG"))
+				{
+					auto& other = *static_cast<Entity*>(payload->Data);
+					if (entity != other)
+					{
+						auto& otherTc = static_cast<Entity*>(payload->Data)->GetComponent<TransformComponent>();
+
+						if (entityIsParent && nodeIsOpen)
+						{
+							otherTc.SetParent(entity);
+							otherTc.SetSiblingIndex(0);
+						}
+						else if (entity != tc.GetParent())
+						{
+							otherTc.SetParent(tc.GetParent());
+							otherTc.SetSiblingIndex(tc.GetSiblingIndex() + 1);
+						}
+					}
+				}
+				ImGui::EndDragDropTarget();
+			}
 
 			if (entityIsParent && nodeIsOpen)
 			{

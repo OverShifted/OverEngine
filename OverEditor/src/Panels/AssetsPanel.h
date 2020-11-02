@@ -19,6 +19,7 @@ namespace OverEditor
 		virtual bool GetIsOpen() override { return m_IsOpen; }
 	private:
 		Ref<Asset> RecursiveDraw(const Ref<Asset>& resourceToDraw);
+		void DrawThumbnail(const Ref<Asset>& asset, bool last);
 	private:
 		bool m_IsOpen;
 

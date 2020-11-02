@@ -1,6 +1,7 @@
 #pragma once
 
 #include "OverEngine/Core/Time/TimeStep.h"
+#include "OverEngine/Core/Random.h"
 #include "OverEngine/Physics/PhysicsWorld2D.h"
 
 #include <entt.hpp>
@@ -10,8 +11,6 @@ namespace OverEngine
 	class SceneCamera;
 	class Entity;
 	class Scene;
-
-	Ref<Scene> CreateSceneOnDisk(const String& path);
 
 	struct Physics2DSettings
 	{
@@ -23,20 +22,21 @@ namespace OverEngine
 		Physics2DSettings physics2DSettings;
 	};
 
+	class SceneSerializer;
+
 	class Scene
 	{
 	public:
 		Scene(const SceneSettings& settings = SceneSettings());
 		~Scene();
 
-		Entity CreateEntity(const String& name = String());
-		Entity CreateEntity(Entity& parent, const String& name = String());
+		Entity CreateEntity(const String& name = String(), uint64_t uuid = Random::UInt64());
+		Entity CreateEntity(Entity& parent, const String& name = String(), uint64_t uuid = Random::UInt64());
 
 		/**
 		 * Func should be void(*func)(Entity);
 		 * Using template allow func to be a capturing lambda
 		 */
-
 		template <typename Func>
 		void Each(Func func)
 		{
@@ -61,22 +61,18 @@ namespace OverEngine
 		inline Vector<entt::entity>& GetRootHandles() { return m_RootHandles; }
 
 		inline uint32_t GetEntityCount() const;
-
-		void Dump(const String& filePath);
-		static Ref<Scene> LoadFile(const String& filePath);
 	private:
 		entt::registry m_Registry;
 		PhysicsWorld2D m_PhysicsWorld2D;
 
 		/**
-		 * To hold entities with nullptr parent.
+		 * To hold entities with entt::null parent.
 		 * Useful for drawing graphs / trees.
 		 */
-
 		Vector<entt::entity> m_RootHandles;
-
-		UnorderedMap<entt::entity, Vector<uint32_t>> m_EntitiesComponentsTypeIDList;
+		UnorderedMap<entt::entity, Vector<entt::id_type>> m_ComponentList;
 
 		friend class Entity;
+		friend class SceneSerializer;
 	};
 }

@@ -2,7 +2,6 @@
 
 #include "OverEngine/Core/Core.h"
 #include "OverEngine/Core/Math/Math.h"
-#include "OverEngine/Core/GUIDGenerator.h"
 
 #include <yaml-cpp/yaml.h>
 
@@ -56,20 +55,20 @@ namespace YAML
 	};
 
 	template<>
-	struct convert<OverEngine::Color>
+	struct convert<OverEngine::Vector4>
 	{
-		static Node encode(const OverEngine::Color& rhs)
+		static Node encode(const OverEngine::Vector4& rhs)
 		{
 			Node node;
-			node.push_back(rhs.r);
-			node.push_back(rhs.g);
-			node.push_back(rhs.b);
-			node.push_back(rhs.a);
+			node.push_back(rhs.x);
+			node.push_back(rhs.y);
+			node.push_back(rhs.z);
+			node.push_back(rhs.w);
 			node.SetStyle(EmitterStyle::Flow);
 			return node;
 		}
 
-		static bool decode(const Node& node, OverEngine::Color& rhs)
+		static bool decode(const Node& node, OverEngine::Vector4& rhs)
 		{
 			if (!node.IsSequence() || node.size() != 4)
 				return false;
@@ -81,20 +80,11 @@ namespace YAML
 			return true;
 		}
 	};
+}
 
-	template<>
-	struct convert<OverEngine::Guid>
-	{
-		static Node encode(const OverEngine::Guid& rhs)
-		{
-			Node node = Node(rhs.ToString());
-			return node;
-		}
-
-		static bool decode(const Node& node, OverEngine::Guid& rhs)
-		{
-			rhs = OverEngine::Guid(node.as<OverEngine::String>());
-			return true;
-		}
-	};
+namespace OverEngine
+{
+	YAML::Emitter& operator<<(YAML::Emitter& out, const OverEngine::Vector2& v);
+	YAML::Emitter& operator<<(YAML::Emitter& out, const OverEngine::Vector3& v);
+	YAML::Emitter& operator<<(YAML::Emitter& out, const OverEngine::Vector4& v);
 }

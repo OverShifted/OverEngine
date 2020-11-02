@@ -98,4 +98,20 @@ namespace OverEditor
 
 		ImGui::NextColumn();
 	}
+
+	void UIElements::Texture2DDragSource(const Ref<Texture2D>& texture, const char* name, bool preview)
+	{
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 10.0f, 10.0f });
+		if (ImGui::BeginDragDropSource())
+		{
+			ImGui::SetDragDropPayload("_TEXTURE2D_DRAG", &texture, sizeof(Ref<Texture2D>));
+
+			ImGui::TextUnformatted(name);
+			if (preview) 
+				ImGui::Image(texture, { 128, 128 });
+
+			ImGui::EndDragDropSource();
+		}
+		ImGui::PopStyleVar();
+	}
 }

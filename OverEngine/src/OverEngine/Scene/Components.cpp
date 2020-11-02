@@ -46,8 +46,8 @@ namespace OverEngine
 
 			ctx.AddField(SerializableDataType::Float, SERIALIZE_FIELD(SpriteRendererComponent, AlphaClipThreshold));
 
-			ctx.AddField(SerializableDataType::Bool, OffsetOf(&SpriteRendererComponent::TextureBorderColor), "IsOverridingTextureBorderColor");
-			ctx.AddField(SerializableDataType::Float4, OffsetOf(&SpriteRendererComponent::TextureBorderColor) + sizeof(bool), "TextureBorderColor");
+			ctx.AddField(SerializableDataType::Bool, OffsetOf(&SpriteRendererComponent::TextureBorderColor) + OffsetOf(&std::pair<bool, Color>::first), "IsOverridingTextureBorderColor");
+			ctx.AddField(SerializableDataType::Float4, OffsetOf(&SpriteRendererComponent::TextureBorderColor) + OffsetOf(&std::pair<bool, Color>::second), "TextureBorderColor");
 		}
 
 		return &ctx;

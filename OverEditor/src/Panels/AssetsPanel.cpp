@@ -5,6 +5,7 @@
 #include <OverEngine/Assets/SceneAsset.h>
 
 #include <OverEngine/ImGui/ExtraImGui.h>
+#include <UIElements.h>
 #include <imgui/imgui.h>
 #include <imgui/imgui_internal.h>
 
@@ -32,9 +33,11 @@ namespace OverEditor
 		if (ImGui::BeginPopup("SettingsPopup##AssetBrowser"))
 		{
 			if (ImGui::Checkbox("One Column View", &m_OneColumnView) && m_OneColumnView == false)
+			{
 				std::experimental::erase_if(m_SelectionContext, [](const Ref<Asset> asset) {
 					return !asset->IsFolder();
 				});
+			}
 
 			ImGui::EndPopup();
 		}
@@ -42,10 +45,14 @@ namespace OverEditor
 		const auto& rootAsset = m_Editor->GetProject()->GetAssets().GetAsset("/");
 
 		ImGuiTreeNodeFlags rootNodeFlags = OE_IMGUI_BASE_TREE_VIEW_FLAGS;
-		if (std::find(m_SelectionContext.begin(), m_SelectionContext.end(), rootAsset) != m_SelectionContext.end())
+
+		if (VECTOR_HAS(m_SelectionContext, rootAsset))
 			rootNodeFlags |= ImGuiTreeNodeFlags_Selected;
 
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, { 0.0f, 0.0f });
 		bool rootOpen = ImGui::TreeNodeEx("##AssetsRootTreeNode", rootNodeFlags, "/");
+		ImGui::PopStyleVar();
+
 		Ref<Asset> clickedItem = nullptr;
 
 		if (ImGui::IsItemClicked())
@@ -65,6 +72,7 @@ namespace OverEditor
 			if (ImGui::GetIO().KeyCtrl)
 			{
 				auto it = std::find(m_SelectionContext.begin(), m_SelectionContext.end(), clickedItem);
+
 				if (it != m_SelectionContext.end())
 					m_SelectionContext.erase(it);
 				else
@@ -115,15 +123,7 @@ namespace OverEditor
 			{
 				if (a->IsFolder())
 					count += (uint32_t)a->GetFolderAsset()->GetAssets().size();
-				else
-					count++;
 			}
-
-			ImVec2 thumbnailSize((float)m_ThumbnailSize, (float)m_ThumbnailSize);
-			ImGuiStyle& style = ImGui::GetStyle();
-			float window_visible_x2 = ImGui::GetWindowPos().x + ImGui::GetWindowContentRegionMax().x;
-			ImDrawList* windowDrawList = ImGui::GetWindowDrawList();
-			static const ImVec2 threeDotsTextSize = ImGui::CalcTextSize("...");
 
 			uint32_t n = 0;
 			for (const auto& a : m_SelectionContext)
@@ -134,82 +134,7 @@ namespace OverEditor
 				for (const auto& asset : a->GetFolderAsset()->GetAssets())
 				{
 					ImGui::PushID(n);
-					if (asset->GetType() == AssetType::Texture2D)
-					{
-						ImGui::ImageButton(asset->GetTexture2DAsset()->GetTextures()[0].second, thumbnailSize);
-
-						if (ImGui::IsItemHovered())
-						{
-							ImGui::BeginTooltip();
-							ImGui::TextUnformatted(asset->GetName().c_str());
-							ImGui::EndTooltip();
-						}
-
-						ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 10.0f, 10.0f });
-						if (ImGui::BeginDragDropSource())
-						{
-							ImGui::SetDragDropPayload("_TEXTURE2D_DRAG", &asset->GetTexture2DAsset()->GetTextures()[0].second, sizeof(Ref<Texture2D>));
-							ImGui::TextUnformatted(asset->GetName().c_str());
-							ImGui::EndDragDropSource();
-						}
-						ImGui::PopStyleVar();
-					}
-					else
-					{
-						ImGui::PushStyleColor(ImGuiCol_Button, { 0.2f, 0.2f, 0.2f, 0.2f });
-						ImGui::PushStyleColor(ImGuiCol_ButtonHovered, { 0.2f, 0.2f, 0.2f, 0.5f });
-						ImGui::PushStyleColor(ImGuiCol_ButtonActive, { 0.2f, 0.2f, 0.2f, 0.7f });
-						if (asset->IsFolder())
-							ImGui::ImageButton(m_Editor->GetIcons()["FolderIcon"], thumbnailSize, -1, { 0.0f, 0.0f, 0.0f, 0.0f });
-						else if (asset->GetType() == AssetType::Scene)
-							ImGui::ImageButton(m_Editor->GetIcons()["SceneIcon"], thumbnailSize, -1, { 0.0f, 0.0f, 0.0f, 0.0f });
-						else
-							ImGui::Button("", thumbnailSize);
-						ImGui::PopStyleColor(3);
-
-						if (ImGui::IsItemClicked() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
-						{
-							if (asset->IsFolder())
-							{
-								m_SelectionContext.clear();
-								m_SelectionContext.push_back(asset);
-							}
-							else if (asset->GetType() == AssetType::Scene)
-							{
-								m_Editor->EditScene(asset->GetSceneAsset()->GetScene(), asset->GetPath());
-							}
-						}
-
-						if (ImGui::IsItemHovered())
-						{
-							ImGui::BeginTooltip();
-							ImGui::TextUnformatted(asset->GetName().c_str());
-							ImGui::EndTooltip();
-						}
-					}
-
-					ImVec2 rectMin = ImGui::GetItemRectMin();
-					ImVec2 textSize = ImGui::CalcTextSize(asset->GetName().c_str());
-					if (textSize.x + 10 <= thumbnailSize.x) // Enough space
-					{
-						ImVec2 textPos = { rectMin.x + (thumbnailSize.x - textSize.x) / 2, rectMin.y + thumbnailSize.y + 15 };
-						windowDrawList->AddRectFilled({ textPos.x - 5, textPos.y }, { textPos.x + textSize.x + 5, textPos.y + textSize.y }, ImColor(20, 20, 20), 5);
-						windowDrawList->AddText(textPos, ImColor(1.0f, 1.0f, 1.0f), asset->GetName().c_str());
-					}
-					else // Tight
-					{
-						ImVec2 posMax = { rectMin.x + thumbnailSize.x - 5, rectMin.y + thumbnailSize.y + 30 };
-						windowDrawList->AddRectFilled({ rectMin.x, rectMin.y + thumbnailSize.y + 15 }, { posMax.x + 5, posMax.y }, ImColor(20, 20, 20), 5);
-						ImGui::RenderTextEllipsis(windowDrawList, { rectMin.x + 5, rectMin.y + thumbnailSize.y + 15 }, posMax, posMax.x, posMax.x, asset->GetName().c_str(), nullptr, &textSize);
-					}
-
-					float last_button_x2 = ImGui::GetItemRectMax().x;
-					float next_button_x2 = last_button_x2 + style.ItemSpacing.x + thumbnailSize.x;
-					if (n + 1 < count && next_button_x2 < window_visible_x2)
-						ImGui::SameLine();
-					else
-						ImGui::Dummy({ 0, 25 });
-
+					DrawThumbnail(asset, n + 1 == count);
 					ImGui::PopID();
 					n++;
 				}
@@ -232,34 +157,28 @@ namespace OverEditor
 			if (!m_OneColumnView && !asset->IsFolder())
 				continue;
 
-			ImGuiTreeNodeFlags node_flags = OE_IMGUI_BASE_TREE_VIEW_FLAGS;
-			if (std::find(m_SelectionContext.begin(), m_SelectionContext.end(), asset) != m_SelectionContext.end())
-				node_flags |= ImGuiTreeNodeFlags_Selected;
+			ImGuiTreeNodeFlags nodeFlags = OE_IMGUI_BASE_TREE_VIEW_FLAGS;
+
+			if (VECTOR_HAS(m_SelectionContext, asset))
+				nodeFlags |= ImGuiTreeNodeFlags_Selected;
 
 			if (!asset->IsFolder())
-				node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
+				nodeFlags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
 
-			bool nodeIsOpen = ImGui::TreeNodeEx(asset->GetGuid().ToString().c_str(), node_flags, "%s", asset->GetName().c_str());
+			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, { 0.0f, 0.0f });
+			bool nodeIsOpen = ImGui::TreeNodeBehavior(ImGui::GetCurrentWindow()->GetID((void*)asset->GetGuid()), nodeFlags, asset->GetName().c_str());
+			ImGui::PopStyleVar();
 
 			// EXTREAMLY TEMPO
 			if (asset->GetType() == AssetType::Texture2D)
 			{
-				if (ImGui::IsItemHovered())
-				{
-					ImGui::BeginTooltip();
+				UIElements::Tooltip([&asset]() {
 					ImGui::TextUnformatted(asset->GetName().c_str());
-					ImGui::Image(asset->GetTexture2DAsset()->GetTextures()[0].second, { 128, 128 });
-					ImGui::EndTooltip();
-				}
+					ImGui::Image(asset->GetTexture2DAsset()->GetTextures().begin()->second, { 128, 128 });
+				});
 
-				ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 10.0f, 10.0f });
-				if (ImGui::BeginDragDropSource())
-				{
-					ImGui::SetDragDropPayload("_TEXTURE2D_DRAG", &(asset->GetTexture2DAsset()->GetTextures()[0].second), sizeof(Ref<Texture2D>));
-					ImGui::TextUnformatted(asset->GetName().c_str());
-					ImGui::Image(asset->GetTexture2DAsset()->GetTextures()[0].second, { 128, 128 });
-					ImGui::EndDragDropSource();
-				}
+				UIElements::Texture2DDragSource(asset->GetTexture2DAsset()->GetTextures().begin()->second, asset->GetName().c_str(), true);
+
 				ImGui::PopStyleVar();
 			}
 
@@ -284,5 +203,136 @@ namespace OverEditor
 		}
 
 		return selectedItem;
+	}
+
+	void AssetsPanel::DrawThumbnail(const Ref<Asset>& asset, bool last)
+	{
+		ImVec2 thumbnailSize{ (float)m_ThumbnailSize, (float)m_ThumbnailSize };
+
+		Ref<Texture2D> icon = nullptr;
+
+		if (asset->IsFolder())
+		{
+			icon = m_Editor->GetIcons()["FolderIcon"];
+		}
+		else if (asset->GetType() == AssetType::Texture2D)
+		{
+			// TODO: Show all textures
+			icon = asset->GetTexture2DAsset()->GetTextures().begin()->second;
+		}
+		else if (asset->GetType() == AssetType::Scene)
+		{
+			icon = m_Editor->GetIcons()["SceneIcon"];
+		}
+
+		ImGui::PushStyleColor(ImGuiCol_Button,        { 0.2f, 0.2f, 0.2f, 0.2f });
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, { 0.2f, 0.2f, 0.2f, 0.5f });
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive,  { 0.2f, 0.2f, 0.2f, 0.7f });
+
+		if (icon)
+		{
+			ImGui::ImageButton(icon, thumbnailSize, -1, { 0.0f, 0.0f, 0.0f, 0.0f });
+		}
+		else
+		{
+			ImGui::Button("", thumbnailSize);
+		}
+
+		ImGui::PopStyleColor(3);
+
+		if (ImGui::IsItemClicked() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+		{
+			if (asset->IsFolder())
+			{
+				m_SelectionContext.clear();
+				m_SelectionContext.push_back(asset);
+			}
+			else if (asset->GetType() == AssetType::Scene)
+			{
+				m_Editor->EditScene(asset->GetSceneAsset()->GetScene(), asset->GetPath());
+			}
+		}
+
+		UIElements::Tooltip([&asset]() {
+			ImGui::TextUnformatted(asset->GetName().c_str());
+		});
+
+		if (asset->GetType() == AssetType::Texture2D)
+		{
+			UIElements::Texture2DDragSource(asset->GetTexture2DAsset()->GetTextures().begin()->second, asset->GetName().c_str());
+		}
+		
+		//////////////////////////////////////////////////////
+		// Text //////////////////////////////////////////////
+		//////////////////////////////////////////////////////
+
+		ImDrawList& windowDrawList = *ImGui::GetWindowDrawList();
+
+		ImVec2 rectMin = ImGui::GetItemRectMin();
+		ImVec2 rectSize = ImGui::GetItemRectSize();
+		ImVec2 textSize = ImGui::CalcTextSize(asset->GetName().c_str());
+
+		static Vector2 padding{ 5, 5 };
+		static int marginTop = 15;
+
+		if (textSize.x + padding.x * 2 <= rectSize.x) // Enough space
+		{
+			/*
+
+			<----------> = rectSize.x
+
+			rectMin
+			||
+			\/
+			*___________
+			|    O     | /\
+			|  --|--   | ||	                             // Closer look to the text
+			|    |     | || = rectSize.y                 __________
+			|   / \    | ||                              |        | => padding.y
+			|__________| \/     \/                       | Player |
+								|| = marginTop           |________| => padding.y
+			  |Player|          /\                       ||      ||
+														 \/      \/
+			  <------> = textSize.x                  padding.x   padding.x
+			| |
+			<-> = (rectSize.x - textSize.x) / 2
+
+			*/
+
+			float rectMin_x = rectMin.x - padding.x + (rectSize.x - textSize.x) / 2;
+			float rectMin_y = rectMin.y + rectSize.y + marginTop;
+
+			float rectMax_x = rectMin_x + textSize.x + padding.x * 2;
+			float rectMax_y = rectMin_y + textSize.y + padding.y * 2;
+
+			windowDrawList.AddRectFilled({ rectMin_x, rectMin_y }, { rectMax_x, rectMax_y }, ImColor(20, 20, 20), 5);
+			windowDrawList.AddText({ rectMin_x + padding.x, rectMin_y + padding.y }, ImColor(1.0f, 1.0f, 1.0f), asset->GetName().c_str());
+		}
+		else // Tight => use ellipsis
+		{
+			float rectMin_y = rectMin.y + rectSize.y + marginTop;
+
+			float rectMax_x = rectMin.x + rectSize.x;
+			float rectMax_y = rectMin_y + textSize.y + padding.y * 2;
+
+			windowDrawList.AddRectFilled({ rectMin.x, rectMin_y }, { rectMax_x, rectMax_y }, ImColor(20, 20, 20), 5);
+
+			rectMax_x -= padding.x;
+			rectMax_y -= padding.y;
+
+			ImGui::RenderTextEllipsis(&windowDrawList, { rectMin.x + padding.x, rectMin_y + padding.y }, { rectMax_x, rectMax_y }, rectMax_x, rectMax_x, asset->GetName().c_str(), nullptr, &textSize);
+		}
+
+		//////////////////////////////////////////////////////
+		// Wrapping //////////////////////////////////////////
+		//////////////////////////////////////////////////////
+
+		float nextBtn = ImGui::GetItemRectMax().x + ImGui::GetStyle().ItemSpacing.x + rectSize.x;
+		float rightMost = ImGui::GetWindowPos().x + ImGui::GetWindowContentRegionMax().x;
+
+		if (!last && nextBtn < rightMost)
+			ImGui::SameLine();
+		else
+			ImGui::Dummy({ 0, 25 });
 	}
 }

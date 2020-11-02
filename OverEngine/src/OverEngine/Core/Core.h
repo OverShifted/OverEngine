@@ -120,6 +120,16 @@ namespace OverEngine
 		return (uint32_t)((char*)&((T*)nullptr->*member) - (char*)nullptr);
 	}
 
+	// See https://stackoverflow.com/questions/45447361/how-to-move-certain-elements-of-stdvector-to-a-new-index-within-the-vector
+	template<typename T>
+	void Move(std::vector<T>& v, size_t oldIndex, size_t newIndex)
+	{
+		if (oldIndex > newIndex)
+			std::rotate(v.rend() - oldIndex - 1, v.rend() - oldIndex, v.rend() - newIndex);
+		else
+			std::rotate(v.begin() + oldIndex, v.begin() + oldIndex + 1, v.begin() + newIndex + 1);
+	}
+
 	// Scope ////////////////////////////////////////////////////////////////////
 	template<typename T>
 	using Scope = std::unique_ptr<T>;
@@ -147,6 +157,8 @@ namespace OverEngine
 	template<typename T>
 	using Vector = std::vector<T>;
 	//using Vector = std::vector<T, OverEngine::Allocator<T>>;
+
+	#define VECTOR_HAS(vector, element) ::std::find(vector.begin(), vector.end(), element) != vector.end()
 
 	template<typename T>
 	using RefVec = Ref<Vector<T>>;

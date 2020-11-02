@@ -1,7 +1,6 @@
 #pragma once
 
 #include "OverEngine/Core/Core.h"
-#include "OverEngine/Core/GUIDGenerator.h"
 
 namespace OverEngine
 {
@@ -33,8 +32,8 @@ namespace OverEngine
 
 		inline bool IsFolder() const { return m_Type == AssetType::Folder; }
 
-		inline const Guid& GetGuid() const { return m_Guid; }
-		inline void SetGuid(const Guid& guid) { m_Guid = guid; }
+		inline const uint64_t& GetGuid() const { return m_Guid; }
+		inline void SetGuid(const uint64_t& guid) { m_Guid = guid; }
 
 		inline const AssetType& GetType() const { return m_Type; }
 
@@ -45,7 +44,7 @@ namespace OverEngine
 		AssetType m_Type = AssetType::None;
 		String m_Name;
 		String m_Path;
-		Guid m_Guid;
+		uint64_t m_Guid;
 
 		AssetCollection* m_Collection = nullptr;
 

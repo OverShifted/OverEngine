@@ -11,6 +11,8 @@ namespace OverEngine
 	public:
 		enum class ProjectionType { Orthographic, Perspective };
 	public:
+		static SerializationContext* Reflect();
+
 		SceneCamera();
 		virtual ~SceneCamera() = default;
 
@@ -45,40 +47,6 @@ namespace OverEngine
 		inline ClearFlags& GetClearFlags() { return m_ClearFlags; }
 		inline ClearFlags GetClearFlags() const { return m_ClearFlags; }
 		inline void SetClearFlags(ClearFlags flags) { m_ClearFlags = flags; }
-
-		static SerializationContext* Reflect()
-		{
-			static bool initialized = false;
-			static SerializationContext ctx;
-
-			if (!initialized)
-			{
-				initialized = true;
-
-				if (!Serializer::GlobalEnumExists("SceneCamera::ProjectionType"))
-				{
-					Serializer::DefineGlobalEnum("SceneCamera::ProjectionType", {
-						{ 0, "Orthographic" },
-						{ 1, "Perspective" }
-					});
-				}
-
-				ctx.AddEnumField(SerializableDataType::IntEnum, "SceneCamera::ProjectionType", SERIALIZE_FIELD(SceneCamera, m_ProjectionType));
-
-				ctx.AddField(SerializableDataType::Float, SERIALIZE_FIELD(SceneCamera, m_PerspectiveFOV));
-				ctx.AddField(SerializableDataType::Float, SERIALIZE_FIELD(SceneCamera, m_PerspectiveNear));
-				ctx.AddField(SerializableDataType::Float, SERIALIZE_FIELD(SceneCamera, m_PerspectiveFar));
-
-				ctx.AddField(SerializableDataType::Float, SERIALIZE_FIELD(SceneCamera, m_OrthographicSize));
-				ctx.AddField(SerializableDataType::Float, SERIALIZE_FIELD(SceneCamera, m_OrthographicNear));
-				ctx.AddField(SerializableDataType::Float, SERIALIZE_FIELD(SceneCamera, m_OrthographicFar));
-
-				ctx.AddField(SerializableDataType::Int8, SERIALIZE_FIELD(SceneCamera, m_ClearFlags));
-				ctx.AddField(SerializableDataType::Float4, SERIALIZE_FIELD(SceneCamera, m_ClearColor));
-			}
-
-			return &ctx;
-		}
 	protected:
 		void RecalculateProjection();
 	protected:
