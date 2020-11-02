@@ -198,7 +198,7 @@ namespace OverEditor
 
 		char buf[128];
 		sprintf_s(buf, OE_ARRAY_SIZE(buf), "OverEditor - %s - %s", m_EditingProject->GetName().c_str(), FileSystem::ExtractFileNameFromPath(path).c_str());
-		Application::Get().GetMainWindow().SetTitle(buf);
+		Application::Get().GetWindow().SetTitle(buf);
 	}
 
 	void Editor::OnProjectManagerGUI()
@@ -242,7 +242,7 @@ namespace OverEditor
 
 						char buf[128];
 						sprintf_s(buf, OE_ARRAY_SIZE(buf), "OverEditor - %s", project->GetName().c_str());
-						Application::Get().GetMainWindow().SetTitle(buf);
+						Application::Get().GetWindow().SetTitle(buf);
 					}
 				}
 
@@ -255,7 +255,7 @@ namespace OverEditor
 
 					char buf[128];
 					sprintf_s(buf, OE_ARRAY_SIZE(buf), "OverEditor - %s", project->GetName().c_str());
-					Application::Get().GetMainWindow().SetTitle(buf);
+					Application::Get().GetWindow().SetTitle(buf);
 				}
 
 				/*ImGui::Separator();

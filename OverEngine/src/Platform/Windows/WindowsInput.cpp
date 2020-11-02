@@ -4,7 +4,7 @@
 #include "OverEngine/Core/Runtime/Application.h"
 #include <GLFW/glfw3.h>
 
-#define GET_MAIN_NATIVE_WINDOW Application::Get().GetMainWindow().GetNativeWindow()
+#define GET_MAIN_NATIVE_WINDOW Application::Get().GetWindow().GetNativeWindow()
 
 namespace OverEngine
 {

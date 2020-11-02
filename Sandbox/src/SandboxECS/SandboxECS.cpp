@@ -154,11 +154,11 @@ SandboxECS::SandboxECS()
 
 	m_MainCamera = m_Scene->CreateEntity("MainCamera");
 	auto& app = Application::Get();
-	float aspectRatio = (float)app.GetMainWindow().GetWidth() / (float)app.GetMainWindow().GetHeight();
+	float aspectRatio = (float)app.GetWindow().GetWidth() / (float)app.GetWindow().GetHeight();
 	m_MainCameraCameraHandle = &m_MainCamera.AddComponent<CameraComponent>().Camera;
 	m_MainCameraCameraHandle->SetOrthographic(10.0f, -1.0f, 1.0f);
 	m_MainCameraTransform = &m_MainCamera.GetComponent<TransformComponent>();
-#pragma endregion
+	#pragma endregion
 }
 
 static Vector<float> s_FPSSamples(200);
@@ -188,11 +188,11 @@ void SandboxECS::OnUpdate(TimeStep DeltaTime)
 	s_FPSSamples[(int)s_FPSSamples.size() - 1] = 1 / DeltaTime;
 	if (s_FPSSamples[(int)s_FPSSamples.size() - 1] > 10000)
 		s_FPSSamples[(int)s_FPSSamples.size() - 1] = 0;
-	
+
 	sprintf_s(fpsText, 32, "%i", (int)s_FPSSamples[(int)s_FPSSamples.size() - 1]);
-	
-	Window& win = Application::Get().GetMainWindow();
-	m_Scene->OnUpdate(DeltaTime, { win.GetWidth(), win.GetHeight()});
+
+	Window& win = Application::Get().GetWindow();
+	m_Scene->OnUpdate(DeltaTime, { win.GetWidth(), win.GetHeight() });
 }
 
 void SandboxECS::OnImGuiRender()
@@ -251,7 +251,7 @@ void SandboxECS::OnImGuiRender()
 	ImGui::PopStyleVar();*/
 
 	ImGui::Begin("Renderer2D Statistics");
-	
+
 	ImGui::PlotLines("FPS", s_FPSSamples.data(), (int)s_FPSSamples.size(), 0, fpsText, FLT_MAX, FLT_MAX, ImVec2{ 0, 80 });
 
 	ImGui::Text("DrawCalls : %i", Renderer2D::GetStatistics().DrawCalls);
@@ -268,7 +268,7 @@ void SandboxECS::OnImGuiRender()
 
 	if (ImGui::Checkbox("V-Sync", &VSync))
 	{
-		Application::Get().GetMainWindow().SetVSync(VSync);
+		Application::Get().GetWindow().SetVSync(VSync);
 	}
 
 	ImGui::End();

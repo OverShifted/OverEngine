@@ -34,7 +34,7 @@ namespace OverEngine
 
 		inline static Application& Get() { return *s_Instance; }
 		ImGuiLayer* GetImGuiLayer() { return m_ImGuiLayer; }
-		inline Window& GetMainWindow() { return *m_Window; }
+		inline Window& GetWindow() { return *m_Window; }
 	private:
 		bool OnWindowClose(WindowCloseEvent& e);
 		bool OnWindowResize(WindowResizeEvent& e);

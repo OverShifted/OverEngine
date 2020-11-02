@@ -42,7 +42,7 @@ namespace OverEngine
 		}
 
 		// Setup Platform/Renderer bindings
-		ImGuiBinding::Init(&Application::Get().GetMainWindow());
+		ImGuiBinding::Init(&Application::Get().GetWindow());
 
 		io.Fonts->AddFontFromMemoryCompressedTTF(&Roboto_compressed_data, Roboto_compressed_size, 15.0f);
 	}
@@ -72,7 +72,7 @@ namespace OverEngine
 	void ImGuiLayer::End()
 	{
 		ImGuiIO& io = ImGui::GetIO();
-		Window& mainWindow = Application::Get().GetMainWindow();
+		Window& mainWindow = Application::Get().GetWindow();
 		io.DisplaySize = ImVec2((float)mainWindow.GetWidth(), (float)mainWindow.GetHeight());
 
 		// Rendering
