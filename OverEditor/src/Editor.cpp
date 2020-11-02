@@ -258,16 +258,20 @@ namespace OverEditor
 					Application::Get().GetMainWindow().SetTitle(buf);
 				}
 
-				ImGui::Separator();
+				/*ImGui::Separator();
 
-				/*if (m_EditingProject && ImGui::Button("Create Scene"))
+				if (m_EditingProject && ImGui::Button("Create Scene"))
 				{
-					std::stringstream extension;
-					extension << "*." << OE_SCENE_FILE_EXTENSION;
-					const char* filters[] = { extension.str().c_str() };
-					if (auto scenePath = tinyfd_saveFileDialog("Create Scene", "", 1, filters, "OverEngine Scene"))
+					char buffer[16];
+					sprintf_s(buffer, OE_ARRAY_SIZE(buffer), "*.%s", OE_SCENE_FILE_EXTENSION);
+
+					const char* filters[] = { buffer };
+
+					if (auto scenePath = tinyfd_saveFileDialog("Create Scene", "", OE_ARRAY_SIZE(filters), filters, "OverEngine Scene"))
 					{
-						EditScene(CreateSceneOnDisk(scenePath), scenePath);
+						auto scene = CreateRef<Scene>();
+						SceneSerializer(scene).Serialize(scenePath);
+						EditScene(scene, scenePath);
 					}
 				}*/
 			}
