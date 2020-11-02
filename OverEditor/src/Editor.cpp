@@ -59,8 +59,8 @@ namespace OverEditor
 
 		m_Name = projectNode["Name"].as<String>();
 		m_AssetsDirectoryPath = m_RootPath + "/" + projectNode["AssetsRoot"].as<String>();
-		//m_Assets.InitFromAssetsDirectory(m_AssetsDirectoryPath, projectNode["AssetsRootGuid"].as<String>());
-		m_Assets.InitFromAssetsDirectory(m_AssetsDirectoryPath, 2354645635);
+		
+		m_Assets.InitFromAssetsDirectory(m_AssetsDirectoryPath, projectNode["AssetsRootGuid"].as<uint64_t>());
 
 		m_Watcher.Reset(m_AssetsDirectoryPath, std::chrono::milliseconds(250));
 		m_Watcher.Start([](String s, FileWatcherEvent e)
@@ -162,7 +162,6 @@ namespace OverEditor
 
 		if (m_SceneContext->Context && ImGui::Button("Save Scene"))
 		{
-			//m_SceneContext->Context->Dump(m_EditingProject->GetAssetsDirectoryPath() + m_SceneContext->ContextResourcePath);
 			SceneSerializer sceneSerializer(m_SceneContext->Context);
 			sceneSerializer.Serialize(m_EditingProject->GetAssetsDirectoryPath() + m_SceneContext->ContextResourcePath);
 		}
