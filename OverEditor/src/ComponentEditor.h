@@ -62,8 +62,7 @@ namespace OverEditor
 			auto& spriteRenderer = entity.GetComponent<SpriteRendererComponent>();
 
 			UIElements::Color4Field("Tint", "##Tint", glm::value_ptr(spriteRenderer.Tint));
-			UIElements::DragFloatField("AlphaClippingThreshold",
-				"##AlphaClippingThreshold", &spriteRenderer.AlphaClipThreshold, 1.0f, 0.0f, 1.0f);
+			UIElements::DragFloatField("AlphaClipThreshold", "##AlphaClipThreshold", &spriteRenderer.AlphaClipThreshold, 0.02f, 0.0f, 1.0f);
 			UIElements::Texture2DField("Sprite", "##Sprite", spriteRenderer.Sprite);
 
 			if (spriteRenderer.Sprite)
