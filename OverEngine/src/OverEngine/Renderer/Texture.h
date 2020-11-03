@@ -217,13 +217,6 @@ namespace OverEngine
 		uint32_t m_Width;
 		uint32_t m_Height;
 
-		/*union
-		{
-			MasterTextureData GetMasterTextureData;
-			SubTextureData m_SubTextureData;
-			PlaceHolderTextureData m_PlaceHolderData;
-		};*/
-
 		std::variant<MasterTextureData, SubTextureData, PlaceHolderTextureData> m_Data;
 	};
 }
