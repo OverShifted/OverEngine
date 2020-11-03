@@ -357,7 +357,7 @@ namespace OverEngine
 			if (extraData.Filtering != TextureFiltering::None)
 				vertex.a_TextureFilter = (float)extraData.Filtering;
 			else
-				vertex.a_TextureFilter = (float)texture->GetFilter();
+				vertex.a_TextureFilter = (float)texture->GetFiltering();
 
 			vertex.a_TextureAlphaClippingThreshold = extraData.AlphaClipThreshold;
 

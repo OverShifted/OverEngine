@@ -53,16 +53,16 @@ SandboxECS::SandboxECS()
 	m_CheckerBoardTexture->SetXWrapping(TextureWrapping::ClampToBorder);
 	m_CheckerBoardTexture->SetYWrapping(TextureWrapping::ClampToBorder);
 	m_CheckerBoardTexture->SetBorderColor({ 0.0f, 1.0f, 1.0f, 1.0f });
-	m_CheckerBoardTexture->SetFilter(TextureFiltering::Nearest);
+	m_CheckerBoardTexture->SetFiltering(TextureFiltering::Nearest);
 
 	m_OELogoTexture = Texture2D::CreateMaster("assets/textures/OELogo.png");
-	m_OELogoTexture->SetFilter(TextureFiltering::Linear);
+	m_OELogoTexture->SetFiltering(TextureFiltering::Linear);
 
 	m_SpriteSheet = Texture2D::CreateMaster("assets/textures/platformPack_tilesheet@2.png");
 	m_SpriteSheet->SetXWrapping(TextureWrapping::ClampToBorder);
 	m_SpriteSheet->SetYWrapping(TextureWrapping::ClampToBorder);
 	m_SpriteSheet->SetBorderColor({ 0.0f, 1.0f, 1.0f, 1.0f });
-	m_SpriteSheet->SetFilter(TextureFiltering::Linear);
+	m_SpriteSheet->SetFiltering(TextureFiltering::Linear);
 
 	m_Sprite = Texture2D::CreateSubTexture(m_SpriteSheet, { 128 * 4, 128 * 2, 128, 128 });
 	m_ObstacleSprite = Texture2D::CreateSubTexture(m_SpriteSheet, { 128 * 0, 128 * 0, 128, 128 });

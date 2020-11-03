@@ -28,12 +28,12 @@ namespace ImGui
 	void Image(const Ref<Texture2D> texture, const ImVec2& size, const ImVec4& tint_col, const ImVec4& border_col)
 	{
 		Rect textureRect = texture->GetRect();
-		Image((void*)(intptr_t)texture->GetRendererID(), size, { textureRect.x, textureRect.y }, { textureRect.z + textureRect.x, textureRect.w + textureRect.y }, tint_col, border_col);
+		Image((void*)(intptr_t)texture->GetGPUTexture()->GetRendererID(), size, { textureRect.x, textureRect.y }, { textureRect.z + textureRect.x, textureRect.w + textureRect.y }, tint_col, border_col);
 	}
 
 	bool ImageButton(const Ref<Texture2D> texture, const ImVec2& size, int frame_padding, const ImVec4& bg_col, const ImVec4& tint_col)
 	{
 		Rect textureRect = texture->GetRect();
-		return ImageButton((void*)(intptr_t)texture->GetRendererID(), size, { textureRect.x, textureRect.y }, { textureRect.z + textureRect.x, textureRect.w + textureRect.y }, frame_padding, bg_col, tint_col);
+		return ImageButton((void*)(intptr_t)texture->GetGPUTexture()->GetRendererID(), size, { textureRect.x, textureRect.y }, { textureRect.z + textureRect.x, textureRect.w + textureRect.y }, frame_padding, bg_col, tint_col);
 	}
 }
