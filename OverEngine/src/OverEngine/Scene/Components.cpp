@@ -67,4 +67,25 @@ namespace OverEngine
 			}
 		}
 	}
+
+	SerializationContext* CameraComponent::Reflect()
+	{
+		static bool initialized = false;
+		static SerializationContext ctx;
+
+		if (!initialized)
+		{
+			initialized = true;
+
+			auto& cameraReflection = *SceneCamera::Reflect();
+
+			for (const auto& elem : cameraReflection.Elements)
+			{
+				ctx.Elements.push_back(elem);
+				(ctx.Elements.end() - 1)->Offset += OffsetOf(&CameraComponent::Camera);
+			}
+		}
+
+		return &ctx;
+	}
 }

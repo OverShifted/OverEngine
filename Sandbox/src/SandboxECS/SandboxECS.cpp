@@ -192,7 +192,8 @@ void SandboxECS::OnUpdate(TimeStep DeltaTime)
 	sprintf_s(fpsText, 32, "%i", (int)s_FPSSamples[(int)s_FPSSamples.size() - 1]);
 
 	Window& win = Application::Get().GetWindow();
-	m_Scene->OnUpdate(DeltaTime, { win.GetWidth(), win.GetHeight() });
+	m_Scene->SetViewportSize(win.GetWidth(), win.GetHeight());
+	m_Scene->OnUpdate(DeltaTime);
 }
 
 void SandboxECS::OnImGuiRender()

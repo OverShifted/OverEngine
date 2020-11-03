@@ -205,7 +205,10 @@ namespace OverEditor
 			RenderCommand::Clear();
 			DrawGrid();
 			RenderCommand::Clear(ClearFlags_ClearDepth);
-			m_Context->Context->OnRender(m_Camera, m_CameraTransform);
+
+			Renderer2D::BeginScene(glm::inverse(m_CameraTransform), m_Camera);
+			m_Context->Context->RenderSprites();
+			Renderer2D::EndScene();
 		}
 		else
 		{

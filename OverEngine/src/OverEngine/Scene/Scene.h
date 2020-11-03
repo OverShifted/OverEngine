@@ -47,12 +47,14 @@ namespace OverEngine
 			});
 		}
 
-		void OnUpdate(TimeStep deltaTime, Vector2 renderSurface);
+		void OnUpdate(TimeStep deltaTime);
 
 		void OnPhysicsUpdate(TimeStep DeltaTime);
 
-		bool OnRender(Vector2 renderSurface);
-		void OnRender(const SceneCamera& camera, const Mat4x4& cameraTransform);
+		// Rendering
+		bool OnRender();
+		void RenderSprites();
+		void SetViewportSize(uint32_t width, uint32_t height);
 
 		inline PhysicsWorld2D& GetPhysicsWorld2D() { return m_PhysicsWorld2D; }
 		inline const PhysicsWorld2D& GetPhysicsWorld2D() const { return m_PhysicsWorld2D; }
@@ -64,6 +66,8 @@ namespace OverEngine
 	private:
 		entt::registry m_Registry;
 		PhysicsWorld2D m_PhysicsWorld2D;
+
+		uint32_t m_ViewportWidth = 0, m_ViewportHeight = 0; // TODO: set viewport size for new camera components
 
 		/**
 		 * To hold entities with entt::null parent.

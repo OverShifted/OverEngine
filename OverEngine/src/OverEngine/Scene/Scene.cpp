@@ -45,10 +45,10 @@ namespace OverEngine
 		return entity;
 	}
 
-	void Scene::OnUpdate(TimeStep deltaTime, Vector2 renderSurface)
+	void Scene::OnUpdate(TimeStep deltaTime)
 	{
 		OnPhysicsUpdate(deltaTime); // TODO: use a FixedUpdate (just like Unity)
-		OnRender(renderSurface);
+		OnRender();
 	}
 
 	void Scene::OnPhysicsUpdate(TimeStep DeltaTime)
@@ -115,76 +115,8 @@ namespace OverEngine
 		}
 	}
 
-	bool Scene::OnRender(Vector2 renderSurface)
+	void Scene::RenderSprites()
 	{
-		/////////////////////////////////////////////////////
-		// Render ///////////////////////////////////////////
-		/////////////////////////////////////////////////////
-
-		auto group = m_Registry.group<TransformComponent>(entt::get<CameraComponent>);
-		uint32_t activeCameras = 0;
-		for (auto entity : group)
-		{
-			auto& transform = group.get<TransformComponent>(entity);
-			auto& camera = group.get<CameraComponent>(entity);
-
-			if (!camera.Enabled)
-				continue;
-
-			activeCameras++;
-
-			camera.Camera.SetViewportSize((uint32_t)renderSurface.x, (uint32_t)renderSurface.y);
-
-			RenderCommand::SetClearColor(camera.Camera.GetClearColor());
-			RenderCommand::Clear(camera.Camera.GetClearFlags());
-				
-			Renderer2D::BeginScene(glm::inverse(transform.GetLocalToWorld()), camera.Camera);
-
-			{
-				auto spritesGroup = m_Registry.group<SpriteRendererComponent>(entt::get<TransformComponent>);
-				for (auto sp : spritesGroup)
-				{
-					auto& sprite = spritesGroup.get<SpriteRendererComponent>(sp);
-					if (sprite.Enabled)
-					{
-						auto& sptransform = spritesGroup.get<TransformComponent>(sp);
-
-						if (sprite.Sprite)
-						{
-							TexturedQuadExtraData data;
-							data.Tint = sprite.Tint;
-							data.Tiling = sprite.Tiling;
-							data.Offset = sprite.Offset;
-							data.Flip = sprite.Flip;
-							data.Wrapping = sprite.Wrapping;
-							data.Filtering = sprite.Filtering;
-							data.AlphaClipThreshold = sprite.AlphaClipThreshold;
-							data.TextureBorderColor = sprite.TextureBorderColor;
-
-							Renderer2D::DrawQuad(sptransform, sprite.Sprite, data);
-						}
-						else
-						{
-							Renderer2D::DrawQuad(sptransform, sprite.Tint, sprite.AlphaClipThreshold);
-						}
-					}
-				}
-			}
-
-			Renderer2D::EndScene();
-		}
-
-		// Returns false if nothing is rendered
-		return activeCameras;
-	}
-
-	void Scene::OnRender(const SceneCamera& camera, const Mat4x4& cameraTransform)
-	{
-		RenderCommand::SetClearColor(camera.GetClearColor());
-		RenderCommand::Clear(camera.GetClearFlags());
-
-		Renderer2D::BeginScene(glm::inverse(cameraTransform), camera);
-
 		auto spritesGroup = m_Registry.group<SpriteRendererComponent>(entt::get<TransformComponent>);
 		for (auto sp : spritesGroup)
 		{
@@ -193,7 +125,7 @@ namespace OverEngine
 			{
 				auto& sptransform = spritesGroup.get<TransformComponent>(sp);
 
-				if (sprite.Sprite)
+				if (sprite.Sprite && sprite.Sprite->GetType() != TextureType::Placeholder)
 				{
 					TexturedQuadExtraData data;
 					data.Tint = sprite.Tint;
@@ -213,8 +145,41 @@ namespace OverEngine
 				}
 			}
 		}
+	}
 
-		Renderer2D::EndScene();
+	bool Scene::OnRender()
+	{
+		bool anyCamera = false;
+		
+		m_Registry.group<TransformComponent>(entt::get<CameraComponent>).each([&anyCamera, this](auto entity, auto& tc, auto& cc) {
+
+			if (cc.Enabled && tc.Enabled)
+			{
+				anyCamera = true;
+
+				RenderCommand::SetClearColor(cc.Camera.GetClearColor());
+				RenderCommand::Clear(cc.Camera.GetClearFlags());
+
+				Renderer2D::BeginScene(glm::inverse(tc.GetLocalToWorld()), cc.Camera);
+				RenderSprites();
+				Renderer2D::EndScene();
+			}
+
+		});
+
+		// Returns false if nothing is rendered
+		return anyCamera;
+	}
+
+	void Scene::SetViewportSize(uint32_t width, uint32_t height)
+	{
+		m_ViewportWidth = width;
+		m_ViewportHeight = height;
+
+		m_Registry.view<CameraComponent>().each([&width, &height](CameraComponent& cc) {
+			if (cc.FixedAspectRatio)
+				cc.Camera.SetViewportSize(width, height);
+		});
 	}
 
 	uint32_t Scene::GetEntityCount() const
