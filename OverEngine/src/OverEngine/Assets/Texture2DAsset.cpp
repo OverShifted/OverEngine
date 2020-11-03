@@ -26,8 +26,8 @@ namespace OverEngine
 			if (Serializer::GetGlobalEnumValue("TextureType", assetNode["Type"].as<String>()) == (int)TextureType::Master)
 			{
 				auto tex = Texture2D::CreateMaster(assetsDirectoryRoot + m_Path);
-				tex->m_MasterTextureData.Asset = this;
-				m_Textures[Random::UInt64()] = tex;
+				std::get<MasterTextureData>(tex->m_Data).Asset = this;
+				m_Textures[assetNode["Texture2D"].as<uint64_t>()] = tex;
 			}
 		}
 	}

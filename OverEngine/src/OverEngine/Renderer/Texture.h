@@ -4,6 +4,8 @@
 #include "OverEngine/Renderer/GAPI/GTexture.h"
 #include "OverEngine/Renderer/TextureEnums.h"
 
+#include <variant>
+
 namespace OverEngine
 {
 	class Texture
@@ -60,14 +62,26 @@ namespace OverEngine
 		OverEngine::Rect Rect;
 	};
 
+	struct PlaceHolderTextureData
+	{
+		uint64_t Guid;
+	};
+
 	class TextureManager;
-	class Renderer2D;
+
+	#define __Texture2D_GetMasterTextureData std::get<MasterTextureData>(m_Data)
+	#define __Texture2D_GetSubTextureData std::get<SubTextureData>(m_Data)
+	#define __Texture2D_GetParentMasterTextureData std::get<MasterTextureData>(__Texture2D_GetSubTextureData.Parent->m_Data)
+
+	#define __Texture2D_COMMON_GET(x)   if (m_Type == TextureType::Master)                     \
+											return __Texture2D_GetMasterTextureData.x;                      \
+										return __Texture2D_GetParentMasterTextureData.x; \
 
 	class Texture2D : public Texture
 	{
 		friend class TextureManager;
 		friend class Texture2DAsset;
-		friend class Renderer2D;
+
 	public:
 		static Ref<Texture2D> CreateMaster(const String& path);
 		static Ref<Texture2D> CreateSubTexture(Ref<Texture2D> masterTexture, Rect rect);
@@ -83,9 +97,7 @@ namespace OverEngine
 
 		virtual TextureFiltering GetFilter() const override
 		{
-			if (m_Type == TextureType::Master)
-				return m_MasterTextureData.Filtering;
-			return m_SubTextureData.Parent->GetFilter();
+			__Texture2D_COMMON_GET(Filtering);
 		}
 
 		virtual void SetFilter(TextureFiltering filter) override
@@ -93,21 +105,17 @@ namespace OverEngine
 			if (m_Type == TextureType::Subtexture)
 				OE_CORE_WARN("Cannot set Subtexture's Filtering!");
 			else
-				m_MasterTextureData.Filtering = filter;
+				__Texture2D_GetMasterTextureData.Filtering = filter;
 		}
 
 		virtual TextureWrapping GetXWrapping() const override
 		{
-			if (m_Type == TextureType::Master)
-				return m_MasterTextureData.Wrapping.x;
-			return m_SubTextureData.Parent->m_MasterTextureData.Wrapping.x;
+			__Texture2D_COMMON_GET(Wrapping.x);
 		}
 
 		virtual TextureWrapping GetYWrapping() const override
 		{
-			if (m_Type == TextureType::Master)
-				return m_MasterTextureData.Wrapping.y;
-			return m_SubTextureData.Parent->m_MasterTextureData.Wrapping.y;
+			__Texture2D_COMMON_GET(Wrapping.y);
 		}
 
 		virtual void SetXWrapping(TextureWrapping wrapping) override
@@ -115,7 +123,7 @@ namespace OverEngine
 			if (m_Type == TextureType::Subtexture)
 				OE_CORE_WARN("Cannot set Subtexture's Wrapping!");
 			else
-				m_MasterTextureData.Wrapping.x = wrapping;
+				__Texture2D_GetMasterTextureData.Wrapping.x = wrapping;
 		}
 
 		virtual void SetYWrapping(TextureWrapping wrapping) override
@@ -123,14 +131,12 @@ namespace OverEngine
 			if (m_Type == TextureType::Subtexture)
 				OE_CORE_WARN("Cannot set Subtexture's Wrapping!");
 			else
-				m_MasterTextureData.Wrapping.y = wrapping;
+				__Texture2D_GetMasterTextureData.Wrapping.y = wrapping;
 		}
 
 		virtual const Color& GetBorderColor() const override
 		{
-			if (m_Type == TextureType::Master)
-				return m_MasterTextureData.BorderColor;
-			return m_SubTextureData.Parent->m_MasterTextureData.BorderColor;
+			__Texture2D_COMMON_GET(BorderColor);
 		}
 
 		virtual void SetBorderColor(const Color& color) override
@@ -138,31 +144,25 @@ namespace OverEngine
 			if (m_Type == TextureType::Subtexture)
 				OE_CORE_WARN("Cannot set Subtexture's BorderColor!");
 			else
-				m_MasterTextureData.BorderColor = color;
+				__Texture2D_GetMasterTextureData.BorderColor = color;
 		}
 
 		virtual TextureFormat GetFormat() const override
 		{
-			if (m_Type == TextureType::Master)
-				return m_MasterTextureData.Format;
-			return m_SubTextureData.Parent->GetFormat();
+			__Texture2D_COMMON_GET(Format);
 		}
 
 		inline virtual TextureType GetType() const override { return m_Type; }
 
 		inline Ref<GAPI::Texture2D> GetGPUTexture() const
 		{
-			if (m_Type == TextureType::Master)
-				return m_MasterTextureData.MappedTexture;
-
-			OE_CORE_ERROR("SubTextures don't have GPU texture!");
-			return nullptr;
+			__Texture2D_COMMON_GET(MappedTexture);
 		}
 
 		inline uint8_t* GetPixels() const
 		{
 			if (m_Type == TextureType::Master)
-				return m_MasterTextureData.Pixels;
+				return __Texture2D_GetMasterTextureData.Pixels;
 
 			OE_CORE_ERROR("SubTextures don't have PixelBuffer!");
 			return nullptr;
@@ -170,10 +170,7 @@ namespace OverEngine
 
 		virtual uint32_t GetRendererID() const
 		{
-			if (m_Type == TextureType::Master)
-				return m_MasterTextureData.MappedTexture->GetRendererID();
-			else
-				return m_SubTextureData.Parent->m_MasterTextureData.MappedTexture->GetRendererID();
+			return GetGPUTexture()->GetRendererID();
 		}
 
 		virtual Rect GetRect() const
@@ -182,18 +179,18 @@ namespace OverEngine
 
 			if (m_Type == TextureType::Master)
 			{
-				const auto& boundedGPUTexture = m_MasterTextureData.MappedTexture;
-				finalRect.x = m_MasterTextureData.MappedTextureRect.x / boundedGPUTexture->GetWidth();
-				finalRect.y = m_MasterTextureData.MappedTextureRect.y / boundedGPUTexture->GetHeight();
-				finalRect.z = m_MasterTextureData.MappedTextureRect.z / boundedGPUTexture->GetWidth();
-				finalRect.w = m_MasterTextureData.MappedTextureRect.w / boundedGPUTexture->GetHeight();
+				const auto& boundedGPUTexture = __Texture2D_GetMasterTextureData.MappedTexture;
+				finalRect.x = __Texture2D_GetMasterTextureData.MappedTextureRect.x / boundedGPUTexture->GetWidth();
+				finalRect.y = __Texture2D_GetMasterTextureData.MappedTextureRect.y / boundedGPUTexture->GetHeight();
+				finalRect.z = __Texture2D_GetMasterTextureData.MappedTextureRect.z / boundedGPUTexture->GetWidth();
+				finalRect.w = __Texture2D_GetMasterTextureData.MappedTextureRect.w / boundedGPUTexture->GetHeight();
 			}
 			else
 			{
-				const auto& boundedGPUTexture = m_SubTextureData.Parent->m_MasterTextureData.MappedTexture;
+				const auto& boundedGPUTexture = __Texture2D_GetParentMasterTextureData.MappedTexture;
 
-				const Rect& parentRect = m_SubTextureData.Parent->m_MasterTextureData.MappedTextureRect;
-				Rect rect = m_SubTextureData.Rect;
+				const Rect& parentRect = __Texture2D_GetParentMasterTextureData.MappedTextureRect;
+				Rect rect = __Texture2D_GetSubTextureData.Rect;
 
 				rect.x += parentRect.x;
 				rect.y += parentRect.y;
@@ -207,6 +204,11 @@ namespace OverEngine
 			return finalRect;
 		}
 
+		Texture2DAsset* GetAsset() const
+		{
+			__Texture2D_COMMON_GET(Asset);
+		}
+
 		inline operator int() { return m_Width * m_Height; }
 		inline operator uint32_t() { return m_Width * m_Height; }
 	private:
@@ -215,10 +217,13 @@ namespace OverEngine
 		uint32_t m_Width;
 		uint32_t m_Height;
 
-		union
+		/*union
 		{
-			MasterTextureData m_MasterTextureData;
+			MasterTextureData GetMasterTextureData;
 			SubTextureData m_SubTextureData;
-		};
+			PlaceHolderTextureData m_PlaceHolderData;
+		};*/
+
+		std::variant<MasterTextureData, SubTextureData, PlaceHolderTextureData> m_Data;
 	};
 }

@@ -18,7 +18,7 @@ namespace OverEngine
 	{
 		if (masterTexture->GetType() == TextureType::Subtexture)
 		{
-			OE_CORE_ERROR("Cannot create a subtexture from another one!");
+			OE_CORE_ERROR("Cannot create a subtexture from another subtexture!");
 			return nullptr;
 		}
 
@@ -26,7 +26,7 @@ namespace OverEngine
 	}
 
 	Texture2D::Texture2D(const String& path)
-		: m_Type(TextureType::Master), m_MasterTextureData()
+		: m_Type(TextureType::Master), m_Data(MasterTextureData())
 	{
 		int width, height, channels;
 		stbi_set_flip_vertically_on_load(0);
@@ -46,16 +46,16 @@ namespace OverEngine
 		}
 		OE_CORE_ASSERT(format != TextureFormat::None, "Unsupported image format");
 
-		m_MasterTextureData.Format = format;
-		m_MasterTextureData.Filtering = TextureFiltering::Linear;
-		m_MasterTextureData.Pixels = data;
+		__Texture2D_GetMasterTextureData.Format = format;
+		__Texture2D_GetMasterTextureData.Filtering = TextureFiltering::Linear;
+		__Texture2D_GetMasterTextureData.Pixels = data;
 	}
 
 	Texture2D::Texture2D(Ref<Texture2D> masterTexture, Rect rect)
-		: m_Type(TextureType::Subtexture), m_SubTextureData()
+		: m_Type(TextureType::Subtexture), m_Data(SubTextureData())
 	{
-		m_SubTextureData.Parent = masterTexture;
-		m_SubTextureData.Rect = rect;
+		__Texture2D_GetSubTextureData.Parent = masterTexture;
+		__Texture2D_GetSubTextureData.Rect = rect;
 
 		m_Width = (uint32_t)rect.z;
 		m_Height = (uint32_t)rect.w;
@@ -64,7 +64,7 @@ namespace OverEngine
 	Texture2D::~Texture2D()
 	{
 		if (m_Type == TextureType::Master)
-			stbi_image_free(m_MasterTextureData.Pixels);
+			stbi_image_free(__Texture2D_GetMasterTextureData.Pixels);
 	}
 
 	const String& Texture2D::GetName() const
@@ -73,9 +73,9 @@ namespace OverEngine
 
 		Texture2DAsset* asset = nullptr;
 		if (m_Type == TextureType::Master)
-			asset = m_MasterTextureData.Asset;
+			asset = __Texture2D_GetMasterTextureData.Asset;
 		else
-			asset = m_SubTextureData.Parent->m_MasterTextureData.Asset;
+			asset = __Texture2D_GetParentMasterTextureData.Asset;
 
 		if (asset)
 			return asset->GetName();
