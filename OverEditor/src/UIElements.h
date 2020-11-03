@@ -59,7 +59,7 @@ namespace OverEditor
 	///////////////////////////////////////////////
 
 	template <typename T>
-	bool static UIElements::BeginComponentEditor(Entity entity, const char* headerName, uint32_t componentTypeID)
+	bool UIElements::BeginComponentEditor(Entity entity, const char* headerName, uint32_t componentTypeID)
 	{
 		char txt[64];
 		constexpr auto txtSize = OE_ARRAY_SIZE(txt);
@@ -116,7 +116,7 @@ namespace OverEditor
 	}
 
 	template <typename FlagType>
-	static bool UIElements::CheckboxFlagsField(const char* fieldName, const char* fieldID, FlagType* flags, FlagType value)
+	bool UIElements::CheckboxFlagsField(const char* fieldName, const char* fieldID, FlagType* flags, FlagType value)
 	{
 		ImGui::TextUnformatted(fieldName);
 		ImGui::NextColumn();
@@ -140,7 +140,7 @@ namespace OverEditor
 	}
 
 	template <typename T>
-	static bool UIElements::BasicEnum(const char* fieldName, const char* fieldID, EnumValues& values, T* currentValue)
+	bool UIElements::BasicEnum(const char* fieldName, const char* fieldID, EnumValues& values, T* currentValue)
 	{
 		ImGui::TextUnformatted(fieldName);
 		ImGui::NextColumn();
