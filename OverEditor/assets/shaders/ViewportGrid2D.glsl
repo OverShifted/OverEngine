@@ -103,7 +103,9 @@ void main()
 	/* Computing all axes at once using vec3 */
 	vec3 axes = get_axes(
 		vec3(wPos.y + wPos.z, wPos.x + wPos.z, 0.0),
-		vec3(fwidthPos.y + fwidthPos.z, fwidthPos.x + fwidthPos.z, 0.0), 0.1);
+		vec3(fwidthPos.y + fwidthPos.z, fwidthPos.x + fwidthPos.z, 0.0), 0.1
+	);
+
 	o_Color.rgb = vec3(1.0);
 	o_Color.rgb = (axes.x < 1e-8) ? o_Color.rgb : vec3(1.0, 0.0, 0.0);
 	o_Color.rgb = (axes.y < 1e-8) ? o_Color.rgb : vec3(0.0, 1.0, 0.0);
