@@ -20,7 +20,7 @@ namespace OverEngine
 		Ref<Asset> GetAsset(const String& path);
 
 		// Returns the matching Asset with the path
-		inline Ref<Asset> GetAsset(const uint64_t& guid);
+		Ref<Asset> GetAsset(const uint64_t& guid);
 
 		bool AssetExists(const String& path);
 	private:

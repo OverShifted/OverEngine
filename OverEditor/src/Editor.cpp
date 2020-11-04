@@ -192,6 +192,7 @@ namespace OverEditor
 
 	void Editor::EditScene(const Ref<Scene>& scene, String path)
 	{
+		scene->LoadReferences(m_EditingProject->GetAssets());
 		m_SceneContext->Context = scene;
 		m_SceneContext->ContextResourcePath = path;
 		m_SceneContext->SelectionContext.clear();

@@ -6,6 +6,8 @@
 #include "Components.h"
 #include "TransformComponent.h"
 
+#include "OverEngine/Assets/Texture2DAsset.h"
+
 #include <fstream>
 
 #include <OverEngine/Core/Serialization/YamlConverters.h>
@@ -67,7 +69,7 @@ namespace OverEngine
 			out << YAML::EndMap; // Camera
 
 			//out << YAML::Key << "Primary" << YAML::Value << cameraComponent.Primary;
-			//out << YAML::Key << "FixedAspectRatio" << YAML::Value << cameraComponent.FixedAspectRatio;
+			//out << YAML::Key << "FixedAspectRatio" << YAML::Value << cameraComponent.FixedAspectRatio; // TODO: Fix
 
 			out << YAML::EndMap; // CameraComponent
 		}
@@ -76,8 +78,23 @@ namespace OverEngine
 		{
 			out << YAML::Key << "SpriteRendererComponent" << YAML::BeginMap; // SpriteRendererComponent
 
-			out << YAML::Key << "Sprite" << YAML::Value << YAML::Null;
-			Serializer::SerializeToYaml(*SpriteRendererComponent::Reflect(), &entity.GetComponent<SpriteRendererComponent>(), out);
+			auto& sp = entity.GetComponent<SpriteRendererComponent>();
+			auto* asset = sp.Sprite->GetAsset();
+
+			out << YAML::Key << "Sprite" << YAML::Value;
+			if (sp.Sprite && asset)
+			{
+				out << YAML::Flow << YAML::BeginMap;
+				out << YAML::Key << "Asset" << YAML::Value << YAML::Hex << asset->GetGuid();
+				out << YAML::Key << "Texture2D" << YAML::Value << YAML::Hex << asset->GetTextureGuid(sp.Sprite);
+				out << YAML::EndMap;
+			}
+			else
+			{
+				out << YAML::Null;
+			}
+
+			Serializer::SerializeToYaml(*SpriteRendererComponent::Reflect(), &sp, out);
 
 			out << YAML::EndMap; // SpriteRendererComponent
 		}
@@ -208,6 +225,12 @@ namespace OverEngine
 						});
 					}
 
+					if (!spriteRendererComponent["Sprite"].IsNull())
+					{
+						auto spData = spriteRendererComponent["Sprite"];
+						sp.Sprite = Texture2D::CreatePlaceholder(spData["Asset"].as<uint64_t>(), spData["Texture2D"].as<uint64_t>());
+					}
+
 					sp.Tint = spriteRendererComponent["Tint"].as<Color>();
 					sp.Tiling = spriteRendererComponent["Tiling"].as<Vector2>();
 					sp.Flip.x = spriteRendererComponent["Flip.x"].as<bool>();
@@ -226,6 +249,7 @@ namespace OverEngine
 		for (const auto& p : parents)
 			m_Scene->m_Registry.get<TransformComponent>(p.first).SetParent({ uuids[p.second], m_Scene.get() });
 
+		// Set sibling indices
 		m_Scene->m_Registry.view<TransformComponent>().each([&siblingIndices](entt::entity entity, auto& tc) {
 			tc.SetSiblingIndex(siblingIndices[entity]);
 		});

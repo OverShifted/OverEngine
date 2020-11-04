@@ -65,7 +65,7 @@ namespace OverEditor
 			UIElements::DragFloatField("AlphaClipThreshold", "##AlphaClipThreshold", &spriteRenderer.AlphaClipThreshold, 0.02f, 0.0f, 1.0f);
 			UIElements::Texture2DField("Sprite", "##Sprite", spriteRenderer.Sprite);
 
-			if (spriteRenderer.Sprite)
+			if (spriteRenderer.Sprite && spriteRenderer.Sprite->GetType() != TextureType::Placeholder)
 			{
 				UIElements::CheckboxField("Flip.x", "##Flip.x", &spriteRenderer.Flip.x);
 				UIElements::CheckboxField("Flip.y", "##Flip.y", &spriteRenderer.Flip.y);

@@ -3,6 +3,7 @@
 #include "OverEngine/Core/Time/TimeStep.h"
 #include "OverEngine/Core/Random.h"
 #include "OverEngine/Physics/PhysicsWorld2D.h"
+#include "OverEngine/Assets/AssetCollection.h"
 
 #include <entt.hpp>
 
@@ -55,6 +56,8 @@ namespace OverEngine
 		bool OnRender();
 		void RenderSprites();
 		void SetViewportSize(uint32_t width, uint32_t height);
+
+		void LoadReferences(AssetCollection& assetCollection);
 
 		inline PhysicsWorld2D& GetPhysicsWorld2D() { return m_PhysicsWorld2D; }
 		inline const PhysicsWorld2D& GetPhysicsWorld2D() const { return m_PhysicsWorld2D; }

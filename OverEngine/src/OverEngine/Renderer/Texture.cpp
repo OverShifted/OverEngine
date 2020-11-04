@@ -25,9 +25,9 @@ namespace OverEngine
 		return CreateRef<Texture2D>(masterTexture, rect);
 	}
 
-	Ref<Texture2D> Texture2D::CreatePlaceholder(const uint64_t& guid)
+	Ref<Texture2D> Texture2D::CreatePlaceholder(const uint64_t& assetGuid, const uint64_t& textureGuid)
 	{
-		return CreateRef<Texture2D>(guid);
+		return CreateRef<Texture2D>(assetGuid, textureGuid);
 	}
 
 	Texture2D::Texture2D(const String& path)
@@ -62,8 +62,8 @@ namespace OverEngine
 	{
 	}
 
-	Texture2D::Texture2D(const uint64_t& guid)
-		: m_Type(TextureType::Placeholder), m_Data(PlaceHolderTextureData{ guid })
+	Texture2D::Texture2D(const uint64_t& assetGuid, const uint64_t& textureGuid)
+		: m_Type(TextureType::Placeholder), m_Data(PlaceHolderTextureData{ assetGuid, textureGuid })
 	{
 	}
 
@@ -75,17 +75,20 @@ namespace OverEngine
 
 	const String& Texture2D::GetName() const
 	{
-		static String untitled = "Untitled Texture";
+		static String placeholder = "Placeholder Texture";
 
 		Texture2DAsset* asset = nullptr;
 		if (m_Type == TextureType::Master)
 			asset = __Texture2D_GetMasterTextureData.Asset;
-		else
+		else if (m_Type == TextureType::Subtexture)
 			asset = __Texture2D_GetParentMasterTextureData.Asset;
 
 		if (asset)
 			return asset->GetName();
+		else if (m_Type == TextureType::Placeholder)
+			return placeholder;
 
+		static String untitled = "Untitled Texture";
 		return untitled;
 	}
 

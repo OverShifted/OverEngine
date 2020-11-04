@@ -66,7 +66,8 @@ namespace OverEngine
 
 	struct PlaceHolderTextureData
 	{
-		uint64_t Guid;
+		uint64_t AssetGuid;
+		uint64_t Texture2DGuid;
 	};
 
 	class TextureManager;
@@ -75,15 +76,17 @@ namespace OverEngine
 	#define __Texture2D_GetSubTextureData std::get<SubTextureData>(m_Data)
 	#define __Texture2D_GetParentMasterTextureData std::get<MasterTextureData>(__Texture2D_GetSubTextureData.Parent->m_Data)
 
-	#define __Texture2D_COMMON_GET(x)   if (m_Type == TextureType::Master)               \
-											return __Texture2D_GetMasterTextureData.x;   \
-										return __Texture2D_GetParentMasterTextureData.x; \
+	#define __Texture2D_COMMON_GET(x, nil)  if (m_Type == TextureType::Master)                   \
+												return __Texture2D_GetMasterTextureData.x;       \
+											if (m_Type == TextureType::Subtexture)               \
+												return __Texture2D_GetParentMasterTextureData.x; \
+											return nil;
 	
-	#define __Texture2D_COMMON_ASSERT(what_to_set, set_to_what, msg)    \
-		if (m_Type == TextureType::Subtexture)                          \
-			OE_CORE_ERROR("Cannot set Subtexture's " msg "!");          \
-		else                                                            \
-			__Texture2D_GetMasterTextureData.what_to_set = set_to_what; \
+	#define __Texture2D_COMMON_ASSERT(what_to_set, set_to_what, msg)             \
+		if (m_Type == TextureType::Master)                                       \
+			__Texture2D_GetMasterTextureData.what_to_set = set_to_what;          \
+		else                                                                     \
+			OE_CORE_ERROR("Cannot set Subtexture's and Placeholder's " msg "!");
 
 	class Texture2D : public Texture
 	{
@@ -93,34 +96,34 @@ namespace OverEngine
 	public:
 		static Ref<Texture2D> CreateMaster(const String& path);
 		static Ref<Texture2D> CreateSubTexture(Ref<Texture2D> masterTexture, Rect rect);
-		static Ref<Texture2D> CreatePlaceholder(const uint64_t& guid);
+		static Ref<Texture2D> CreatePlaceholder(const uint64_t& assetGuid, const uint64_t& textureGuid);
 
 		Texture2D(const String& path); // CreateMaster
 		Texture2D(Ref<Texture2D> masterTexture, Rect rect); // CreateSubTexture
-		Texture2D(const uint64_t& guid); // CreatePlaceholder
+		Texture2D(const uint64_t& assetGuid, const uint64_t& textureGuid); // CreatePlaceholder
 		virtual ~Texture2D();
 
 		const String& GetName() const;
 
-		inline virtual uint32_t GetWidth() const override { __Texture2D_COMMON_GET(Width); }
-		inline virtual uint32_t GetHeight() const override { __Texture2D_COMMON_GET(Height); }
+		inline virtual uint32_t GetWidth() const override { __Texture2D_COMMON_GET(Width, 0); }
+		inline virtual uint32_t GetHeight() const override { __Texture2D_COMMON_GET(Height, 0); }
 
-		virtual TextureFiltering GetFiltering() const override { __Texture2D_COMMON_GET(Filtering); }
+		virtual TextureFiltering GetFiltering() const override { __Texture2D_COMMON_GET(Filtering, TextureFiltering::None); }
 		virtual void SetFiltering(TextureFiltering filtering) override { __Texture2D_COMMON_ASSERT(Filtering, filtering, "Filtering"); }
 
-		virtual TextureWrapping GetXWrapping() const override { __Texture2D_COMMON_GET(Wrapping.x); }
-		virtual TextureWrapping GetYWrapping() const override { __Texture2D_COMMON_GET(Wrapping.y); }
+		virtual TextureWrapping GetXWrapping() const override { __Texture2D_COMMON_GET(Wrapping.x, TextureWrapping::None); }
+		virtual TextureWrapping GetYWrapping() const override { __Texture2D_COMMON_GET(Wrapping.y, TextureWrapping::None); }
 
 		virtual void SetXWrapping(TextureWrapping wrapping) override { __Texture2D_COMMON_ASSERT(Wrapping.x, wrapping, "Wrapping"); }
 		virtual void SetYWrapping(TextureWrapping wrapping) override { __Texture2D_COMMON_ASSERT(Wrapping.y, wrapping, "Wrapping"); }
 
-		virtual const Color& GetBorderColor() const override { __Texture2D_COMMON_GET(BorderColor); }
+		virtual const Color& GetBorderColor() const override { __Texture2D_COMMON_GET(BorderColor, NULL_REF(Color)); }
 		virtual void SetBorderColor(const Color& color) override { __Texture2D_COMMON_ASSERT(BorderColor, color, "BorderColor"); }
 
-		virtual TextureFormat GetFormat() const override { __Texture2D_COMMON_GET(Format); }
+		virtual TextureFormat GetFormat() const override { __Texture2D_COMMON_GET(Format, TextureFormat::None); }
 		inline virtual TextureType GetType() const override { return m_Type; }
 
-		inline virtual Ref<GAPI::Texture2D> GetGPUTexture() const override { __Texture2D_COMMON_GET(MappedTexture); }
+		inline virtual Ref<GAPI::Texture2D> GetGPUTexture() const override { __Texture2D_COMMON_GET(MappedTexture, nullptr); }
 		virtual Rect GetRect() const;
 
 		inline uint8_t* GetPixels() const
@@ -132,7 +135,8 @@ namespace OverEngine
 			return nullptr;
 		}
 
-		Texture2DAsset* GetAsset() const { __Texture2D_COMMON_GET(Asset); }
+		Texture2DAsset* GetAsset() const { __Texture2D_COMMON_GET(Asset, nullptr); }
+		const auto& GetData() const { return m_Data; }
 	private:
 		TextureType m_Type;
 

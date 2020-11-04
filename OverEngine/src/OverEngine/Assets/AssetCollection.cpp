@@ -176,7 +176,7 @@ namespace OverEngine
 		return nullptr;
 	};
 
-	inline Ref<Asset> AssetCollection::GetAsset(const uint64_t& guid)
+	Ref<Asset> AssetCollection::GetAsset(const uint64_t& guid)
 	{
 		return FindAssetByGuidRecursive(m_RootAsset, guid);
 	}

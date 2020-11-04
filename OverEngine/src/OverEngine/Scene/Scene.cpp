@@ -7,12 +7,14 @@
 
 #include "OverEngine/Renderer/Renderer2D.h"
 #include "OverEngine/Physics/PhysicsWorld2D.h"
+#include "OverEngine/Assets/Texture2DAsset.h"
 
 #include "OverEngine/Core/Random.h"
 
 #include "OverEngine/Core/Serialization/YamlConverters.h"
 #include <yaml-cpp/yaml.h>
 #include <fstream>
+
 
 namespace OverEngine
 {
@@ -177,8 +179,29 @@ namespace OverEngine
 		m_ViewportHeight = height;
 
 		m_Registry.view<CameraComponent>().each([&width, &height](CameraComponent& cc) {
+
 			if (cc.FixedAspectRatio)
 				cc.Camera.SetViewportSize(width, height);
+
+		});
+	}
+
+	void Scene::LoadReferences(AssetCollection& assetCollection)
+	{
+		m_Registry.view<SpriteRendererComponent>().each([&assetCollection](SpriteRendererComponent& sp) {
+
+			if (sp.Sprite && sp.Sprite->GetType() == TextureType::Placeholder)
+			{
+				const auto& pl = std::get<PlaceHolderTextureData>(sp.Sprite->GetData());
+
+				auto asset = assetCollection.GetAsset(pl.AssetGuid);
+
+				if (asset->GetType() == AssetType::Texture2D)
+				{
+					sp.Sprite = asset->GetTexture2DAsset()->GetTextures()[pl.Texture2DGuid];
+				}
+			}
+
 		});
 	}
 

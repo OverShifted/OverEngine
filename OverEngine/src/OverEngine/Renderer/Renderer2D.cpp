@@ -306,6 +306,9 @@ namespace OverEngine
 
 	void Renderer2D::DrawQuad(const Mat4x4& transform, Ref<Texture2D> texture, const TexturedQuadExtraData& extraData)
 	{
+		if (!texture || texture->GetType() == TextureType::Placeholder)
+			return;
+
 		Ref<GAPI::Texture2D> textureToBind = texture->GetGPUTexture();
 
 		int textureSlot = -1;

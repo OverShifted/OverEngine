@@ -17,7 +17,7 @@ namespace OverEngine
 		const uint64_t& GetTextureGuid(const Ref<Texture2D>& texture);
 		const uint64_t& GetTextureGuid(Texture2D* texture);
 
-		const auto& GetTextures() const { return m_Textures; }
+		auto& GetTextures() { return m_Textures; }
 	private:
 		UnorderedMap<uint64_t, Ref<Texture2D>> m_Textures;
 	};
