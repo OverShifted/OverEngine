@@ -45,6 +45,7 @@
  * it has __linux__ defined */
 #elif defined(__ANDROID__)
 	#define OE_PLATFORM_ANDROID
+	#define OE_PLATFORM_LINUX
 	#error "Android is not supported!"
 #elif defined(__linux__)
 	#define OE_PLATFORM_LINUX
