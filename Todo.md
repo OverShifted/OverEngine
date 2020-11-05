@@ -4,7 +4,7 @@
 	- [ ] Particle System
 - [ ] Physics
 	- [ ] Rewrite Physics System
-- [ ] Asset Handling
-	- [ ] Rewrite Asset System
+- [x] Asset Handling
+	- [x] Rewrite Asset System
 - [ ] Editor
 	- [ ] Undo-Redo
