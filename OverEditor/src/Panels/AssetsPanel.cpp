@@ -1,5 +1,5 @@
 #include "AssetsPanel.h"
-#include "Editor.h"
+#include "EditorLayer.h"
 
 #include <OverEngine/Assets/Texture2DAsset.h>
 #include <OverEngine/Assets/SceneAsset.h>
@@ -15,8 +15,7 @@ namespace OverEditor
 {
 	using namespace OverEngine;
 
-	AssetsPanel::AssetsPanel(Editor* editor)
-		: m_Editor(editor)
+	AssetsPanel::AssetsPanel()
 	{
 	}
 
@@ -42,7 +41,7 @@ namespace OverEditor
 			ImGui::EndPopup();
 		}
 
-		const auto& rootAsset = m_Editor->GetProject()->GetAssets().GetAsset("/");
+		const auto& rootAsset = EditorLayer::Get().GetProject()->GetAssets().GetAsset("/");
 
 		ImGuiTreeNodeFlags rootNodeFlags = OE_IMGUI_BASE_TREE_VIEW_FLAGS;
 
@@ -187,7 +186,7 @@ namespace OverEditor
 				if (!asset->IsFolder() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
 				{
 					if (asset->GetType() == AssetType::Scene)
-						m_Editor->EditScene(asset->GetSceneAsset()->GetScene(), asset->GetPath());
+						EditorLayer::Get().EditScene(asset->GetSceneAsset()->GetScene(), asset->GetPath());
 				}
 
 				selectedItem = asset;
@@ -213,7 +212,7 @@ namespace OverEditor
 
 		if (asset->IsFolder())
 		{
-			icon = m_Editor->GetIcons()["FolderIcon"];
+			icon = EditorLayer::Get().GetIcons()["FolderIcon"];
 		}
 		else if (asset->GetType() == AssetType::Texture2D)
 		{
@@ -222,7 +221,7 @@ namespace OverEditor
 		}
 		else if (asset->GetType() == AssetType::Scene)
 		{
-			icon = m_Editor->GetIcons()["SceneIcon"];
+			icon = EditorLayer::Get().GetIcons()["SceneIcon"];
 		}
 
 		ImGui::PushStyleColor(ImGuiCol_Button,        { 0.2f, 0.2f, 0.2f, 0.2f });
@@ -249,7 +248,7 @@ namespace OverEditor
 			}
 			else if (asset->GetType() == AssetType::Scene)
 			{
-				m_Editor->EditScene(asset->GetSceneAsset()->GetScene(), asset->GetPath());
+				EditorLayer::Get().EditScene(asset->GetSceneAsset()->GetScene(), asset->GetPath());
 			}
 		}
 

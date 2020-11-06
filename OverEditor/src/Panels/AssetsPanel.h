@@ -6,12 +6,11 @@
 namespace OverEditor
 {
 	using namespace OverEngine;
-	class Editor;
 
 	class AssetsPanel : public ImGuiPanel
 	{
 	public:
-		AssetsPanel(Editor* editor);
+		AssetsPanel();
 
 		virtual void OnImGuiRender() override;
 
@@ -23,7 +22,6 @@ namespace OverEditor
 	private:
 		bool m_IsOpen;
 
-		Editor* m_Editor;
 		Vector<Ref<Asset>> m_SelectionContext;
 
 		bool m_OneColumnView = false;
