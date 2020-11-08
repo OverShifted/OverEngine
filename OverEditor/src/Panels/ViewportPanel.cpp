@@ -170,7 +170,7 @@ namespace OverEditor
 			if (hovered)
 			{
 				float mouseWheel = ImGui::GetIO().MouseWheel;
-				m_Camera.SetOrthographicSize(Math::Clamp(m_Camera.GetOrthographicSize() + -mouseWheel / 3.0f, 0.0001f, FLT_MAX));
+				m_Camera.SetOrthographicSize(Math::Clamp(m_Camera.GetOrthographicSize() + -mouseWheel / 3.0f, 0.01f, FLT_MAX));
 			}
 		}
 		else if (m_Context->Context)
@@ -270,7 +270,7 @@ namespace OverEditor
 			gizmoTransform.SetScale({ arrowScale * cameraOrthoSize, arrowScale / 10 * cameraOrthoSize, 1.0f * cameraOrthoSize });
 			float offset = gizmoTransform.GetScale().x / 2.0f - gizmoTransform.GetScale().y / 10.0f;
 
-			static auto highlightAxis = [&](Axis axis) -> bool
+			static auto highlightAxis = [this](Axis axis) -> bool
 			{
 				return m_HoveredTranslateAxis == axis || m_ActiveTranslateAxis == axis;
 			};

@@ -19,7 +19,7 @@ namespace OverEngine
 
 	enum class ComponentType
 	{
-		NameComponent, IDComponent, TransformComponent,
+		NameComponent, IDComponent, ActivationComponent, TransformComponent,
 		CameraComponent, SpriteRendererComponent,
 		PhysicsBody2DComponent, PhysicsColliders2DComponent
 	};
@@ -67,6 +67,18 @@ namespace OverEngine
 			: Component(entity), ID(id) {}
 
 		COMPONENT_TYPE(IDComponent)
+	};
+
+	struct ActivationComponent : public Component
+	{
+		bool IsActive;
+
+		ActivationComponent() = default;
+		ActivationComponent(const ActivationComponent&) = default;
+		ActivationComponent(Entity& entity, bool isActive)
+			: Component(entity), IsActive(isActive) {}
+
+		COMPONENT_TYPE(ActivationComponent)
 	};
 
 	////////////////////////////////////////////////////////

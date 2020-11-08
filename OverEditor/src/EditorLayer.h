@@ -7,6 +7,7 @@
 #include <OverEngine/Assets/AssetCollection.h>
 #include <OverEngine/Core/FileSystem/FileSystem.h>
 
+#include "Action.h"
 #include "SceneEditor.h"
 #include "Panels/ViewportPanel.h"
 #include "Panels/SceneHierarchyPanel.h"
@@ -27,8 +28,10 @@ namespace OverEditor
 		void OnImGuiRender() override;
 		void OnEvent(Event& event) override;
 
-		inline Ref<EditorProject>& GetProject() { return m_EditingProject; }
-		inline UnorderedMap<String, Ref<Texture2D>>& GetIcons() { return m_Icons; }
+		inline auto& GetProject()     { return m_EditingProject; }
+		inline auto& GetIcons()       { return m_Icons; }
+		inline auto& GetActionStack() { return m_ActionStack; }
+
 		void EditScene(const Ref<Scene>& scene, String path);
 
 		static EditorLayer& Get() { return *s_Instance; }
@@ -36,6 +39,8 @@ namespace OverEditor
 		void OnProjectManagerGUI();
 	private:
 		static EditorLayer* s_Instance;
+
+		ActionStack m_ActionStack;
 
 		Ref<EditorProject> m_EditingProject;
 		Ref<SceneEditor> m_SceneContext;

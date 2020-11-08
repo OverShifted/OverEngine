@@ -17,6 +17,7 @@ namespace OverEditor
 		: Layer("EditorLayer")
 	{
 		s_Instance = this;
+		Application::Get().GetImGuiLayer()->SetBlockEvents(false);
 	}
 
 	void EditorLayer::OnAttach()
@@ -25,8 +26,8 @@ namespace OverEditor
 
 		auto editorConsoleSink = std::make_shared<EditorConsoleSink_mt>(&m_ConsolePanel);
 		editorConsoleSink->set_pattern("%v");
-		OverEngine::Log::GetCoreLogger()->sinks().push_back(editorConsoleSink);
-		OverEngine::Log::GetClientLogger()->sinks().push_back(editorConsoleSink);
+		Log::GetCoreLogger()->sinks().push_back(editorConsoleSink);
+		Log::GetClientLogger()->sinks().push_back(editorConsoleSink);
 
 		m_SceneContext = CreateRef<SceneEditor>();
 		m_ViewportPanel.SetContext(m_SceneContext);
@@ -53,9 +54,24 @@ namespace OverEditor
 		{
 			if (ImGui::BeginMenu("File"))
 			{
-				if (ImGui::MenuItem("New Project", "Ctrl+Shift+N")) { m_IsProjectManagerOpen = true; }
-				if (ImGui::MenuItem("Open Project", "Ctrl+Shift+O")) { m_IsProjectManagerOpen = true; }
-				if (ImGui::MenuItem("Quit Editor", "Alt+F4")) { Application::Get().Close(); }
+				if (ImGui::MenuItem("New Project", "Ctrl+Shift+N"))
+					m_IsProjectManagerOpen = true;
+
+				if (ImGui::MenuItem("Open Project", "Ctrl+Shift+O"))
+					m_IsProjectManagerOpen = true;
+
+				ImGui::Separator();
+
+				if (ImGui::MenuItem("Save Scene", "Ctrl+S", nullptr, (bool)m_SceneContext->Context))
+				{
+					SceneSerializer sceneSerializer(m_SceneContext->Context);
+					sceneSerializer.Serialize(m_EditingProject->GetAssetsDirectoryPath() + m_SceneContext->ContextResourcePath);
+				}
+
+				ImGui::Separator();
+
+				if (ImGui::MenuItem("Quit Editor", "Alt+F4"))
+					Application::Get().Close();
 
 				ImGui::EndMenu();
 			}
@@ -137,6 +153,24 @@ namespace OverEditor
 	void EditorLayer::OnEvent(Event& event)
 	{
 		OE_PROFILE_FUNCTION();
+
+		EventDispatcher dispatcher(event);
+
+ 		dispatcher.Dispatch<KeyPressedEvent>([this](KeyPressedEvent& event) -> bool {
+
+			bool control = Input::IsKeyPressed(KeyCode::LeftControl) || Input::IsKeyPressed(KeyCode::RightControl);
+			bool shift = Input::IsKeyPressed(KeyCode::LeftShift) || Input::IsKeyPressed(KeyCode::RightShift);
+
+			if (event.GetKeyCode() == KeyCode::Z && control)
+			{
+				if (shift)
+					m_ActionStack.Redo();
+				else
+					m_ActionStack.Undo();
+			}
+
+			return false;
+		});
 	}
 
 	void EditorLayer::EditScene(const Ref<Scene>& scene, String path)

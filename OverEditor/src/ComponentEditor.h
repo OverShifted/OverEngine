@@ -1,6 +1,7 @@
 #pragma once
 
 #include "UIElements.h"
+#include "EditorLayer.h"
 
 #include <OverEngine/Scene/Components.h>
 #include <imgui/imgui.h>
@@ -23,19 +24,47 @@ namespace OverEditor
 		{
 			UIElements::BeginFieldGroup();
 
-			auto& transform = entity.GetComponent<TransformComponent>();
-			Vector3 position = transform.GetLocalPosition();
-			Vector3 rotation = transform.GetLocalEulerAngles();
-			Vector3 scale = transform.GetLocalScale();
+			static Vector3 positionDelta(0.0f);
+			static Vector3 rotationDelta(0.0f);
+			static Vector3 scaleDelta(0.0f);
+
+			auto& tc = entity.GetComponent<TransformComponent>();
+			Vector3 position = tc.GetLocalPosition();
+			Vector3 rotation = tc.GetLocalEulerAngles();
+			Vector3 scale = tc.GetLocalScale();
 
 			if (UIElements::DragFloat3Field("Position", "##Position", glm::value_ptr(position), 0.2f))
-				transform.SetLocalPosition(position);
+				positionDelta += position - tc.GetLocalPosition();
+
+			if (ImGui::IsItemDeactivatedAfterEdit())
+			{
+				EditorLayer::Get().GetActionStack().Do(CreateRef<EntityTranslationAction>(entity, positionDelta), false);
+				positionDelta = Vector3(0.0f);
+			}
+
+			tc.SetLocalPosition(position);
 
 			if (UIElements::DragFloat3Field("Rotation", "##Rotation", glm::value_ptr(rotation), 0.2f))
-				transform.SetLocalEulerAngles(rotation);
+				rotationDelta += rotation - tc.GetLocalEulerAngles();
+
+			if (ImGui::IsItemDeactivatedAfterEdit())
+			{
+				EditorLayer::Get().GetActionStack().Do(CreateRef<EntityRotationAction>(entity, rotationDelta), false);
+				rotationDelta = Vector3(0.0f);
+			}
+
+			tc.SetLocalEulerAngles(rotation);
 
 			if (UIElements::DragFloat3Field("Scale", "##Scale", glm::value_ptr(scale), 0.2f))
-				transform.SetLocalScale(scale);
+				scaleDelta += scale - tc.GetLocalScale();
+
+			if (ImGui::IsItemDeactivatedAfterEdit())
+			{
+				EditorLayer::Get().GetActionStack().Do(CreateRef<EntityScaleAction>(entity, scaleDelta), false);
+				scaleDelta = Vector3(0.0f);
+			}
+
+			tc.SetLocalScale(scale);
 
 			UIElements::EndFieldGroup();
 
@@ -43,10 +72,10 @@ namespace OverEditor
 			ImGui::Text("%i", transform.GetChangedFlags());
 
 			ImGui::PushItemWidth(-1);
-			ImGui::InputFloat4("", (float*)&transform.GetLocalToWorld()[0].x, "%.3f", ImGuiInputTextFlags_ReadOnly);
-			ImGui::InputFloat4("", (float*)&transform.GetLocalToWorld()[1].x, "%.3f", ImGuiInputTextFlags_ReadOnly);
-			ImGui::InputFloat4("", (float*)&transform.GetLocalToWorld()[2].x, "%.3f", ImGuiInputTextFlags_ReadOnly);
-			ImGui::InputFloat4("", (float*)&transform.GetLocalToWorld()[3].x, "%.3f", ImGuiInputTextFlags_ReadOnly);
+			ImGui::InputFloat4("", (float*)&tc.GetLocalToWorld()[0].x, "%.3f", ImGuiInputTextFlags_ReadOnly);
+			ImGui::InputFloat4("", (float*)&tc.GetLocalToWorld()[1].x, "%.3f", ImGuiInputTextFlags_ReadOnly);
+			ImGui::InputFloat4("", (float*)&tc.GetLocalToWorld()[2].x, "%.3f", ImGuiInputTextFlags_ReadOnly);
+			ImGui::InputFloat4("", (float*)&tc.GetLocalToWorld()[3].x, "%.3f", ImGuiInputTextFlags_ReadOnly);
 			ImGui::PopItemWidth();
 			#endif
 		}
