@@ -16,73 +16,29 @@ namespace OverEditor
 		virtual void Revert() {}
 	};
 
-	struct EntityTranslationAction : public Action
+	struct Vector3EditAction : public Action
 	{
-		EntityTranslationAction() = default;
-		EntityTranslationAction(const OverEngine::Entity& entity, const Vector3& delta)
-			: Entity(entity), Delta(delta) {}
+		using GetterFn = std::function<Vector3()>;
+		using SetterFn = std::function<void(const Vector3&)>;
+
+		Vector3EditAction() = default;
+		Vector3EditAction(const Vector3& delta, const GetterFn& getter, const SetterFn& setter)
+			: Delta(delta), Getter(getter), Setter(setter) {}
 
 		virtual void Perform()
 		{
-			auto& tc = Entity.GetComponent<TransformComponent>();
-			tc.SetLocalPosition(tc.GetLocalPosition() + Delta);
+			Setter(Getter() + Delta);
 		}
 
 		virtual void Revert()
 		{
-			auto& tc = Entity.GetComponent<TransformComponent>();
-			tc.SetLocalPosition(tc.GetLocalPosition() - Delta);
+			Setter(Getter() - Delta);
 		}
 
 	private:
-		OverEngine::Entity Entity;
 		Vector3 Delta;
-	};
-
-	struct EntityRotationAction : public Action
-	{
-		EntityRotationAction() = default;
-		EntityRotationAction(const OverEngine::Entity& entity, const Vector3& delta)
-			: Entity(entity), Delta(delta) {}
-
-		virtual void Perform()
-		{
-			auto& tc = Entity.GetComponent<TransformComponent>();
-			tc.SetLocalEulerAngles(tc.GetLocalEulerAngles() + Delta);
-		}
-
-		virtual void Revert()
-		{
-			auto& tc = Entity.GetComponent<TransformComponent>();
-			tc.SetLocalEulerAngles(tc.GetLocalEulerAngles() - Delta);
-		}
-
-	private:
-		OverEngine::Entity Entity;
-		Vector3 Delta;
-	};
-
-	struct EntityScaleAction : public Action
-	{
-		EntityScaleAction() = default;
-		EntityScaleAction(const OverEngine::Entity& entity, const Vector3& delta)
-			: Entity(entity), Delta(delta) {}
-
-		virtual void Perform()
-		{
-			auto& tc = Entity.GetComponent<TransformComponent>();
-			tc.SetLocalScale(tc.GetLocalScale() + Delta);
-		}
-
-		virtual void Revert()
-		{
-			auto& tc = Entity.GetComponent<TransformComponent>();
-			tc.SetLocalScale(tc.GetLocalScale() - Delta);
-		}
-
-	private:
-		OverEngine::Entity Entity;
-		Vector3 Delta;
+		GetterFn Getter;
+		SetterFn Setter;
 	};
 
 	class ActionStack

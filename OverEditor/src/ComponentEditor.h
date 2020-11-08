@@ -38,7 +38,13 @@ namespace OverEditor
 
 			if (ImGui::IsItemDeactivatedAfterEdit())
 			{
-				EditorLayer::Get().GetActionStack().Do(CreateRef<EntityTranslationAction>(entity, positionDelta), false);
+				auto action = CreateRef<Vector3EditAction>(positionDelta, [entity]() mutable {
+					return entity.GetComponent<TransformComponent>().GetLocalPosition();
+				}, [entity](const auto& pos) mutable {
+					return entity.GetComponent<TransformComponent>().SetLocalPosition(pos);
+				});
+
+				EditorLayer::Get().GetActionStack().Do(action, false);
 				positionDelta = Vector3(0.0f);
 			}
 
@@ -49,7 +55,13 @@ namespace OverEditor
 
 			if (ImGui::IsItemDeactivatedAfterEdit())
 			{
-				EditorLayer::Get().GetActionStack().Do(CreateRef<EntityRotationAction>(entity, rotationDelta), false);
+				auto action = CreateRef<Vector3EditAction>(rotationDelta, [entity]() mutable {
+					return entity.GetComponent<TransformComponent>().GetEulerAngles();
+				}, [entity](const auto& rot) mutable {
+					return entity.GetComponent<TransformComponent>().SetEulerAngles(rot);
+				});
+
+				EditorLayer::Get().GetActionStack().Do(action, false);
 				rotationDelta = Vector3(0.0f);
 			}
 
@@ -60,7 +72,13 @@ namespace OverEditor
 
 			if (ImGui::IsItemDeactivatedAfterEdit())
 			{
-				EditorLayer::Get().GetActionStack().Do(CreateRef<EntityScaleAction>(entity, scaleDelta), false);
+				auto action = CreateRef<Vector3EditAction>(scaleDelta, [entity]() mutable {
+					return entity.GetComponent<TransformComponent>().GetLocalScale();
+				}, [entity](const auto& scale) mutable {
+					return entity.GetComponent<TransformComponent>().SetLocalScale(scale);
+				});
+
+				EditorLayer::Get().GetActionStack().Do(action, false);
 				scaleDelta = Vector3(0.0f);
 			}
 
