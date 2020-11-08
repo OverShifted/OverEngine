@@ -1,4 +1,4 @@
-﻿#define OE_CLIENT_INCLUDE_ENTRY_POINT
+#define OE_CLIENT_INCLUDE_ENTRY_POINT
 #include <OverEngine.h>
 
 #include "SandboxLayer/SandboxLayer.h"
