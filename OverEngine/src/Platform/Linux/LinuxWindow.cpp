@@ -36,9 +36,9 @@ namespace OverEngine
 
 	void LinuxWindow::Init(const WindowProps& props)
 	{
-		m_Data.Title          = props.Title;
-		m_Data.Width          = props.Width;
-		m_Data.Height         = props.Height;
+		m_Data.Title = props.Title;
+		m_Data.Width = props.Width;
+		m_Data.Height = props.Height;
 
 		OE_CORE_INFO("Creating window {0} ({1}, {2})", props.Title, props.Width, props.Height);
 
@@ -62,7 +62,7 @@ namespace OverEngine
 
 		m_Window = glfwCreateWindow((int)props.Width, (int)props.Height, m_Data.Title.c_str(), nullptr, nullptr);
 		s_WindowCount++;
-		
+
 		m_Context = RendererContext::Create(this);
 		m_Context->Init();
 
@@ -158,11 +158,11 @@ namespace OverEngine
 			MouseMovedEvent event((float)xPos, (float)yPos);
 			data.EventCallback(event);
 		});
-		
+
 		glfwSetWindowFocusCallback(m_Window, [](GLFWwindow* window, int focused)
 		{
 			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
-			
+
 			if (focused)
 			{
 				WindowFocusEvent event;
@@ -178,7 +178,7 @@ namespace OverEngine
 		glfwSetWindowPosCallback(m_Window, [](GLFWwindow* window, int xPos, int yPos)
 		{
 			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
-			
+
 			WindowMovedEvent event(xPos, yPos);
 			data.EventCallback(event);
 		});

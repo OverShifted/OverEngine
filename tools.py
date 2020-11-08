@@ -4,9 +4,9 @@ from glob import glob
 clean = '--clean' in sys.argv
 fix = '--fix' in sys.argv
 
-def fix_files(files):
+def fix_files(files, check_extention=True):
 	for file_path in files:
-		if (file_path.endswith('.cpp') or file_path.endswith('.h')):
+		if not check_extention or file_path.endswith('.cpp') or file_path.endswith('.h'):
 			print(f"Fixing {file_path}")
 			rs = open(file_path)
 			good = rs.read()
@@ -22,6 +22,8 @@ if fix:
 	fix_files(glob("OverEngine/res/**", recursive=True))
 	fix_files(glob("OverEditor/src/**", recursive=True))
 	fix_files(glob("Sandbox/src/**", recursive=True))
+	fix_files(glob("**/**.lua", recursive=True), False)
+	fix_files(glob("**/imgui.ini", recursive=True), False)
 
 if clean:
 	if (os.path.isdir("bin")):
