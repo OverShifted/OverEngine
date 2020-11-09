@@ -41,7 +41,7 @@ namespace OverEditor
 				auto action = CreateRef<Vector3EditAction>(positionDelta, [entity]() mutable {
 					return entity.GetComponent<TransformComponent>().GetLocalPosition();
 				}, [entity](const auto& pos) mutable {
-					return entity.GetComponent<TransformComponent>().SetLocalPosition(pos);
+					entity.GetComponent<TransformComponent>().SetLocalPosition(pos);
 				});
 
 				EditorLayer::Get().GetActionStack().Do(action, false);
@@ -58,7 +58,7 @@ namespace OverEditor
 				auto action = CreateRef<Vector3EditAction>(rotationDelta, [entity]() mutable {
 					return entity.GetComponent<TransformComponent>().GetEulerAngles();
 				}, [entity](const auto& rot) mutable {
-					return entity.GetComponent<TransformComponent>().SetEulerAngles(rot);
+					entity.GetComponent<TransformComponent>().SetEulerAngles(rot);
 				});
 
 				EditorLayer::Get().GetActionStack().Do(action, false);
@@ -75,7 +75,7 @@ namespace OverEditor
 				auto action = CreateRef<Vector3EditAction>(scaleDelta, [entity]() mutable {
 					return entity.GetComponent<TransformComponent>().GetLocalScale();
 				}, [entity](const auto& scale) mutable {
-					return entity.GetComponent<TransformComponent>().SetLocalScale(scale);
+					entity.GetComponent<TransformComponent>().SetLocalScale(scale);
 				});
 
 				EditorLayer::Get().GetActionStack().Do(action, false);
@@ -106,38 +106,57 @@ namespace OverEditor
 		{
 			UIElements::BeginFieldGroup();
 
-			auto& spriteRenderer = entity.GetComponent<SpriteRendererComponent>();
+			auto& sp = entity.GetComponent<SpriteRendererComponent>();
 
-			UIElements::Color4Field("Tint", "##Tint", glm::value_ptr(spriteRenderer.Tint));
-			UIElements::DragFloatField("AlphaClipThreshold", "##AlphaClipThreshold", &spriteRenderer.AlphaClipThreshold, 0.02f, 0.0f, 1.0f);
-			UIElements::Texture2DField("Sprite", "##Sprite", spriteRenderer.Sprite);
+			Color tint = sp.Tint;
+			static Color tintDelta(0.0f);
 
-			if (spriteRenderer.Sprite && spriteRenderer.Sprite->GetType() != TextureType::Placeholder)
+			if (UIElements::Color4Field("Tint", "##Tint", glm::value_ptr(tint)))
+				tintDelta += tint - sp.Tint;
+
+			if (ImGui::IsItemDeactivatedAfterEdit())
 			{
-				UIElements::CheckboxField("Flip.x", "##Flip.x", &spriteRenderer.Flip.x);
-				UIElements::CheckboxField("Flip.y", "##Flip.y", &spriteRenderer.Flip.y);
+				auto action = CreateRef<Vector4EditAction>(tintDelta, [entity]() mutable {
+					return entity.GetComponent<SpriteRendererComponent>().Tint;
+				}, [entity](const auto& col) mutable {
+					entity.GetComponent<SpriteRendererComponent>().Tint = col;
+				});
 
-				UIElements::DragFloat2Field("Tiling", "##Tiling", glm::value_ptr(spriteRenderer.Tiling), 0.02f);
-				UIElements::DragFloat2Field("Offset", "##Offset", glm::value_ptr(spriteRenderer.Offset), 0.02f);
+				EditorLayer::Get().GetActionStack().Do(action, false);
+				tintDelta = Vector4(0.0f);
+			}
+
+			sp.Tint = tint;
+
+			UIElements::DragFloatField("AlphaClipThreshold", "##AlphaClipThreshold", &sp.AlphaClipThreshold, 0.02f, 0.0f, 1.0f);
+			UIElements::Texture2DField("Sprite", "##Sprite", sp.Sprite);
+
+			if (sp.Sprite && sp.Sprite->GetType() != TextureType::Placeholder)
+			{
+				UIElements::CheckboxField("Flip.x", "##Flip.x", &sp.Flip.x);
+				UIElements::CheckboxField("Flip.y", "##Flip.y", &sp.Flip.y);
+
+				UIElements::DragFloat2Field("Tiling", "##Tiling", glm::value_ptr(sp.Tiling), 0.02f);
+				UIElements::DragFloat2Field("Offset", "##Offset", glm::value_ptr(sp.Offset), 0.02f);
 
 				static UIElements::EnumValues wrappingValues = {
 					{ 0, "None (Use texture default value)" }, { 1, "Repeat" },
 					{ 2, "MirroredRepeat" }, { 3, "ClampToEdge" },{ 4, "ClampToBorder" }
 				};
-				UIElements::BasicEnum("Wrapping.x", "##Wrapping.x", wrappingValues, (int8_t*)&spriteRenderer.Wrapping.x);
-				UIElements::BasicEnum("Wrapping.y", "##Wrapping.y", wrappingValues, (int8_t*)&spriteRenderer.Wrapping.y);
+				UIElements::BasicEnum("Wrapping.x", "##Wrapping.x", wrappingValues, (int8_t*)&sp.Wrapping.x);
+				UIElements::BasicEnum("Wrapping.y", "##Wrapping.y", wrappingValues, (int8_t*)&sp.Wrapping.y);
 
 				static UIElements::EnumValues filteringValues = {
 					{ 0, "None (Use texture default value)" }, { 1, "Point" }, { 2, "Linear" }
 				};
-				UIElements::BasicEnum("Filtering", "##Filtering", filteringValues, (int8_t*)&spriteRenderer.Filtering);
+				UIElements::BasicEnum("Filtering", "##Filtering", filteringValues, (int8_t*)&sp.Filtering);
 
 				UIElements::CheckboxField("OverrideTextureBorderColor (for ClampToBorder wrapping)",
-					"##OverrideTextureBorderColor", &spriteRenderer.TextureBorderColor.first);
+					"##OverrideTextureBorderColor", &sp.TextureBorderColor.first);
 
-				if (spriteRenderer.TextureBorderColor.first)
+				if (sp.TextureBorderColor.first)
 					UIElements::Color4Field("TextureBorderColor (for ClampToBorder wrapping)",
-						"##BorderColor", glm::value_ptr(spriteRenderer.TextureBorderColor.second));
+						"##BorderColor", glm::value_ptr(sp.TextureBorderColor.second));
 			}
 
 			UIElements::EndFieldGroup();

@@ -41,6 +41,31 @@ namespace OverEditor
 		SetterFn Setter;
 	};
 
+	struct Vector4EditAction : public Action
+	{
+		using GetterFn = std::function<Vector4()>;
+		using SetterFn = std::function<void(const Vector4&)>;
+
+		Vector4EditAction() = default;
+		Vector4EditAction(const Vector4& delta, const GetterFn& getter, const SetterFn& setter)
+			: Delta(delta), Getter(getter), Setter(setter) {}
+
+		virtual void Perform()
+		{
+			Setter(Getter() + Delta);
+		}
+
+		virtual void Revert()
+		{
+			Setter(Getter() - Delta);
+		}
+
+	private:
+		Vector4 Delta;
+		GetterFn Getter;
+		SetterFn Setter;
+	};
+
 	class ActionStack
 	{
 	public:
