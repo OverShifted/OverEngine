@@ -22,6 +22,7 @@ public:
 	EditorApp(int argc, char** argv)
 		: Application(GenApplicationProps())
 	{
+		ImGui::GetIO().IniFilename = nullptr;
 		ImGui::LoadIniSettingsFromMemory("");
 
 		PushLayer(new OverEditor::EditorLayer());
