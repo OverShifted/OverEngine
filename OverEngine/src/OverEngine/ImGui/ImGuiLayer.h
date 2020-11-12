@@ -21,14 +21,7 @@ namespace OverEngine
 		void Begin();
 		void End();
 
-		enum class ImGuiThemes
-		{
-			Dark, Light, Classic, // BuiltIn
-			DarkVariant1, DarkVariant2, PhotoshopLike,
-			OverDark, OverDark2
-		};
-
-		void ApplyTheme(ImGuiThemes theme);
+		void SetStyle();
 
 		void SetBlockEvents(bool block) { m_BlockEvents = block; }
 		bool GetBlockEvents() { return m_BlockEvents; }
