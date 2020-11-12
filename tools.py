@@ -6,7 +6,7 @@ fix = '--fix' in sys.argv
 
 def fix_files(files, check_extention=True):
 	for file_path in files:
-		if not check_extention or file_path.endswith('.cpp') or file_path.endswith('.h'):
+		if not check_extention or file_path.endswith('.cpp') or file_path.endswith('.h') or file_path.endswith('.glsl'):
 			print(f"Fixing {file_path}")
 			rs = open(file_path)
 			good = rs.read()
@@ -21,7 +21,9 @@ if fix:
 	fix_files(glob("OverEngine/src/**", recursive=True))
 	fix_files(glob("OverEngine/res/**", recursive=True))
 	fix_files(glob("OverEditor/src/**", recursive=True))
+	fix_files(glob("OverEditor/assets/**", recursive=True))
 	fix_files(glob("Sandbox/src/**", recursive=True))
+	fix_files(glob("Sandbox/assets/**", recursive=True))
 	fix_files(glob("**/**.lua", recursive=True), False)
 	fix_files(glob("**/imgui.ini", recursive=True), False)
 

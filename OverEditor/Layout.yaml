@@ -1,14 +1,14 @@
 - ID: 0x578caa54
   Parent: ~
   Flags: 1032
-  Position: [60, 142]
+  Position: [50, 165]
   Size: [1600, 841]
   SplitRatio: 0.723749995
   SplitAxis: 0
 - ID: 0x1
   Parent: 0x578caa54
   Flags: 8
-  Position: [60, 142]
+  Position: [50, 165]
   Size: [1158, 841]
   SplitRatio: 0.656361461
   SplitAxis: 1
@@ -19,19 +19,19 @@
     - Project Manager
     - Inspector
   SelectedTab: 0xf02cd328
-  Position: [1220, 142]
+  Position: [1210, 165]
   Size: [440, 841]
 - ID: 0x3
   Parent: 0x1
   Flags: 8
-  Position: [60, 142]
+  Position: [50, 165]
   Size: [1158, 552]
-  SplitRatio: 0.176165804
+  SplitRatio: 0.196891189
   SplitAxis: 0
 - ID: 0x4
   Parent: 0x1
   Flags: 8
-  Position: [60, 696]
+  Position: [50, 719]
   Size: [1158, 287]
   SplitRatio: 0.721070826
   SplitAxis: 0
@@ -41,23 +41,23 @@
   Tabs:
     - Scene Hierarchy
   SelectedTab: 0x9a68760c
-  Position: [60, 142]
-  Size: [204, 552]
+  Position: [50, 165]
+  Size: [228, 552]
 - ID: 0x6
   Parent: 0x3
   Flags: 2056
   Tabs:
     - Viewport
   SelectedTab: 0x995b0cf8
-  Position: [266, 142]
-  Size: [952, 552]
+  Position: [280, 165]
+  Size: [928, 552]
 - ID: 0x7
   Parent: 0x4
   Flags: 8
   Tabs:
     - Assets
   SelectedTab: 0x7e7d78b8
-  Position: [60, 696]
+  Position: [50, 719]
   Size: [835, 287]
 - ID: 0x8
   Parent: 0x4
@@ -66,5 +66,5 @@
     - Viewport Settings
     - Renderer2D
   SelectedTab: 0x7cd305fc
-  Position: [897, 696]
+  Position: [887, 719]
   Size: [321, 287]
