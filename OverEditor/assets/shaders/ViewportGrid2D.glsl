@@ -107,7 +107,7 @@ void main()
 	);
 
 	o_Color.rgb = vec3(1.0);
-	o_Color.rgb = (axes.x < 1e-8) ? o_Color.rgb : vec3(1.0, 0.0, 0.0);
-	o_Color.rgb = (axes.y < 1e-8) ? o_Color.rgb : vec3(0.0, 1.0, 0.0);
+	o_Color.rgb = (axes.x < 1e-5) ? o_Color.rgb : vec3(1.0, 0.0, 0.0);
+	o_Color.rgb = (axes.y < 1e-5) ? o_Color.rgb : vec3(0.0, 1.0, 0.0);
 	o_Color.a *= 1.0 - smoothstep(0.0, 0.5, clamp(gl_FragCoord.z * 2.0 - 1.0, 0.0, 1.0) - 0.5);
 }
