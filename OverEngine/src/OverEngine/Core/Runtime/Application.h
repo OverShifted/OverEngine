@@ -35,7 +35,7 @@ namespace OverEngine
 		inline static Application& Get() { return *s_Instance; }
 		ImGuiLayer* GetImGuiLayer() { return m_ImGuiLayer; }
 		inline Window& GetWindow() { return *m_Window; }
-	private:
+	protected:
 		bool OnWindowClose(WindowCloseEvent& e);
 		bool OnWindowResize(WindowResizeEvent& e);
 
@@ -46,7 +46,6 @@ namespace OverEngine
 
 		LayerStack  m_LayerStack;
 		ImGuiLayer* m_ImGuiLayer;
-	protected:
 		bool m_ImGuiEnabled = false;
 	private:
 		static Application* s_Instance;

@@ -1,5 +1,6 @@
 #define OE_CLIENT_INCLUDE_ENTRY_POINT
 #include <OverEngine.h>
+#include <imgui/imgui.h>
 
 #include "EditorLayer.h"
 
@@ -21,6 +22,8 @@ public:
 	EditorApp(int argc, char** argv)
 		: Application(GenApplicationProps())
 	{
+		ImGui::LoadIniSettingsFromMemory("");
+
 		PushLayer(new OverEditor::EditorLayer());
 		m_ImGuiEnabled = true;
 

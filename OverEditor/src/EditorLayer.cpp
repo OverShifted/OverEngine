@@ -9,6 +9,8 @@
 #include <imgui/imgui.h>
 #include <tinyfiledialogs/tinyfiledialogs.h>
 
+#include <OverEngine/ImGui/DockingLayout.h>
+
 namespace OverEditor
 {
 	EditorLayer* EditorLayer::s_Instance = nullptr;
@@ -89,49 +91,47 @@ namespace OverEditor
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-		ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.1f, 0.1f, 0.1f, 1));
 		ImGui::Begin("DockSpace", nullptr, window_flags);
 		ImGui::PopStyleVar(3);
 
 		ImGuiIO& io = ImGui::GetIO();
 		if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
 		{
-			ImGuiID dockspace_id = ImGui::GetID("MainDockSpace");
+			static ImGuiID dockspace_id = ImGui::GetID("MainDockSpace");
+			static DockingLayout dl;
+			static bool layoutLoaded = false;
+
+			ImGui::Dummy({ -1, 5 });
+
+			ImGui::Dummy({ 5, 1 });
+			ImGui::SameLine();
+
+			if (ImGui::Button("Save Layout"))
+			{
+				dl.Read(dockspace_id);
+				dl.Save("Layout.yaml");
+			}
+
+			ImGui::SameLine();
+
+			if (ImGui::Button("Load Layout") || !layoutLoaded)
+			{
+				layoutLoaded = true;
+
+				dl.Load("Layout.yaml");
+				dl.Apply(dockspace_id);
+			}
+
+			ImGui::Spacing();
+
 			ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);
 		}
 
 		ImGui::End();
-		ImGui::PopStyleColor();
-
-		// Toolbar
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 8.0f, 4.0f });
-		ImGui::Begin("Toolbar");
-		ImGui::PopStyleVar();
-
-		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{ 8.0f, 5.0f });
-
-		if (ImGui::Button("New Project"))
-			m_IsProjectManagerOpen = true;
-
-		ImGui::SameLine();
-
-		if (ImGui::Button("Open Project"))
-			m_IsProjectManagerOpen = true;
-
-		ImGui::SameLine();
-
-		if (m_SceneContext->Context && ImGui::Button("Save Scene"))
-		{
-			SceneSerializer sceneSerializer(m_SceneContext->Context);
-			sceneSerializer.Serialize(m_EditingProject->GetAssetsDirectoryPath() + m_SceneContext->ContextResourcePath);
-		}
-
-		ImGui::PopStyleVar();
-		ImGui::End();
 
 		OnProjectManagerGUI();
 
-		m_ConsolePanel.OnImGuiRender();
+		//m_ConsolePanel.OnImGuiRender();
 
 		if (m_EditingProject)
 		{
@@ -156,7 +156,7 @@ namespace OverEditor
 
 		EventDispatcher dispatcher(event);
 
- 		dispatcher.Dispatch<KeyPressedEvent>([this](KeyPressedEvent& event) -> bool {
+		dispatcher.Dispatch<KeyPressedEvent>([this](KeyPressedEvent& event) -> bool {
 
 			bool control = Input::IsKeyPressed(KeyCode::LeftControl) || Input::IsKeyPressed(KeyCode::RightControl);
 			bool shift = Input::IsKeyPressed(KeyCode::LeftShift) || Input::IsKeyPressed(KeyCode::RightShift);

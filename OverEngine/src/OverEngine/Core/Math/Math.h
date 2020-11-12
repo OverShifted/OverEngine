@@ -48,12 +48,12 @@ namespace OverEngine
 			float Radians = 0;
 		};
 
-		enum class Direction
+		enum class Direction : uint8_t
 		{
 			None, Up, Down, Right, Left
 		};
 
-		enum class Axis
+		enum class Axis : uint8_t
 		{
 			None, X, Y, Z
 		};
