@@ -90,7 +90,7 @@ SandboxECS::SandboxECS()
 	auto playerCollider = CreateRef<PhysicsCollider2D>();
 	playerCollider->GetShape()->SetAsBox({ 1.0f, 1.0f });
 	playerCollider->GetMaterial().Bounciness = 0.3f;
-	playerCollider->GetMaterial().Friction = 0.05f;
+	playerCollider->GetMaterial().Friction = 1.0f;
 	playerCollider->GetMaterial().Density = 200.0f;
 	playerColliderList.AddCollider(playerCollider);
 
