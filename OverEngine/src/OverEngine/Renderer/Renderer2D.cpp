@@ -12,14 +12,15 @@ namespace OverEngine
 		Vector4 a_Position = Vector4(0.0f);
 		Color a_Color = Color(0.0f);
 
-		float a_TextureSlot                   = -1.0f;
-		float a_TextureFilter                 = 0.0f;
-		float a_TextureAlphaClippingThreshold = 0.0f;
-		Vector2 a_TextureWrapping             = Vector2(0.0f);
-		Color a_TextureBorderColor            = Color(0.0f);
-		Rect a_TextureRect                    = Rect(0.0f);
-		Vector2 a_TextureSize                 = Vector2(0.0f);
-		Vector2 a_TextureCoord                = Vector2(0.0f);
+		float a_TexSlot                   = -1.0f;
+		float a_TexFilter                 = 0.0f;
+		float a_TexAlphaClippingThreshold = 0.0f;
+		Vector2 a_TexWrapping             = Vector2(0.0f);
+		Color a_TexBorderColor            = Color(0.0f);
+		Rect a_TexRect                    = Rect(0.0f);
+		Vector2 a_TexSize                 = Vector2(0.0f);
+		Vector2 a_TexCoord                = Vector2(0.0f);
+		Rect a_TexCoordRange              = Vector4(0.0f);
 	};
 
 	using DrawQuadVertices = std::array<Vertex, 4>;
@@ -123,14 +124,15 @@ namespace OverEngine
 			{ ShaderDataType::Float4, "a_Position" },
 			{ ShaderDataType::Float4, "a_Color" },
 
-			{ ShaderDataType::Float , "a_TextureSlot" },
-			{ ShaderDataType::Float , "a_TextureFilter" },
-			{ ShaderDataType::Float , "a_TextureAlphaClippingThreshold" },
-			{ ShaderDataType::Float2, "a_TextureWrapping" },
-			{ ShaderDataType::Float4, "a_TextureBorderColor" },
-			{ ShaderDataType::Float4, "a_TextureRect" },
-			{ ShaderDataType::Float2, "a_TextureSize" },
-			{ ShaderDataType::Float2, "a_TextureCoord" },
+			{ ShaderDataType::Float , "a_TexSlot" },
+			{ ShaderDataType::Float , "a_TexFilter" },
+			{ ShaderDataType::Float , "a_TexAlphaClippingThreshold" },
+			{ ShaderDataType::Float2, "a_TexWrapping" },
+			{ ShaderDataType::Float4, "a_TexBorderColor" },
+			{ ShaderDataType::Float4, "a_TexRect" },
+			{ ShaderDataType::Float2, "a_TexSize" },
+			{ ShaderDataType::Float2, "a_TexCoord" },
+			{ ShaderDataType::Float4, "a_TexCoordRange" },
 		});
 		s_Data->vertexArray->AddVertexBuffer(s_Data->vertexBuffer);
 
@@ -353,46 +355,55 @@ namespace OverEngine
 
 			vertex.a_Color = extraData.Tint;
 
-			// a_TextureSlot
-			vertex.a_TextureSlot = (float)textureSlot;
+			// a_TexSlot
+			vertex.a_TexSlot = (float)textureSlot;
 
-			// a_TextureFilter
+			// a_TexFilter
 			if (extraData.Filtering != TextureFiltering::None)
-				vertex.a_TextureFilter = (float)extraData.Filtering;
+				vertex.a_TexFilter = (float)extraData.Filtering;
 			else
-				vertex.a_TextureFilter = (float)texture->GetFiltering();
+				vertex.a_TexFilter = (float)texture->GetFiltering();
 
-			vertex.a_TextureAlphaClippingThreshold = extraData.AlphaClipThreshold;
+			vertex.a_TexAlphaClippingThreshold = extraData.AlphaClipThreshold;
 
-			// a_TextureSWrapping & a_TextureTWrapping
+			// a_TexSWrapping & a_TexTWrapping
 			if (extraData.Wrapping.x != TextureWrapping::None)
-				vertex.a_TextureWrapping.x = (float)extraData.Wrapping.x;
+				vertex.a_TexWrapping.x = (float)extraData.Wrapping.x;
 			else
-				vertex.a_TextureWrapping.x = (float)texture->GetXWrapping();
+				vertex.a_TexWrapping.x = (float)texture->GetXWrapping();
 
 			if (extraData.Wrapping.y != TextureWrapping::None)
-				vertex.a_TextureWrapping.y = (float)extraData.Wrapping.y;
+				vertex.a_TexWrapping.y = (float)extraData.Wrapping.y;
 			else
-				vertex.a_TextureWrapping.y = (float)texture->GetYWrapping();
+				vertex.a_TexWrapping.y = (float)texture->GetYWrapping();
 
-			// a_TextureBorderColor
+			// a_TexBorderColor
 			if (extraData.TextureBorderColor.first)
-				vertex.a_TextureBorderColor = extraData.TextureBorderColor.second;
+				vertex.a_TexBorderColor = extraData.TextureBorderColor.second;
 			else
-				vertex.a_TextureBorderColor = texture->GetBorderColor();
+				vertex.a_TexBorderColor = texture->GetBorderColor();
 
-			// a_TextureRect
-			vertex.a_TextureRect = texture->GetRect();
+			// a_TexRect
+			vertex.a_TexRect = texture->GetRect();
 
-			// a_TextureSize
-			vertex.a_TextureSize = { texture->GetWidth() ,texture->GetHeight() };
+			// a_TexSize
+			vertex.a_TexSize = { texture->GetWidth() ,texture->GetHeight() };
 
-			// a_TextureCoord
+			// a_TexCoord
 			{
 				float xTexCoord = Renderer2DData::QuadVertices[    3 * i] > 0.0f ? extraData.Tiling.x + extraData.Offset.x : extraData.Offset.x;
 				float yTexCoord = Renderer2DData::QuadVertices[1 + 3 * i] > 0.0f ? extraData.Tiling.y + extraData.Offset.y : extraData.Offset.y;
-				vertex.a_TextureCoord.x = extraData.Flip.x ? extraData.Tiling.x - xTexCoord : xTexCoord;
-				vertex.a_TextureCoord.y = extraData.Flip.y ? extraData.Tiling.y - yTexCoord : yTexCoord;
+				vertex.a_TexCoord.x = extraData.Flip.x ? extraData.Tiling.x - xTexCoord : xTexCoord;
+				vertex.a_TexCoord.y = extraData.Flip.y ? extraData.Tiling.y - yTexCoord : yTexCoord;
+
+				vertex.a_TexCoordRange.x = extraData.Flip.x ? extraData.Tiling.x - extraData.Offset.x : extraData.Offset.x; // Min X
+				vertex.a_TexCoordRange.y = extraData.Flip.y ? extraData.Tiling.y - extraData.Offset.y : extraData.Offset.y; // Min Y
+
+				float maxXTexCoord = extraData.Tiling.x + extraData.Offset.x;
+				float maxYTexCoord = extraData.Tiling.y + extraData.Offset.y;
+
+				vertex.a_TexCoordRange.z = extraData.Flip.x ? extraData.Tiling.x - maxXTexCoord : maxXTexCoord; // Max X
+				vertex.a_TexCoordRange.w = extraData.Flip.y ? extraData.Tiling.y - maxYTexCoord : maxYTexCoord; // Max Y
 			}
 		}
 
