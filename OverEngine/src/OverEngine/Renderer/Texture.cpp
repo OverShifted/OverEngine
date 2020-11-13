@@ -92,6 +92,24 @@ namespace OverEngine
 		return untitled;
 	}
 
+	uint32_t Texture2D::GetWidth() const
+	{
+		if (m_Type == TextureType::Master)
+			return __Texture2D_GetMasterTextureData.Width;
+		if (m_Type == TextureType::Subtexture)
+			return __Texture2D_GetSubTextureData.Rect.z;
+		return 0;
+	}
+
+	uint32_t Texture2D::GetHeight() const
+	{
+		if (m_Type == TextureType::Master)
+			return __Texture2D_GetMasterTextureData.Height;
+		if (m_Type == TextureType::Subtexture)
+			return __Texture2D_GetSubTextureData.Rect.w;
+		return 0;
+	}
+
 	Rect Texture2D::GetRect() const
 	{
 		Rect finalRect;

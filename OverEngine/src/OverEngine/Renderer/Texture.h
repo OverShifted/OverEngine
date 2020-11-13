@@ -105,8 +105,8 @@ namespace OverEngine
 
 		const String& GetName() const;
 
-		inline virtual uint32_t GetWidth() const override { __Texture2D_COMMON_GET(Width, 0); }
-		inline virtual uint32_t GetHeight() const override { __Texture2D_COMMON_GET(Height, 0); }
+		virtual uint32_t GetWidth() const override;
+		virtual uint32_t GetHeight() const override;
 
 		virtual TextureFiltering GetFiltering() const override { __Texture2D_COMMON_GET(Filtering, TextureFiltering::None); }
 		virtual void SetFiltering(TextureFiltering filtering) override { __Texture2D_COMMON_ASSERT(Filtering, filtering, "Filtering"); }
