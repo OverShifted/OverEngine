@@ -61,7 +61,7 @@ namespace OverEngine
 	struct SubTextureData
 	{
 		Ref<Texture2D> Parent;
-		OverEngine::Rect Rect;
+		glm::uvec4 Rect;
 	};
 
 	struct PlaceHolderTextureData
