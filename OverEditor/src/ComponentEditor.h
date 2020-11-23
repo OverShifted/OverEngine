@@ -265,7 +265,8 @@ namespace OverEditor
 
 			bool FixedRotation = false;
 			float GravityScale = 1.0f;
-			bool Bullet = false;*/
+			bool Bullet = false;
+			*/
 
 			UIElements::EndFieldGroup();
 		}
@@ -282,61 +283,72 @@ namespace OverEditor
 				{ 0, "Box" }, { 1, "Circle" }
 			};
 
-			for (auto& collider : pcc.Colliders)
+			auto colliderIt = pcc.Colliders.begin();
+			while (colliderIt != pcc.Colliders.end())
 			{
-				ImGui::PushID(&collider);
+				ImGui::PushID(&(*colliderIt));
 
-				ImGui::Button("X");
-				ImGui::SameLine();
-				bool open = ImGui::TreeNodeEx(&collider, ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_AllowItemOverlap, "Collider2D");
-
-				if (open)
+				if (ImGui::Button("X"))
 				{
-					UIElements::BeginFieldGroup();
-					
-					UIElements::BasicEnum("Type", "##Type", typeValues, (int*)&collider.Initializer.Shape.Type, collider.Collider ? ImGuiSelectableFlags_Disabled : 0);
-
-					if (!collider.Collider)
-					{
-						UIElements::DragFloat2Field("Offset", "##Offset", glm::value_ptr(collider.Initializer.Offset));
-						UIElements::DragFloatField("Rotation", "##Rotation", &collider.Initializer.Rotation);
-
-						if (collider.Initializer.Shape.Type == Collider2DType::Circle)
-						{
-							UIElements::DragFloatField("Radius", "##Radius", &collider.Initializer.Shape.CircleRadius);
-						}
-						else if (collider.Initializer.Shape.Type == Collider2DType::Box)
-						{
-							UIElements::DragFloat2Field("Size", "##Size", glm::value_ptr(collider.Initializer.Shape.BoxSize));
-						}
-					}
-					else
-					{
-						Vector2 offset = collider.Collider->GetOffset();
-						if (UIElements::DragFloat2Field("Offset", "##Offset", glm::value_ptr(offset)))
-							collider.Collider->SetOffset(offset);
-
-						float rotation = collider.Collider->GetRotation();
-						if (UIElements::DragFloatField("Rotation", "##Rotation", &rotation))
-							collider.Collider->SetRotation(rotation);
-
-						if (collider.Initializer.Shape.Type == Collider2DType::Circle)
-						{
-							float radius = collider.Collider->GetSizeHint().x;
-							if (UIElements::DragFloatField("Radius", "##Radius", &radius))
-								collider.Collider->ReShape(radius);
-						}
-						else if (collider.Initializer.Shape.Type == Collider2DType::Box)
-						{
-							auto size = collider.Collider->GetSizeHint();
-							if (UIElements::DragFloat2Field("Size", "##Size", glm::value_ptr(size)))
-								collider.Collider->ReShape(size);
-						}
-					}
-
-					UIElements::EndFieldGroup();
-					ImGui::TreePop();
+					colliderIt = pcc.Colliders.erase(colliderIt);
 				}
+				else
+				{
+					auto& collider = *colliderIt;
+					ImGui::SameLine();
+					bool open = ImGui::TreeNodeEx(&collider, ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_AllowItemOverlap, "Collider2D");
+
+					if (open)
+					{
+						UIElements::BeginFieldGroup();
+
+						UIElements::BasicEnum("Type", "##Type", typeValues, (int*)&collider.Initializer.Shape.Type, collider.Collider ? ImGuiSelectableFlags_Disabled : 0);
+
+						if (!collider.Collider)
+						{
+							UIElements::DragFloat2Field("Offset", "##Offset", glm::value_ptr(collider.Initializer.Offset));
+							UIElements::DragFloatField("Rotation", "##Rotation", &collider.Initializer.Rotation);
+
+							if (collider.Initializer.Shape.Type == Collider2DType::Circle)
+							{
+								UIElements::DragFloatField("Radius", "##Radius", &collider.Initializer.Shape.CircleRadius);
+							}
+							else if (collider.Initializer.Shape.Type == Collider2DType::Box)
+							{
+								UIElements::DragFloat2Field("Size", "##Size", glm::value_ptr(collider.Initializer.Shape.BoxSize));
+							}
+						}
+						else
+						{
+							Vector2 offset = collider.Collider->GetOffset();
+							if (UIElements::DragFloat2Field("Offset", "##Offset", glm::value_ptr(offset)))
+								collider.Collider->SetOffset(offset);
+
+							float rotation = collider.Collider->GetRotation();
+							if (UIElements::DragFloatField("Rotation", "##Rotation", &rotation))
+								collider.Collider->SetRotation(rotation);
+
+							if (collider.Initializer.Shape.Type == Collider2DType::Circle)
+							{
+								float radius = collider.Collider->GetSizeHint().x;
+								if (UIElements::DragFloatField("Radius", "##Radius", &radius))
+									collider.Collider->ReShape(radius);
+							}
+							else if (collider.Initializer.Shape.Type == Collider2DType::Box)
+							{
+								auto size = collider.Collider->GetSizeHint();
+								if (UIElements::DragFloat2Field("Size", "##Size", glm::value_ptr(size)))
+									collider.Collider->ReShape(size);
+							}
+						}
+
+						UIElements::EndFieldGroup();
+						ImGui::TreePop();
+					}
+
+					colliderIt++;
+				}
+
 				ImGui::PopID();
 			}
 
