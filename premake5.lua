@@ -1,10 +1,7 @@
-_32BitSupport = false
+support32Bit = false
 
 -- Windows only. for Linux, "on" is hardcoded
-StaticRuntime = "on"
-
-SandboxHideConsole    = false
-OverEditorHideConsole = false
+staticRuntime = "on"
 
 workspace "OverEngine"
 	startproject "OverEditor"
@@ -17,7 +14,7 @@ workspace "OverEngine"
 		"Dist"
 	}
 
-	if (_32BitSupport) then
+	if (support32Bit) then
 		platforms {"x86_64", "x86"}
 		filter "platforms:x86_64"
 			architecture "x86_64"
@@ -38,22 +35,22 @@ workspace "OverEngine"
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 -- include directories related to Solution folder
-IncludeDir = {}
-IncludeDir["GLFW"]         = "%{wks.location}/OverEngine/vendor/GLFW/include"
-IncludeDir["glad"]         = "%{wks.location}/OverEngine/vendor/glad/include"
-IncludeDir["spdlog"]       = "%{wks.location}/OverEngine/vendor/spdlog/include"
-IncludeDir["imgui"]        = "%{wks.location}/OverEngine/vendor/imgui"
-IncludeDir["glm"]          = "%{wks.location}/OverEngine/vendor/glm"
-IncludeDir["lua"]          = "%{wks.location}/OverEngine/vendor/lua/src"
-IncludeDir["stb_image"]    = "%{wks.location}/OverEngine/vendor/stb_image"
-IncludeDir["stb_rectpack"] = "%{wks.location}/OverEngine/vendor/stb_rectpack"
-IncludeDir["entt"]         = "%{wks.location}/OverEngine/vendor/entt/include"
-IncludeDir["box2d"]        = "%{wks.location}/OverEngine/vendor/box2d/include"
-IncludeDir["json"]         = "%{wks.location}/OverEngine/vendor/json/include"
-IncludeDir["fmt"]          = "%{wks.location}/OverEngine/vendor/fmt/include"
-IncludeDir["yaml_cpp"]     = "%{wks.location}/OverEngine/vendor/yaml-cpp/include"
+includeDir = {}
+includeDir["GLFW"]         = "%{wks.location}/OverEngine/vendor/GLFW/include"
+includeDir["glad"]         = "%{wks.location}/OverEngine/vendor/glad/include"
+includeDir["spdlog"]       = "%{wks.location}/OverEngine/vendor/spdlog/include"
+includeDir["imgui"]        = "%{wks.location}/OverEngine/vendor/imgui"
+includeDir["glm"]          = "%{wks.location}/OverEngine/vendor/glm"
+includeDir["lua"]          = "%{wks.location}/OverEngine/vendor/lua/src"
+includeDir["stb_image"]    = "%{wks.location}/OverEngine/vendor/stb_image"
+includeDir["stb_rectpack"] = "%{wks.location}/OverEngine/vendor/stb_rectpack"
+includeDir["entt"]         = "%{wks.location}/OverEngine/vendor/entt/include"
+includeDir["box2d"]        = "%{wks.location}/OverEngine/vendor/box2d/include"
+includeDir["json"]         = "%{wks.location}/OverEngine/vendor/json/include"
+includeDir["fmt"]          = "%{wks.location}/OverEngine/vendor/fmt/include"
+includeDir["yaml_cpp"]     = "%{wks.location}/OverEngine/vendor/yaml-cpp/include"
 
-LinkLibs = {
+linkLibs = {
 	"GLFW",
 	"glad",
 	"imgui",

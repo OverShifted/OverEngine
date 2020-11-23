@@ -44,19 +44,19 @@ project "OverEngine"
 		"src",
 		"res",
 		"vendor",
-		"%{IncludeDir.spdlog}",
-		"%{IncludeDir.GLFW}",
-		"%{IncludeDir.glad}",
-		"%{IncludeDir.imgui}",
-		"%{IncludeDir.glm}",
-		"%{IncludeDir.lua}",
-		"%{IncludeDir.stb_image}",
-		"%{IncludeDir.stb_rectpack}",
-		"%{IncludeDir.entt}",
-		"%{IncludeDir.box2d}",
-		"%{IncludeDir.json}",
-		"%{IncludeDir.fmt}",
-		"%{IncludeDir.yaml_cpp}",
+		"%{includeDir.spdlog}",
+		"%{includeDir.GLFW}",
+		"%{includeDir.glad}",
+		"%{includeDir.imgui}",
+		"%{includeDir.glm}",
+		"%{includeDir.lua}",
+		"%{includeDir.stb_image}",
+		"%{includeDir.stb_rectpack}",
+		"%{includeDir.entt}",
+		"%{includeDir.box2d}",
+		"%{includeDir.json}",
+		"%{includeDir.fmt}",
+		"%{includeDir.yaml_cpp}",
 	}
 
 	defines
@@ -66,7 +66,7 @@ project "OverEngine"
 
 	filter "system:windows"
 		systemversion "latest"
-		staticruntime (StaticRuntime)
+		staticruntime (staticRuntime)
 
 		files
 		{

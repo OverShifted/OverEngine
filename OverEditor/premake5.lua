@@ -1,9 +1,5 @@
 project "OverEditor"
-	if (OverEditorHideConsole) then
-		kind "WindowedApp"
-	else
-		kind "ConsoleApp"
-	end
+	kind "ConsoleApp"
 
 	language "C++"
 	cppdialect "C++17"
@@ -24,22 +20,22 @@ project "OverEditor"
 		"src",
 		"%{wks.location}/OverEngine/src",
 		"%{wks.location}/OverEngine/vendor",
-		"%{IncludeDir.spdlog}",
-		"%{IncludeDir.imgui}",
-		"%{IncludeDir.glm}",
-		"%{IncludeDir.entt}",
-		"%{IncludeDir.box2d}",
-		"%{IncludeDir.json}",
-		"%{IncludeDir.fmt}",
-		"%{IncludeDir.yaml_cpp}",
+		"%{includeDir.spdlog}",
+		"%{includeDir.imgui}",
+		"%{includeDir.glm}",
+		"%{includeDir.entt}",
+		"%{includeDir.box2d}",
+		"%{includeDir.json}",
+		"%{includeDir.fmt}",
+		"%{includeDir.yaml_cpp}",
 	}
 
 	links "OverEngine"
-	links (LinkLibs)
+	links (linkLibs)
 
 	filter "system:windows"
 		systemversion "latest"
-		staticruntime (StaticRuntime)
+		staticruntime (staticRuntime)
 		files "res/**.rc"
 
 	filter "system:linux"
