@@ -6,7 +6,7 @@
 #include "TransformComponent.h"
 
 #include "OverEngine/Renderer/Renderer2D.h"
-#include "OverEngine/Physics/PhysicsWorld2D.h"
+#include "OverEngine/Physics/PhysicWorld2D.h"
 #include "OverEngine/Assets/Texture2DAsset.h"
 
 #include "OverEngine/Core/Random.h"
@@ -19,8 +19,38 @@
 namespace OverEngine
 {
 	Scene::Scene(const SceneSettings& settings)
-		: m_PhysicsWorld2D(settings.physics2DSettings.gravity) // TODO: Move to OnScenePlay()
+		: m_PhysicWorld2D(nullptr)
 	{
+	}
+
+	template<typename T>
+	void CopyComponents(entt::registry& src, entt::registry& dst, Scene* dstScene)
+	{
+		// Copy
+		auto view = src.view<T>();
+		dst.insert<T>(view.data(), view.data() + view.size(), view.raw(), view.raw() + view.size());
+
+		dst.view<T>().each([&dstScene](entt::entity entity, T& component) {
+			component.AttachedEntity = { entity, dstScene };
+		});
+	}
+
+	#define CopyComponents(T) CopyComponents<T>(other.m_Registry, m_Registry, this);
+
+	Scene::Scene(Scene& other)
+		: m_Registry(), m_ViewportWidth(other.m_ViewportWidth), m_ViewportHeight(other.m_ViewportHeight),
+		  m_RootHandles(other.m_RootHandles), m_ComponentList(other.m_ComponentList)
+	{
+		const auto& reg = other.m_Registry;
+		m_Registry.assign(reg.data(), reg.data() + reg.size());
+
+		CopyComponents(NameComponent);
+		CopyComponents(IDComponent);
+		CopyComponents(TransformComponent);
+		CopyComponents(SpriteRendererComponent);
+		CopyComponents(CameraComponent);
+		CopyComponents(RigidBody2DComponent);
+		CopyComponents(Colliders2DComponent);
 	}
 
 	Scene::~Scene()
@@ -53,68 +83,90 @@ namespace OverEngine
 		OnRender();
 	}
 
-	void Scene::OnPhysicsUpdate(TimeStep DeltaTime)
+	static Ref<RigidBody2D> FindAttachedBody(Entity entity)
 	{
+		if (entity.HasComponent<RigidBody2DComponent>())
+			return entity.GetComponent<RigidBody2DComponent>().RigidBody;
+
+		if (entity.HasComponent<TransformComponent>())
+			if (auto parent = entity.GetComponent<TransformComponent>().GetParent())
+				return FindAttachedBody(parent);
+
+		return nullptr;
+	}
+
+	void Scene::InitializePhysics()
+	{
+		if (m_PhysicWorld2D)
+			delete m_PhysicWorld2D;
+
+		m_PhysicWorld2D = new PhysicWorld2D({ 0.0, -9.8 });
+
+		// Construct RigidBodies
+		m_Registry.view<RigidBody2DComponent>().each([this](entt::entity entity, auto& rbc) {
+
+			auto& tc = m_Registry.get<TransformComponent>(entity);
+			rbc.RigidBody = m_PhysicWorld2D->CreateRigidBody(rbc.Initializer);
+			rbc.RigidBody->SetPosition(tc.GetPosition());
+			rbc.RigidBody->SetRotation(tc.GetEulerAngles().z);
+
+		});
+
+		// Construct self-attached Colliders
+		m_Registry.view<Colliders2DComponent>().each([this](entt::entity entity, auto& pcc) {
+
+			Ref<RigidBody2D> rb = FindAttachedBody({ entity, this });
+			for (auto& collider : pcc.Colliders)
+			{
+				collider.Collider = rb->CreateCollider(collider.Initializer);
+			}
+
+		});
+	}
+
+	void Scene::OnPhysicsUpdate(TimeStep deltaTime)
+	{
+		if (!m_PhysicWorld2D)
+			return;
+
 		/////////////////////////////////////////////////////
 		// Physics & Transform //////////////////////////////
 		/////////////////////////////////////////////////////
 
-		// TODO: Mix everything in a Physics(2D)Component
-		// and remove this code
-		{
-			auto view = m_Registry.view<PhysicsColliders2DComponent>();
-			for (auto entity : view)
-			{
-				auto colliders = view.get<PhysicsColliders2DComponent>(entity);
-				for (const auto& collider : colliders.Colliders)
-				{
-					if (collider->m_Changed)
-					{
-						if (colliders.AttachedBody->m_BodyHandle)
-						{
-							colliders.AttachedBody->RemoveCollider(collider);
-							colliders.AttachedBody->AddCollider(collider);
-						}
-					}
-				}
-			}
-		}
-
 		// Update Physics
-		m_PhysicsWorld2D.OnUpdate(DeltaTime, 8, 3);
+		m_PhysicWorld2D->OnUpdate(deltaTime, 8, 3);
 
-		{
-			auto group = m_Registry.group<PhysicsBody2DComponent>(entt::get<TransformComponent>);
-			for (auto entity : group)
+		m_Registry.view<RigidBody2DComponent, TransformComponent>().each([](auto& rbc, auto& tc) {
+
+			if (rbc.RigidBody)
 			{
-				auto& body2D = group.get<PhysicsBody2DComponent>(entity);
-				auto& transform = group.get<TransformComponent>(entity);
+				rbc.RigidBody->SetEnabled(rbc.Enabled);
 
-				if (body2D.Enabled)
+				if (rbc.Enabled)
 				{
-					if (transform.m_ChangedFlags & TransformComponent::ChangedFlags_ChangedForPhysics)
+					if (tc.m_ChangedFlags & TransformComponent::ChangedFlags_ChangedForPhysics)
 					{
 						// Push changes to Box2D world
-						const auto& pos = transform.GetPosition();
-						body2D.Body->SetPosition({ pos.x, pos.y });
-						body2D.Body->SetRotation(glm::radians(transform.GetEulerAngles().z));
+						const auto& pos = tc.GetPosition();
+						rbc.RigidBody->SetPosition({ pos.x, pos.y });
+						rbc.RigidBody->SetRotation(glm::radians(tc.GetEulerAngles().z));
 					}
 					else
 					{
 						// Push changes to OverEngine transform system
-						transform.SetPosition(Vector3(body2D.Body->GetPosition(), 0));
-						const auto& angles = transform.GetEulerAngles();
-						transform.SetEulerAngles({ angles.x, angles.y, glm::degrees(body2D.Body->GetRotation()) });
+						tc.SetPosition(Vector3(rbc.RigidBody->GetPosition(), 0));
+						const auto& angles = tc.GetEulerAngles();
+						tc.SetEulerAngles({ angles.x, angles.y, glm::degrees(rbc.RigidBody->GetRotation()) });
 					}
 
 					// In both cases; we need to perform this
 					// 1. we've pushed the changes to physics system and we need to remove the flag
 					// 2. we've pushed the changes to OverEngine's transform system and it added the
 					//    flag which we don't want
-					transform.m_ChangedFlags ^= TransformComponent::ChangedFlags_ChangedForPhysics;
+					tc.m_ChangedFlags ^= TransformComponent::ChangedFlags_ChangedForPhysics;
 				}
 			}
-		}
+		});
 	}
 
 	void Scene::RenderSprites()

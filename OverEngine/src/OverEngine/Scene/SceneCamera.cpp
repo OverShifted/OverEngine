@@ -20,18 +20,18 @@ namespace OverEngine
 				});
 			}
 
-			ctx.AddEnumField(SerializableDataType::IntEnum, "SceneCamera::ProjectionType", &SceneCamera::m_ProjectionType, "ProjectionType");
+			ctx.AddEnumField(SerializableType::IntEnum, "SceneCamera::ProjectionType", &SceneCamera::m_ProjectionType, "ProjectionType");
 
-			ctx.AddField(SerializableDataType::Float, &SceneCamera::m_PerspectiveFOV, "PerspectiveFOV");
-			ctx.AddField(SerializableDataType::Float, &SceneCamera::m_PerspectiveNear, "PerspectiveNear");
-			ctx.AddField(SerializableDataType::Float, &SceneCamera::m_PerspectiveFar, "PerspectiveFar");
+			ctx.AddField(SerializableType::Float, &SceneCamera::m_PerspectiveFOV, "PerspectiveFOV");
+			ctx.AddField(SerializableType::Float, &SceneCamera::m_PerspectiveNear, "PerspectiveNear");
+			ctx.AddField(SerializableType::Float, &SceneCamera::m_PerspectiveFar, "PerspectiveFar");
 
-			ctx.AddField(SerializableDataType::Float, &SceneCamera::m_OrthographicSize, "OrthographicSize");
-			ctx.AddField(SerializableDataType::Float, &SceneCamera::m_OrthographicNear, "OrthographicNear");
-			ctx.AddField(SerializableDataType::Float, &SceneCamera::m_OrthographicFar, "OrthographicFar");
+			ctx.AddField(SerializableType::Float, &SceneCamera::m_OrthographicSize, "OrthographicSize");
+			ctx.AddField(SerializableType::Float, &SceneCamera::m_OrthographicNear, "OrthographicNear");
+			ctx.AddField(SerializableType::Float, &SceneCamera::m_OrthographicFar, "OrthographicFar");
 
-			ctx.AddField(SerializableDataType::Int8, &SceneCamera::m_ClearFlags, "ClearFlags");
-			ctx.AddField(SerializableDataType::Float4, &SceneCamera::m_ClearColor, "ClearColor");
+			ctx.AddField(SerializableType::Int8, &SceneCamera::m_ClearFlags, "ClearFlags");
+			ctx.AddField(SerializableType::Float4, &SceneCamera::m_ClearColor, "ClearColor");
 		}
 
 		return &ctx;

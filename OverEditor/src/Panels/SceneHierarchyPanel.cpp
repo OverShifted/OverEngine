@@ -141,6 +141,8 @@ namespace OverEditor
 				CheckComponentEditor<TransformComponent>(componentTypeID, selectedEntity);
 				CheckComponentEditor<SpriteRendererComponent>(componentTypeID, selectedEntity);
 				CheckComponentEditor<CameraComponent>(componentTypeID, selectedEntity);
+				CheckComponentEditor<RigidBody2DComponent>(componentTypeID, selectedEntity);
+				CheckComponentEditor<Colliders2DComponent>(componentTypeID, selectedEntity);
 			}
 
 			if (ImGui::Button("Add Component##Button", ImVec2(-1.0f, 40.0f)))
@@ -151,6 +153,8 @@ namespace OverEditor
 				CheckAddComponent<TransformComponent>(selectedEntity, "Transform Component##AddComponentPopup");
 				CheckAddComponent<SpriteRendererComponent>(selectedEntity, "SpriteRenderer Component##AddComponentPopup", nullptr);
 				CheckAddComponent<CameraComponent>(selectedEntity, "Camera Component##AddComponentPopup");
+				CheckAddComponent<RigidBody2DComponent>(selectedEntity, "RigidBody2D Component##AddComponentPopup");
+				CheckAddComponent<Colliders2DComponent>(selectedEntity, "Colliders2D Component##AddComponentPopup");
 
 				ImGui::EndPopup();
 			}
@@ -184,15 +188,21 @@ namespace OverEditor
 	{
 		Entity selectedEntity;
 
+		Scene* activeScene = m_Context->GetActiveScene();
 		Vector<entt::entity>* entityList;
+
 		if (parentEntity)
-			entityList = &(parentEntity.GetComponent<TransformComponent>().GetChildrenHandles());
+		{
+			entityList = &parentEntity.GetComponent<TransformComponent>().GetChildrenHandles();
+		}
 		else
-			entityList = &(m_Context->Context->GetRootHandles());
+		{
+			entityList = &activeScene->GetRootHandles();
+		}
 
 		for (auto entityHandle : *(entityList))
 		{
-			Entity entity{ entityHandle, m_Context->Context.get() };
+			Entity entity{ entityHandle, activeScene };
 
 			ImGuiTreeNodeFlags nodeFlags = OE_IMGUI_BASE_TREE_VIEW_FLAGS | ImGuiTreeNodeFlags_AllowItemOverlap;
 

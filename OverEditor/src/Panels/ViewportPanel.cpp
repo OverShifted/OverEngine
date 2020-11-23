@@ -93,21 +93,56 @@ namespace OverEditor
 	void ViewportPanel::OnImGuiRender()
 	{
 		ImGui::Begin("Viewport Settings");
-		ImGui::DragFloat("u_GridZoom", &gridZoom);
-		ImGui::DragFloat("u_LineKernel", &gridKernel);
+		{
+			ImGui::DragFloat("u_GridZoom", &gridZoom);
+			ImGui::DragFloat("u_LineKernel", &gridKernel);
 
-		if (ImGui::Button("Reload Grid Shader"))
-			s_Data->GridShader->Reload();
+			if (ImGui::Button("Reload Grid Shader"))
+				s_Data->GridShader->Reload();
+		}
 		ImGui::End();
 
 		if (m_Context->Context)
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0.0f, 0.0f });
 
-		ImGui::Begin("Viewport");
+		ImGui::Begin("Viewport", nullptr, ImGuiWindowFlags_MenuBar);
 
 		if (m_Context->Context)
 		{
 			ImGui::PopStyleVar();
+
+			ImGui::BeginMenuBar();
+			if (ImGui::Button(m_Context->Simulating ? "Stop" : "Start"))
+			{
+				OE_BOOL_SWAP(m_Context->Simulating);
+
+				if (m_Context->Simulating)
+				{
+					m_Context->SimulationScene = new Scene(*m_Context->Context);
+					m_Context->SimulationScene->InitializePhysics();
+
+					for (auto& selection : m_Context->SelectionContext)
+					{
+						selection = { selection.GetRuntimeID(), m_Context->SimulationScene };
+					}
+				}
+				else if (m_Context->SimulationScene)
+				{
+					delete m_Context->SimulationScene;
+					m_Context->SimulationScene = nullptr;
+
+					for (auto& selection : m_Context->SelectionContext)
+					{
+						selection = { selection.GetRuntimeID(), m_Context->Context.get() };
+					}
+				}
+			}
+
+			if (ImGui::Button(m_Context->SimulationRunning ? "Pause" : "Resume"))
+			{
+				OE_BOOL_SWAP(m_Context->SimulationRunning);
+			}
+			ImGui::EndMenuBar();
 
 			// Resize
 			ImVec2 panelSize = ImGui::GetContentRegionAvail();
@@ -201,13 +236,18 @@ namespace OverEditor
 
 		if (m_Context->Context)
 		{
+			Scene* scene = m_Context->GetActiveScene();
+
+			if (m_Context->SimulationRunning)
+				scene->OnPhysicsUpdate(Time::GetDeltaTime());
+
 			RenderCommand::SetClearColor(m_Camera.GetClearColor());
 			RenderCommand::Clear();
 			DrawGrid();
 			RenderCommand::Clear(ClearFlags_ClearDepth);
 
 			Renderer2D::BeginScene(glm::inverse(m_CameraTransform.GetMatrix()), m_Camera);
-			m_Context->Context->RenderSprites();
+			scene->RenderSprites();
 			Renderer2D::EndScene();
 		}
 		else

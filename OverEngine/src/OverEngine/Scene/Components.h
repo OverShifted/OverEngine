@@ -7,9 +7,9 @@
 #include "OverEngine/Core/Math/Math.h"
 #include "OverEngine/Core/Random.h"
 
-#include "OverEngine/Physics/PhysicsBody2D.h"
+#include "OverEngine/Physics/RigidBody2D.h"
 #include "OverEngine/Renderer/Texture.h"
-#include "OverEngine/Physics/PhysicsCollider2D.h"
+#include "OverEngine/Physics/Collider2D.h"
 
 #include "OverEngine/Scene/SceneCamera.h"
 
@@ -21,13 +21,13 @@ namespace OverEngine
 	{
 		NameComponent, IDComponent, ActivationComponent, TransformComponent,
 		CameraComponent, SpriteRendererComponent,
-		PhysicsBody2DComponent, PhysicsColliders2DComponent
+		RigidBody2DComponent, Colliders2DComponent
 	};
 
 	#define COMPONENT_TYPE(type) static ComponentType GetStaticType() { return ComponentType::type; }\
-								virtual ComponentType GetComponentType() const override { return GetStaticType(); }\
-								virtual const char* GetName() const override { return #type; }\
-								static const char* GetStaticName() { return #type; }
+								 virtual ComponentType GetComponentType() const override { return GetStaticType(); }\
+								 virtual const char* GetName() const override { return #type; }\
+								 static const char* GetStaticName() { return #type; }
 
 	struct Component
 	{
@@ -144,62 +144,50 @@ namespace OverEngine
 	// Physics Components //////////////////////////////////
 	////////////////////////////////////////////////////////
 
-	struct PhysicsBody2DComponent : public Component
+	struct RigidBody2DComponent : public Component
 	{
-		Ref<PhysicsBody2D> Body;
+		// Used as pre-runtime storage
+		RigidBody2DProps Initializer;
 
-		PhysicsBody2DComponent() = default;
-		PhysicsBody2DComponent(const PhysicsBody2DComponent&) = default;
+		// Used for runtime
+		Ref<RigidBody2D> RigidBody;
 
-		PhysicsBody2DComponent(Entity& entity, const PhysicsBodyProps& props);
+		RigidBody2DComponent() = default;
+		RigidBody2DComponent(const RigidBody2DComponent&) = default;
 
-		COMPONENT_TYPE(PhysicsBody2DComponent)
+		RigidBody2DComponent(Entity& entity, const RigidBody2DProps& props = RigidBody2DProps())
+			: Component(entity), Initializer(props) {}
+
+		~RigidBody2DComponent()
+		{
+			
+			AttachedEntity.GetScene()->GetPhysicWorld2D().DestroyRigidBody(RigidBody);
+		}
+
+		static SerializationContext* Reflect();
+
+		COMPONENT_TYPE(RigidBody2DComponent)
 	};
 
-	struct PhysicsColliders2DComponent : public Component
+	/**
+	 * Store's all colliders attached to an Entity
+	 */
+	struct Colliders2DComponent : public Component
 	{
-		Vector<Ref<PhysicsCollider2D>> Colliders;
-		Ref<PhysicsBody2D> AttachedBody;
-
-		PhysicsColliders2DComponent() = default;
-		PhysicsColliders2DComponent(const PhysicsColliders2DComponent&) = default;
-
-		PhysicsColliders2DComponent(Entity& entity)
-			: Component(entity)
+		struct ColliderData
 		{
-			if (entity.HasComponent<PhysicsBody2DComponent>())
-				AttachedBody = entity.GetComponent<PhysicsBody2DComponent>().Body;
-			else
-				AttachedBody = nullptr;
-		}
+			Collider2DProps Initializer;
+			Ref<Collider2D> Collider;
+		};
 
-		void AddCollider(const Ref<PhysicsCollider2D>& collider)
-		{
-			Colliders.push_back(collider);
+		Vector<ColliderData> Colliders;
 
-			if (AttachedBody)
-				AttachedBody->AddCollider(collider);
-		}
+		Colliders2DComponent() = default;
+		Colliders2DComponent(const Colliders2DComponent&) = default;
 
-		void RemoveCollider(const Ref<PhysicsCollider2D>& collider)
-		{
-			auto it = std::find(Colliders.begin(), Colliders.end(), collider);
-			if (it != Colliders.end())
-			{
-				if (AttachedBody)
-					AttachedBody->RemoveCollider(collider);
-				Colliders.erase(it);
-			}
-			else
-				OE_CORE_ASSERT(false, "Collider dosen't exist");
-		}
+		Colliders2DComponent(Entity & entity)
+			: Component(entity) {}
 
-		bool HasCollider(const Ref<PhysicsCollider2D>& collider)
-		{
-			auto it = std::find(Colliders.begin(), Colliders.end(), collider);
-			return it != Colliders.end();
-		}
-
-		COMPONENT_TYPE(PhysicsColliders2DComponent)
+		COMPONENT_TYPE(Colliders2DComponent)
 	};
 }

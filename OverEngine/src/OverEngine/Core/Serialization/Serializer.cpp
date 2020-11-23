@@ -14,53 +14,53 @@ namespace OverEngine
 			
 			switch (element.Type)
 			{
-			case SerializableDataType::Float:
+			case SerializableType::Float:
 				out[element.Name] = *(float*)item;
 				break;
-			case SerializableDataType::Float2:
+			case SerializableType::Float2:
 				out[element.Name].push_back(*(float*)item);
 				out[element.Name].push_back(*((float*)item + 1));
 				break;
-			case SerializableDataType::Float3:
+			case SerializableType::Float3:
 				for (uint32_t i = 0; i < 3; i++)
 					out[element.Name].push_back(*((float*)item + i));
 				break;
-			case SerializableDataType::Float4:
+			case SerializableType::Float4:
 				for (uint32_t i = 0; i < 4; i++)
 					out[element.Name].push_back(*((float*)item + i));
 				break;
-			case SerializableDataType::Int:
+			case SerializableType::Int:
 				out[element.Name] = *(int*)item;
 				break;
-			case SerializableDataType::UInt:
+			case SerializableType::UInt:
 				out[element.Name] = *(uint32_t*)item;
 				break;
-			case SerializableDataType::Int8:
+			case SerializableType::Int8:
 				out[element.Name] = (int)*(int8_t*)item;
 				break;
-			case SerializableDataType::UInt8:
+			case SerializableType::UInt8:
 				out[element.Name] = (int)*(uint8_t*)item;
 				break;
-			case SerializableDataType::IntEnum:
+			case SerializableType::IntEnum:
 				out[element.Name] = s_Enums[element.EnumName][*(int*)item];
 				break;
-			case SerializableDataType::UIntEnum:
+			case SerializableType::UIntEnum:
 				out[element.Name] = s_Enums[element.EnumName][(int)*(uint32_t*)item];
 				break;
-			case SerializableDataType::Int8Enum:
+			case SerializableType::Int8Enum:
 				out[element.Name] = s_Enums[element.EnumName][(int)*(int8_t*)item];
 				break;
-			case SerializableDataType::UInt8Enum:
+			case SerializableType::UInt8Enum:
 				out[element.Name] = s_Enums[element.EnumName][(int)*(uint8_t*)item];
 				break;
-			case SerializableDataType::Bool:
+			case SerializableType::Bool:
 				out[element.Name] = *(bool*)item;
 				break;
-			case SerializableDataType::String:
+			case SerializableType::String:
 				out[element.Name] = *(String*)item;
 				break;
 			default:
-				OE_CORE_ASSERT(false, "Unknown SerializableDataType!");
+				OE_CORE_ASSERT(false, "Unknown SerializableType!");
 				break;
 			}
 		}
@@ -74,50 +74,50 @@ namespace OverEngine
 
 			switch (element.Type)
 			{
-			case SerializableDataType::Float:
+			case SerializableType::Float:
 				out[element.Name] = *(float*)item;
 				break;
-			case SerializableDataType::Float2:
+			case SerializableType::Float2:
 				out[element.Name] = *(Vector2*)item;
 				break;
-			case SerializableDataType::Float3:
+			case SerializableType::Float3:
 				out[element.Name] = *(Vector3*)item;
 				break;
-			case SerializableDataType::Float4:
+			case SerializableType::Float4:
 				out[element.Name] = *(Vector4*)item;
 				break;
-			case SerializableDataType::Int:
+			case SerializableType::Int:
 				out[element.Name] = *(int*)item;
 				break;
-			case SerializableDataType::UInt:
+			case SerializableType::UInt:
 				out[element.Name] = *(uint32_t*)item;
 				break;
-			case SerializableDataType::Int8:
+			case SerializableType::Int8:
 				out[element.Name] = (int)*(int8_t*)item;
 				break;
-			case SerializableDataType::UInt8:
+			case SerializableType::UInt8:
 				out[element.Name] = (int)*(uint8_t*)item;
 				break;
-			case SerializableDataType::IntEnum:
+			case SerializableType::IntEnum:
 				out[element.Name] = s_Enums[element.EnumName][*(int*)item];
 				break;
-			case SerializableDataType::UIntEnum:
+			case SerializableType::UIntEnum:
 				out[element.Name] = s_Enums[element.EnumName][(int)*(uint32_t*)item];
 				break;
-			case SerializableDataType::Int8Enum:
+			case SerializableType::Int8Enum:
 				out[element.Name] = s_Enums[element.EnumName][(int)*(int8_t*)item];
 				break;
-			case SerializableDataType::UInt8Enum:
+			case SerializableType::UInt8Enum:
 				out[element.Name] = s_Enums[element.EnumName][(int)*(uint8_t*)item];
 				break;
-			case SerializableDataType::Bool:
+			case SerializableType::Bool:
 				out[element.Name] = *(bool*)item;
 				break;
-			case SerializableDataType::String:
+			case SerializableType::String:
 				out[element.Name] = *(String*)item;
 				break;
 			default:
-				OE_CORE_ASSERT(false, "Unknown SerializableDataType!");
+				OE_CORE_ASSERT(false, "Unknown SerializableType!");
 				break;
 			}
 		}
@@ -132,50 +132,50 @@ namespace OverEngine
 
 			switch (element.Type)
 			{
-			case SerializableDataType::Float:
+			case SerializableType::Float:
 				out << *(float*)item;
 				break;
-			case SerializableDataType::Float2:
+			case SerializableType::Float2:
 				out << *(Vector2*)item;
 				break;
-			case SerializableDataType::Float3:
+			case SerializableType::Float3:
 				out << *(Vector3*)item;
 				break;
-			case SerializableDataType::Float4:
+			case SerializableType::Float4:
 				out << *(Vector4*)item;
 				break;
-			case SerializableDataType::Int:
+			case SerializableType::Int:
 				out << *(int*)item;
 				break;
-			case SerializableDataType::UInt:
+			case SerializableType::UInt:
 				out << *(uint32_t*)item;
 				break;
-			case SerializableDataType::Int8:
+			case SerializableType::Int8:
 				out << (int)*(int8_t*)item;
 				break;
-			case SerializableDataType::UInt8:
+			case SerializableType::UInt8:
 				out << (int)*(uint8_t*)item;
 				break;
-			case SerializableDataType::IntEnum:
+			case SerializableType::IntEnum:
 				out << s_Enums[element.EnumName][*(int*)item];
 				break;
-			case SerializableDataType::UIntEnum:
+			case SerializableType::UIntEnum:
 				out << s_Enums[element.EnumName][(int)*(uint32_t*)item];
 				break;
-			case SerializableDataType::Int8Enum:
+			case SerializableType::Int8Enum:
 				out << s_Enums[element.EnumName][(int)*(int8_t*)item];
 				break;
-			case SerializableDataType::UInt8Enum:
+			case SerializableType::UInt8Enum:
 				out << s_Enums[element.EnumName][(int)*(uint8_t*)item];
 				break;
-			case SerializableDataType::Bool:
+			case SerializableType::Bool:
 				out << *(bool*)item;
 				break;
-			case SerializableDataType::String:
+			case SerializableType::String:
 				out << *(String*)item;
 				break;
 			default:
-				OE_CORE_ASSERT(false, "Unknown SerializableDataType!");
+				OE_CORE_ASSERT(false, "Unknown SerializableType!");
 				out << YAML::Null;
 				break;
 			}

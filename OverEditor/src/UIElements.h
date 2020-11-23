@@ -43,7 +43,7 @@ namespace OverEditor
 		using EnumValues = Map<int, String>;
 
 		template <typename T>
-		static bool BasicEnum(const char* fieldName, const char* fieldID, EnumValues& values, T* currentValue);
+		static bool BasicEnum(const char* fieldName, const char* fieldID, EnumValues& values, T* currentValue, const ImGuiSelectableFlags& flags = 0);
 
 		// Drag and drop
 		static void Texture2DField(const char* fieldName, const char* fieldID, Ref<Texture2D>& texture);
@@ -140,7 +140,7 @@ namespace OverEditor
 	}
 
 	template <typename T>
-	bool UIElements::BasicEnum(const char* fieldName, const char* fieldID, EnumValues& values, T* currentValue)
+	bool UIElements::BasicEnum(const char* fieldName, const char* fieldID, EnumValues& values, T* currentValue, const ImGuiSelectableFlags& flags)
 	{
 		ImGui::TextUnformatted(fieldName);
 		ImGui::NextColumn();
@@ -152,7 +152,7 @@ namespace OverEditor
 			for (const auto& value : values)
 			{
 				const bool selected = (value.first == *currentValue);
-				if (ImGui::Selectable(value.second.c_str(), selected))
+				if (ImGui::Selectable(value.second.c_str(), selected, flags))
 				{
 					*currentValue = value.first;
 					changed = true;

@@ -2,7 +2,7 @@
 
 #include "OverEngine/Core/Time/TimeStep.h"
 #include "OverEngine/Core/Random.h"
-#include "OverEngine/Physics/PhysicsWorld2D.h"
+#include "OverEngine/Physics/PhysicWorld2D.h"
 #include "OverEngine/Assets/AssetCollection.h"
 
 #include <entt.hpp>
@@ -29,6 +29,7 @@ namespace OverEngine
 	{
 	public:
 		Scene(const SceneSettings& settings = SceneSettings());
+		Scene(Scene& other);
 		~Scene();
 
 		Entity CreateEntity(const String& name = String(), uint64_t uuid = Random::UInt64());
@@ -50,6 +51,7 @@ namespace OverEngine
 
 		void OnUpdate(TimeStep deltaTime);
 
+		void InitializePhysics();
 		void OnPhysicsUpdate(TimeStep DeltaTime);
 
 		// Rendering
@@ -59,8 +61,8 @@ namespace OverEngine
 
 		void LoadReferences(AssetCollection& assetCollection);
 
-		inline PhysicsWorld2D& GetPhysicsWorld2D() { return m_PhysicsWorld2D; }
-		inline const PhysicsWorld2D& GetPhysicsWorld2D() const { return m_PhysicsWorld2D; }
+		inline PhysicWorld2D& GetPhysicWorld2D() { return *m_PhysicWorld2D; }
+		inline const PhysicWorld2D& GetPhysicWorld2D() const { return *m_PhysicWorld2D; }
 
 		inline const Vector<entt::entity>& GetRootHandles() const { return m_RootHandles; }
 		inline Vector<entt::entity>& GetRootHandles() { return m_RootHandles; }
@@ -68,7 +70,7 @@ namespace OverEngine
 		inline uint32_t GetEntityCount() const;
 	private:
 		entt::registry m_Registry;
-		PhysicsWorld2D m_PhysicsWorld2D;
+		PhysicWorld2D* m_PhysicWorld2D = nullptr;
 
 		uint32_t m_ViewportWidth = 0, m_ViewportHeight = 0; // TODO: set viewport size for new camera components
 

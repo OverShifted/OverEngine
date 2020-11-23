@@ -109,9 +109,9 @@ namespace OverEngine
 			{
 				initialized = true;
 
-				ctx.AddField(SerializableDataType::Float3, OffsetOf(&TransformComponent::m_LocalToParent) + 12 * sizeof(float), "m_LocalPosition");
-				ctx.AddField(SerializableDataType::Float3, SERIALIZE_FIELD(TransformComponent, m_LocalEulerAngles));
-				ctx.AddField(SerializableDataType::Float3, SERIALIZE_FIELD(TransformComponent, m_LocalScale));
+				ctx.AddField(SerializableType::Float3, OffsetOf(&TransformComponent::m_LocalToParent) + 12 * sizeof(float), "m_LocalPosition");
+				ctx.AddField(SerializableType::Float3, SERIALIZE_FIELD(TransformComponent, m_LocalEulerAngles));
+				ctx.AddField(SerializableType::Float3, SERIALIZE_FIELD(TransformComponent, m_LocalScale));
 			}
 
 			return &ctx;

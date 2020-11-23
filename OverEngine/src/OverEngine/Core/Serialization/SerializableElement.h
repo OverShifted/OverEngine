@@ -4,7 +4,7 @@
 
 namespace OverEngine
 {
-	enum class SerializableDataType
+	enum class SerializableType
 	{
 		None = 0,
 		// Float components
@@ -19,14 +19,14 @@ namespace OverEngine
 	struct SerializableElement
 	{
 		String Name = String();
-		SerializableDataType Type = SerializableDataType::None;
+		SerializableType Type = SerializableType::None;
 		uint32_t Offset = 0;
 
 		String EnumName = String();
 
 		SerializableElement() = default;
 
-		SerializableElement(SerializableDataType type, const String& name = String())
+		SerializableElement(SerializableType type, const String& name = String())
 			: Name(name), Type(type) {}
 	};
 
@@ -37,12 +37,12 @@ namespace OverEngine
 		SerializationContext() = default;
 
 		template<typename T, typename U>
-		void AddField(SerializableDataType type, U T::* member, const String& name = String())
+		void AddField(SerializableType type, U T::* member, const String& name = String())
 		{
 			AddField(type, OffsetOf(member), name);
 		}
 
-		void AddField(SerializableDataType type, uint32_t offset, const String& name = String())
+		void AddField(SerializableType type, uint32_t offset, const String& name = String())
 		{
 			SerializableElement elem(type, name);
 			elem.Offset = offset;
@@ -50,12 +50,12 @@ namespace OverEngine
 		}
 
 		template<typename T, typename U>
-		void AddEnumField(SerializableDataType type, const String& enumName, U T::* member, const String& name = String())
+		void AddEnumField(SerializableType type, const String& enumName, U T::* member, const String& name = String())
 		{
 			AddEnumField(type, enumName, OffsetOf(member), name);
 		}
 
-		void AddEnumField(SerializableDataType type, const String& enumName, uint32_t offset, const String& name = String())
+		void AddEnumField(SerializableType type, const String& enumName, uint32_t offset, const String& name = String())
 		{
 			SerializableElement elem(type, name);
 			elem.Offset = offset;

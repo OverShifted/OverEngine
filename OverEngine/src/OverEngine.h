@@ -41,11 +41,9 @@
 // -----------------------------------
 
 // ------- Physics -------------------
-#include "OverEngine/Physics/PhysicsWorld2D.h"
-#include "OverEngine/Physics/PhysicsBody2D.h"
-#include "OverEngine/Physics/PhysicsCollider2D.h"
-#include "OverEngine/Physics/PhysicsShape2D.h"
-#include "OverEngine/Physics/PhysicsMaterial2D.h"
+#include "OverEngine/Physics/PhysicWorld2D.h"
+#include "OverEngine/Physics/RigidBody2D.h"
+#include "OverEngine/Physics/Collider2D.h"
 // -----------------------------------
 
 // ------- Input ---------------------

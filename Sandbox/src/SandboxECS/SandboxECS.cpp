@@ -80,19 +80,20 @@ SandboxECS::SandboxECS()
 	// SpriteRenderer
 	m_Player.AddComponent<SpriteRendererComponent>(m_Sprite);
 
-	// PhysicsBody2D
-	PhysicsBodyProps props;
-	props.Type = PhysicsBodyType::Dynamic;
-	m_Player.AddComponent<PhysicsBody2DComponent>(props);
+	// RigidBody2D
+	RigidBody2DProps props;
+	props.Type = RigidBody2DType::Dynamic;
+	m_Player.AddComponent<RigidBody2DComponent>(props);
 
-	// PhysicsCollider2D
-	auto& playerColliderList = m_Player.AddComponent<PhysicsColliders2DComponent>();
-	auto playerCollider = CreateRef<PhysicsCollider2D>();
-	playerCollider->GetShape()->SetAsBox({ 1.0f, 1.0f });
-	playerCollider->GetMaterial().Bounciness = 0.3f;
-	playerCollider->GetMaterial().Friction = 1.0f;
-	playerCollider->GetMaterial().Density = 200.0f;
-	playerColliderList.AddCollider(playerCollider);
+	// Collider2D
+	auto& playerColliderList = m_Player.AddComponent<Colliders2DComponent>();
+	Collider2DProps cprops;
+	cprops.Shape.Type = Collider2DType::Box;
+	cprops.Shape.BoxSize = { 1.0f, 1.0f };
+	cprops.Bounciness = 0.3f;
+	cprops.Friction = 1.0f;
+	cprops.Density = 1.0f;
+	playerColliderList.Colliders.push_back({ cprops, nullptr });
 
 	////////////////////////////////////////////////////////////////
 	// Obstacle ////////////////////////////////////////////////////
@@ -106,21 +107,25 @@ SandboxECS::SandboxECS()
 	spriteRenderer.Wrapping.x = TextureWrapping::Repeat;
 	spriteRenderer.Wrapping.y = TextureWrapping::Repeat;
 
-	// PhysicsBody2D
-	PhysicsBodyProps obstacleBodyProps;
-	obstacleBodyProps.Type = PhysicsBodyType::Static;
-	obstacle.AddComponent<PhysicsBody2DComponent>(obstacleBodyProps);
+	// RigidBody2D
+	RigidBody2DProps obstacleBodyProps;
+	obstacleBodyProps.Type = RigidBody2DType::Static;
+	obstacle.AddComponent<RigidBody2DComponent>(obstacleBodyProps);
 
 	auto& obstacleTransform = obstacle.GetComponent<TransformComponent>();
 	obstacleTransform.SetLocalPosition({ 0.0f, -2.0f, 0.0f });
 	obstacleTransform.SetLocalScale({ 4.0f, 1.0f, 1.0f });
 	obstacleTransform.SetLocalEulerAngles({ 0.0f, 0.0f, 45.0f });
 
-	// PhysicsCollider2D
-	auto& colliderList = obstacle.AddComponent<PhysicsColliders2DComponent>();
-	auto collider = CreateRef<PhysicsCollider2D>();
-	collider->GetShape()->SetAsBox({ 4.0f, 1.0f });
-	colliderList.AddCollider(collider);
+	// Collider2D
+	auto& colliderList = obstacle.AddComponent<Colliders2DComponent>();
+	Collider2DProps obscprops;
+	obscprops.Shape.Type = Collider2DType::Box;
+	obscprops.Shape.BoxSize = { 4.0f, 1.0f };
+	obscprops.Bounciness = 0.3f;
+	obscprops.Friction = 1.0f;
+	obscprops.Density = 200.0f;
+	colliderList.Colliders.push_back({ obscprops, nullptr });
 
 	////////////////////////////////////////////////////////////////
 	// Obstacle2 ///////////////////////////////////////////////////
@@ -134,21 +139,25 @@ SandboxECS::SandboxECS()
 	spriteRenderer2.Wrapping.x = TextureWrapping::Repeat;
 	spriteRenderer2.Wrapping.y = TextureWrapping::Repeat;
 
-	// PhysicsBody2D
-	PhysicsBodyProps obstacle2BodyProps;
-	obstacle2BodyProps.Type = PhysicsBodyType::Static;
-	obstacle2.AddComponent<PhysicsBody2DComponent>(obstacle2BodyProps);
+	// RigidBody2D
+	RigidBody2DProps obstacle2BodyProps;
+	obstacle2BodyProps.Type = RigidBody2DType::Static;
+	obstacle2.AddComponent<RigidBody2DComponent>(obstacle2BodyProps);
 
 
 	auto& obstacle2Transform = obstacle2.GetComponent<TransformComponent>();
 	obstacle2Transform.SetLocalScale({ 40.0f, 1.0f, 1.0f });
 	obstacle2Transform.SetLocalPosition({ 0.0f, -8.0f, 0.0f });
 
-	// PhysicsCollider2D
-	auto& colliderList2 = obstacle2.AddComponent<PhysicsColliders2DComponent>();
-	auto collider2 = CreateRef<PhysicsCollider2D>();
-	collider2->GetShape()->SetAsBox({ 40.0f, 1.0f });
-	colliderList2.AddCollider(collider2);
+	// Collider2D
+	auto& colliderList2 = obstacle2.AddComponent<Colliders2DComponent>();
+	Collider2DProps obs2cprops;
+	obs2cprops.Shape.Type = Collider2DType::Box;
+	obs2cprops.Shape.BoxSize = { 40.0f, 1.0f };
+	obs2cprops.Bounciness = 0.3f;
+	obs2cprops.Friction = 1.0f;
+	obs2cprops.Density = 200.0f;
+	colliderList2.Colliders.push_back({ obs2cprops, nullptr });
 
 	////////////////////////////////////////////////////////////////
 	// Main Camera /////////////////////////////////////////////////
@@ -160,6 +169,8 @@ SandboxECS::SandboxECS()
 	m_MainCameraCameraHandle = &m_MainCamera.AddComponent<CameraComponent>().Camera;
 	m_MainCameraCameraHandle->SetOrthographic(10.0f, -1.0f, 1.0f);
 	m_MainCameraTransform = &m_MainCamera.GetComponent<TransformComponent>();
+
+	m_Scene->InitializePhysics();
 	#pragma endregion
 }
 

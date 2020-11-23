@@ -33,8 +33,12 @@ namespace OverEditor
 			Vector3 rotation = tc.GetLocalEulerAngles();
 			Vector3 scale = tc.GetLocalScale();
 
+			bool changed = false;
 			if (UIElements::DragFloat3Field("Position", "##Position", glm::value_ptr(position), 0.2f))
+			{
 				positionDelta += position - tc.GetLocalPosition();
+				changed = true;
+			}
 
 			if (ImGui::IsItemDeactivatedAfterEdit())
 			{
@@ -48,10 +52,15 @@ namespace OverEditor
 				positionDelta = Vector3(0.0f);
 			}
 
-			tc.SetLocalPosition(position);
+			if (changed)
+				tc.SetLocalPosition(position);
 
+			changed = false;
 			if (UIElements::DragFloat3Field("Rotation", "##Rotation", glm::value_ptr(rotation), 0.2f))
+			{
 				rotationDelta += rotation - tc.GetLocalEulerAngles();
+				changed = true;
+			}
 
 			if (ImGui::IsItemDeactivatedAfterEdit())
 			{
@@ -65,10 +74,15 @@ namespace OverEditor
 				rotationDelta = Vector3(0.0f);
 			}
 
-			tc.SetLocalEulerAngles(rotation);
+			if (changed)
+				tc.SetLocalEulerAngles(rotation);
 
+			changed = false;
 			if (UIElements::DragFloat3Field("Scale", "##Scale", glm::value_ptr(scale), 0.2f))
+			{
 				scaleDelta += scale - tc.GetLocalScale();
+				changed = true;
+			}
 
 			if (ImGui::IsItemDeactivatedAfterEdit())
 			{
@@ -82,7 +96,8 @@ namespace OverEditor
 				scaleDelta = Vector3(0.0f);
 			}
 
-			tc.SetLocalScale(scale);
+			if (changed)
+				tc.SetLocalScale(scale);
 
 			UIElements::EndFieldGroup();
 
@@ -195,6 +210,143 @@ namespace OverEditor
 			UIElements::CheckboxFlagsField<uint8_t>("Is Clearing Depth", "##Is Clearing Depth", (uint8_t*)&camera.Camera.GetClearFlags(), ClearFlags_ClearDepth);
 
 			UIElements::EndFieldGroup();
+		}
+	}
+	
+	template <>
+	void ComponentEditor<RigidBody2DComponent>(Entity entity, uint32_t typeID)
+	{
+		if (UIElements::BeginComponentEditor<RigidBody2DComponent>(entity, "RigidBody2D Component", typeID))
+		{
+			auto& rbc = entity.GetComponent<RigidBody2DComponent>();
+
+			UIElements::BeginFieldGroup();
+			
+			static UIElements::EnumValues typeValues = {
+				{ 0, "Static" }, { 1, "Kinematic" }, { 2,"Dynamic" }
+			};
+
+			if (!rbc.RigidBody)
+			{
+				UIElements::BasicEnum("Type", "##Type", typeValues, (uint8_t*)&rbc.Initializer.Type);
+
+				UIElements::DragFloat2Field("LinearVelocity", "##LinearVelocity", glm::value_ptr(rbc.Initializer.LinearVelocity));
+				UIElements::DragFloatField("AngularVelocity", "##AngularVelocity", &rbc.Initializer.AngularVelocity);
+
+				UIElements::DragFloatField("LinearDamping", "##LinearDamping", &rbc.Initializer.LinearDamping);
+				UIElements::DragFloatField("AngularDamping", "##AngularDamping", &rbc.Initializer.AngularDamping);
+
+			}
+			else // Simulation Running?
+			{
+				auto type = rbc.RigidBody->GetType();
+				if (UIElements::BasicEnum("Type", "##Type", typeValues, (uint8_t*)&type))
+					rbc.RigidBody->SetType(type);
+
+				if (type != RigidBody2DType::Static)
+				{
+					auto linearVelocity = rbc.RigidBody->GetLinearVelocity();
+					if (UIElements::DragFloat2Field("LinearVelocity", "##LinearVelocity", glm::value_ptr(linearVelocity)))
+						rbc.RigidBody->SetLinearVelocity(linearVelocity);
+
+					auto angularVelocity = rbc.RigidBody->GetAngularVelocity();
+					if (UIElements::DragFloatField("AngularVelocity", "##AngularVelocity", &angularVelocity))
+						rbc.RigidBody->SetAngularVelocity(angularVelocity);
+				}
+			}
+
+			/*
+			float LinearDamping = 0.0f;
+			float AngularDamping = 0.0f;
+
+			bool AllowSleep = true;
+			bool Awake = true;
+			bool Enabled = true;
+
+			bool FixedRotation = false;
+			float GravityScale = 1.0f;
+			bool Bullet = false;*/
+
+			UIElements::EndFieldGroup();
+		}
+	}
+
+	template <>
+	void ComponentEditor<Colliders2DComponent>(Entity entity, uint32_t typeID)
+	{
+		if (UIElements::BeginComponentEditor<Colliders2DComponent>(entity, "Colliders2D Component", typeID))
+		{
+			auto& pcc = entity.GetComponent<Colliders2DComponent>();
+
+			static UIElements::EnumValues typeValues = {
+				{ 0, "Box" }, { 1, "Circle" }
+			};
+
+			for (auto& collider : pcc.Colliders)
+			{
+				ImGui::PushID(&collider);
+
+				ImGui::Button("X");
+				ImGui::SameLine();
+				bool open = ImGui::TreeNodeEx(&collider, ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_AllowItemOverlap, "Collider2D");
+
+				if (open)
+				{
+					UIElements::BeginFieldGroup();
+					
+					UIElements::BasicEnum("Type", "##Type", typeValues, (int*)&collider.Initializer.Shape.Type, collider.Collider ? ImGuiSelectableFlags_Disabled : 0);
+
+					if (!collider.Collider)
+					{
+						UIElements::DragFloat2Field("Offset", "##Offset", glm::value_ptr(collider.Initializer.Offset));
+						UIElements::DragFloatField("Rotation", "##Rotation", &collider.Initializer.Rotation);
+
+						if (collider.Initializer.Shape.Type == Collider2DType::Circle)
+						{
+							UIElements::DragFloatField("Radius", "##Radius", &collider.Initializer.Shape.CircleRadius);
+						}
+						else if (collider.Initializer.Shape.Type == Collider2DType::Box)
+						{
+							UIElements::DragFloat2Field("Size", "##Size", glm::value_ptr(collider.Initializer.Shape.BoxSize));
+						}
+					}
+					else
+					{
+						Vector2 offset = collider.Collider->GetOffset();
+						if (UIElements::DragFloat2Field("Offset", "##Offset", glm::value_ptr(offset)))
+							collider.Collider->SetOffset(offset);
+
+						float rotation = collider.Collider->GetRotation();
+						if (UIElements::DragFloatField("Rotation", "##Rotation", &rotation))
+							collider.Collider->SetRotation(rotation);
+
+						if (collider.Initializer.Shape.Type == Collider2DType::Circle)
+						{
+							float radius = collider.Collider->GetSizeHint().x;
+							if (UIElements::DragFloatField("Radius", "##Radius", &radius))
+								collider.Collider->ReShape(radius);
+						}
+						else if (collider.Initializer.Shape.Type == Collider2DType::Box)
+						{
+							auto size = collider.Collider->GetSizeHint();
+							if (UIElements::DragFloat2Field("Size", "##Size", glm::value_ptr(size)))
+								collider.Collider->ReShape(size);
+						}
+					}
+
+					UIElements::EndFieldGroup();
+					ImGui::TreePop();
+				}
+				ImGui::PopID();
+			}
+
+			if (ImGui::Button("Add Collider", { -1, 0 }))
+			{
+				Collider2DProps props;
+				props.Shape.Type = Collider2DType::Box;
+				props.Shape.BoxSize = { 1.0f, 1.0f };
+				pcc.Colliders.push_back({ props, nullptr });
+			}
 		}
 	}
 }
