@@ -136,6 +136,7 @@ namespace OverEditor
 
 			// Resize
 			ImVec2 panelSize = ImGui::GetContentRegionAvail();
+			m_PanelPos = IMVEC2_2_VECTOR2(ImGui::GetCursorPos());
 			if (m_PanelSize.x != panelSize.x || m_PanelSize.y != panelSize.y)
 			{
 				m_PanelSize = IMVEC2_2_VECTOR2(panelSize);
@@ -333,9 +334,10 @@ namespace OverEditor
 			{
 				auto mousePos = ImGui::GetMousePos();
 				auto winPos = ImGui::GetWindowPos();
-				auto winSize = ImGui::GetWindowSize();
 
-				Vector2 n(((mousePos.x - winPos.x) / winSize.x - 0.5f) * 2, -((mousePos.y - winPos.y) / winSize.y - 0.5f) * 2);
+				Vector2 n;
+				n.x =  ((mousePos.x - (winPos.x + m_PanelPos.x)) / m_PanelSize.x - 0.5f) * 2;
+				n.y = -((mousePos.y - (winPos.y + m_PanelPos.y)) / m_PanelSize.y - 0.5f) * 2;
 
 				Vector4 rayStart, rayEnd;
 				Mat4x4 viewProjInverse = glm::inverse(m_Camera.GetProjection() * glm::inverse(m_CameraTransform.GetMatrix()));

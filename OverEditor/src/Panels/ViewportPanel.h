@@ -47,6 +47,7 @@ namespace OverEditor
 		Ref<SceneEditor> m_Context;
 		Ref<FrameBuffer> m_FrameBuffer;
 		Vector2 m_PanelSize = { 0, 0 };
+		Vector2 m_PanelPos = { 0, 0 };
 
 		// Navigation
 		bool m_FDownLastFrame = false;
