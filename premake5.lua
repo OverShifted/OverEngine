@@ -41,7 +41,6 @@ includeDir["glad"]         = "%{wks.location}/OverEngine/vendor/glad/include"
 includeDir["spdlog"]       = "%{wks.location}/OverEngine/vendor/spdlog/include"
 includeDir["imgui"]        = "%{wks.location}/OverEngine/vendor/imgui"
 includeDir["glm"]          = "%{wks.location}/OverEngine/vendor/glm"
-includeDir["lua"]          = "%{wks.location}/OverEngine/vendor/lua/src"
 includeDir["stb_image"]    = "%{wks.location}/OverEngine/vendor/stb_image"
 includeDir["stb_rectpack"] = "%{wks.location}/OverEngine/vendor/stb_rectpack"
 includeDir["entt"]         = "%{wks.location}/OverEngine/vendor/entt/include"
@@ -54,7 +53,6 @@ linkLibs = {
 	"GLFW",
 	"glad",
 	"imgui",
-	"lua",
 	"box2d",
 	"yaml-cpp"
 }
@@ -64,7 +62,6 @@ group "Dependencies"
 	include "OverEngine/vendor/Glad"
 	include "OverEngine/vendor/imgui"
 	include "OverEngine/vendor/box2d"
-	include "OverEngine/vendor/lua"
 	include "OverEngine/vendor/yaml-cpp"
 group ""
 

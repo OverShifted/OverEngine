@@ -91,4 +91,4 @@ if (CMAKE_BUILD_TYPE STREQUAL "MinSizeRel")
 endif()
 
 target_link_libraries(OverEngine PRIVATE glfw glad)
-target_link_libraries(OverEngine PUBLIC imgui lua box2d yaml-cpp)
+target_link_libraries(OverEngine PUBLIC imgui box2d yaml-cpp)
