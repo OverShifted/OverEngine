@@ -32,7 +32,7 @@ namespace OverEditor
 		inline auto& GetIcons()       { return m_Icons; }
 		inline auto& GetActionStack() { return m_ActionStack; }
 
-		void EditScene(const Ref<Scene>& scene, String path);
+		void EditScene(const Ref<SceneAsset>& sceneAsset);
 
 		static EditorLayer& Get() { return *s_Instance; }
 	private:

@@ -33,7 +33,7 @@ namespace OverEditor
 		{
 			if (ImGui::Checkbox("One Column View", &m_OneColumnView) && m_OneColumnView == false)
 			{
-				std::experimental::erase_if(m_SelectionContext, [](const Ref<Asset> asset) {
+				std::experimental::erase_if(m_SelectionContext, [](const Ref<Asset>& asset) {
 					return !asset->IsFolder();
 				});
 			}
@@ -186,7 +186,7 @@ namespace OverEditor
 				if (!asset->IsFolder() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
 				{
 					if (asset->GetType() == AssetType::Scene)
-						EditorLayer::Get().EditScene(asset->GetSceneAsset()->GetScene(), asset->GetPath());
+						EditorLayer::Get().EditScene(TYPE_PAWN(asset, Ref<SceneAsset>));
 				}
 
 				selectedItem = asset;
@@ -248,7 +248,7 @@ namespace OverEditor
 			}
 			else if (asset->GetType() == AssetType::Scene)
 			{
-				EditorLayer::Get().EditScene(asset->GetSceneAsset()->GetScene(), asset->GetPath());
+				EditorLayer::Get().EditScene(TYPE_PAWN(asset, Ref<SceneAsset>));
 			}
 		}
 

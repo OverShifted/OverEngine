@@ -33,7 +33,7 @@ namespace OverEditor
 
 	void SceneHierarchyPanel::OnImGuiRender()
 	{
-		if (m_Context->Context)
+		if (m_Context->AnySceneOpen())
 		{
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0.0f, 0.0f });
 			ImGui::Begin("Scene Hierarchy");
@@ -45,16 +45,16 @@ namespace OverEditor
 			{
 				if (ImGui::GetIO().KeyCtrl)
 				{
-					auto it = STD_CONTAINER_FIND(m_Context->SelectionContext, clickedEntity);
-					if (it != m_Context->SelectionContext.end())
-						m_Context->SelectionContext.erase(it);
+					auto it = STD_CONTAINER_FIND(m_Context->Selection, clickedEntity);
+					if (it != m_Context->Selection.end())
+						m_Context->Selection.erase(it);
 					else
-						m_Context->SelectionContext.push_back(clickedEntity);
+						m_Context->Selection.push_back(clickedEntity);
 				}
 				else
 				{
-					m_Context->SelectionContext.clear();
-					m_Context->SelectionContext.push_back(clickedEntity);
+					m_Context->Selection.clear();
+					m_Context->Selection.push_back(clickedEntity);
 				}
 			}
 
@@ -63,9 +63,9 @@ namespace OverEditor
 			{
 				if (ImGui::MenuItem("Create Empty Entity"))
 				{
-					Entity createdEntity = m_Context->Context->CreateEntity();
-					m_Context->SelectionContext.clear();
-					m_Context->SelectionContext.push_back(createdEntity);
+					Entity createdEntity = m_Context->GetActiveScene()->CreateEntity();
+					m_Context->Selection.clear();
+					m_Context->Selection.push_back(createdEntity);
 				}
 
 				ImGui::EndPopup();
@@ -74,16 +74,16 @@ namespace OverEditor
 
 			ImGui::BeginChild("Blank Space");
 			if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && ImGui::IsWindowHovered())
-				m_Context->SelectionContext.clear();
+				m_Context->Selection.clear();
 
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 5.0f, 5.0f });
 			if (ImGui::BeginPopupContextWindow("_SCENE_HIERARCHY_CONTEXTMENU"))
 			{
 				if (ImGui::MenuItem("Create Empty Entity"))
 				{
-					Entity createdEntity = m_Context->Context->CreateEntity();
-					m_Context->SelectionContext.clear();
-					m_Context->SelectionContext.push_back(createdEntity);
+					Entity createdEntity = m_Context->GetActiveScene()->CreateEntity();
+					m_Context->Selection.clear();
+					m_Context->Selection.push_back(createdEntity);
 				}
 
 				ImGui::EndPopup();
@@ -118,9 +118,9 @@ namespace OverEditor
 
 		ImGui::Begin("Inspector");
 
-		if (m_Context->SelectionContext.size() == 1)
+		if (m_Context->Selection.size() == 1)
 		{
-			auto& selectedEntity = m_Context->SelectionContext[0];
+			Entity selectedEntity{ m_Context->Selection[0], m_Context->GetActiveScene().get() };
 
 			char buffer[35];
 			sprintf_s(buffer, OE_ARRAY_SIZE(buffer), "INSPECTOR_ENTITY_EDITOR%i", (uint32_t)selectedEntity);
@@ -164,10 +164,10 @@ namespace OverEditor
 			if (wannaDestroy)
 			{
 				selectedEntity.Destroy();
-				m_Context->SelectionContext.clear();
+				m_Context->Selection.clear();
 			}
 		}
-		else if (m_Context->SelectionContext.size() > 1)
+		else if (m_Context->Selection.size() > 1)
 		{
 			ImGui::TextUnformatted("Cannot edit multiple entities at the same time!");
 		}
@@ -188,7 +188,7 @@ namespace OverEditor
 	{
 		Entity selectedEntity;
 
-		Scene* activeScene = m_Context->GetActiveScene();
+		Ref<Scene> activeScene = m_Context->GetActiveScene();
 		Vector<entt::entity>* entityList;
 
 		if (parentEntity)
@@ -202,11 +202,11 @@ namespace OverEditor
 
 		for (auto entityHandle : *(entityList))
 		{
-			Entity entity{ entityHandle, activeScene };
+			Entity entity{ entityHandle, activeScene.get() };
 
 			ImGuiTreeNodeFlags nodeFlags = OE_IMGUI_BASE_TREE_VIEW_FLAGS | ImGuiTreeNodeFlags_AllowItemOverlap;
 
-			if (STD_CONTAINER_FIND(m_Context->SelectionContext, entity) != m_Context->SelectionContext.end())
+			if (STD_CONTAINER_FIND(m_Context->Selection, entity) != m_Context->Selection.end())
 				nodeFlags |= ImGuiTreeNodeFlags_Selected;
 
 			auto& tc = entity.GetComponent<TransformComponent>();

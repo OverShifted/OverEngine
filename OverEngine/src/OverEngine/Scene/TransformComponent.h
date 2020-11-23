@@ -121,7 +121,7 @@ namespace OverEngine
 	private:
 		enum ChangedFlags_ : ChangedFlags
 		{
-			ChangedFlags_None,
+			ChangedFlags_None = 0,
 			ChangedFlags_Changed = BIT(0),
 			ChangedFlags_ChangedForPhysics = BIT(1),
 			// RN = Recalculation Needed

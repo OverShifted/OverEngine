@@ -1,6 +1,8 @@
 #include "ViewportPanel.h"
 
-#include <imgui/imgui.h>
+#include "OverEngine/ImGui/ExtraImGui.h"
+#include <imgui.h>
+
 #include <glm/gtx/norm.hpp>
 
 namespace OverEditor
@@ -102,46 +104,34 @@ namespace OverEditor
 		}
 		ImGui::End();
 
-		if (m_Context->Context)
+		if (m_Context->AnySceneOpen())
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0.0f, 0.0f });
 
 		ImGui::Begin("Viewport", nullptr, ImGuiWindowFlags_MenuBar);
 
-		if (m_Context->Context)
+		if (m_Context->AnySceneOpen())
 		{
 			ImGui::PopStyleVar();
 
 			ImGui::BeginMenuBar();
-			if (ImGui::Button(m_Context->Simulating ? "Stop" : "Start"))
+
+			if (ImGui::OE_CheckboxFlagsT("Simulating", &m_Context->RuntimeFlags, (uint8_t)SceneEditor::RuntimeFlags_Simulating))
 			{
-				OE_BOOL_SWAP(m_Context->Simulating);
-
-				if (m_Context->Simulating)
-				{
-					m_Context->SimulationScene = new Scene(*m_Context->Context);
-					m_Context->SimulationScene->InitializePhysics();
-
-					for (auto& selection : m_Context->SelectionContext)
-					{
-						selection = { selection.GetRuntimeID(), m_Context->SimulationScene };
-					}
-				}
-				else if (m_Context->SimulationScene)
-				{
-					delete m_Context->SimulationScene;
-					m_Context->SimulationScene = nullptr;
-
-					for (auto& selection : m_Context->SelectionContext)
-					{
-						selection = { selection.GetRuntimeID(), m_Context->Context.get() };
-					}
-				}
+				if (m_Context->RuntimeFlags & SceneEditor::RuntimeFlags_Simulating)
+					m_Context->BeginSimulation();
+				else
+					m_Context->EndSimulation();
 			}
 
-			if (ImGui::Button(m_Context->SimulationRunning ? "Pause" : "Resume"))
-			{
-				OE_BOOL_SWAP(m_Context->SimulationRunning);
-			}
+			ImGui::SameLine();
+
+			ImGui::OE_CheckboxFlagsT("Paused", &m_Context->RuntimeFlags, (uint8_t)SceneEditor::RuntimeFlags_SimulationPaused);
+
+			ImGui::SameLine();
+
+			if (ImGui::Button("Step"))
+				m_Context->RuntimeFlags ^= SceneEditor::RuntimeFlags_SimulationStepNextFrame;
+
 			ImGui::EndMenuBar();
 
 			// Resize
@@ -160,9 +150,9 @@ namespace OverEditor
 
 			bool fDown = Input::IsKeyPressed(KeyCode::F);
 
-			if (m_Context->SelectionContext.size() == 1)
+			if (m_Context->Selection.size() == 1)
 			{
-				auto& entityTransform = m_Context->SelectionContext[0].GetComponent<TransformComponent>();
+				auto& entityTransform = Entity{ m_Context->Selection[0], m_Context->GetActiveScene().get() }.GetComponent<TransformComponent>();
 
 				// Gizmo
 				DrawGizmo(entityTransform, hovered);
@@ -208,7 +198,7 @@ namespace OverEditor
 				m_Camera.SetOrthographicSize(Math::Clamp(m_Camera.GetOrthographicSize() + -mouseWheel / 3.0f, 0.01f, FLT_MAX));
 			}
 		}
-		else if (m_Context->Context)
+		else if (m_Context->AnySceneOpen())
 		{
 			ImGui::TextUnformatted("No camera is rendering");
 		}
@@ -222,7 +212,7 @@ namespace OverEditor
 
 	void ViewportPanel::OnRender()
 	{
-		if (m_Context->Context)
+		if (m_Context->AnySceneOpen())
 		{
 			if (FrameBufferProps props = m_FrameBuffer->GetProps();
 				m_PanelSize.x > 0.0f && m_PanelSize.y > 0.0f && // zero sized framebuffer is invalid
@@ -234,12 +224,19 @@ namespace OverEditor
 
 		m_FrameBuffer->Bind();
 
-		if (m_Context->Context)
+		if (m_Context->AnySceneOpen())
 		{
-			Scene* scene = m_Context->GetActiveScene();
+			Ref<Scene> scene = m_Context->GetActiveScene();
 
-			if (m_Context->SimulationRunning)
+			if (m_Context->RuntimeFlags & SceneEditor::RuntimeFlags_Simulating
+				&& !(m_Context->RuntimeFlags & SceneEditor::RuntimeFlags_SimulationPaused))
 				scene->OnPhysicsUpdate(Time::GetDeltaTime());
+
+			if (m_Context->RuntimeFlags & SceneEditor::RuntimeFlags_SimulationStepNextFrame)
+			{
+				scene->OnPhysicsUpdate(Time::GetDeltaTime());
+				m_Context->RuntimeFlags ^= SceneEditor::RuntimeFlags_SimulationStepNextFrame;
+			}
 
 			RenderCommand::SetClearColor(m_Camera.GetClearColor());
 			RenderCommand::Clear();

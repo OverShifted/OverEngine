@@ -14,6 +14,7 @@ namespace OverEngine
 		// Load asset from YAML definition
 		SceneAsset(YAML::Node node, const String& assetsDirectoryRoot);
 
+		auto& GetScene() { return m_Scene; }
 		const auto& GetScene() const { return m_Scene; }
 	private:
 		Ref<Scene> m_Scene = nullptr;

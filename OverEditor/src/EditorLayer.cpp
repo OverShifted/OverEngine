@@ -32,6 +32,7 @@ namespace OverEditor
 		Log::GetClientLogger()->sinks().push_back(editorConsoleSink);
 
 		m_SceneContext = CreateRef<SceneEditor>();
+		m_SceneContext->PrimaryScene = nullptr;
 		m_ViewportPanel.SetContext(m_SceneContext);
 		m_SceneHierarchyPanel.SetContext(m_SceneContext);
 
@@ -64,10 +65,11 @@ namespace OverEditor
 
 				ImGui::Separator();
 
-				if (ImGui::MenuItem("Save Scene", "Ctrl+S", nullptr, (bool)m_SceneContext->Context))
+				if (ImGui::MenuItem("Save Scene", "Ctrl+S", nullptr, (bool)m_SceneContext->PrimaryScene->GetScene()))
 				{
-					SceneSerializer sceneSerializer(m_SceneContext->Context);
-					sceneSerializer.Serialize(m_EditingProject->GetAssetsDirectoryPath() + m_SceneContext->ContextResourcePath);
+					//SceneSerializer sceneSerializer(m_SceneContext->PrimaryScene->GetScene());
+					//sceneSerializer.Serialize(m_EditingProject->GetAssetsDirectoryPath() + m_SceneContext->ContextResourcePath);
+					OE_CORE_INFO(m_SceneContext->PrimaryScene->GetPath());
 				}
 
 				ImGui::Separator();
@@ -173,15 +175,14 @@ namespace OverEditor
 		});
 	}
 
-	void EditorLayer::EditScene(const Ref<Scene>& scene, String path)
+	void EditorLayer::EditScene(const Ref<SceneAsset>& sceneAsset)
 	{
-		scene->LoadReferences(m_EditingProject->GetAssets());
-		m_SceneContext->Context = scene;
-		m_SceneContext->ContextResourcePath = path;
-		m_SceneContext->SelectionContext.clear();
+		sceneAsset->GetScene()->LoadReferences(m_EditingProject->GetAssets());
+		m_SceneContext->PrimaryScene = sceneAsset;
+		m_SceneContext->Selection.clear();
 
 		char buf[128];
-		sprintf_s(buf, OE_ARRAY_SIZE(buf), "OverEditor - %s - %s", m_EditingProject->GetName().c_str(), FileSystem::ExtractFileNameFromPath(path).c_str());
+		sprintf_s(buf, OE_ARRAY_SIZE(buf), "OverEditor - %s - %s", m_EditingProject->GetName().c_str(), sceneAsset->GetName().c_str());
 		Application::Get().GetWindow().SetTitle(buf);
 	}
 

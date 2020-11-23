@@ -68,6 +68,8 @@ namespace OverEngine
 		inline Vector<entt::entity>& GetRootHandles() { return m_RootHandles; }
 
 		inline uint32_t GetEntityCount() const;
+
+		inline bool Exists(const entt::entity& entity) { return m_Registry.valid(entity); }
 	private:
 		entt::registry m_Registry;
 		PhysicWorld2D* m_PhysicWorld2D = nullptr;
