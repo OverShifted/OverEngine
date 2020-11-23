@@ -39,7 +39,7 @@ namespace OverEngine
 			return;
 		}
 
-		auto it = std::find(s_ManagerData->MasterTextures.begin(), s_ManagerData->MasterTextures.end(), texture);
+		auto it = STD_CONTAINER_FIND(s_ManagerData->MasterTextures, texture);
 		if (it != s_ManagerData->MasterTextures.end())
 		{
 			OE_CORE_WARN("Texture is already handeled by TextureManager!");

@@ -68,7 +68,7 @@ namespace OverEngine
 			m_Scene->m_Registry.remove<T>(m_EntityHandle);
 
 			auto& componentList = m_Scene->m_ComponentList[m_EntityHandle];
-			auto it = std::find(componentList.begin(), componentList.end(), entt::type_info<T>::id());
+			auto it = STD_CONTAINER_FIND(componentList, entt::type_info<T>::id());
 			if (it != componentList.end())
 				componentList.erase(it);
 		}

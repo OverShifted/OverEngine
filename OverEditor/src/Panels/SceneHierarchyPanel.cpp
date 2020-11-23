@@ -45,7 +45,7 @@ namespace OverEditor
 			{
 				if (ImGui::GetIO().KeyCtrl)
 				{
-					auto it = std::find(m_Context->SelectionContext.begin(), m_Context->SelectionContext.end(), clickedEntity);
+					auto it = STD_CONTAINER_FIND(m_Context->SelectionContext, clickedEntity);
 					if (it != m_Context->SelectionContext.end())
 						m_Context->SelectionContext.erase(it);
 					else
@@ -206,7 +206,7 @@ namespace OverEditor
 
 			ImGuiTreeNodeFlags nodeFlags = OE_IMGUI_BASE_TREE_VIEW_FLAGS | ImGuiTreeNodeFlags_AllowItemOverlap;
 
-			if (std::find(m_Context->SelectionContext.begin(), m_Context->SelectionContext.end(), entity) != m_Context->SelectionContext.end())
+			if (STD_CONTAINER_FIND(m_Context->SelectionContext, entity) != m_Context->SelectionContext.end())
 				nodeFlags |= ImGuiTreeNodeFlags_Selected;
 
 			auto& tc = entity.GetComponent<TransformComponent>();

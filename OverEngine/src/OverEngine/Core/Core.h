@@ -111,8 +111,10 @@
 #define IMVEC4_2_VECTOR2(imvec4) (::OverEngine::Vector4(imvec4.x, imvec4.y, imvec4.z, imvec4.w))
 
 #define TYPE_PAWN(var, T) (*((T*)&var))
-#define STD_CONTAINER_FIND(cont, val) (std::find(cont.begin(), cont.end(), val))
 #define OE_BOOL_SWAP(a) (a = !a)
+
+#define STD_CONTAINER_FIND(cont, val) (std::find(cont.begin(), cont.end(), val))
+#define STD_CONTAINER_HAS(cont, val) std::find(cont.begin(), cont.end(), val) != cont.end()
 
 namespace OverEngine
 {
@@ -160,8 +162,6 @@ namespace OverEngine
 	template<typename T>
 	using Vector = std::vector<T>;
 	//using Vector = std::vector<T, OverEngine::Allocator<T>>;
-
-	#define VECTOR_HAS(vector, element) ::std::find(vector.begin(), vector.end(), element) != vector.end()
 
 	template<typename T>
 	using RefVec = Ref<Vector<T>>;

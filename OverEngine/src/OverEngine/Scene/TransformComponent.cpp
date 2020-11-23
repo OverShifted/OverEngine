@@ -134,7 +134,7 @@ namespace OverEngine
 		if (m_Parent != entt::null)
 		{
 			auto& parentChildren = ENTITY_HANDLE_TRANSFORM(m_Parent).m_Children;
-			auto it = std::find(parentChildren.begin(), parentChildren.end(), AttachedEntity.GetRuntimeID());
+			auto it = STD_CONTAINER_FIND(parentChildren, AttachedEntity.GetRuntimeID());
 			if (it != parentChildren.end())
 				parentChildren.erase(it);
 
@@ -169,14 +169,14 @@ namespace OverEngine
 			if (m_Parent == entt::null)
 			{
 				auto& sceneRootHandles = AttachedEntity.GetScene()->GetRootHandles();
-				auto it = std::find(sceneRootHandles.begin(), sceneRootHandles.end(), AttachedEntity.GetRuntimeID());
+				auto it = STD_CONTAINER_FIND(sceneRootHandles, AttachedEntity.GetRuntimeID());
 				OE_CORE_ASSERT(it != sceneRootHandles.end(), "Cannot find Entity in scene root list!");
 				sceneRootHandles.erase(it);
 			}
 			else
 			{
 				auto& parentChildren = ENTITY_HANDLE_TRANSFORM(m_Parent).m_Children;
-				auto it = std::find(parentChildren.begin(), parentChildren.end(), AttachedEntity.GetRuntimeID());
+				auto it = STD_CONTAINER_FIND(parentChildren, AttachedEntity.GetRuntimeID());
 				OE_CORE_ASSERT(it != parentChildren.end(), "Cannot find Entity in parent's children list!");
 				parentChildren.erase(it);
 			}
@@ -198,12 +198,12 @@ namespace OverEngine
 		if (m_Parent == entt::null)
 		{
 			const auto& rootEntities = AttachedEntity.GetScene()->GetRootHandles();
-			auto it = std::find(rootEntities.begin(), rootEntities.end(), AttachedEntity.GetRuntimeID());
+			auto it = STD_CONTAINER_FIND(rootEntities, AttachedEntity.GetRuntimeID());
 			return (uint32_t)(it - rootEntities.begin());
 		}
 
 		const auto& parentChildren = ENTITY_HANDLE_TRANSFORM(m_Parent).GetChildrenHandles();
-		auto it = std::find(parentChildren.begin(), parentChildren.end(), AttachedEntity.GetRuntimeID());
+		auto it = STD_CONTAINER_FIND(parentChildren, AttachedEntity.GetRuntimeID());
 		return (uint32_t)(it - parentChildren.begin());
 	}
 
@@ -212,14 +212,14 @@ namespace OverEngine
 		if (m_Parent == entt::null)
 		{
 			auto& rootEntities = AttachedEntity.GetScene()->GetRootHandles();
-			auto it = std::find(rootEntities.begin(), rootEntities.end(), AttachedEntity.GetRuntimeID());
+			auto it = STD_CONTAINER_FIND(rootEntities, AttachedEntity.GetRuntimeID());
 			Move(rootEntities, it - rootEntities.begin(), index);
 
 			return;
 		}
 
 		auto& parentChildren = ENTITY_HANDLE_TRANSFORM(m_Parent).GetChildrenHandles();
-		auto it = std::find(parentChildren.begin(), parentChildren.end(), AttachedEntity.GetRuntimeID());
+		auto it = STD_CONTAINER_FIND(parentChildren, AttachedEntity.GetRuntimeID());
 		Move(parentChildren, it - parentChildren.begin(), index);
 	}
 

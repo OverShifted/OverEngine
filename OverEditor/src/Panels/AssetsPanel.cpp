@@ -45,7 +45,7 @@ namespace OverEditor
 
 		ImGuiTreeNodeFlags rootNodeFlags = OE_IMGUI_BASE_TREE_VIEW_FLAGS;
 
-		if (VECTOR_HAS(m_SelectionContext, rootAsset))
+		if (STD_CONTAINER_HAS(m_SelectionContext, rootAsset))
 			rootNodeFlags |= ImGuiTreeNodeFlags_Selected;
 
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, { 0.0f, 0.0f });
@@ -70,7 +70,7 @@ namespace OverEditor
 		{
 			if (ImGui::GetIO().KeyCtrl)
 			{
-				auto it = std::find(m_SelectionContext.begin(), m_SelectionContext.end(), clickedItem);
+				auto it = STD_CONTAINER_FIND(m_SelectionContext, clickedItem);
 
 				if (it != m_SelectionContext.end())
 					m_SelectionContext.erase(it);
@@ -158,7 +158,7 @@ namespace OverEditor
 
 			ImGuiTreeNodeFlags nodeFlags = OE_IMGUI_BASE_TREE_VIEW_FLAGS;
 
-			if (VECTOR_HAS(m_SelectionContext, asset))
+			if (STD_CONTAINER_HAS(m_SelectionContext, asset))
 				nodeFlags |= ImGuiTreeNodeFlags_Selected;
 
 			if (!asset->IsFolder())

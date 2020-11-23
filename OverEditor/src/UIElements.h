@@ -87,7 +87,7 @@ namespace OverEditor
 		if (ImGui::ArrowButton(txt, ImGuiDir_Up))
 		{
 			auto& componentList = entity.GetComponentsTypeIDList();
-			auto it = std::find(componentList.begin(), componentList.end(), componentTypeID);
+			auto it = STD_CONTAINER_FIND(componentList, componentTypeID);
 			if (it != componentList.begin())
 			{
 				componentList[it - componentList.begin()] = componentList[it - componentList.begin() - 1];
@@ -102,7 +102,7 @@ namespace OverEditor
 		if (ImGui::ArrowButton(txt, ImGuiDir_Down))
 		{
 			auto& componentList = entity.GetComponentsTypeIDList();
-			auto it = std::find(componentList.begin(), componentList.end(), componentTypeID);
+			auto it = STD_CONTAINER_FIND(componentList, componentTypeID);
 			if (it != componentList.end() - 1)
 			{
 				componentList[it - componentList.begin()] = componentList[it - componentList.begin() + 1];

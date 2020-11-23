@@ -22,7 +22,7 @@ namespace OverEngine
 		while (transform.GetChildrenHandles().size() > 0)
 			Entity{ transform.GetChildrenHandles()[0], m_Scene }.Destroy();
 
-		auto it = std::find(m_Scene->m_RootHandles.begin(), m_Scene->m_RootHandles.end(), m_EntityHandle);
+		auto it = STD_CONTAINER_FIND(m_Scene->m_RootHandles, m_EntityHandle);
 		OE_CORE_ASSERT(it != m_Scene->m_RootHandles.end(), "Entity is not in the Scene's root entities!");
 		m_Scene->m_RootHandles.erase(it);
 
