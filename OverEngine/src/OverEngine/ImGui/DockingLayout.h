@@ -8,10 +8,6 @@ namespace OverEngine
 	{
 		String Name;        // Full window name might include `##`
 		ImGuiID ID;         // Window ID
-		bool Active;        // Is window active (focused)?
-
-		bool Docked;        // Is window docked some where?
-		ImGuiID DockNodeID; // Where the window is docked?
 
 		Vector2 Position;   // Position of window in pixels relative to top left corner of screen
 		Vector2 Size;       // Size of window in pixels
