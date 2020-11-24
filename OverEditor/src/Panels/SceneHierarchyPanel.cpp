@@ -179,11 +179,6 @@ namespace OverEditor
 		ImGui::End();
 	}
 
-	void SceneHierarchyPanel::SetContext(const Ref<SceneEditor>& context)
-	{
-		m_Context = context;
-	}
-
 	Entity SceneHierarchyPanel::RecursiveDraw(Entity parentEntity)
 	{
 		Entity selectedEntity;

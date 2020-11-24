@@ -18,7 +18,7 @@ namespace OverEditor
 		virtual void SetIsOpen(bool isOpen) override { m_IsOpen = isOpen; }
 		virtual bool GetIsOpen() override { return m_IsOpen; }
 
-		void SetContext(const Ref<SceneEditor>& context);
+		void SetContext(const Ref<SceneEditor>& context) { m_Context = context; }
 		Ref<SceneEditor>& GetContext() { return m_Context; }
 	private:
 		Entity RecursiveDraw(Entity parentEntity = Entity());
