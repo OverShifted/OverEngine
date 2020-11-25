@@ -14,6 +14,7 @@ project(OverEngine
 add_subdirectory(OverEngine/vendor/GLFW)
 add_subdirectory(OverEngine/vendor/glad)
 add_subdirectory(OverEngine/vendor/imgui)
+add_subdirectory(OverEngine/vendor/lua-overengine)
 option(BOX2D_BUILD_TESTBED "Build the Box2D testbed" OFF)
 add_subdirectory(OverEngine/vendor/box2d)
 add_subdirectory(OverEngine/vendor/yaml-cpp)

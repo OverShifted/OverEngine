@@ -119,14 +119,14 @@ namespace OverEditor
 				UIElements::DragFloat2Field("Offset", "##Offset", glm::value_ptr(sp.Offset), 0.02f);
 
 				static UIElements::EnumValues wrappingValues = {
-					{ 0, "None (Use texture default value)" }, { 1, "Repeat" },
+					{ 0, "None (Use default)" }, { 1, "Repeat" },
 					{ 2, "MirroredRepeat" }, { 3, "ClampToEdge" },{ 4, "ClampToBorder" }
 				};
 				UIElements::BasicEnum("Wrapping.x", "##Wrapping.x", wrappingValues, (int8_t*)&sp.Wrapping.x);
 				UIElements::BasicEnum("Wrapping.y", "##Wrapping.y", wrappingValues, (int8_t*)&sp.Wrapping.y);
 
 				static UIElements::EnumValues filteringValues = {
-					{ 0, "None (Use texture default value)" }, { 1, "Point" }, { 2, "Linear" }
+					{ 0, "None (Use default)" }, { 1, "Point" }, { 2, "Linear" }
 				};
 				UIElements::BasicEnum("Filtering", "##Filtering", filteringValues, (int8_t*)&sp.Filtering);
 

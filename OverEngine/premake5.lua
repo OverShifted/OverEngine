@@ -48,6 +48,8 @@ project "OverEngine"
 		"%{includeDir.GLFW}",
 		"%{includeDir.glad}",
 		"%{includeDir.imgui}",
+		"%{includeDir.lua}",
+		"%{includeDir.sol}",
 		"%{includeDir.glm}",
 		"%{includeDir.stb_image}",
 		"%{includeDir.stb_rectpack}",

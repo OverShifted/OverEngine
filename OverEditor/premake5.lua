@@ -22,6 +22,8 @@ project "OverEditor"
 		"%{wks.location}/OverEngine/vendor",
 		"%{includeDir.spdlog}",
 		"%{includeDir.imgui}",
+		"%{includeDir.lua}",
+		"%{includeDir.sol}",
 		"%{includeDir.glm}",
 		"%{includeDir.entt}",
 		"%{includeDir.box2d}",

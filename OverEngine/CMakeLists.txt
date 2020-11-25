@@ -60,6 +60,8 @@ target_include_directories(OverEngine PUBLIC
 	"vendor"
 	"vendor/spdlog/include"
 	"vendor/imgui"
+	"vendor/lua-overengine/lua/src"
+	"vendor/lua-overengine/sol/include"
 	"vendor/glm"
 	"vendor/lua/src"
 	"vendor/entt/include"
@@ -91,4 +93,4 @@ if (CMAKE_BUILD_TYPE STREQUAL "MinSizeRel")
 endif()
 
 target_link_libraries(OverEngine PRIVATE glfw glad)
-target_link_libraries(OverEngine PUBLIC imgui box2d yaml-cpp)
+target_link_libraries(OverEngine PUBLIC imgui lua-overengine box2d yaml-cpp)
