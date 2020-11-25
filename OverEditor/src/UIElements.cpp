@@ -1,4 +1,5 @@
 #include "UIElements.h"
+#include "EditorLayer.h"
 
 namespace OverEditor
 {
@@ -113,5 +114,97 @@ namespace OverEditor
 			ImGui::EndDragDropSource();
 		}
 		ImGui::PopStyleVar();
+	}
+
+	bool UIElements::DragFloatField_U(const char* fieldName, const char* fieldID, float* value, const FloatEditAction::GetterFn& getter, const FloatEditAction::SetterFn& setter, float speed /*= 1.0f*/, float min /*= 0.0f*/, float max /*= 0.0f*/, const char* format /*= "%.3f"*/)
+	{
+		static float delta = 0.0f;
+
+		// Backup value's value
+		float v = *value;
+		float valueToChange = v;
+
+		bool changed = false;
+		if (UIElements::DragFloatField(fieldName, fieldID, &valueToChange, speed, min, max, format))
+		{
+			delta += valueToChange - v;
+			changed = true;
+		}
+
+		if (ImGui::IsItemDeactivatedAfterEdit())
+		{
+			EditorLayer::Get().GetActionStack().Do(CreateRef<FloatEditAction>(delta, getter, setter), false);
+			delta = 0.0f;
+		}
+
+		if (changed)
+		{
+			*value = valueToChange;
+		}
+
+		return changed;
+	}
+
+	bool UIElements::DragFloat3Field_U(const char* fieldName, const char* fieldID, float value[3], const Vector3EditAction::GetterFn& getter, const Vector3EditAction::SetterFn& setter, float speed /*= 1.0f*/, float min /*= 0.0f*/, float max /*= 0.0f*/, const char* format /*= "%.3f"*/)
+	{
+		static Vector3 delta(0.0f);
+
+		// Backup value's value
+		Vector3 v{ value[0], value[1], value[2] };
+		Vector3 valueToChange = v;
+
+		bool changed = false;
+		if (UIElements::DragFloat3Field(fieldName, fieldID, glm::value_ptr(valueToChange), speed, min, max, format))
+		{
+			delta += valueToChange - v;
+			changed = true;
+		}
+
+		if (ImGui::IsItemDeactivatedAfterEdit())
+		{
+			EditorLayer::Get().GetActionStack().Do(CreateRef<Vector3EditAction>(delta, getter, setter), false);
+			delta = Vector3(0.0f);
+		}
+
+		if (changed)
+		{
+			value[0] = valueToChange[0];
+			value[1] = valueToChange[1];
+			value[2] = valueToChange[2];
+		}
+
+		return changed;
+	}
+
+	bool UIElements::Color4Field_U(const char* fieldName, const char* fieldID, float value[4], const Vector4EditAction::GetterFn& getter, const Vector4EditAction::SetterFn& setter)
+	{
+		static Vector4 delta(0.0f);
+
+		// Backup value's value
+		Vector4 v{ value[0], value[1], value[2], value[3] };
+		Vector4 valueToChange = v;
+
+		bool changed = false;
+		if (UIElements::Color4Field(fieldName, fieldID, glm::value_ptr(valueToChange)))
+		{
+			delta += valueToChange - v;
+			changed = true;
+		}
+
+		if (ImGui::IsItemDeactivatedAfterEdit())
+		{
+			EditorLayer::Get().GetActionStack().Do(CreateRef<Vector4EditAction>(delta, getter, setter), false);
+			delta = Vector4(0.0f);
+		}
+
+		if (changed)
+		{
+			value[0] = valueToChange[0];
+			value[1] = valueToChange[1];
+			value[2] = valueToChange[2];
+			value[3] = valueToChange[3];
+		}
+
+		return changed;
 	}
 }

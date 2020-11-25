@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Action.h"
+
 #include <OverEngine/Renderer/Texture.h>
 #include <OverEngine/Scene/Entity.h>
 
@@ -52,6 +54,14 @@ namespace OverEditor
 		// Tooltip
 		template <typename F>
 		static void Tooltip(F func);
+
+		///////////////////////////////////////////////
+		// Undo ables /////////////////////////////////
+		///////////////////////////////////////////////
+
+		static bool DragFloatField_U(const char* fieldName, const char* fieldID, float* value, const FloatEditAction::GetterFn& getter, const FloatEditAction::SetterFn& setter, float speed = 1.0f, float min = 0.0f, float max = 0.0f, const char* format = "%.3f");
+		static bool DragFloat3Field_U(const char* fieldName, const char* fieldID, float value[3], const Vector3EditAction::GetterFn& getter, const Vector3EditAction::SetterFn& setter, float speed = 1.0f, float min = 0.0f, float max = 0.0f, const char* format = "%.3f");
+		static bool Color4Field_U(const char* fieldName, const char* fieldID, float value[4], const Vector4EditAction::GetterFn& getter, const Vector4EditAction::SetterFn& setter);
 	};
 
 	///////////////////////////////////////////////

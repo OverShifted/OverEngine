@@ -16,6 +16,55 @@ namespace OverEditor
 		virtual void Revert() {}
 	};
 
+	struct BoolEditAction : public Action
+	{
+		using GetterFn = std::function<float()>;
+		using SetterFn = std::function<void(const float&)>;
+
+		BoolEditAction() = default;
+		BoolEditAction(const GetterFn& getter, const SetterFn& setter)
+			: Getter(getter), Setter(setter) {}
+
+		virtual void Perform()
+		{
+			Setter(!Getter());
+		}
+
+		virtual void Revert()
+		{
+			Perform();
+		}
+
+	private:
+		GetterFn Getter;
+		SetterFn Setter;
+	};
+
+	struct FloatEditAction : public Action
+	{
+		using GetterFn = std::function<float()>;
+		using SetterFn = std::function<void(const float&)>;
+
+		FloatEditAction() = default;
+		FloatEditAction(const float& delta, const GetterFn& getter, const SetterFn& setter)
+			: Delta(delta), Getter(getter), Setter(setter) {}
+
+		virtual void Perform()
+		{
+			Setter(Getter() + Delta);
+		}
+
+		virtual void Revert()
+		{
+			Setter(Getter() - Delta);
+		}
+
+	private:
+		float Delta;
+		GetterFn Getter;
+		SetterFn Setter;
+	};
+
 	struct Vector3EditAction : public Action
 	{
 		using GetterFn = std::function<Vector3()>;

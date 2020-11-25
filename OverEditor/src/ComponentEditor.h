@@ -24,80 +24,46 @@ namespace OverEditor
 		{
 			UIElements::BeginFieldGroup();
 
-			static Vector3 positionDelta(0.0f);
-			static Vector3 rotationDelta(0.0f);
-			static Vector3 scaleDelta(0.0f);
-
 			auto& tc = entity.GetComponent<TransformComponent>();
 			Vector3 position = tc.GetLocalPosition();
 			Vector3 rotation = tc.GetLocalEulerAngles();
 			Vector3 scale = tc.GetLocalScale();
 
-			bool changed = false;
-			if (UIElements::DragFloat3Field("Position", "##Position", glm::value_ptr(position), 0.2f))
-			{
-				positionDelta += position - tc.GetLocalPosition();
-				changed = true;
-			}
-
-			if (ImGui::IsItemDeactivatedAfterEdit())
-			{
-				auto action = CreateRef<Vector3EditAction>(positionDelta, [entity]() mutable {
+			if (UIElements::DragFloat3Field_U("Position", "##Position", glm::value_ptr(position), 
+				[entity]() mutable {
 					return entity.GetComponent<TransformComponent>().GetLocalPosition();
-				}, [entity](const auto& pos) mutable {
+				},
+				[entity](const auto& pos) mutable {
 					entity.GetComponent<TransformComponent>().SetLocalPosition(pos);
-				});
-
-				EditorLayer::Get().GetActionStack().Do(action, false);
-				positionDelta = Vector3(0.0f);
-			}
-
-			if (changed)
+				}
+				, 0.2f))
+			{
 				tc.SetLocalPosition(position);
-
-			changed = false;
-			if (UIElements::DragFloat3Field("Rotation", "##Rotation", glm::value_ptr(rotation), 0.2f))
-			{
-				rotationDelta += rotation - tc.GetLocalEulerAngles();
-				changed = true;
 			}
 
-			if (ImGui::IsItemDeactivatedAfterEdit())
+			if (UIElements::DragFloat3Field_U("Rotation", "##Rotation", glm::value_ptr(rotation),
+				[entity]() mutable {
+					return entity.GetComponent<TransformComponent>().GetLocalEulerAngles();
+				},
+				[entity](const auto& rot) mutable {
+					entity.GetComponent<TransformComponent>().SetLocalEulerAngles(rot);
+				}
+				, 0.2f))
 			{
-				auto action = CreateRef<Vector3EditAction>(rotationDelta, [entity]() mutable {
-					return entity.GetComponent<TransformComponent>().GetEulerAngles();
-				}, [entity](const auto& rot) mutable {
-					entity.GetComponent<TransformComponent>().SetEulerAngles(rot);
-				});
-
-				EditorLayer::Get().GetActionStack().Do(action, false);
-				rotationDelta = Vector3(0.0f);
-			}
-
-			if (changed)
 				tc.SetLocalEulerAngles(rotation);
-
-			changed = false;
-			if (UIElements::DragFloat3Field("Scale", "##Scale", glm::value_ptr(scale), 0.2f))
-			{
-				scaleDelta += scale - tc.GetLocalScale();
-				changed = true;
 			}
 
-			if (ImGui::IsItemDeactivatedAfterEdit())
-			{
-				auto action = CreateRef<Vector3EditAction>(scaleDelta, [entity]() mutable {
+			if (UIElements::DragFloat3Field_U("Scale", "##Scale", glm::value_ptr(scale),
+				[entity]() mutable {
 					return entity.GetComponent<TransformComponent>().GetLocalScale();
-				}, [entity](const auto& scale) mutable {
+				},
+				[entity](const auto& scale) mutable {
 					entity.GetComponent<TransformComponent>().SetLocalScale(scale);
-				});
-
-				EditorLayer::Get().GetActionStack().Do(action, false);
-				scaleDelta = Vector3(0.0f);
-			}
-
-			if (changed)
+				}
+				, 0.2f))
+			{
 				tc.SetLocalScale(scale);
+			}
 
 			UIElements::EndFieldGroup();
 
@@ -123,27 +89,25 @@ namespace OverEditor
 
 			auto& sp = entity.GetComponent<SpriteRendererComponent>();
 
-			Color tint = sp.Tint;
-			static Color tintDelta(0.0f);
-
-			if (UIElements::Color4Field("Tint", "##Tint", glm::value_ptr(tint)))
-				tintDelta += tint - sp.Tint;
-
-			if (ImGui::IsItemDeactivatedAfterEdit())
-			{
-				auto action = CreateRef<Vector4EditAction>(tintDelta, [entity]() mutable {
+			UIElements::Color4Field_U("Tint", "##Tint", glm::value_ptr(sp.Tint),
+				[entity]() mutable {
 					return entity.GetComponent<SpriteRendererComponent>().Tint;
-				}, [entity](const auto& col) mutable {
+				},
+				[entity](const auto& col) mutable {
 					entity.GetComponent<SpriteRendererComponent>().Tint = col;
-				});
+				}
+			);
 
-				EditorLayer::Get().GetActionStack().Do(action, false);
-				tintDelta = Vector4(0.0f);
-			}
+			UIElements::DragFloatField_U("AlphaClipThreshold", "##AlphaClipThreshold", &sp.AlphaClipThreshold,
+				[entity]() mutable {
+					return entity.GetComponent<SpriteRendererComponent>().AlphaClipThreshold;
+				},
+				[entity](const auto& val) mutable {
+					entity.GetComponent<SpriteRendererComponent>().AlphaClipThreshold = val;
+				}
+				, 0.02f, 0.0f, 1.0f
+			);
 
-			sp.Tint = tint;
-
-			UIElements::DragFloatField("AlphaClipThreshold", "##AlphaClipThreshold", &sp.AlphaClipThreshold, 0.02f, 0.0f, 1.0f);
 			UIElements::Texture2DField("Sprite", "##Sprite", sp.Sprite);
 
 			if (sp.Sprite && sp.Sprite->GetType() != TextureType::Placeholder)
