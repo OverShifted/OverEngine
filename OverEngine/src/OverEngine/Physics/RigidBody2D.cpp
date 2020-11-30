@@ -14,6 +14,17 @@ namespace OverEngine
 	RigidBody2D::RigidBody2D(b2Body* bodyHandle)
 		: m_BodyHandle(bodyHandle)
 	{
+		m_BodyHandle->GetUserData().pointer = (uintptr_t)this;
+	}
+
+	bool RigidBody2D::IsEnabled() const
+	{
+		return m_BodyHandle->IsEnabled();
+	}
+
+	void RigidBody2D::SetEnabled(bool enabled)
+	{
+		m_BodyHandle->SetEnabled(enabled);
 	}
 
 	RigidBody2DType RigidBody2D::GetType()
@@ -58,7 +69,7 @@ namespace OverEngine
 		return { m_BodyHandle->GetLinearVelocity().x, m_BodyHandle->GetLinearVelocity().y };
 	}
 
-	void RigidBody2D::SetLinearVelocity(Vector2 velocity)
+	void RigidBody2D::SetLinearVelocity(const Vector2& velocity)
 	{
 		m_BodyHandle->SetLinearVelocity({ velocity.x, velocity.y });
 	}
@@ -73,14 +84,14 @@ namespace OverEngine
 		m_BodyHandle->SetAngularVelocity(velocity);
 	}
 
-	bool RigidBody2D::IsEnabled() const
+	void RigidBody2D::ApplyLinearImpulse(const Vector2& impulse, const Vector2& point, bool wake)
 	{
-		return m_BodyHandle->IsEnabled();
+		m_BodyHandle->ApplyLinearImpulse({ impulse.x, impulse.y }, { point.x, point.y }, wake);
 	}
 
-	void RigidBody2D::SetEnabled(bool enabled)
+	void RigidBody2D::ApplyLinearImpulseToCenter(const Vector2& impulse, bool wake /*= true*/)
 	{
-		m_BodyHandle->SetEnabled(enabled);
+		m_BodyHandle->ApplyLinearImpulseToCenter({ impulse.x, impulse.y }, wake);
 	}
 
 	Ref<Collider2D> RigidBody2D::CreateCollider(const Collider2DProps& props)
@@ -131,5 +142,18 @@ namespace OverEngine
 	{
 		m_BodyHandle->DestroyFixture(collider->m_FixtureHandle);
 		collider->m_FixtureHandle = nullptr;
+	}
+
+	Ref<Collider2D> RigidBody2D::FindCollider(Collider2D* collider)
+	{
+		auto it = std::find_if(m_Colliders.begin(), m_Colliders.end(), [&collider](const auto& ref)
+		{
+			return ref.get() == collider;
+		});
+
+		if (it == m_Colliders.end())
+			return nullptr;
+
+		return *(it);
 	}
 }

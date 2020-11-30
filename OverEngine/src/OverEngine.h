@@ -20,9 +20,10 @@
 #include "OverEngine/Assets/Texture2DAsset.h"
 // -----------------------------------
 
-// ------- Scenes --------------------
+// ------- ECS -----------------------
 #include "OverEngine/Scene/Scene.h"
 #include "OverEngine/Scene/Entity.h"
+#include "OverEngine/Scene/ScriptableEntity.h"
 #include "OverEngine/Scene/Components.h"
 #include "OverEngine/Scene/TransformComponent.h"
 // -----------------------------------

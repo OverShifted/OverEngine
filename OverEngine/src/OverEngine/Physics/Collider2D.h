@@ -19,7 +19,7 @@ namespace OverEngine
 			Collider2DType Type = Collider2DType::Box;
 			
 			Vector2 BoxSize{ 1.0f, 1.0f };
-			float CircleRadius = 1.0f;
+			float CircleRadius = 0.5f;
 		} Shape;
 
 		bool IsTrigger = false;

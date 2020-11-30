@@ -292,7 +292,7 @@ namespace OverEditor
 
 	void ViewportPanel::DrawGizmo(TransformComponent& entityTransform, bool hovered)
 	{
-		float arrowScale = 0.25f;
+		float arrowScale = 0.3f;
 		const auto& cameraOrthoSize = m_Camera.GetOrthographicSize();
 
 		// Render Gizmo
@@ -305,8 +305,8 @@ namespace OverEditor
 			s_Data->GizmoVA->Bind();
 
 			Transform gizmoTransform;
-			gizmoTransform.SetScale({ arrowScale * cameraOrthoSize, arrowScale / 10 * cameraOrthoSize, 1.0f * cameraOrthoSize });
-			float offset = gizmoTransform.GetScale().x / 2.0f - gizmoTransform.GetScale().y / 10.0f;
+			gizmoTransform.SetScale({ arrowScale * cameraOrthoSize, arrowScale / 6 * cameraOrthoSize, 1.0f * cameraOrthoSize });
+			float offset = gizmoTransform.GetScale().x / 2.0f;
 
 			static auto highlightAxis = [this](Axis axis) -> bool
 			{

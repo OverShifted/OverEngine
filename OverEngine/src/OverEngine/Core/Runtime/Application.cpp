@@ -84,8 +84,8 @@ namespace OverEngine
 			}
 			
 			m_Window->OnUpdate();
-			Time::RecalculateDeltaTime();
 			InputSystem::OnUpdate();
+			Time::RecalculateDeltaTime();
 		}
 	}
 

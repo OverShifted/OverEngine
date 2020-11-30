@@ -1,8 +1,7 @@
 #include "SandboxECS.h"
 
-#include "imgui/imgui.h"
-
-#include <box2d/b2_body.h>
+#include <OverEngine/Scripting/ScriptingEngine.h>
+#include <imgui.h>
 
 using namespace OverEngine;
 
@@ -15,16 +14,16 @@ SandboxECS::SandboxECS()
 	auto actionMap = InputActionMap::Create();
 
 	InputAction CameraMovement(InputActionType::Button, {
-		{
+		/*{
 			{KeyCode::A}, {KeyCode::D},
 			{KeyCode::S}, {KeyCode::W}
-		},
+		},*/
 		{
 			{KeyCode::Left}, {KeyCode::Right},
 			{KeyCode::Down}, {KeyCode::Up}
 		}
 	});
-	CameraMovement.AddCallBack([&](const InputAction::TriggerInfo& info) {
+	CameraMovement.AddCallBack([&](const auto& info) {
 		m_CameraMovementDirection = { info.x, info.y };
 	});
 	actionMap->AddAction(CameraMovement);
@@ -32,7 +31,7 @@ SandboxECS::SandboxECS()
 	InputAction CameraRotation(InputActionType::Button, {
 		{ {KeyCode::Q}, {KeyCode::E} }
 	});
-	CameraRotation.AddCallBack([&](const InputAction::TriggerInfo& info) {
+	CameraRotation.AddCallBack([&](const auto& info) {
 		m_CameraRotationDirection = -info.x;
 	});
 	actionMap->AddAction(CameraRotation);
@@ -40,7 +39,7 @@ SandboxECS::SandboxECS()
 	InputAction EscapeKeyAction(InputActionType::Button, {
 		{ {KeyCode::Escape, true, false} }
 	});
-	EscapeKeyAction.AddCallBack([&](const InputAction::TriggerInfo& info) {
+	EscapeKeyAction.AddCallBack([&](const auto& info) {
 		m_MainCameraTransform->SetPosition({ 0.0f, 0.0f, 0.0f });
 		m_MainCameraTransform->SetEulerAngles({ 0.0f, 0.0f, 0.0f });
 		m_MainCameraCameraHandle->SetOrthographicSize(10.0f);
@@ -62,9 +61,9 @@ SandboxECS::SandboxECS()
 	m_SpriteSheet->SetXWrapping(TextureWrapping::ClampToBorder);
 	m_SpriteSheet->SetYWrapping(TextureWrapping::ClampToBorder);
 	m_SpriteSheet->SetBorderColor({ 0.0f, 1.0f, 1.0f, 1.0f });
-	m_SpriteSheet->SetFiltering(TextureFiltering::Linear);
+	m_SpriteSheet->SetFiltering(TextureFiltering::Nearest);
 
-	m_Sprite = Texture2D::CreateSubTexture(m_SpriteSheet, { 128 * 4, 128 * 2, 128, 128 });
+	m_Sprite = Texture2D::CreateSubTexture(m_SpriteSheet, { 128 * 1, 128 * 5, 128, 128 });
 	m_ObstacleSprite = Texture2D::CreateSubTexture(m_SpriteSheet, { 128 * 0, 128 * 0, 128, 128 });
 #pragma endregion
 
@@ -88,10 +87,11 @@ SandboxECS::SandboxECS()
 	// Collider2D
 	auto& playerColliderList = m_Player.AddComponent<Colliders2DComponent>();
 	Collider2DProps cprops;
-	cprops.Shape.Type = Collider2DType::Box;
+	cprops.Shape.Type = Collider2DType::Circle;
+	cprops.Shape.CircleRadius = 0.5f;
 	cprops.Shape.BoxSize = { 1.0f, 1.0f };
-	cprops.Bounciness = 0.3f;
-	cprops.Friction = 1.0f;
+	cprops.Bounciness = 0.0f;
+	cprops.Friction = 100.0f;
 	cprops.Density = 1.0f;
 	playerColliderList.Colliders.push_back({ cprops, nullptr });
 
@@ -120,6 +120,7 @@ SandboxECS::SandboxECS()
 	// Collider2D
 	auto& colliderList = obstacle.AddComponent<Colliders2DComponent>();
 	Collider2DProps obscprops;
+	obscprops.IsTrigger = true;
 	obscprops.Shape.Type = Collider2DType::Box;
 	obscprops.Shape.BoxSize = { 4.0f, 1.0f };
 	obscprops.Bounciness = 0.3f;
@@ -170,35 +171,80 @@ SandboxECS::SandboxECS()
 	m_MainCameraCameraHandle->SetOrthographic(10.0f, -1.0f, 1.0f);
 	m_MainCameraTransform = &m_MainCamera.GetComponent<TransformComponent>();
 
-	m_Scene->InitializePhysics();
+	m_MainCameraTransform->SetLocalPosition({ 0.0f, -1.0f, 0.0f });
+	m_MainCameraCameraHandle->SetOrthographicSize(25);
+
 	#pragma endregion
+
+	ScriptingEngine::LoadApi(m_Lua);
+	m_Lua["entity"] = m_Player;
+	m_Lua.script_file("assets/scripts/player.lua");
+
+	class Player : public ScriptableEntity
+	{
+	public:
+		virtual void OnUpdate(TimeStep ts) override
+		{
+			Vector2 vel(0.0f);
+			float mult = 10 * ts;
+			if (Input::IsKeyPressed(KeyCode::A))
+				vel.x -= mult;
+			if (Input::IsKeyPressed(KeyCode::D))
+				vel.x += mult;
+			if (Input::IsKeyPressed(KeyCode::W))
+				vel.y += mult;
+			if (Input::IsKeyPressed(KeyCode::S))
+				vel.y -= mult;
+
+			auto& rb = GetComponent<RigidBody2DComponent>().RigidBody;
+			rb->ApplyLinearImpulseToCenter(vel);
+		}
+
+		virtual void OnCollisionEnter(const SceneCollision2D& collision) override
+		{
+			OE_CORE_INFO("OnCollisionEnter with {}", collision.Other.Entity.GetComponent<NameComponent>().Name);
+			GetComponent<SpriteRendererComponent>().Tint = { 1.0f, 0.2f, 1.0f, 1.0f };
+		}
+
+		virtual void OnCollisionExit(const SceneCollision2D& collision) override
+		{
+			GetComponent<SpriteRendererComponent>().Tint = { 1.0f, 1.0f, 1.0f, 1.0f };
+		}
+	};
+
+	m_Player.AddComponent<NativeScriptsComponent>().AddScript<Player>();
+
+	m_Scene->OnScenePlay();
+	ImGui::GetStyle().Alpha = 0.8f;
 }
 
 static Vector<float> s_FPSSamples(200);
 static bool VSync = true;
 static char fpsText[32];
 
-void SandboxECS::OnUpdate(TimeStep DeltaTime)
+void SandboxECS::OnUpdate(TimeStep deltaTime)
 {
 	OE_PROFILE_FUNCTION();
+
+	m_Lua["player"]["update"](deltaTime.GetSeconds());
 
 	m_MainCameraCameraHandle = &m_MainCamera.GetComponent<CameraComponent>().Camera;
 	m_MainCameraTransform = &m_MainCamera.GetComponent<TransformComponent>();
 
 	// Update
 	Vector3 offset(m_CameraMovementDirection, 0.0f);
-	offset = offset * (m_CameraSpeed * DeltaTime * m_MainCameraCameraHandle->GetOrthographicSize());
+	offset = offset * (m_CameraSpeed * deltaTime * m_MainCameraCameraHandle->GetOrthographicSize());
 	Mat4x4 rotationMatrix = glm::rotate(IDENTITY_MAT4X4, glm::radians(m_MainCameraTransform->GetEulerAngles().z), { 0, 0, 1 });
 	m_MainCameraTransform->SetPosition(Vector4(m_MainCameraTransform->GetPosition(), 0.0f) + (rotationMatrix * Vector4(offset, 1.0f)));
 
-	m_MainCameraTransform->SetEulerAngles({ 0.0f, 0.0f, m_MainCameraTransform->GetEulerAngles().z + m_CameraRotationDirection * DeltaTime * 80.0f });
+	m_MainCameraTransform->SetEulerAngles({ 0.0f, 0.0f, m_MainCameraTransform->GetEulerAngles().z + m_CameraRotationDirection * deltaTime * 80.0f });
 
 	for (uint32_t i = 0; i < (uint32_t)((int)s_FPSSamples.size() - 1); i++)
 	{
-		s_FPSSamples[i] = s_FPSSamples[i + (uint32_t)1];
+		s_FPSSamples[i] = s_FPSSamples[i + 1u];
 	}
 
-	s_FPSSamples[(int)s_FPSSamples.size() - 1] = 1 / DeltaTime;
+	s_FPSSamples[(int)s_FPSSamples.size() - 1] = 1 / deltaTime;
 	if (s_FPSSamples[(int)s_FPSSamples.size() - 1] > 10000)
 		s_FPSSamples[(int)s_FPSSamples.size() - 1] = 0;
 
@@ -206,7 +252,7 @@ void SandboxECS::OnUpdate(TimeStep DeltaTime)
 
 	Window& win = Application::Get().GetWindow();
 	m_Scene->SetViewportSize(win.GetWidth(), win.GetHeight());
-	m_Scene->OnUpdate(DeltaTime);
+	m_Scene->OnUpdate(deltaTime);
 }
 
 void SandboxECS::OnImGuiRender()
@@ -215,13 +261,13 @@ void SandboxECS::OnImGuiRender()
 
 	ImGui::Begin("Camera");
 	Vector3 pos = m_MainCameraTransform->GetPosition();
-	if (ImGui::DragFloat3("Position", glm::value_ptr(pos), m_MainCameraCameraHandle->GetOrthographicSize() / 20))
+	ImGui::PushItemWidth(-1);
+	if (ImGui::DragFloat3("##CameraPosition", glm::value_ptr(pos), m_MainCameraCameraHandle->GetOrthographicSize() / 20))
 		m_MainCameraTransform->SetPosition(pos);
-	// ImGui::DragFloat("Rotation", glm::value_ptr(const_cast<Vector3&>(m_Camera.GetRotation())));
-	// ImGui::DragFloat("Size", &(const_cast<float&>(m_Camera.GetOrthographicSize())));
 	ImGui::End();
 
-	/*ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
+	#if 0
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
 
 	ImGui::Begin("Texture Debugger1");
 
@@ -262,28 +308,26 @@ void SandboxECS::OnImGuiRender()
 	ImGui::Image((void*)2, ImGui::GetContentRegionAvail());
 	ImGui::End();
 
-	ImGui::PopStyleVar();*/
+	ImGui::PopStyleVar();
+	#endif
 
 	ImGui::Begin("Renderer2D Statistics");
 
-	ImGui::PlotLines("FPS", s_FPSSamples.data(), (int)s_FPSSamples.size(), 0, fpsText, FLT_MAX, FLT_MAX, ImVec2{ 0, 80 });
+	ImGui::PushItemWidth(-1);
+	ImGui::PlotLines("##FPS", s_FPSSamples.data(), (int)s_FPSSamples.size(), 0, fpsText, FLT_MAX, FLT_MAX, ImVec2{ 0, 80 });
 
-	ImGui::Text("DrawCalls : %i", Renderer2D::GetStatistics().DrawCalls);
-	ImGui::Text("QuadCount : %i", Renderer2D::GetStatistics().QuadCount);
-	ImGui::Text("IndexCount : %i", Renderer2D::GetStatistics().GetIndexCount());
-	ImGui::Text("VertexCount : %i", Renderer2D::GetStatistics().GetVertexCount());
+	ImGui::Text("DrawCalls : %i   ", Renderer2D::GetStatistics().DrawCalls); ImGui::SameLine();
+	ImGui::Text("QuadCount : %i   ", Renderer2D::GetStatistics().QuadCount); ImGui::SameLine();
+	ImGui::Text("IndexCount : %i   ", Renderer2D::GetStatistics().GetIndexCount()); ImGui::SameLine();
+	ImGui::Text("VertexCount : %i   ", Renderer2D::GetStatistics().GetVertexCount()); ImGui::SameLine();
 
-	if (ImGui::Button("Reload"))
+	if (ImGui::Button("Reload Renderer2D Shader"))
 		Renderer2D::GetShader()->Reload();
 
-	ImGui::End();
-
-	ImGui::Begin("Stuff");
+	ImGui::SameLine();
 
 	if (ImGui::Checkbox("V-Sync", &VSync))
-	{
 		Application::Get().GetWindow().SetVSync(VSync);
-	}
 
 	ImGui::End();
 }

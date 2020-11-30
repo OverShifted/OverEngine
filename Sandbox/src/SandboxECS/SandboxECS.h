@@ -1,6 +1,7 @@
 #pragma once
 
 #include <OverEngine.h>
+#include <sol/sol.hpp>
 
 using namespace OverEngine;
 
@@ -33,4 +34,6 @@ private:
 	Entity m_MainCamera;
 	TransformComponent* m_MainCameraTransform;
 	SceneCamera* m_MainCameraCameraHandle;
+
+	sol::state m_Lua;
 };

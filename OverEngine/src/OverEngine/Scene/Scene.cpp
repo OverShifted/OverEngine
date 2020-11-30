@@ -4,6 +4,7 @@
 #include "Entity.h"
 #include "Components.h"
 #include "TransformComponent.h"
+#include "SceneCollision2D.h"
 
 #include "OverEngine/Renderer/Renderer2D.h"
 #include "OverEngine/Physics/PhysicWorld2D.h"
@@ -30,7 +31,8 @@ namespace OverEngine
 		auto view = src.view<T>();
 		dst.insert<T>(view.data(), view.data() + view.size(), view.raw(), view.raw() + view.size());
 
-		dst.view<T>().each([&dstScene](entt::entity entity, T& component) {
+		dst.view<T>().each([&dstScene](entt::entity entity, T& component)
+		{
 			component.AttachedEntity = { entity, dstScene };
 		});
 	}
@@ -80,48 +82,8 @@ namespace OverEngine
 	void Scene::OnUpdate(TimeStep deltaTime)
 	{
 		OnPhysicsUpdate(deltaTime); // TODO: use a FixedUpdate (just like Unity)
+		OnScriptsUpdate(deltaTime);
 		OnRender();
-	}
-
-	static Ref<RigidBody2D> FindAttachedBody(Entity entity)
-	{
-		if (entity.HasComponent<RigidBody2DComponent>())
-			return entity.GetComponent<RigidBody2DComponent>().RigidBody;
-
-		if (entity.HasComponent<TransformComponent>())
-			if (auto parent = entity.GetComponent<TransformComponent>().GetParent())
-				return FindAttachedBody(parent);
-
-		return nullptr;
-	}
-
-	void Scene::InitializePhysics()
-	{
-		if (m_PhysicWorld2D)
-			delete m_PhysicWorld2D;
-
-		m_PhysicWorld2D = new PhysicWorld2D({ 0.0, -9.8 });
-
-		// Construct RigidBodies
-		m_Registry.view<RigidBody2DComponent>().each([this](entt::entity entity, auto& rbc) {
-
-			auto& tc = m_Registry.get<TransformComponent>(entity);
-			rbc.RigidBody = m_PhysicWorld2D->CreateRigidBody(rbc.Initializer);
-			rbc.RigidBody->SetPosition(tc.GetPosition());
-			rbc.RigidBody->SetRotation(tc.GetEulerAngles().z);
-
-		});
-
-		// Construct self-attached Colliders
-		m_Registry.view<Colliders2DComponent>().each([this](entt::entity entity, auto& pcc) {
-
-			Ref<RigidBody2D> rb = FindAttachedBody({ entity, this });
-			for (auto& collider : pcc.Colliders)
-			{
-				collider.Collider = rb->CreateCollider(collider.Initializer);
-			}
-
-		});
 	}
 
 	void Scene::OnPhysicsUpdate(TimeStep deltaTime)
@@ -136,8 +98,8 @@ namespace OverEngine
 		// Update Physics
 		m_PhysicWorld2D->OnUpdate(deltaTime, 8, 3);
 
-		m_Registry.view<RigidBody2DComponent, TransformComponent>().each([](auto& rbc, auto& tc) {
-
+		m_Registry.view<RigidBody2DComponent, TransformComponent>().each([](auto& rbc, auto& tc)
+		{
 			if (rbc.RigidBody)
 			{
 				rbc.RigidBody->SetEnabled(rbc.Enabled);
@@ -165,6 +127,89 @@ namespace OverEngine
 					//    flag which we don't want
 					tc.m_ChangedFlags ^= TransformComponent::ChangedFlags_ChangedForPhysics;
 				}
+			}
+		});
+	}
+
+	void Scene::OnScriptsUpdate(TimeStep deltaTime)
+	{
+		m_Registry.view<NativeScriptsComponent>().each([&deltaTime](auto entity, auto& nsc)
+		{
+			for (auto& script : nsc.Scripts)
+			{
+				script.second.Instance->OnUpdate(deltaTime);
+			}
+		});
+	}
+
+	void Scene::OnScenePlay()
+	{
+		InitializePhysics();
+		InitializeScripts();
+	}
+
+	static Ref<RigidBody2D> FindAttachedBody(Entity entity)
+	{
+		if (entity.HasComponent<RigidBody2DComponent>())
+			return entity.GetComponent<RigidBody2DComponent>().RigidBody;
+
+		if (entity.HasComponent<TransformComponent>())
+			if (auto parent = entity.GetComponent<TransformComponent>().GetParent())
+				return FindAttachedBody(parent);
+
+		return nullptr;
+	}
+
+	void Scene::InitializePhysics()
+	{
+		if (m_PhysicWorld2D)
+			delete m_PhysicWorld2D;
+
+		m_PhysicWorld2D = new PhysicWorld2D({ 0.0, -9.8 });
+		m_PhysicWorld2D->SetOnCollisionCallbackUserData(this);
+
+		m_PhysicWorld2D->SetOnCollisionEnterCallback([](const Collision2D& collision, void* userData)
+		{
+			static_cast<Scene*>(userData)->OnCollisionEnter(collision);
+		});
+
+		m_PhysicWorld2D->SetOnCollisionExitCallback([](const Collision2D& collision, void* userData)
+		{
+			static_cast<Scene*>(userData)->OnCollisionExit(collision);
+		});
+
+		// Construct RigidBodies
+		m_Registry.view<RigidBody2DComponent>().each([this](entt::entity entity, auto& rbc)
+		{
+			auto& tc = m_Registry.get<TransformComponent>(entity);
+			rbc.RigidBody = m_PhysicWorld2D->CreateRigidBody(rbc.Initializer);
+			rbc.RigidBody->UserData = (void*)entity;
+			rbc.RigidBody->SetPosition(tc.GetPosition());
+			rbc.RigidBody->SetRotation(tc.GetEulerAngles().z);
+		});
+
+		// Construct self-attached Colliders
+		m_Registry.view<Colliders2DComponent>().each([this](entt::entity entity, auto& pcc)
+		{
+			Ref<RigidBody2D> rb = FindAttachedBody({ entity, this });
+			for (auto& collider : pcc.Colliders)
+			{
+				collider.Collider = rb->CreateCollider(collider.Initializer);
+			}
+		});
+	}
+
+	void Scene::InitializeScripts()
+	{
+		m_Registry.view<NativeScriptsComponent>().each([this](auto entity, auto& nsc)
+		{
+			nsc.Runtime = true;
+
+			for (auto& script : nsc.Scripts)
+			{
+				script.second.Instance = script.second.InstantiateScript();
+				script.second.Instance->AttachedEntity = Entity{ entity, this };
+				script.second.Instance->OnCreate();
 			}
 		});
 	}
@@ -205,8 +250,8 @@ namespace OverEngine
 	{
 		bool anyCamera = false;
 		
-		m_Registry.group<TransformComponent>(entt::get<CameraComponent>).each([&anyCamera, this](auto entity, auto& tc, auto& cc) {
-
+		m_Registry.group<TransformComponent>(entt::get<CameraComponent>).each([&anyCamera, this](auto entity, auto& tc, auto& cc)
+		{
 			if (cc.Enabled && tc.Enabled)
 			{
 				anyCamera = true;
@@ -218,7 +263,6 @@ namespace OverEngine
 				RenderSprites();
 				Renderer2D::EndScene();
 			}
-
 		});
 
 		// Returns false if nothing is rendered
@@ -230,18 +274,17 @@ namespace OverEngine
 		m_ViewportWidth = width;
 		m_ViewportHeight = height;
 
-		m_Registry.view<CameraComponent>().each([&width, &height](CameraComponent& cc) {
-
+		m_Registry.view<CameraComponent>().each([&width, &height](CameraComponent& cc)
+		{
 			if (cc.FixedAspectRatio)
 				cc.Camera.SetViewportSize(width, height);
-
 		});
 	}
 
 	void Scene::LoadReferences(AssetCollection& assetCollection)
 	{
-		m_Registry.view<SpriteRendererComponent>().each([&assetCollection](SpriteRendererComponent& sp) {
-
+		m_Registry.view<SpriteRendererComponent>().each([&assetCollection](SpriteRendererComponent& sp)
+		{
 			if (sp.Sprite && sp.Sprite->GetType() == TextureType::Placeholder)
 			{
 				const auto& pl = std::get<PlaceHolderTextureData>(sp.Sprite->GetData());
@@ -253,12 +296,101 @@ namespace OverEngine
 					sp.Sprite = asset->GetTexture2DAsset()->GetTextures()[pl.Texture2DGuid];
 				}
 			}
-
 		});
 	}
 
 	uint32_t Scene::GetEntityCount() const
 	{
 		return (uint32_t)m_Registry.size<IDComponent>();
+	}
+
+	void Scene::OnCollisionEnter(const Collision2D& collision)
+	{
+		Entity entityA{ (entt::entity)(uintptr_t)collision.ColliderA->GetAttachedBody()->UserData, this };
+		Entity entityB{ (entt::entity)(uintptr_t)collision.ColliderB->GetAttachedBody()->UserData, this };
+
+		if (!Exists(entityA) || !Exists(entityB))
+			return;
+
+		if (entityA.HasComponent<NativeScriptsComponent>())
+		{
+			SceneCollision2D sceneCollision;
+			sceneCollision.This.Entity = entityA;
+			sceneCollision.This.RigidBody = entityA.GetComponent<RigidBody2DComponent>().RigidBody;
+			sceneCollision.This.Collider = collision.ColliderA;
+
+			sceneCollision.Other.Entity = entityB;
+			sceneCollision.Other.RigidBody = entityB.GetComponent<RigidBody2DComponent>().RigidBody;
+			sceneCollision.Other.Collider = collision.ColliderB;
+
+			auto& nsc = entityA.GetComponent<NativeScriptsComponent>();
+			for (auto& script : nsc.Scripts)
+			{
+				script.second.Instance->OnCollisionEnter(sceneCollision);
+			}
+		}
+
+		if (entityB.HasComponent<NativeScriptsComponent>())
+		{
+			SceneCollision2D sceneCollision;
+			sceneCollision.This.Entity = entityB;
+			sceneCollision.This.RigidBody = entityB.GetComponent<RigidBody2DComponent>().RigidBody;
+			sceneCollision.This.Collider = collision.ColliderB;
+
+			sceneCollision.Other.Entity = entityA;
+			sceneCollision.Other.RigidBody = entityA.GetComponent<RigidBody2DComponent>().RigidBody;
+			sceneCollision.Other.Collider = collision.ColliderA;
+
+			auto& nsc = entityB.GetComponent<NativeScriptsComponent>();
+			for (auto& script : nsc.Scripts)
+			{
+				script.second.Instance->OnCollisionEnter(sceneCollision);
+			}
+		}
+	}
+
+	void Scene::OnCollisionExit(const Collision2D& collision)
+	{
+		Entity entityA{ (entt::entity)(uintptr_t)collision.ColliderA->GetAttachedBody()->UserData, this };
+		Entity entityB{ (entt::entity)(uintptr_t)collision.ColliderB->GetAttachedBody()->UserData, this };
+
+		if (!Exists(entityA) || !Exists(entityB))
+			return;
+
+		if (entityA.HasComponent<NativeScriptsComponent>())
+		{
+			SceneCollision2D sceneCollision;
+			sceneCollision.This.Entity = entityA;
+			sceneCollision.This.RigidBody = entityA.GetComponent<RigidBody2DComponent>().RigidBody;
+			sceneCollision.This.Collider = collision.ColliderA;
+
+			sceneCollision.Other.Entity = entityB;
+			sceneCollision.Other.RigidBody = entityB.GetComponent<RigidBody2DComponent>().RigidBody;
+			sceneCollision.Other.Collider = collision.ColliderB;
+
+			auto& nsc = entityA.GetComponent<NativeScriptsComponent>();
+			for (auto& script : nsc.Scripts)
+			{
+				script.second.Instance->OnCollisionExit(sceneCollision);
+			}
+		}
+
+		if (entityB.HasComponent<NativeScriptsComponent>())
+		{
+			SceneCollision2D sceneCollision;
+			sceneCollision.This.Entity = entityB;
+			sceneCollision.This.RigidBody = entityB.GetComponent<RigidBody2DComponent>().RigidBody;
+			sceneCollision.This.Collider = collision.ColliderB;
+
+			sceneCollision.Other.Entity = entityA;
+			sceneCollision.Other.RigidBody = entityA.GetComponent<RigidBody2DComponent>().RigidBody;
+			sceneCollision.Other.Collider = collision.ColliderA;
+
+			auto& nsc = entityB.GetComponent<NativeScriptsComponent>();
+			for (auto& script : nsc.Scripts)
+			{
+				script.second.Instance->OnCollisionExit(sceneCollision);
+			}
+		}
 	}
 }

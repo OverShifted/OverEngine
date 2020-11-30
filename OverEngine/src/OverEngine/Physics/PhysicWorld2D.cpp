@@ -8,6 +8,7 @@ namespace OverEngine
 	PhysicWorld2D::PhysicWorld2D(Vector2 gravity)
 		: m_WorldHandle(b2Vec2(gravity.x, gravity.y))
 	{
+		m_WorldHandle.SetContactListener(static_cast<b2ContactListener*>(&m_CollisionListener));
 	}
 
 	Ref<RigidBody2D> PhysicWorld2D::CreateRigidBody(const RigidBody2DProps& props)
@@ -66,5 +67,50 @@ namespace OverEngine
 	void PhysicWorld2D::OnUpdate(TimeStep ts, uint32_t velocityIterations, uint32_t positionIterations)
 	{
 		m_WorldHandle.Step(ts, velocityIterations, positionIterations);
+	}
+
+	void PhysicWorld2D::SetOnCollisionCallbackUserData(void* userData)
+	{
+		m_CollisionListener.UserData = userData;
+	}
+
+	void PhysicWorld2D::SetOnCollisionEnterCallback(void (*callback)(const Collision2D&, void*))
+	{
+		m_CollisionListener.OnCollisionEnter = callback;
+	}
+
+	void PhysicWorld2D::SetOnCollisionExitCallback(void (*callback)(const Collision2D&, void*))
+	{
+		m_CollisionListener.OnCollisionExit = callback;
+	}
+
+	void PhysicWorld2D::CollisionListener::BeginContact(b2Contact* contact)
+	{
+		Collider2D* colliderA_ptr = (Collider2D*)(contact->GetFixtureA()->GetUserData().pointer);
+		Collider2D* colliderB_ptr = (Collider2D*)(contact->GetFixtureB()->GetUserData().pointer);
+		
+		auto colliderA = colliderA_ptr->GetAttachedBody()->FindCollider(colliderA_ptr);
+		auto colliderB = colliderB_ptr->GetAttachedBody()->FindCollider(colliderB_ptr);
+
+		Collision2D collision;
+		collision.ColliderA = colliderA;
+		collision.ColliderB = colliderB;
+
+		OnCollisionEnter(collision, UserData);
+	}
+
+	void PhysicWorld2D::CollisionListener::EndContact(b2Contact* contact)
+	{
+		Collider2D* colliderA_ptr = (Collider2D*)(contact->GetFixtureA()->GetUserData().pointer);
+		Collider2D* colliderB_ptr = (Collider2D*)(contact->GetFixtureB()->GetUserData().pointer);
+		
+		auto colliderA = colliderA_ptr->GetAttachedBody()->FindCollider(colliderA_ptr);
+		auto colliderB = colliderB_ptr->GetAttachedBody()->FindCollider(colliderB_ptr);
+
+		Collision2D collision;
+		collision.ColliderA = colliderA;
+		collision.ColliderB = colliderB;
+
+		OnCollisionExit(collision, UserData);
 	}
 }

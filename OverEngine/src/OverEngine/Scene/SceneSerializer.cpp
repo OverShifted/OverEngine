@@ -71,7 +71,7 @@ namespace OverEngine
 			out << YAML::EndMap; // Camera
 
 			//out << YAML::Key << "Primary" << YAML::Value << cc.Primary;
-			//out << YAML::Key << "FixedAspectRatio" << YAML::Value << cc.FixedAspectRatio; // TODO: Fix
+			out << YAML::Key << "FixedAspectRatio" << YAML::Value << cc.FixedAspectRatio; // TODO: Fix
 
 			out << YAML::EndMap; // CameraComponent
 		}
@@ -250,6 +250,8 @@ namespace OverEngine
 						});
 					}
 
+					cc.FixedAspectRatio = cameraComponent["FixedAspectRatio"].as<bool>();
+
 					auto cameraProps = cameraComponent["Camera"];
 					cc.Camera.SetProjectionType((SceneCamera::ProjectionType)Serializer::GetGlobalEnumValue("SceneCamera::ProjectionType", cameraProps["ProjectionType"].as<String>()));
 
@@ -373,7 +375,8 @@ namespace OverEngine
 			m_Scene->m_Registry.get<TransformComponent>(p.first).SetParent({ uuids[p.second], m_Scene.get() });
 
 		// Set sibling indices
-		m_Scene->m_Registry.view<TransformComponent>().each([&siblingIndices](entt::entity entity, auto& tc) {
+		m_Scene->m_Registry.view<TransformComponent>().each([&siblingIndices](entt::entity entity, auto& tc)
+		{
 			tc.SetSiblingIndex(siblingIndices[entity]);
 		});
 

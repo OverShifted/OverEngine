@@ -4,7 +4,7 @@
 
 namespace OverEngine
 {
-	enum class RigidBody2DType : uint8_t { Static = 0, Kinematic, Dynamic	};
+	enum class RigidBody2DType : uint8_t { Static = 0, Kinematic, Dynamic };
 
 	struct RigidBody2DProps
 	{
@@ -26,6 +26,8 @@ namespace OverEngine
 		bool FixedRotation = false;
 		float GravityScale = 1.0f;
 		bool Bullet = false;
+
+		void* UserPointer;
 	};
 
 	class PhysicWorld2D;
@@ -34,6 +36,9 @@ namespace OverEngine
 	{
 	public:
 		RigidBody2D(b2Body* bodyHandle);
+
+		bool IsEnabled() const;
+		void SetEnabled(bool enabled);
 
 		RigidBody2DType GetType();
 		void SetType(const RigidBody2DType& type);
@@ -45,16 +50,19 @@ namespace OverEngine
 		void SetRotation(float rotation);
 
 		Vector2 GetLinearVelocity();
-		void SetLinearVelocity(Vector2 velocity);
+		void SetLinearVelocity(const Vector2& velocity);
 
 		float GetAngularVelocity();
 		void SetAngularVelocity(float velocity);
 
-		bool IsEnabled() const;
-		void SetEnabled(bool enabled);
+		void ApplyLinearImpulse(const Vector2& impulse, const Vector2& point, bool wake = true);
+		void ApplyLinearImpulseToCenter(const Vector2& impulse, bool wake = true);
 
 		Ref<Collider2D> CreateCollider(const Collider2DProps& props);
 		void DestroyCollider(const Ref<Collider2D>& collider);
+		Ref<Collider2D> FindCollider(Collider2D* collider);
+
+		void* UserData = nullptr;
 	private:
 		b2Body* m_BodyHandle;
 		Vector<Ref<Collider2D>> m_Colliders;

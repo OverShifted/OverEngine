@@ -20,7 +20,7 @@ namespace OverEditor
 	template <>
 	void ComponentEditor<TransformComponent>(Entity entity, uint32_t typeID)
 	{
-		if (UIElements::BeginComponentEditor<TransformComponent>(entity, "Transform Component", typeID))
+		if (UIElements::BeginComponentEditor<TransformComponent>(entity, "Transform", typeID))
 		{
 			UIElements::BeginFieldGroup();
 
@@ -83,7 +83,7 @@ namespace OverEditor
 	template <>
 	void ComponentEditor<SpriteRendererComponent>(Entity entity, uint32_t typeID)
 	{
-		if (UIElements::BeginComponentEditor<SpriteRendererComponent>(entity, "SpriteRenderer Component", typeID))
+		if (UIElements::BeginComponentEditor<SpriteRendererComponent>(entity, "SpriteRenderer", typeID))
 		{
 			UIElements::BeginFieldGroup();
 
@@ -118,24 +118,39 @@ namespace OverEditor
 				UIElements::DragFloat2Field("Tiling", "##Tiling", glm::value_ptr(sp.Tiling), 0.02f);
 				UIElements::DragFloat2Field("Offset", "##Offset", glm::value_ptr(sp.Offset), 0.02f);
 
-				static UIElements::EnumValues wrappingValues = {
-					{ 0, "None (Use default)" }, { 1, "Repeat" },
-					{ 2, "MirroredRepeat" }, { 3, "ClampToEdge" },{ 4, "ClampToBorder" }
-				};
-				UIElements::BasicEnum("Wrapping.x", "##Wrapping.x", wrappingValues, (int8_t*)&sp.Wrapping.x);
-				UIElements::BasicEnum("Wrapping.y", "##Wrapping.y", wrappingValues, (int8_t*)&sp.Wrapping.y);
+				UIElements::EndFieldGroup();
+				ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+				bool open = ImGui::TreeNodeEx("Advance Options##SpriteRendererComponentEditor", ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_AllowItemOverlap);
+				UIElements::BeginFieldGroup();
 
-				static UIElements::EnumValues filteringValues = {
-					{ 0, "None (Use default)" }, { 1, "Point" }, { 2, "Linear" }
-				};
-				UIElements::BasicEnum("Filtering", "##Filtering", filteringValues, (int8_t*)&sp.Filtering);
+				if (open)
+				{
+					static UIElements::EnumValues filteringValues = {
+						{ 0, "None (Use default)" }, { 1, "Linear" }, { 2, "Linear" }
+					};
+					UIElements::BasicEnum("Filtering", "##Filtering", filteringValues, (int8_t*)&sp.Filtering);
 
-				UIElements::CheckboxField("OverrideTextureBorderColor (for ClampToBorder wrapping)",
-					"##OverrideTextureBorderColor", &sp.TextureBorderColor.first);
+					static UIElements::EnumValues wrappingValues = {
+						{ 0, "None (Use default)" }, { 1, "Repeat" },
+						{ 2, "MirroredRepeat" }, { 3, "ClampToEdge" },{ 4, "ClampToBorder" }
+					};
+					UIElements::BasicEnum("Wrapping.x", "##Wrapping.x", wrappingValues, (int8_t*)&sp.Wrapping.x);
+					UIElements::BasicEnum("Wrapping.y", "##Wrapping.y", wrappingValues, (int8_t*)&sp.Wrapping.y);
 
-				if (sp.TextureBorderColor.first)
-					UIElements::Color4Field("TextureBorderColor (for ClampToBorder wrapping)",
-						"##BorderColor", glm::value_ptr(sp.TextureBorderColor.second));
+					if (sp.Wrapping.x == TextureWrapping::ClampToBorder || sp.Wrapping.y == TextureWrapping::ClampToBorder)
+					{
+						UIElements::CheckboxField("OverrideTextureBorderColor)",
+							"##OverrideTextureBorderColor", &sp.TextureBorderColor.first);
+
+						if (sp.TextureBorderColor.first)
+						{
+							UIElements::Color4Field("TextureBorderColor)",
+								"##BorderColor", glm::value_ptr(sp.TextureBorderColor.second));
+						}
+					}
+
+					ImGui::TreePop();
+				}
 			}
 
 			UIElements::EndFieldGroup();
@@ -145,7 +160,7 @@ namespace OverEditor
 	template <>
 	void ComponentEditor<CameraComponent>(Entity entity, uint32_t typeID)
 	{
-		if (UIElements::BeginComponentEditor<CameraComponent>(entity, "Camera Component", typeID))
+		if (UIElements::BeginComponentEditor<CameraComponent>(entity, "Camera", typeID))
 		{
 			UIElements::BeginFieldGroup();
 
@@ -180,7 +195,7 @@ namespace OverEditor
 	template <>
 	void ComponentEditor<RigidBody2DComponent>(Entity entity, uint32_t typeID)
 	{
-		if (UIElements::BeginComponentEditor<RigidBody2DComponent>(entity, "RigidBody2D Component", typeID))
+		if (UIElements::BeginComponentEditor<RigidBody2DComponent>(entity, "RigidBody2D", typeID))
 		{
 			auto& rbc = entity.GetComponent<RigidBody2DComponent>();
 
@@ -239,7 +254,7 @@ namespace OverEditor
 	template <>
 	void ComponentEditor<Colliders2DComponent>(Entity entity, uint32_t typeID)
 	{
-		if (UIElements::BeginComponentEditor<Colliders2DComponent>(entity, "Colliders2D Component", typeID))
+		if (UIElements::BeginComponentEditor<Colliders2DComponent>(entity, "Colliders2D", typeID))
 		{
 			auto& pcc = entity.GetComponent<Colliders2DComponent>();
 
@@ -259,10 +274,10 @@ namespace OverEditor
 				else
 				{
 					auto& collider = *colliderIt;
-					ImGui::SameLine();
-					bool open = ImGui::TreeNodeEx(&collider, ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_AllowItemOverlap, "Collider2D");
 
-					if (open)
+					ImGui::SameLine();
+					ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+					if (ImGui::TreeNodeEx(&collider, ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_AllowItemOverlap, "%s", "Collider2D"))
 					{
 						UIElements::BeginFieldGroup();
 

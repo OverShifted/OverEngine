@@ -10,6 +10,7 @@ namespace OverEngine
 	Collider2D::Collider2D(RigidBody2D* body, b2Fixture* fixture, Collider2DType type, Vector2 offset, float rotation, Vector2 sizeHint)
 		: m_Type(type), m_Body(body), m_FixtureHandle(fixture), m_SizeHint(sizeHint)
 	{
+		m_FixtureHandle->GetUserData().pointer = (uintptr_t)this;
 		m_Transform.Offset = offset;
 		m_Transform.Rotation = rotation;
 	}

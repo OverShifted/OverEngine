@@ -32,7 +32,7 @@ void main()
 	float mid = 0.8;
 
 	// Thickness of arrow's triangle rectangle part
-	float rectangleThickness = 0.1;
+	float rectangleThickness = 0.08;
 	
 	float vRemapped = abs(v_UV.y - 0.5);
 	if (v_UV.x > mid)

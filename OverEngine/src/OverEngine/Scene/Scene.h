@@ -50,9 +50,12 @@ namespace OverEngine
 		}
 
 		void OnUpdate(TimeStep deltaTime);
+		void OnPhysicsUpdate(TimeStep deltaTime);
+		void OnScriptsUpdate(TimeStep deltaTime);
 
+		void OnScenePlay();
 		void InitializePhysics();
-		void OnPhysicsUpdate(TimeStep DeltaTime);
+		void InitializeScripts();
 
 		// Rendering
 		bool OnRender();
@@ -70,6 +73,9 @@ namespace OverEngine
 		inline uint32_t GetEntityCount() const;
 
 		inline bool Exists(const entt::entity& entity) { return m_Registry.valid(entity); }
+		
+		void OnCollisionEnter(const Collision2D& collision);
+		void OnCollisionExit(const Collision2D& collision);
 	private:
 		entt::registry m_Registry;
 		PhysicWorld2D* m_PhysicWorld2D = nullptr;

@@ -26,7 +26,7 @@ namespace OverEngine
 		inline Scene* GetScene() const { return m_Scene; }
 
 		template<typename T, typename... Args>
-		T& AddComponent(Args&&... args)
+		T& AddComponent(Args&&... args) const
 		{
 			OE_CORE_ASSERT(!HasComponent<T>(), "Entity already has component!");
 			m_Scene->m_ComponentList[m_EntityHandle].push_back(entt::type_info<T>::id());
@@ -34,7 +34,7 @@ namespace OverEngine
 		}
 
 		template<typename T, typename... Args>
-		T& AddComponentDontPassEntity(Args&&... args)
+		T& AddComponentDontPassEntity(Args&&... args) const
 		{
 			OE_CORE_ASSERT(!HasComponent<T>(), "Entity already has component!");
 			m_Scene->m_ComponentList[m_EntityHandle].push_back(entt::type_info<T>::id());
@@ -42,27 +42,27 @@ namespace OverEngine
 		}
 
 		template<typename T>
-		T& GetComponent()
+		T& GetComponent() const
 		{
 			OE_CORE_ASSERT(HasComponent<T>(), "Entity does not have component!");
 			return m_Scene->m_Registry.get<T>(m_EntityHandle);
 		}
 
 		template<typename T>
-		ComponentRef<T> GetComponentRef()
+		ComponentRef<T> GetComponentRef() const
 		{
 			OE_CORE_ASSERT(HasComponent<T>(), "Entity does not have component!");
 			return ComponentRef<T>(*this);
 		}
 
 		template<typename T>
-		bool HasComponent()
+		bool HasComponent() const
 		{
 			return m_Scene->m_Registry.has<T>(m_EntityHandle);
 		}
 
 		template<typename T>
-		void RemoveComponent()
+		void RemoveComponent() const
 		{
 			OE_CORE_ASSERT(HasComponent<T>(), "Entity does not have component!");
 			m_Scene->m_Registry.remove<T>(m_EntityHandle);

@@ -150,11 +150,11 @@ namespace OverEditor
 
 			if (ImGui::BeginPopup("Add Component##Popup"))
 			{
-				CheckAddComponent<TransformComponent>(selectedEntity, "Transform Component##AddComponentPopup");
-				CheckAddComponent<SpriteRendererComponent>(selectedEntity, "SpriteRenderer Component##AddComponentPopup", nullptr);
-				CheckAddComponent<CameraComponent>(selectedEntity, "Camera Component##AddComponentPopup");
-				CheckAddComponent<RigidBody2DComponent>(selectedEntity, "RigidBody2D Component##AddComponentPopup");
-				CheckAddComponent<Colliders2DComponent>(selectedEntity, "Colliders2D Component##AddComponentPopup");
+				CheckAddComponent<TransformComponent>(selectedEntity, "Transform##AddComponentPopup");
+				CheckAddComponent<SpriteRendererComponent>(selectedEntity, "SpriteRenderer##AddComponentPopup", nullptr);
+				CheckAddComponent<CameraComponent>(selectedEntity, "Camera##AddComponentPopup");
+				CheckAddComponent<RigidBody2DComponent>(selectedEntity, "RigidBody2D##AddComponentPopup");
+				CheckAddComponent<Colliders2DComponent>(selectedEntity, "Colliders2D##AddComponentPopup");
 
 				ImGui::EndPopup();
 			}
