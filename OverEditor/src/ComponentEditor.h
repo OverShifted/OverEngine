@@ -6,6 +6,41 @@
 #include <OverEngine/Scene/Components.h>
 #include <imgui/imgui.h>
 
+
+#define __BASIC_ACTION_FUNCS(T, setter, getter)   \
+	[entity]() {                                  \
+		return entity.GetComponent<T>().getter(); \
+	},                                            \
+	[entity](const auto& v) {                     \
+		entity.GetComponent<T>().setter(v);       \
+	}
+
+#define __BASIC_ACTION_VAL(T, val)                \
+	[entity]() {                                  \
+		return entity.GetComponent<T>().val;      \
+	},                                            \
+	[entity](const auto& v) {                     \
+		entity.GetComponent<T>().val = v;         \
+	}
+
+#define __BASIC_ENUM_ACTION_VAL(T, EnumT, val)    \
+	[entity]() {                                  \
+		return (int)entity.GetComponent<T>().val; \
+	},                                            \
+	[entity](const auto& v) {                     \
+		entity.GetComponent<T>().val = (EnumT)v;  \
+	}
+
+#define __BASIC_FLAG_ACTION(T, FlagT, flag, refrence_getter)              \
+	(FlagT*)&entity.GetComponent<T>().refrence_getter, (FlagT)flag,                                \
+	[entity]() {                                                          \
+		return (entity.GetComponent<T>().refrence_getter & flag) == flag; \
+	},                                                                    \
+	[entity](const auto& v) {                                             \
+		if (v) entity.GetComponent<T>().refrence_getter |= flag;          \
+		else entity.GetComponent<T>().refrence_getter &= ~flag;           \
+	}
+
 namespace OverEditor
 {
 	// Base
@@ -30,36 +65,21 @@ namespace OverEditor
 			Vector3 scale = tc.GetLocalScale();
 
 			if (UIElements::DragFloat3Field_U("Position", "##Position", glm::value_ptr(position), 
-				[entity]() mutable {
-					return entity.GetComponent<TransformComponent>().GetLocalPosition();
-				},
-				[entity](const auto& pos) mutable {
-					entity.GetComponent<TransformComponent>().SetLocalPosition(pos);
-				}
+				__BASIC_ACTION_FUNCS(TransformComponent, SetLocalPosition, GetLocalPosition)
 				, 0.2f))
 			{
 				tc.SetLocalPosition(position);
 			}
 
 			if (UIElements::DragFloat3Field_U("Rotation", "##Rotation", glm::value_ptr(rotation),
-				[entity]() mutable {
-					return entity.GetComponent<TransformComponent>().GetLocalEulerAngles();
-				},
-				[entity](const auto& rot) mutable {
-					entity.GetComponent<TransformComponent>().SetLocalEulerAngles(rot);
-				}
+				__BASIC_ACTION_FUNCS(TransformComponent, SetLocalEulerAngles, GetLocalEulerAngles)
 				, 0.2f))
 			{
 				tc.SetLocalEulerAngles(rotation);
 			}
 
 			if (UIElements::DragFloat3Field_U("Scale", "##Scale", glm::value_ptr(scale),
-				[entity]() mutable {
-					return entity.GetComponent<TransformComponent>().GetLocalScale();
-				},
-				[entity](const auto& scale) mutable {
-					entity.GetComponent<TransformComponent>().SetLocalScale(scale);
-				}
+				__BASIC_ACTION_FUNCS(TransformComponent, SetLocalScale, GetLocalScale)
 				, 0.2f))
 			{
 				tc.SetLocalScale(scale);
@@ -90,21 +110,11 @@ namespace OverEditor
 			auto& sp = entity.GetComponent<SpriteRendererComponent>();
 
 			UIElements::Color4Field_U("Tint", "##Tint", glm::value_ptr(sp.Tint),
-				[entity]() mutable {
-					return entity.GetComponent<SpriteRendererComponent>().Tint;
-				},
-				[entity](const auto& col) mutable {
-					entity.GetComponent<SpriteRendererComponent>().Tint = col;
-				}
+				__BASIC_ACTION_VAL(SpriteRendererComponent, Tint)
 			);
 
 			UIElements::DragFloatField_U("AlphaClipThreshold", "##AlphaClipThreshold", &sp.AlphaClipThreshold,
-				[entity]() mutable {
-					return entity.GetComponent<SpriteRendererComponent>().AlphaClipThreshold;
-				},
-				[entity](const auto& val) mutable {
-					entity.GetComponent<SpriteRendererComponent>().AlphaClipThreshold = val;
-				}
+				__BASIC_ACTION_VAL(SpriteRendererComponent, AlphaClipThreshold)
 				, 0.02f, 0.0f, 1.0f
 			);
 
@@ -112,11 +122,11 @@ namespace OverEditor
 
 			if (sp.Sprite && sp.Sprite->GetType() != TextureType::Placeholder)
 			{
-				UIElements::CheckboxField("Flip.x", "##Flip.x", &sp.Flip.x);
-				UIElements::CheckboxField("Flip.y", "##Flip.y", &sp.Flip.y);
+				UIElements::CheckboxField_U("Flip.x", "##Flip.x", &sp.Flip.x, __BASIC_ACTION_VAL(SpriteRendererComponent, Flip.x));
+				UIElements::CheckboxField_U("Flip.y", "##Flip.y", &sp.Flip.y, __BASIC_ACTION_VAL(SpriteRendererComponent, Flip.y));
 
-				UIElements::DragFloat2Field("Tiling", "##Tiling", glm::value_ptr(sp.Tiling), 0.02f);
-				UIElements::DragFloat2Field("Offset", "##Offset", glm::value_ptr(sp.Offset), 0.02f);
+				UIElements::DragFloat2Field_U("Tiling", "##Tiling", glm::value_ptr(sp.Tiling), __BASIC_ACTION_VAL(SpriteRendererComponent, Tiling), 0.02f);
+				UIElements::DragFloat2Field_U("Offset", "##Offset", glm::value_ptr(sp.Offset), __BASIC_ACTION_VAL(SpriteRendererComponent, Offset), 0.02f);
 
 				UIElements::EndFieldGroup();
 				ImGui::SetNextItemOpen(true, ImGuiCond_Once);
@@ -134,18 +144,22 @@ namespace OverEditor
 						{ 0, "None (Use default)" }, { 1, "Repeat" },
 						{ 2, "MirroredRepeat" }, { 3, "ClampToEdge" },{ 4, "ClampToBorder" }
 					};
-					UIElements::BasicEnum("Wrapping.x", "##Wrapping.x", wrappingValues, (int8_t*)&sp.Wrapping.x);
-					UIElements::BasicEnum("Wrapping.y", "##Wrapping.y", wrappingValues, (int8_t*)&sp.Wrapping.y);
+					UIElements::BasicEnum_U("Wrapping.x", "##Wrapping.x", wrappingValues, (int8_t*)&sp.Wrapping.x, __BASIC_ENUM_ACTION_VAL(SpriteRendererComponent, TextureWrapping, Wrapping.x));
+					UIElements::BasicEnum_U("Wrapping.y", "##Wrapping.y", wrappingValues, (int8_t*)&sp.Wrapping.y, __BASIC_ENUM_ACTION_VAL(SpriteRendererComponent, TextureWrapping, Wrapping.y));
 
 					if (sp.Wrapping.x == TextureWrapping::ClampToBorder || sp.Wrapping.y == TextureWrapping::ClampToBorder)
 					{
-						UIElements::CheckboxField("OverrideTextureBorderColor)",
-							"##OverrideTextureBorderColor", &sp.TextureBorderColor.first);
+						UIElements::CheckboxField_U("OverrideTextureBorderColor",
+							"##OverrideTextureBorderColor", &sp.TextureBorderColor.first,
+							__BASIC_ACTION_VAL(SpriteRendererComponent, TextureBorderColor.first)
+						);
 
 						if (sp.TextureBorderColor.first)
 						{
-							UIElements::Color4Field("TextureBorderColor)",
-								"##BorderColor", glm::value_ptr(sp.TextureBorderColor.second));
+							UIElements::Color4Field_U("TextureBorderColor)",
+								"##BorderColor", glm::value_ptr(sp.TextureBorderColor.second),
+								__BASIC_ACTION_VAL(SpriteRendererComponent, TextureBorderColor.second)
+							);
 						}
 					}
 
@@ -174,19 +188,19 @@ namespace OverEditor
 			float OrthographicFarClip = camera.Camera.GetOrthographicFarClip();
 
 			// TODO: Perspective Camera
-			if (UIElements::DragFloatField("Orthographic Size", "##Orthographic Size", &orthoSize, 0.5f, 0.0001f, FLT_MAX))
+			if (UIElements::DragFloatField_U("Orthographic Size", "##Orthographic Size", &orthoSize, __BASIC_ACTION_FUNCS(CameraComponent, Camera.SetOrthographicSize, Camera.GetOrthographicSize), 0.5f, 0.0001f, FLT_MAX))
 				camera.Camera.SetOrthographicSize(orthoSize);
 
-			if (UIElements::DragFloatField("OrthographicNearClip", "##OrthographicNearClip", &OrthographicNearClip, 0.5f))
+			if (UIElements::DragFloatField_U("OrthographicNearClip", "##OrthographicNearClip", &OrthographicNearClip, __BASIC_ACTION_FUNCS(CameraComponent, Camera.SetOrthographicNearClip, Camera.GetOrthographicNearClip), 0.5f))
 				camera.Camera.SetOrthographicNearClip(OrthographicNearClip);
-			if (UIElements::DragFloatField("OrthographicFarClip", "##OrthographicFarClip", &OrthographicFarClip, 0.5f))
+			if (UIElements::DragFloatField_U("OrthographicFarClip", "##OrthographicFarClip", &OrthographicFarClip, __BASIC_ACTION_FUNCS(CameraComponent, Camera.SetOrthographicFarClip, Camera.GetOrthographicFarClip), 0.5f))
 				camera.Camera.SetOrthographicFarClip(OrthographicFarClip);
 
-			if (UIElements::Color4Field("Clear Color", "##Clear Color", glm::value_ptr(clearColor)))
+			if (UIElements::Color4Field_U("Clear Color", "##Clear Color", glm::value_ptr(clearColor), __BASIC_ACTION_FUNCS(CameraComponent, Camera.SetClearColor, Camera.GetClearColor)))
 				camera.Camera.SetClearColor(clearColor);
 
-			UIElements::CheckboxFlagsField<uint8_t>("Is Clearing Color", "##Is Clearing Color", (uint8_t*)&camera.Camera.GetClearFlags(), ClearFlags_ClearColor);
-			UIElements::CheckboxFlagsField<uint8_t>("Is Clearing Depth", "##Is Clearing Depth", (uint8_t*)&camera.Camera.GetClearFlags(), ClearFlags_ClearDepth);
+			UIElements::CheckboxFlagsField_U("Is Clearing Color", "##Is Clearing Color", __BASIC_FLAG_ACTION(CameraComponent, uint8_t, ClearFlags_ClearColor, Camera.GetClearFlags()));
+			UIElements::CheckboxFlagsField_U("Is Clearing Depth", "##Is Clearing Depth", __BASIC_FLAG_ACTION(CameraComponent, uint8_t, ClearFlags_ClearDepth, Camera.GetClearFlags()));
 
 			UIElements::EndFieldGroup();
 		}

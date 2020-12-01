@@ -40,6 +40,31 @@ namespace OverEditor
 		SetterFn Setter;
 	};
 
+	struct IntEditAction : public Action
+	{
+		using GetterFn = std::function<int()>;
+		using SetterFn = std::function<void(const int&)>;
+
+		IntEditAction() = default;
+		IntEditAction(const int& delta, const GetterFn& getter, const SetterFn& setter)
+			: Delta(delta), Getter(getter), Setter(setter) {}
+
+		virtual void Perform()
+		{
+			Setter(Getter() + Delta);
+		}
+
+		virtual void Revert()
+		{
+			Setter(Getter() - Delta);
+		}
+
+	private:
+		int Delta;
+		GetterFn Getter;
+		SetterFn Setter;
+	};
+
 	struct FloatEditAction : public Action
 	{
 		using GetterFn = std::function<float()>;
@@ -61,6 +86,31 @@ namespace OverEditor
 
 	private:
 		float Delta;
+		GetterFn Getter;
+		SetterFn Setter;
+	};
+
+	struct Vector2EditAction : public Action
+	{
+		using GetterFn = std::function<Vector2()>;
+		using SetterFn = std::function<void(const Vector2&)>;
+
+		Vector2EditAction() = default;
+		Vector2EditAction(const Vector2& delta, const GetterFn& getter, const SetterFn& setter)
+			: Delta(delta), Getter(getter), Setter(setter) {}
+
+		virtual void Perform()
+		{
+			Setter(Getter() + Delta);
+		}
+
+		virtual void Revert()
+		{
+			Setter(Getter() - Delta);
+		}
+
+	private:
+		Vector2 Delta;
 		GetterFn Getter;
 		SetterFn Setter;
 	};

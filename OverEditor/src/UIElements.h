@@ -21,10 +21,10 @@ namespace OverEditor
 	{
 	public:
 		template <typename T>
-		bool static BeginComponentEditor(Entity entity, const char* headerName, uint32_t componentTypeID);
+		static bool BeginComponentEditor(Entity entity, const char* headerName, uint32_t componentTypeID);
 
-		void static BeginFieldGroup() { ImGui::Columns(2); }
-		void static EndFieldGroup() { ImGui::Columns(1); }
+		static inline void BeginFieldGroup() { ImGui::Columns(2); }
+		static inline void EndFieldGroup() { ImGui::Columns(1); }
 
 		static bool CheckboxField(const char* fieldName, const char* fieldID, bool* value);
 
@@ -59,9 +59,17 @@ namespace OverEditor
 		// Undo ables /////////////////////////////////
 		///////////////////////////////////////////////
 
+		static bool CheckboxField_U(const char* fieldName, const char* fieldID, bool* value, const BoolEditAction::GetterFn& getter, const BoolEditAction::SetterFn& setter);
+		template <typename FlagType>
+		static bool CheckboxFlagsField_U(const char* fieldName, const char* fieldID, FlagType* flags, FlagType value, const BoolEditAction::GetterFn& getter, const BoolEditAction::SetterFn& setter);
+
 		static bool DragFloatField_U(const char* fieldName, const char* fieldID, float* value, const FloatEditAction::GetterFn& getter, const FloatEditAction::SetterFn& setter, float speed = 1.0f, float min = 0.0f, float max = 0.0f, const char* format = "%.3f");
+		static bool DragFloat2Field_U(const char* fieldName, const char* fieldID, float value[2], const Vector2EditAction::GetterFn& getter, const Vector2EditAction::SetterFn& setter, float speed = 1.0f, float min = 0.0f, float max = 0.0f, const char* format = "%.3f");
 		static bool DragFloat3Field_U(const char* fieldName, const char* fieldID, float value[3], const Vector3EditAction::GetterFn& getter, const Vector3EditAction::SetterFn& setter, float speed = 1.0f, float min = 0.0f, float max = 0.0f, const char* format = "%.3f");
 		static bool Color4Field_U(const char* fieldName, const char* fieldID, float value[4], const Vector4EditAction::GetterFn& getter, const Vector4EditAction::SetterFn& setter);
+
+		template <typename T>
+		static bool BasicEnum_U(const char* fieldName, const char* fieldID, EnumValues& values, T* currentValue, const IntEditAction::GetterFn& getter, const IntEditAction::SetterFn& setter, const ImGuiSelectableFlags& flags = 0);
 	};
 
 	///////////////////////////////////////////////
@@ -190,5 +198,26 @@ namespace OverEditor
 			func();
 			ImGui::EndTooltip();
 		}
+	}
+
+	template <typename FlagType>
+	bool UIElements::CheckboxFlagsField_U(const char* fieldName, const char* fieldID, FlagType* flags, FlagType value, const BoolEditAction::GetterFn& getter, const BoolEditAction::SetterFn& setter)
+	{
+		bool changed = CheckboxFlagsField(fieldName, fieldID, flags, value);
+		if (changed)
+			EditorLayer::Get().GetActionStack().Do(CreateRef<BoolEditAction>(getter, setter));
+
+		return changed;
+	}
+
+	template <typename T>
+	bool UIElements::BasicEnum_U(const char* fieldName, const char* fieldID, EnumValues& values, T* currentValue, const IntEditAction::GetterFn& getter, const IntEditAction::SetterFn& setter, const ImGuiSelectableFlags& flags /*= 0*/)
+	{
+		T val = *currentValue;
+		bool changed = BasicEnum(fieldName, fieldID, values, currentValue, flags);
+		if (changed)
+			EditorLayer::Get().GetActionStack().Do(CreateRef<IntEditAction>(*currentValue - val, getter, setter), false);
+
+		return changed;
 	}
 }

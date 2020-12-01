@@ -8,10 +8,9 @@ namespace OverEditor
 		ImGui::TextUnformatted(fieldName);
 		ImGui::NextColumn();
 
-		ImGui::PushItemWidth(-1);
 		bool changed = ImGui::Checkbox(fieldID, value);
-		ImGui::PopItemWidth();
 		ImGui::NextColumn();
+
 		return changed;
 	}
 
@@ -116,6 +115,15 @@ namespace OverEditor
 		ImGui::PopStyleVar();
 	}
 
+	bool UIElements::CheckboxField_U(const char* fieldName, const char* fieldID, bool* value, const BoolEditAction::GetterFn& getter, const BoolEditAction::SetterFn& setter)
+	{
+		bool changed = CheckboxField(fieldName, fieldID, value);
+		if (changed)
+			EditorLayer::Get().GetActionStack().Do(CreateRef<BoolEditAction>(getter, setter), false);
+
+		return changed;
+	}
+
 	bool UIElements::DragFloatField_U(const char* fieldName, const char* fieldID, float* value, const FloatEditAction::GetterFn& getter, const FloatEditAction::SetterFn& setter, float speed /*= 1.0f*/, float min /*= 0.0f*/, float max /*= 0.0f*/, const char* format /*= "%.3f"*/)
 	{
 		static float delta = 0.0f;
@@ -140,6 +148,36 @@ namespace OverEditor
 		if (changed)
 		{
 			*value = valueToChange;
+		}
+
+		return changed;
+	}
+
+	bool UIElements::DragFloat2Field_U(const char* fieldName, const char* fieldID, float value[2], const Vector2EditAction::GetterFn& getter, const Vector2EditAction::SetterFn& setter, float speed /*= 1.0f*/, float min /*= 0.0f*/, float max /*= 0.0f*/, const char* format /*= "%.3f"*/)
+	{
+		static Vector2 delta(0.0f);
+
+		// Backup value's value
+		Vector2 v{ value[0], value[1], };
+		Vector2 valueToChange = v;
+
+		bool changed = false;
+		if (UIElements::DragFloat2Field(fieldName, fieldID, glm::value_ptr(valueToChange), speed, min, max, format))
+		{
+			delta += valueToChange - v;
+			changed = true;
+		}
+
+		if (ImGui::IsItemDeactivatedAfterEdit())
+		{
+			EditorLayer::Get().GetActionStack().Do(CreateRef<Vector2EditAction>(delta, getter, setter), false);
+			delta = Vector2(0.0f);
+		}
+
+		if (changed)
+		{
+			value[0] = valueToChange[0];
+			value[1] = valueToChange[1];
 		}
 
 		return changed;
