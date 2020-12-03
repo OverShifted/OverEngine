@@ -4,7 +4,7 @@ function player.update(delta)
 
 	vel = Vector2.new()
 
-	mult = 10 * delta
+	mult = 25 * delta
 	if Input.IsKeyPressed(KeyCode.LeftShift or KeyCode.RightShift) then
 		mult = 2 * mult
 	end

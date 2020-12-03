@@ -120,8 +120,6 @@ namespace OverEngine
 		Vec2T<TextureWrapping> Wrapping{ TextureWrapping::None, TextureWrapping::None };
 		TextureFiltering Filtering = TextureFiltering::None;
 
-		float AlphaClipThreshold = 0.0f;
-
 		// first : Is overriding TextureBorderColor?
 		// second : Override TextureBorderColor to what?
 		std::pair<bool, Color> TextureBorderColor{ false, Color(0.0f) };

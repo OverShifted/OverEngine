@@ -120,7 +120,6 @@ SandboxECS::SandboxECS()
 	// Collider2D
 	auto& colliderList = obstacle.AddComponent<Colliders2DComponent>();
 	Collider2DProps obscprops;
-	obscprops.IsTrigger = true;
 	obscprops.Shape.Type = Collider2DType::Box;
 	obscprops.Shape.BoxSize = { 4.0f, 1.0f };
 	obscprops.Bounciness = 0.3f;
@@ -136,7 +135,7 @@ SandboxECS::SandboxECS()
 
 	// SpriteRenderer
 	auto& spriteRenderer2 = obstacle2.AddComponent<SpriteRendererComponent>(m_ObstacleSprite);
-	spriteRenderer2.Tiling.x = 40.0f;
+	spriteRenderer2.Tiling.x = 4000.0f;
 	spriteRenderer2.Wrapping.x = TextureWrapping::Repeat;
 	spriteRenderer2.Wrapping.y = TextureWrapping::Repeat;
 
@@ -147,14 +146,14 @@ SandboxECS::SandboxECS()
 
 
 	auto& obstacle2Transform = obstacle2.GetComponent<TransformComponent>();
-	obstacle2Transform.SetLocalScale({ 40.0f, 1.0f, 1.0f });
+	obstacle2Transform.SetLocalScale({ 4000.0f, 1.0f, 1.0f });
 	obstacle2Transform.SetLocalPosition({ 0.0f, -8.0f, 0.0f });
 
 	// Collider2D
 	auto& colliderList2 = obstacle2.AddComponent<Colliders2DComponent>();
 	Collider2DProps obs2cprops;
 	obs2cprops.Shape.Type = Collider2DType::Box;
-	obs2cprops.Shape.BoxSize = { 40.0f, 1.0f };
+	obs2cprops.Shape.BoxSize = { 4000.0f, 1.0f };
 	obs2cprops.Bounciness = 0.3f;
 	obs2cprops.Friction = 1.0f;
 	obs2cprops.Density = 200.0f;
@@ -219,6 +218,7 @@ SandboxECS::SandboxECS()
 }
 
 static Vector<float> s_FPSSamples(200);
+int maxFPS = 0;
 static bool VSync = true;
 static char fpsText[32];
 
@@ -247,6 +247,9 @@ void SandboxECS::OnUpdate(TimeStep deltaTime)
 	s_FPSSamples[(int)s_FPSSamples.size() - 1] = 1 / deltaTime;
 	if (s_FPSSamples[(int)s_FPSSamples.size() - 1] > 10000)
 		s_FPSSamples[(int)s_FPSSamples.size() - 1] = 0;
+
+	if ((int)s_FPSSamples[(int)s_FPSSamples.size() - 1] > maxFPS)
+		maxFPS = (int)s_FPSSamples[(int)s_FPSSamples.size() - 1];
 
 	sprintf_s(fpsText, 32, "%i", (int)s_FPSSamples[(int)s_FPSSamples.size() - 1]);
 
@@ -320,6 +323,7 @@ void SandboxECS::OnImGuiRender()
 	ImGui::Text("QuadCount : %i   ", Renderer2D::GetStatistics().QuadCount); ImGui::SameLine();
 	ImGui::Text("IndexCount : %i   ", Renderer2D::GetStatistics().GetIndexCount()); ImGui::SameLine();
 	ImGui::Text("VertexCount : %i   ", Renderer2D::GetStatistics().GetVertexCount()); ImGui::SameLine();
+	ImGui::Text("MaxFPS : %i   ", maxFPS); ImGui::SameLine();
 
 	if (ImGui::Button("Reload Renderer2D Shader"))
 		Renderer2D::GetShader()->Reload();

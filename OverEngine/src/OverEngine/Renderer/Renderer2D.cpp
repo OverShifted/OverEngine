@@ -14,7 +14,6 @@ namespace OverEngine
 
 		float a_TexSlot                   = -1.0f;
 		float a_TexFilter                 = 0.0f;
-		float a_TexAlphaClippingThreshold = 0.0f;
 		Vector2 a_TexWrapping             = Vector2(0.0f);
 		Color a_TexBorderColor            = Color(0.0f);
 		Rect a_TexRect                    = Rect(0.0f);
@@ -126,7 +125,6 @@ namespace OverEngine
 
 			{ ShaderDataType::Float , "a_TexSlot" },
 			{ ShaderDataType::Float , "a_TexFilter" },
-			{ ShaderDataType::Float , "a_TexAlphaClippingThreshold" },
 			{ ShaderDataType::Float2, "a_TexWrapping" },
 			{ ShaderDataType::Float4, "a_TexBorderColor" },
 			{ ShaderDataType::Float4, "a_TexRect" },
@@ -244,24 +242,24 @@ namespace OverEngine
 	// FlatColor Quad ///////////////////////////////////////
 	/////////////////////////////////////////////////////////
 
-	void Renderer2D::DrawQuad(const Vector2& position, float rotation, const Vector2& size, const Color& color, float alphaClippingThreshold)
+	void Renderer2D::DrawQuad(const Vector2& position, float rotation, const Vector2& size, const Color& color)
 	{
-		DrawQuad(Vector3(position, 0.0f), rotation, size, color, alphaClippingThreshold);
+		DrawQuad(Vector3(position, 0.0f), rotation, size, color);
 	}
 
-	void Renderer2D::DrawQuad(const Vector3& position, float rotation, const Vector2& size, const Color& color, float alphaClippingThreshold)
+	void Renderer2D::DrawQuad(const Vector3& position, float rotation, const Vector2& size, const Color& color)
 	{
 		Mat4x4 transform =
 			glm::translate(Mat4x4(1.0f), position) *
 			glm::rotate(Mat4x4(1.0f), rotation, Vector3(0, 0, 1)) *
 			glm::scale(Mat4x4(1.0f), Vector3(size, 1.0f));
 
-		DrawQuad(transform, color, alphaClippingThreshold);
+		DrawQuad(transform, color);
 	}
 
-	void Renderer2D::DrawQuad(const Mat4x4& transform, const Color& color, float alphaClippingThreshold)
+	void Renderer2D::DrawQuad(const Mat4x4& transform, const Color& color)
 	{
-		if (color.a <= alphaClippingThreshold)
+		if (color.a  == 0)
 			return;
 
 		bool transparent = color.a < 1.0f;
@@ -311,6 +309,9 @@ namespace OverEngine
 		if (!texture || texture->GetType() == TextureType::Placeholder)
 			return;
 
+		if (extraData.Tint.a == 0)
+			return;
+
 		Ref<GAPI::Texture2D> textureToBind = texture->GetGPUTexture();
 
 		int textureSlot = -1;
@@ -336,9 +337,6 @@ namespace OverEngine
 			textureSlot = slot;
 		}
 
-		if (extraData.AlphaClipThreshold >= 1.0f || extraData.Tint.a <= extraData.AlphaClipThreshold)
-			return;
-
 		bool transparent = extraData.Tint.a < 1.0f || texture->GetFormat() == TextureFormat::RGBA;
 
 		DrawQuadVertices vertices;
@@ -363,8 +361,6 @@ namespace OverEngine
 				vertex.a_TexFilter = (float)extraData.Filtering;
 			else
 				vertex.a_TexFilter = (float)texture->GetFiltering();
-
-			vertex.a_TexAlphaClippingThreshold = extraData.AlphaClipThreshold;
 
 			// a_TexSWrapping & a_TexTWrapping
 			if (extraData.Wrapping.x != TextureWrapping::None)

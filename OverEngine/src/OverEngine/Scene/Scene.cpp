@@ -96,7 +96,8 @@ namespace OverEngine
 		/////////////////////////////////////////////////////
 
 		// Update Physics
-		m_PhysicWorld2D->OnUpdate(deltaTime, 8, 3);
+		//m_PhysicWorld2D->OnUpdate(deltaTime, 8, 3);
+		m_PhysicWorld2D->OnUpdate(deltaTime, 1, 1);
 
 		m_Registry.view<RigidBody2DComponent, TransformComponent>().each([](auto& rbc, auto& tc)
 		{
@@ -233,14 +234,13 @@ namespace OverEngine
 					data.Flip = sprite.Flip;
 					data.Wrapping = sprite.Wrapping;
 					data.Filtering = sprite.Filtering;
-					data.AlphaClipThreshold = sprite.AlphaClipThreshold;
 					data.TextureBorderColor = sprite.TextureBorderColor;
 
 					Renderer2D::DrawQuad(sptransform, sprite.Sprite, data);
 				}
 				else
 				{
-					Renderer2D::DrawQuad(sptransform, sprite.Tint, sprite.AlphaClipThreshold);
+					Renderer2D::DrawQuad(sptransform, sprite.Tint);
 				}
 			}
 		}

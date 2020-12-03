@@ -304,7 +304,6 @@ namespace OverEngine
 					sp.Wrapping.x = (TextureWrapping)Serializer::GetGlobalEnumValue("TextureWrapping", spriteRendererComponent["Wrapping.x"].as<String>());
 					sp.Wrapping.y = (TextureWrapping)Serializer::GetGlobalEnumValue("TextureWrapping", spriteRendererComponent["Wrapping.y"].as<String>());
 					sp.Filtering = (TextureFiltering)Serializer::GetGlobalEnumValue("TextureFiltering", spriteRendererComponent["Filtering"].as<String>());
-					sp.AlphaClipThreshold = spriteRendererComponent["AlphaClipThreshold"].as<float>();
 					sp.TextureBorderColor.first = spriteRendererComponent["IsOverridingTextureBorderColor"].as<bool>();
 					sp.TextureBorderColor.second = spriteRendererComponent["TextureBorderColor"].as<Color>();
 				}

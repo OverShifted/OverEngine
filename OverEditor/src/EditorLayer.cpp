@@ -65,7 +65,7 @@ namespace OverEditor
 
 				ImGui::Separator();
 
-				if (ImGui::MenuItem("Save Scene", "Ctrl+S", nullptr, (bool)m_SceneContext->PrimaryScene->GetScene()))
+				if (ImGui::MenuItem("Save Scene", "Ctrl+S", nullptr, m_SceneContext->AnySceneOpen()))
 				{
 					SceneSerializer sceneSerializer(m_SceneContext->PrimaryScene->GetScene());
 					sceneSerializer.Serialize(m_EditingProject->GetAssetsDirectoryPath() + m_SceneContext->PrimaryScene->GetPath());

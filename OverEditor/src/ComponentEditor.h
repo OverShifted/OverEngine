@@ -113,11 +113,6 @@ namespace OverEditor
 				__BASIC_ACTION_VAL(SpriteRendererComponent, Tint)
 			);
 
-			UIElements::DragFloatField_U("AlphaClipThreshold", "##AlphaClipThreshold", &sp.AlphaClipThreshold,
-				__BASIC_ACTION_VAL(SpriteRendererComponent, AlphaClipThreshold)
-				, 0.02f, 0.0f, 1.0f
-			);
-
 			UIElements::Texture2DField("Sprite", "##Sprite", sp.Sprite);
 
 			if (sp.Sprite && sp.Sprite->GetType() != TextureType::Placeholder)

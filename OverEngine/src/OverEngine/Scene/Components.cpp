@@ -44,8 +44,6 @@ namespace OverEngine
 			ctx.AddEnumField(SerializableType::Int8Enum, "TextureWrapping", OffsetOf(&SpriteRendererComponent::Wrapping) + sizeof(TextureWrapping), "Wrapping.y");
 			ctx.AddEnumField(SerializableType::Int8Enum, "TextureFiltering", SERIALIZE_FIELD(SpriteRendererComponent, Filtering));
 
-			ctx.AddField(SerializableType::Float, SERIALIZE_FIELD(SpriteRendererComponent, AlphaClipThreshold));
-
 			ctx.AddField(SerializableType::Bool, OffsetOf(&SpriteRendererComponent::TextureBorderColor) + OffsetOf(&std::pair<bool, Color>::first), "IsOverridingTextureBorderColor");
 			ctx.AddField(SerializableType::Float4, OffsetOf(&SpriteRendererComponent::TextureBorderColor) + OffsetOf(&std::pair<bool, Color>::second), "TextureBorderColor");
 		}

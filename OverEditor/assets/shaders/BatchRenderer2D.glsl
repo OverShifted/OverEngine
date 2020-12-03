@@ -3,68 +3,69 @@
 
 layout(location = 0) in vec4 a_Position;
 layout(location = 1) in vec4 a_Color; // Tint
-layout(location = 2) in float a_TextureSlot; // Texture Unit or -1 for no texture
-layout(location = 3) in float a_TextureFilter; // Linear / Point
-layout(location = 4) in float a_TextureAlphaClippingThreshold;
-layout(location = 5) in vec2 a_TextureWrapping; // Repeat, MirroredRepeat, ...
-layout(location = 6) in vec4 a_TextureBorderColor; // Used for ClampToBorder
-layout(location = 7) in vec4 a_TextureRect; // 0 -> 1 Rect from Atlas
-layout(location = 8) in vec2 a_TextureSize; // Texture size in pixels
-layout(location = 9) in vec2 a_TextureCoord; // UV Coord
+layout(location = 2) in float a_TexSlot; // Texture Unit or -1 for no texture
+layout(location = 3) in float a_TexFilter; // Linear / Point
+layout(location = 4) in vec2 a_TexWrapping; // Repeat, MirroredRepeat, ...
+layout(location = 5) in vec4 a_TexBorderColor; // Used for ClampToBorder
+layout(location = 6) in vec4 a_TexRect; // 0 -> 1 Rect from Atlas
+layout(location = 7) in vec2 a_TexSize; // Texture size in pixels
+layout(location = 8) in vec2 a_TexCoord; // UV Coord
+layout(location = 9) in vec4 a_TexCoordRange;
 
 flat out vec4 v_Color;
-flat out int v_TextureSlot;
-flat out int v_TextureFilter;
-flat out float v_TextureAlphaClippingThreshold;
-flat out int v_TextureSWrapping;
-flat out int v_TextureTWrapping;
-flat out vec4 v_TextureBorderColor;
-flat out vec4 v_TextureRect;
-flat out vec2 v_TextureSize;
-out vec2 v_TextureCoord;
+flat out int v_TexSlot;
+flat out int v_TexFilter;
+flat out int v_TexSWrapping;
+flat out int v_TexTWrapping;
+flat out vec4 v_TexBorderColor;
+flat out vec4 v_TexRect;
+flat out vec2 v_TexSize;
+out vec2 v_TexCoord;
+flat out vec4 v_TexCoordRange;
 
 void main()
 {
 	gl_Position = a_Position;
 	v_Color = a_Color;
-	v_TextureSlot = int(a_TextureSlot);
-	v_TextureSWrapping = int(a_TextureWrapping.x);
-	v_TextureTWrapping = int(a_TextureWrapping.y);
-	v_TextureFilter = int(a_TextureFilter);
-	v_TextureAlphaClippingThreshold = a_TextureAlphaClippingThreshold;
-	v_TextureBorderColor = a_TextureBorderColor;
-	v_TextureRect = a_TextureRect;
-	v_TextureSize = a_TextureSize;
-	v_TextureCoord = vec2(a_TextureCoord.x, 1 - a_TextureCoord.y);
+	v_TexSlot = int(a_TexSlot);
+	v_TexSWrapping = int(a_TexWrapping.x);
+	v_TexTWrapping = int(a_TexWrapping.y);
+	v_TexFilter = int(a_TexFilter);
+	v_TexBorderColor = a_TexBorderColor;
+	v_TexRect = a_TexRect;
+	v_TexSize = a_TexSize;
+	v_TexCoord = vec2(a_TexCoord.x, 1 - a_TexCoord.y);
+	v_TexCoordRange = a_TexCoordRange;
 }
 
 #type fragment
 #version 450 core
 #pragma precision highp float
 
+
 layout(location = 0) out vec4 o_Color;
 
 uniform sampler2D[32] u_Slots;
 
 flat in vec4 v_Color;
-flat in int v_TextureSlot;
-flat in int v_TextureFilter;
-flat in float v_TextureAlphaClippingThreshold;
-flat in int v_TextureSWrapping;
-flat in int v_TextureTWrapping;
-flat in vec4 v_TextureBorderColor;
-flat in vec4 v_TextureRect;
-flat in vec2 v_TextureSize;
-in vec2 v_TextureCoord;
+flat in int v_TexSlot;
+flat in int v_TexFilter;
+flat in int v_TexSWrapping;
+flat in int v_TexTWrapping;
+flat in vec4 v_TexBorderColor;
+flat in vec4 v_TexRect;
+flat in vec2 v_TexSize;
+in vec2 v_TexCoord;
+flat in vec4 v_TexCoordRange;
 
 vec4 PointSampleFromAtlas(sampler2D slot, vec2 coord);
 
 vec4 BiLinearSampleFromAtlas(sampler2D slot, vec2 coord)
 {
-	vec2 texelSize = vec2(1 / v_TextureSize.x, 1 / v_TextureSize.y);
+	vec2 texelSize = vec2(1 / v_TexSize.x, 1 / v_TexSize.y);
 
-	float a = mod(coord.x, texelSize.x) * v_TextureSize.x;
-	float b = mod(coord.y, texelSize.y) * v_TextureSize.y;
+	float a = mod(coord.x, texelSize.x) * v_TexSize.x;
+	float b = mod(coord.y, texelSize.y) * v_TexSize.y;
 
 	if (a > 0.5)
 		a -= 0.5;
@@ -82,12 +83,28 @@ vec4 BiLinearSampleFromAtlas(sampler2D slot, vec2 coord)
 	float ymin = coord.y - texelSize.y / 2;
 	float ymax = coord.y + texelSize.y / 2;
 
-	vec4 upperLeft = PointSampleFromAtlas(slot, vec2(xmin, ymin));
+	if (xmin < v_TexCoordRange.x)
+		xmin = v_TexCoordRange.x;
+
+	if (ymin < v_TexCoordRange.y)
+		ymin = v_TexCoordRange.y;
+
+	if (xmax > v_TexCoordRange.z)
+		xmax = v_TexCoordRange.z;
+
+	if (ymax > v_TexCoordRange.w)
+		ymax = v_TexCoordRange.w;
+
+	vec4 upperLeft  = PointSampleFromAtlas(slot, vec2(xmin, ymin));
 	vec4 upperRight = PointSampleFromAtlas(slot, vec2(xmax, ymin));
-	vec4 lowerLeft = PointSampleFromAtlas(slot, vec2(xmin, ymax));
+	vec4 lowerLeft  = PointSampleFromAtlas(slot, vec2(xmin, ymax));
 	vec4 lowerRight = PointSampleFromAtlas(slot, vec2(xmax, ymax));
 
-	return mix(mix(upperLeft, upperRight, a), mix(lowerLeft, lowerRight, a), b);
+	return mix(
+		mix(upperLeft, upperRight, a),
+		mix(lowerLeft, lowerRight, a),
+		b
+	);
 }
 
 float Wrap(float value, int wrapping)
@@ -134,26 +151,26 @@ float Wrap(float value, int wrapping)
 
 vec4 PointSampleFromAtlas(sampler2D slot, vec2 coord)
 {
-	if ((v_TextureSWrapping == 4 && (coord.x > 1 || coord.x < 0)) || (v_TextureTWrapping == 4 && (coord.y > 1 || coord.y < 0)))
-		return v_TextureBorderColor; // ClampToBorder
+	if ((v_TexSWrapping == 4 && (coord.x > 1 || coord.x < 0)) || (v_TexTWrapping == 4 && (coord.y > 1 || coord.y < 0)))
+		return v_TexBorderColor; // ClampToBorder
 
-	coord.x = Wrap(coord.x, v_TextureSWrapping);
-	coord.y = Wrap(coord.y, v_TextureTWrapping);
+	coord.x = Wrap(coord.x, v_TexSWrapping);
+	coord.y = Wrap(coord.y, v_TexTWrapping);
 
 	coord.x = clamp(coord.x, 0.001, 0.999);
 	coord.y = clamp(coord.y, 0.001, 0.999);
-	return texture(slot, vec2(v_TextureRect.x + coord.x * v_TextureRect.z, v_TextureRect.y + coord.y * v_TextureRect.w));
+	return texture(slot, vec2(v_TexRect.x + coord.x * v_TexRect.z, v_TexRect.y + coord.y * v_TexRect.w));
 }
 
 vec4 Sample(sampler2D slot)
 {
 	vec4 color;
-	if (v_TextureFilter == 1)
-		color = PointSampleFromAtlas(slot, v_TextureCoord) * v_Color;
+	if (v_TexFilter == 1)
+		color = PointSampleFromAtlas(slot, v_TexCoord) * v_Color;
 	else
-		color = BiLinearSampleFromAtlas(slot, v_TextureCoord) * v_Color;
+		color = BiLinearSampleFromAtlas(slot, v_TexCoord) * v_Color;
 
-	if (color.a <= v_TextureAlphaClippingThreshold) // Handle Alpha clipping
+	if (color.a <= 0.0)
 		discard;
 
 	return color;
@@ -161,9 +178,9 @@ vec4 Sample(sampler2D slot)
 
 void main()
 {
-	switch (v_TextureSlot)
+	switch (v_TexSlot)
 	{
-	case -1 : o_Color = v_Color; return; // Alpha clipping handled by Renderer2D class in C++
+	case -1 : o_Color = v_Color; return;
 	case  0 : o_Color = Sample(u_Slots[0 ]); return;
 	case  1 : o_Color = Sample(u_Slots[1 ]); return;
 	case  2 : o_Color = Sample(u_Slots[2 ]); return;

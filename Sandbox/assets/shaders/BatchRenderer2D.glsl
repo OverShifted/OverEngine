@@ -5,18 +5,16 @@ layout(location = 0) in vec4 a_Position;
 layout(location = 1) in vec4 a_Color; // Tint
 layout(location = 2) in float a_TexSlot; // Texture Unit or -1 for no texture
 layout(location = 3) in float a_TexFilter; // Linear / Point
-layout(location = 4) in float a_TexAlphaClippingThreshold;
-layout(location = 5) in vec2 a_TexWrapping; // Repeat, MirroredRepeat, ...
-layout(location = 6) in vec4 a_TexBorderColor; // Used for ClampToBorder
-layout(location = 7) in vec4 a_TexRect; // 0 -> 1 Rect from Atlas
-layout(location = 8) in vec2 a_TexSize; // Texture size in pixels
-layout(location = 9) in vec2 a_TexCoord; // UV Coord
-layout(location = 10) in vec4 a_TexCoordRange;
+layout(location = 4) in vec2 a_TexWrapping; // Repeat, MirroredRepeat, ...
+layout(location = 5) in vec4 a_TexBorderColor; // Used for ClampToBorder
+layout(location = 6) in vec4 a_TexRect; // 0 -> 1 Rect from Atlas
+layout(location = 7) in vec2 a_TexSize; // Texture size in pixels
+layout(location = 8) in vec2 a_TexCoord; // UV Coord
+layout(location = 9) in vec4 a_TexCoordRange;
 
 flat out vec4 v_Color;
 flat out int v_TexSlot;
 flat out int v_TexFilter;
-flat out float v_TexAlphaClippingThreshold;
 flat out int v_TexSWrapping;
 flat out int v_TexTWrapping;
 flat out vec4 v_TexBorderColor;
@@ -33,7 +31,6 @@ void main()
 	v_TexSWrapping = int(a_TexWrapping.x);
 	v_TexTWrapping = int(a_TexWrapping.y);
 	v_TexFilter = int(a_TexFilter);
-	v_TexAlphaClippingThreshold = a_TexAlphaClippingThreshold;
 	v_TexBorderColor = a_TexBorderColor;
 	v_TexRect = a_TexRect;
 	v_TexSize = a_TexSize;
@@ -53,7 +50,6 @@ uniform sampler2D[32] u_Slots;
 flat in vec4 v_Color;
 flat in int v_TexSlot;
 flat in int v_TexFilter;
-flat in float v_TexAlphaClippingThreshold;
 flat in int v_TexSWrapping;
 flat in int v_TexTWrapping;
 flat in vec4 v_TexBorderColor;
@@ -174,7 +170,7 @@ vec4 Sample(sampler2D slot)
 	else
 		color = BiLinearSampleFromAtlas(slot, v_TexCoord) * v_Color;
 
-	if (color.a <= v_TexAlphaClippingThreshold) // Handle Alpha clipping
+	if (color.a <= 0.0)
 		discard;
 
 	return color;
@@ -184,7 +180,7 @@ void main()
 {
 	switch (v_TexSlot)
 	{
-	case -1 : o_Color = v_Color; return; // Alpha clipping handled by Renderer2D class in C++
+	case -1 : o_Color = v_Color; return;
 	case  0 : o_Color = Sample(u_Slots[0 ]); return;
 	case  1 : o_Color = Sample(u_Slots[1 ]); return;
 	case  2 : o_Color = Sample(u_Slots[2 ]); return;

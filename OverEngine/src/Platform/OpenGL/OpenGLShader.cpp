@@ -206,6 +206,16 @@ namespace OverEngine
 		}
 	}
 
+	GLint OpenGLShader::GetUniformLocation(const String& name) const
+	{
+		if (m_UniformLocationCache.count(name))
+			return m_UniformLocationCache[name];
+
+		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
+		m_UniformLocationCache[name] = location;
+		return location;
+	}
+
 	void OpenGLShader::Bind() const
 	{
 		glUseProgram(m_RendererID);
@@ -218,49 +228,49 @@ namespace OverEngine
 
 	void OpenGLShader::UploadUniformInt(const char* name, int value)
 	{
-		GLint location = glGetUniformLocation(m_RendererID, name);
+		GLint location = GetUniformLocation(name);
 		glUniform1i(location, value);
 	}
 
 	void OpenGLShader::UploadUniformIntArray(const char* name, const int* value, int count)
 	{
-		GLint location = glGetUniformLocation(m_RendererID, name);
+		GLint location = GetUniformLocation(name);
 		glUniform1iv(location, count, value);
 	}
 
 	void OpenGLShader::UploadUniformFloat(const char* name, float value)
 	{
-		GLint location = glGetUniformLocation(m_RendererID, name);
+		GLint location = GetUniformLocation(name);
 		glUniform1f(location, value);
 	}
 
-	void OpenGLShader::UploadUniformFloat2(const char* name, const Math::Vector2& value)
+	void OpenGLShader::UploadUniformFloat2(const char* name, const Vector2& value)
 	{
-		GLint location = glGetUniformLocation(m_RendererID, name);
+		GLint location = GetUniformLocation(name);
 		glUniform2f(location, value.x, value.y);
 	}
 
-	void OpenGLShader::UploadUniformFloat3(const char* name, const Math::Vector3& value)
+	void OpenGLShader::UploadUniformFloat3(const char* name, const Vector3& value)
 	{
-		GLint location = glGetUniformLocation(m_RendererID, name);
+		GLint location = GetUniformLocation(name);
 		glUniform3f(location, value.x, value.y, value.z);
 	}
 
-	void OpenGLShader::UploadUniformFloat4(const char* name, const Math::Vector4& value)
+	void OpenGLShader::UploadUniformFloat4(const char* name, const Vector4& value)
 	{
-		GLint location = glGetUniformLocation(m_RendererID, name);
+		GLint location = GetUniformLocation(name);
 		glUniform4f(location, value.x, value.y, value.z, value.w);
 	}
 
-	void OpenGLShader::UploadUniformMat3(const char* name, const Math::Mat3x3& matrix)
+	void OpenGLShader::UploadUniformMat3(const char* name, const Mat3x3& matrix)
 	{
-		GLint location = glGetUniformLocation(m_RendererID, name);
+		GLint location = GetUniformLocation(name);
 		glUniformMatrix3fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
 	}
 
-	void OpenGLShader::UploadUniformMat4(const char* name, const Math::Mat4x4& matrix)
+	void OpenGLShader::UploadUniformMat4(const char* name, const Mat4x4& matrix)
 	{
-		GLint location = glGetUniformLocation(m_RendererID, name);
+		GLint location = GetUniformLocation(name);
 		glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
 	}
 

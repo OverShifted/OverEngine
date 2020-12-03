@@ -19,8 +19,6 @@ namespace OverEngine
 		Vec2T<TextureWrapping> Wrapping{ TextureWrapping::None, TextureWrapping::None };
 		TextureFiltering Filtering = TextureFiltering::None;
 
-		float AlphaClipThreshold = 0.0f;
-
 		/**
 		 * first : Is overriding TextureBorderColor?
 		 * second : Override TextureBorderColor to what?
@@ -45,9 +43,9 @@ namespace OverEngine
 		static void Flush();
 		static void FlushAndReset();
 
-		inline static void DrawQuad(const Vector2& position, float rotation, const Vector2& size, const Color& color, float alphaClippingThreshold = 0.0f);
-		static void DrawQuad(const Vector3& position, float rotation, const Vector2& size, const Color& color, float alphaClippingThreshold = 0.0f);
-		static void DrawQuad(const Mat4x4& transform, const Color& color, float alphaClippingThreshold = 0.0f);
+		inline static void DrawQuad(const Vector2& position, float rotation, const Vector2& size, const Color& color);
+		static void DrawQuad(const Vector3& position, float rotation, const Vector2& size, const Color& color);
+		static void DrawQuad(const Mat4x4& transform, const Color& color);
 
 		inline static void DrawQuad(const Vector2& position, float rotation, const Vector2& size, Ref<Texture2D> texture, const TexturedQuadExtraData& extraData = TexturedQuadExtraData());
 		static void DrawQuad(const Vector3& position, float rotation, const Vector2& size, Ref<Texture2D> texture, const TexturedQuadExtraData& extraData = TexturedQuadExtraData());
