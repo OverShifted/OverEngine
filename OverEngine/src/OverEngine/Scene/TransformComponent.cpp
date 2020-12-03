@@ -32,17 +32,12 @@ namespace OverEngine
 
 	Vector3 TransformComponent::GetLocalPosition() const
 	{
-		return m_LocalToParent[3];
+		return m_LocalPosition;
 	}
 
 	void TransformComponent::SetLocalPosition(const Vector3& position)
 	{
-		m_LocalToParent[3].x = position.x;
-		m_LocalToParent[3].y = position.y;
-		m_LocalToParent[3].z = position.z;
-
-		m_ChangedFlags |= ChangedFlags_LocalToWorld_RN;
-		Invalidate();
+		m_LocalPosition = position;
 		Change();
 	}
 
@@ -66,10 +61,7 @@ namespace OverEngine
 	void TransformComponent::SetLocalEulerAngles(const Vector3& rotation)
 	{
 		m_LocalEulerAngles = rotation;
-		m_LocalRotation = EulerAnglesToQuaternion(m_LocalEulerAngles);
-
-		m_ChangedFlags |= ChangedFlags_LocalToParent_RN;
-		Invalidate();
+		m_LocalRotation = EulerAnglesToQuaternion(rotation);
 		Change();
 	}
 
@@ -103,20 +95,14 @@ namespace OverEngine
 
 	void TransformComponent::SetLocalRotation(const Quaternion& rotation)
 	{
-		m_LocalEulerAngles = QuaternionToEulerAngles(rotation);
 		m_LocalRotation = rotation;
-
-		m_ChangedFlags |= ChangedFlags_LocalToParent_RN;
-		Invalidate();
+		m_LocalEulerAngles = QuaternionToEulerAngles(rotation);
 		Change();
 	}
 
 	void TransformComponent::SetLocalScale(const Vector3& scale)
 	{
 		m_LocalScale = scale;
-
-		m_ChangedFlags |= ChangedFlags_LocalToParent_RN;
-		Invalidate();
 		Change();
 	}
 
@@ -142,8 +128,6 @@ namespace OverEngine
 
 			AttachedEntity.GetScene()->GetRootHandles().push_back(AttachedEntity.GetRuntimeID());
 
-			m_ChangedFlags |= ChangedFlags_LocalToWorld_RN;
-			Invalidate();
 			Change();
 		}
 	}
@@ -165,7 +149,7 @@ namespace OverEngine
 		{
 			// Add to parent children list
 			ENTITY_HANDLE_TRANSFORM(parent).m_Children.push_back(AttachedEntity.GetRuntimeID());
-			
+
 			if (m_Parent == entt::null)
 			{
 				auto& sceneRootHandles = AttachedEntity.GetScene()->GetRootHandles();
@@ -183,8 +167,6 @@ namespace OverEngine
 
 			m_Parent = parent.GetRuntimeID();
 
-			m_ChangedFlags |= ChangedFlags_LocalToWorld_RN;
-			Invalidate();
 			Change();
 		}
 		else
@@ -225,39 +207,30 @@ namespace OverEngine
 
 	void TransformComponent::Invalidate()
 	{
-		if (m_ChangedFlags & ChangedFlags_LocalToParent_RN)
+		if (m_ChangedFlags & ChangedFlags_Changed)
 		{
-			Vector4 lastCol = m_LocalToParent[3];
-			m_LocalToParent = glm::mat4_cast(m_LocalRotation) * SCALE_MAT4X4(m_LocalScale);
-			m_LocalToParent[3] = lastCol;
-		}
+			Mat4x4 localToParent = glm::mat4_cast(m_LocalRotation) * SCALE_MAT4X4(m_LocalScale);
+			localToParent[3].x = m_LocalPosition.x;
+			localToParent[3].y = m_LocalPosition.y;
+			localToParent[3].z = m_LocalPosition.z;
 
-		if (m_ChangedFlags & ChangedFlags_LocalToWorld_RN || m_ChangedFlags & ChangedFlags_LocalToParent_RN)
-		{
 			if (m_Parent != entt::null)
-				m_LocalToWorld = ENTITY_HANDLE_TRANSFORM(m_Parent).GetLocalToWorld() * m_LocalToParent;
+				m_LocalToWorld = ENTITY_HANDLE_TRANSFORM(m_Parent).GetLocalToWorld() * localToParent;
 			else
-				m_LocalToWorld = m_LocalToParent;
-
-			if (m_ChangedFlags & ChangedFlags_LocalToWorld_RN)
-				m_ChangedFlags ^= ChangedFlags_LocalToWorld_RN;
+				m_LocalToWorld = localToParent;
 		}
-
-		if (m_ChangedFlags & ChangedFlags_LocalToParent_RN)
-			m_ChangedFlags ^= ChangedFlags_LocalToParent_RN;
 	}
 
 	// Add changed flag and force all children to update
 	void TransformComponent::Change()
 	{
 		m_ChangedFlags |= ChangedFlags_Changed | ChangedFlags_ChangedForPhysics;
+		Invalidate();
 
 		for (const auto& child : m_Children)
 		{
-			auto& childTransform = ENTITY_HANDLE_TRANSFORM(child);
-			childTransform.m_ChangedFlags |= ChangedFlags_LocalToWorld_RN;
-			childTransform.Invalidate();
-			childTransform.Change();
+			ENTITY_HANDLE_TRANSFORM(child).Change();
+			Invalidate();
 		}
 	}
 }

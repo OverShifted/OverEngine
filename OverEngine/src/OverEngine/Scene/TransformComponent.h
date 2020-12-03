@@ -99,23 +99,6 @@ namespace OverEngine
 		{
 			return !(*this == other);
 		}
-		
-		static SerializationContext* Reflect()
-		{
-			static bool initialized = false;
-			static SerializationContext ctx;
-
-			if (!initialized)
-			{
-				initialized = true;
-
-				ctx.AddField(SerializableType::Float3, OffsetOf(&TransformComponent::m_LocalToParent) + 12 * sizeof(float), "m_LocalPosition");
-				ctx.AddField(SerializableType::Float3, SERIALIZE_FIELD(TransformComponent, m_LocalEulerAngles));
-				ctx.AddField(SerializableType::Float3, SERIALIZE_FIELD(TransformComponent, m_LocalScale));
-			}
-
-			return &ctx;
-		}
 
 		COMPONENT_TYPE(TransformComponent)
 	private:
@@ -124,9 +107,6 @@ namespace OverEngine
 			ChangedFlags_None = 0,
 			ChangedFlags_Changed = BIT(0),
 			ChangedFlags_ChangedForPhysics = BIT(1),
-			// RN = Recalculation Needed
-			ChangedFlags_LocalToParent_RN = BIT(2),
-			ChangedFlags_LocalToWorld_RN = BIT(3)
 		};
 
 		void Invalidate();
@@ -143,11 +123,12 @@ namespace OverEngine
 		// Push changes to physics in first update
 		ChangedFlags m_ChangedFlags = ChangedFlags_ChangedForPhysics;
 
-		Mat4x4 m_LocalToParent = IDENTITY_MAT4X4; // Local Matrix
-		Mat4x4 m_LocalToWorld = IDENTITY_MAT4X4; // Parent's Local Matrix * Local Matrix
+		Mat4x4 m_LocalToWorld = IDENTITY_MAT4X4;
+
+		Vector3 m_LocalPosition = Vector3(0.0f);
+		Vector3 m_LocalScale = Vector3(1.0f);
 
 		Vector3 m_LocalEulerAngles = Vector3(0.0f);
 		Quaternion m_LocalRotation = IDENTITY_QUATERNION;
-		Vector3 m_LocalScale = Vector3(1.0f);
 	};
 }
