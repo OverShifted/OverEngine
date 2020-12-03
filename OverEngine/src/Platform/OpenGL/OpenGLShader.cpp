@@ -1,8 +1,6 @@
 #include "pcheader.h"
 #include "OpenGLShader.h"
 
-#include "OpenGLIntermediateShader.h"
-
 #include "OverEngine/Core/FileSystem/FileSystem.h"
 
 #include <glad/gl.h>
@@ -48,40 +46,6 @@ namespace OverEngine
 		sources[GL_VERTEX_SHADER] = vertexSrc;
 		sources[GL_FRAGMENT_SHADER] = fragmentSrc;
 		Compile(sources);
-	}
-
-	OpenGLShader::OpenGLShader(const String& name, const Ref<IntermediateShader>& vertexShader, const Ref<IntermediateShader>& fragmentShader)
-		: m_Name(name)
-	{
-		m_RendererID = glCreateProgram();
-
-		uint32_t vsID = vertexShader->GetRendererID();
-		uint32_t fsID = fragmentShader->GetRendererID();
-
-		glAttachShader(m_RendererID, vsID);
-		glAttachShader(m_RendererID, fsID);
-
-		glLinkProgram(m_RendererID);
-
-		GLint isLinked = 0;
-		glGetProgramiv(m_RendererID, GL_LINK_STATUS, &isLinked);
-		if (isLinked == GL_FALSE)
-		{
-			GLint maxLength = 0;
-			glGetProgramiv(m_RendererID, GL_INFO_LOG_LENGTH, &maxLength);
-
-			Vector<GLchar> infoLog(maxLength);
-			glGetProgramInfoLog(m_RendererID, maxLength, &maxLength, &infoLog[0]);
-
-			glDeleteProgram(m_RendererID);
-
-			OE_CORE_ERROR("{0}", infoLog.data());
-			OE_CORE_ASSERT(false, "Shader link failure!");
-			return;
-		}
-
-		glDetachShader(m_RendererID, vsID);
-		glDetachShader(m_RendererID, fsID);
 	}
 
 	OpenGLShader::~OpenGLShader()

@@ -4,8 +4,6 @@
 
 namespace OverEngine
 {
-	class IntermediateShader;
-
 	class Shader
 	{
 	public:
@@ -34,17 +32,6 @@ namespace OverEngine
 		static Ref<Shader> Create(const String& filePath);
 		static Ref<Shader> Create(const String& name, const String& vertexSrc, const String& fragmentSrc);
 		static Ref<Shader> Create(const String& name, const char* vertexSrc, const char* fragmentSrc);
-		static Ref<Shader> Create(const String& name, Ref<IntermediateShader>& vertexShader, const Ref<IntermediateShader>& fragmentShader);
-	};
-
-	class IntermediateShader
-	{
-	public:
-		enum class Type { Vertex, Fragment };
-	public:
-		virtual uint32_t GetRendererID() const = 0;
-	public:
-		static IntermediateShader* Create(String& Source, Type type);
 	};
 
 	class ShaderLibrary

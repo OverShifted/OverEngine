@@ -12,7 +12,6 @@ namespace OverEngine
 		OpenGLShader(const String& filePath);
 		OpenGLShader(const String& name, const String& vertexSrc, const String& fragmentSrc);
 		OpenGLShader(const String& name, const char* vertexSrc, const char* fragmentSrc);
-		OpenGLShader(const String& name, const Ref<IntermediateShader>& vertexShader, const Ref<IntermediateShader>& fragmentShader);
 		virtual ~OpenGLShader();
 
 		virtual void Bind() const override;

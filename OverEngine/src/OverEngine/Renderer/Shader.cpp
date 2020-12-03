@@ -5,7 +5,6 @@
 
 #include "RendererAPI.h"
 #include "Platform/OpenGL/OpenGLShader.h"
-#include "Platform/OpenGL/OpenGLIntermediateShader.h"
 
 namespace OverEngine
 {
@@ -43,34 +42,6 @@ namespace OverEngine
 		{
 		case RendererAPI::API::None:    OE_CORE_ASSERT(false, "RendererAPI::None is currently not supported!"); return nullptr;
 		case RendererAPI::API::OpenGL:  return CreateRef<OpenGLShader>(name, vertexSrc, fragmentSrc);
-		}
-
-		OE_CORE_ASSERT(false, "Unknown RendererAPI!");
-		return nullptr;
-	}
-
-	Ref<Shader> Shader::Create(const String& name, Ref<IntermediateShader>& vertexShader, const Ref<IntermediateShader>& fragmentShader)
-	{
-		switch (RendererAPI::GetAPI())
-		{
-		case RendererAPI::API::None:    OE_CORE_ASSERT(false, "RendererAPI::None is currently not supported!"); return nullptr;
-		case RendererAPI::API::OpenGL:  return CreateRef<OpenGLShader>(name, vertexShader, fragmentShader);
-		}
-
-		OE_CORE_ASSERT(false, "Unknown RendererAPI!");
-		return nullptr;
-	}
-
-	/////////////////////////////////////////////////////////////////////////////
-	// IntermediateShader ///////////////////////////////////////////////////////
-	/////////////////////////////////////////////////////////////////////////////
-
-	IntermediateShader* IntermediateShader::Create(String& Source, Type type)
-	{
-		switch (RendererAPI::GetAPI())
-		{
-		case RendererAPI::API::None:    OE_CORE_ASSERT(false, "RendererAPI::None is currently not supported!"); return nullptr;
-		case RendererAPI::API::OpenGL:  return new OpenGLIntermediateShader(Source, type);
 		}
 
 		OE_CORE_ASSERT(false, "Unknown RendererAPI!");
