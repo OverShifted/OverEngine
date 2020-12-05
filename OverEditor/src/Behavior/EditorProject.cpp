@@ -1,33 +1,36 @@
 #include "EditorProject.h"
 
+#include "Behavior/AssetManager.h"
 #include <OverEngine/Core/Extentions.h>
 
 namespace OverEditor
 {
-	Ref<EditorProject> NewProject(const String& name, String directoryPath)
+	Ref<EditorProject> NewProject(const String& name, const String& directoryPath)
 	{
 		if (name.size() == 0 || directoryPath.size() == 0)
 			return nullptr;
+
+		String _directoryPath = directoryPath;
 
 		YAML::Node projectNode;
 		projectNode["Name"] = name;
 		projectNode["AssetsRoot"] = "Assets";
 
-		FileSystem::FixPath(&directoryPath);
+		FileSystem::FixPath(&_directoryPath);
 
 		std::ofstream projectFile;
 		String projectRoot = "";
-		if (directoryPath[directoryPath.size() - 1] == '/')
+		if (_directoryPath[_directoryPath.size() - 1] == '/')
 		{
-			std::filesystem::create_directory(directoryPath + name);
-			projectFile.open(directoryPath + name + "/project." + OE_PROJECT_FILE_EXTENSION, std::ios::out);
-			projectRoot = directoryPath + name;
+			std::filesystem::create_directory(_directoryPath + name);
+			projectFile.open(_directoryPath + name + "/project." + OE_PROJECT_FILE_EXTENSION, std::ios::out);
+			projectRoot = _directoryPath + name;
 		}
 		else
 		{
-			std::filesystem::create_directory(directoryPath + '/' + name);
-			projectFile.open(directoryPath + '/' + name + "/project." + OE_PROJECT_FILE_EXTENSION, std::ios::out);
-			projectRoot = directoryPath + '/' + name;
+			std::filesystem::create_directory(_directoryPath + '/' + name);
+			projectFile.open(_directoryPath + '/' + name + "/project." + OE_PROJECT_FILE_EXTENSION, std::ios::out);
+			projectRoot = _directoryPath + '/' + name;
 		}
 
 		projectFile << projectNode;
@@ -50,26 +53,24 @@ namespace OverEditor
 
 		m_Name = projectNode["Name"].as<String>();
 		m_AssetsDirectoryPath = m_RootPath + "/" + projectNode["AssetsRoot"].as<String>();
-		
+
 		m_Assets.InitFromAssetsDirectory(m_AssetsDirectoryPath, projectNode["AssetsRootGuid"].as<uint64_t>());
 
 		m_Watcher.Reset(m_AssetsDirectoryPath, std::chrono::milliseconds(250));
-		m_Watcher.Start([](String s, FileWatcherEvent e)
+		m_Watcher.Start([](const String& path, FileWatcherEvent event, void* userData)
 		{
-			String message;
-			if (e == FileWatcherEvent::Created)
-				message = "Created";
-			else if (e == FileWatcherEvent::Deleted)
-				message = "Deleted";
-			else
-				message = "Modified";
-			OE_CORE_INFO("file : {}, {}", s, message);
-		});
+			EditorProject& proj = *static_cast<EditorProject*>(userData);
+
+			if (event == FileWatcherEvent::Created)
+			{
+				AssetManager::ImportAndLoad(path, proj.GetAssetsDirectoryPath(), &proj.GetAssets());
+			}
+
+		}, this);
 	}
 
 	String EditorProject::ResolvePhysicalAssetPath(const String& virtualPath)
 	{
 		return m_AssetsDirectoryPath + "/" + virtualPath.substr(9, virtualPath.size());
 	}
-
 }

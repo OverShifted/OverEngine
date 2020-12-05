@@ -11,7 +11,7 @@ namespace OverEditor
 	class EditorProject;
 	class EditorLayer;
 
-	Ref<EditorProject> NewProject(const String& name, String directoryPath);
+	Ref<EditorProject> NewProject(const String& name, const String& directoryPath);
 
 	class EditorProject
 	{

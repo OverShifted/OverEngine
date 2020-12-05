@@ -1,5 +1,4 @@
 #include "UIElements.h"
-#include "EditorLayer.h"
 
 namespace OverEditor
 {
@@ -107,7 +106,7 @@ namespace OverEditor
 			ImGui::SetDragDropPayload("_TEXTURE2D_DRAG", &texture, sizeof(Ref<Texture2D>));
 
 			ImGui::TextUnformatted(name);
-			if (preview) 
+			if (preview)
 				ImGui::Image(texture, { 128, 128 });
 
 			ImGui::EndDragDropSource();
