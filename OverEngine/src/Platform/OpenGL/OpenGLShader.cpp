@@ -4,7 +4,6 @@
 #include "OverEngine/Core/FileSystem/FileSystem.h"
 
 #include <glad/gl.h>
-#include <fstream>
 
 namespace OverEngine
 {
@@ -14,6 +13,8 @@ namespace OverEngine
 			return GL_VERTEX_SHADER;
 		if (type == "fragment" || type == "pixel")
 			return GL_FRAGMENT_SHADER;
+		if (type == "geometry")
+			return GL_GEOMETRY_SHADER;
 
 		OE_CORE_ASSERT(false, "Unknown shader type '{0}'!", type);
 		return 0;
@@ -91,7 +92,7 @@ namespace OverEngine
 
 		OE_CORE_ASSERT(shaderSources.size() <= 2, "{0} shader sources got but 2 is maximim", shaderSources.size());
 
-		std::array<GLenum, 2> glShaderIDs;
+		std::array<GLenum, 3> glShaderIDs;
 		int glShaderIdIndex = 0;
 		bool allCompiled = true;
 
@@ -151,11 +152,6 @@ namespace OverEngine
 
 				for (auto id : glShaderIDs)
 					glDeleteShader(id);
-
-				std::ofstream a("log.txt");
-				a << infoLog.data();
-				a.flush();
-				a.close();
 
 				OE_CORE_ERROR("{0}", infoLog.data());
 				OE_CORE_ASSERT(false, "Shader link failure!");

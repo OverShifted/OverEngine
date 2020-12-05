@@ -9,17 +9,16 @@ namespace OverEngine
 
 	struct Vertex
 	{
-		Vector4 a_Position = Vector4(0.0f);
-		Color a_Color = Color(0.0f);
+		Vector3 a_Position      = Vector3(0.0f);
 
-		float a_TexSlot                   = -1.0f;
-		float a_TexFilter                 = 0.0f;
-		Vector2 a_TexWrapping             = Vector2(0.0f);
-		Color a_TexBorderColor            = Color(0.0f);
-		Rect a_TexRect                    = Rect(0.0f);
-		Vector2 a_TexSize                 = Vector2(0.0f);
-		Vector2 a_TexCoord                = Vector2(0.0f);
-		Rect a_TexCoordRange              = Vector4(0.0f);
+		Color   a_Color         = Color  (0.0f);
+		float   a_TexSlot       =        -1.0f;
+		float   a_TexFilter     =         0.0f;
+		Vector2 a_TexWrapping   = Vector2(0.0f);
+		Rect    a_TexRect       = Rect   (0.0f);
+		Vector2 a_TexSize       = Vector2(0.0f);
+		Vector2 a_TexCoord      = Vector2(0.0f);
+		Rect    a_TexCoordRange = Vector4(0.0f);
 	};
 
 	using DrawQuadVertices = std::array<Vertex, 4>;
@@ -120,13 +119,12 @@ namespace OverEngine
 		s_Data->vertexBuffer = VertexBuffer::Create();
 		s_Data->vertexBuffer->AllocateStorage(initQuadCapacity * 4 * sizeof(Vertex));
 		s_Data->vertexBuffer->SetLayout({
-			{ ShaderDataType::Float4, "a_Position" },
+			{ ShaderDataType::Float3, "a_Position" },
 			{ ShaderDataType::Float4, "a_Color" },
 
 			{ ShaderDataType::Float , "a_TexSlot" },
 			{ ShaderDataType::Float , "a_TexFilter" },
 			{ ShaderDataType::Float2, "a_TexWrapping" },
-			{ ShaderDataType::Float4, "a_TexBorderColor" },
 			{ ShaderDataType::Float4, "a_TexRect" },
 			{ ShaderDataType::Float2, "a_TexSize" },
 			{ ShaderDataType::Float2, "a_TexCoord" },
@@ -143,7 +141,6 @@ namespace OverEngine
 		s_Data->QuadsZIndices.reserve(initQuadCapacity);
 
 		s_Data->BatchRenderer2DShader = Shader::Create("assets/shaders/BatchRenderer2D.glsl");
-		//s_Data->BatchRenderer2DShader = Shader::Create("BatchRenderer2D", BatchRenderer2DVertexShaderSrc, BatchRenderer2DFragmentShaderSrc);
 		s_Data->BatchRenderer2DShader->Bind();
 		s_Data->BatchRenderer2DShader->UploadUniformIntArray("u_Slots", Renderer2DData::ShaderSampler2Ds, 32);
 
@@ -270,12 +267,14 @@ namespace OverEngine
 		{
 			Vertex& vertex = vertices[i];
 
-			vertex.a_Position.x = Renderer2DData::QuadVertices[3 * i];
-			vertex.a_Position.y = Renderer2DData::QuadVertices[1 + 3 * i];
-			vertex.a_Position.z = Renderer2DData::QuadVertices[2 + 3 * i];
-			vertex.a_Position.w = 1.0f;
-			vertex.a_Position = s_Data->ViewProjectionMatrix * transform * vertex.a_Position;
+			Vector4 pos{
+				Renderer2DData::QuadVertices[3 * i],
+				Renderer2DData::QuadVertices[1 + 3 * i],
+				Renderer2DData::QuadVertices[2 + 3 * i],
+				1.0f
+			};
 
+			vertex.a_Position = s_Data->ViewProjectionMatrix * transform * pos;
 			vertex.a_Color = color;
 		}
 
@@ -312,9 +311,9 @@ namespace OverEngine
 		if (extraData.Tint.a == 0)
 			return;
 
-		Ref<GAPI::Texture2D> textureToBind = texture->GetGPUTexture();
+		auto textureToBind = texture->GetGPUTexture();
 
-		int textureSlot = -1;
+		int8_t textureSlot = -1;
 		for (const auto& t : s_Data->TextureBindList)
 		{
 			if (*t.second == *textureToBind)
@@ -345,12 +344,14 @@ namespace OverEngine
 		{
 			Vertex& vertex = vertices[i];
 
-			vertex.a_Position.x = Renderer2DData::QuadVertices[    3 * i];
-			vertex.a_Position.y = Renderer2DData::QuadVertices[1 + 3 * i];
-			vertex.a_Position.z = Renderer2DData::QuadVertices[2 + 3 * i];
-			vertex.a_Position.w = 1.0f;
-			vertex.a_Position = s_Data->ViewProjectionMatrix * transform * vertex.a_Position;
+			Vector4 pos {
+				Renderer2DData::QuadVertices[3     * i],
+				Renderer2DData::QuadVertices[1 + 3 * i],
+				Renderer2DData::QuadVertices[2 + 3 * i],
+				1.0f
+			};
 
+			vertex.a_Position = s_Data->ViewProjectionMatrix * transform * pos;
 			vertex.a_Color = extraData.Tint;
 
 			// a_TexSlot
@@ -372,12 +373,6 @@ namespace OverEngine
 				vertex.a_TexWrapping.y = (float)extraData.Wrapping.y;
 			else
 				vertex.a_TexWrapping.y = (float)texture->GetYWrapping();
-
-			// a_TexBorderColor
-			if (extraData.TextureBorderColor.first)
-				vertex.a_TexBorderColor = extraData.TextureBorderColor.second;
-			else
-				vertex.a_TexBorderColor = texture->GetBorderColor();
 
 			// a_TexRect
 			vertex.a_TexRect = texture->GetRect();

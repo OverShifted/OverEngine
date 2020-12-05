@@ -1,7 +1,7 @@
 #include "SceneHierarchyPanel.h"
 
 #include <OverEngine/Scene/Components.h>
-#include "ComponentEditor.h"
+#include "UI/ComponentEditor.h"
 
 #include <OverEngine/ImGui/ExtraImGui.h>
 #include <imgui/imgui.h>

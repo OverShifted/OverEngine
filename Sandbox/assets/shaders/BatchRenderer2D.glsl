@@ -1,23 +1,21 @@
 #type vertex
 #version 450 core
 
-layout(location = 0) in vec4 a_Position;
+layout(location = 0) in vec3 a_Position;
 layout(location = 1) in vec4 a_Color; // Tint
 layout(location = 2) in float a_TexSlot; // Texture Unit or -1 for no texture
 layout(location = 3) in float a_TexFilter; // Linear / Point
 layout(location = 4) in vec2 a_TexWrapping; // Repeat, MirroredRepeat, ...
-layout(location = 5) in vec4 a_TexBorderColor; // Used for ClampToBorder
-layout(location = 6) in vec4 a_TexRect; // 0 -> 1 Rect from Atlas
-layout(location = 7) in vec2 a_TexSize; // Texture size in pixels
-layout(location = 8) in vec2 a_TexCoord; // UV Coord
-layout(location = 9) in vec4 a_TexCoordRange;
+layout(location = 5) in vec4 a_TexRect; // 0 -> 1 Rect from Atlas
+layout(location = 6) in vec2 a_TexSize; // Texture size in pixels
+layout(location = 7) in vec2 a_TexCoord; // UV Coord
+layout(location = 8) in vec4 a_TexCoordRange;
 
 flat out vec4 v_Color;
 flat out int v_TexSlot;
 flat out int v_TexFilter;
 flat out int v_TexSWrapping;
 flat out int v_TexTWrapping;
-flat out vec4 v_TexBorderColor;
 flat out vec4 v_TexRect;
 flat out vec2 v_TexSize;
 out vec2 v_TexCoord;
@@ -25,13 +23,12 @@ flat out vec4 v_TexCoordRange;
 
 void main()
 {
-	gl_Position = a_Position;
+	gl_Position = vec4(a_Position, 1.0);
 	v_Color = a_Color;
 	v_TexSlot = int(a_TexSlot);
 	v_TexSWrapping = int(a_TexWrapping.x);
 	v_TexTWrapping = int(a_TexWrapping.y);
 	v_TexFilter = int(a_TexFilter);
-	v_TexBorderColor = a_TexBorderColor;
 	v_TexRect = a_TexRect;
 	v_TexSize = a_TexSize;
 	v_TexCoord = vec2(a_TexCoord.x, 1 - a_TexCoord.y);
@@ -42,7 +39,6 @@ void main()
 #version 450 core
 #pragma precision highp float
 
-
 layout(location = 0) out vec4 o_Color;
 
 uniform sampler2D[32] u_Slots;
@@ -52,7 +48,6 @@ flat in int v_TexSlot;
 flat in int v_TexFilter;
 flat in int v_TexSWrapping;
 flat in int v_TexTWrapping;
-flat in vec4 v_TexBorderColor;
 flat in vec4 v_TexRect;
 flat in vec2 v_TexSize;
 in vec2 v_TexCoord;
@@ -107,55 +102,23 @@ vec4 BiLinearSampleFromAtlas(sampler2D slot, vec2 coord)
 	);
 }
 
-float Wrap(float value, int wrapping)
+// Based on https://www.khronos.org/registry/OpenGL/specs/gl/glspec46.core.pdf
+// page 260 in header and 282 in pdf
+float mirror(float a) { return (a >= 0 ? a : -(0.001 + a)); }
+float wrap(float value, int wrapping)
 {
-	int valueInt = int(value);
-	bool valueIsRound = value == valueInt;
-	int valueIntMinusOne = valueInt - 1;
-	int valueIntMinusTwo = valueInt - 2;
-	int commonExpr1 = valueIsRound ? valueIntMinusOne : valueInt;
-	int commonExpr2 = valueIsRound ? valueIntMinusTwo : valueIntMinusOne;
-
 	switch (wrapping)
 	{
-	case 1: // Repeat
-		if (value > 1)
-			value -= commonExpr1;
-		else if (value < 0)
-			value -= commonExpr2;
-		break;
-	case 2: // MirroredRepeat
-		bool commonCondition = valueInt % 2 == 0;
-		if (value > 1)
-		{
-			if (commonCondition)
-				value -= commonExpr1;
-			else
-				value = (valueIsRound ? valueInt : valueInt + 1) - value;
-		}
-		else if (value < 0)
-		{
-			if (commonCondition)
-				value = commonExpr1 - value;
-			else
-				value -= commonExpr2;
-		}
-		break;
-	case 3: // ClampToEdge
-		value = clamp(value, 0.001, 0.999);
-		break;
+	case 1: return mod(value, 1.0);                       // Repeat
+	case 2: return clamp(value, 0.001, 0.999);            // Clamp
+	case 3: return 0.999 - mirror(mod(value, 2.0) - 1.0); // Mirror
 	}
-
-	return value;
 }
 
 vec4 PointSampleFromAtlas(sampler2D slot, vec2 coord)
 {
-	if ((v_TexSWrapping == 4 && (coord.x > 1 || coord.x < 0)) || (v_TexTWrapping == 4 && (coord.y > 1 || coord.y < 0)))
-		return v_TexBorderColor; // ClampToBorder
-
-	coord.x = Wrap(coord.x, v_TexSWrapping);
-	coord.y = Wrap(coord.y, v_TexTWrapping);
+	coord.x = wrap(coord.x, v_TexSWrapping);
+	coord.y = wrap(coord.y, v_TexTWrapping);
 
 	coord.x = clamp(coord.x, 0.001, 0.999);
 	coord.y = clamp(coord.y, 0.001, 0.999);

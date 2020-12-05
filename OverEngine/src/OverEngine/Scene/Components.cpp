@@ -17,9 +17,8 @@ namespace OverEngine
 				Serializer::DefineGlobalEnum("TextureWrapping", {
 					{ 0, "None" },
 					{ 1, "Repeat" },
-					{ 2, "MirroredRepeat" },
-					{ 3, "ClampToEdge" },
-					{ 4, "ClampToBorder" }
+					{ 2, "Clamp" },
+					{ 3, "Mirror" },
 				});
 			}
 
@@ -43,9 +42,6 @@ namespace OverEngine
 			ctx.AddEnumField(SerializableType::Int8Enum, "TextureWrapping", OffsetOf(&SpriteRendererComponent::Wrapping), "Wrapping.x");
 			ctx.AddEnumField(SerializableType::Int8Enum, "TextureWrapping", OffsetOf(&SpriteRendererComponent::Wrapping) + sizeof(TextureWrapping), "Wrapping.y");
 			ctx.AddEnumField(SerializableType::Int8Enum, "TextureFiltering", SERIALIZE_FIELD(SpriteRendererComponent, Filtering));
-
-			ctx.AddField(SerializableType::Bool, OffsetOf(&SpriteRendererComponent::TextureBorderColor) + OffsetOf(&std::pair<bool, Color>::first), "IsOverridingTextureBorderColor");
-			ctx.AddField(SerializableType::Float4, OffsetOf(&SpriteRendererComponent::TextureBorderColor) + OffsetOf(&std::pair<bool, Color>::second), "TextureBorderColor");
 		}
 
 		return &ctx;

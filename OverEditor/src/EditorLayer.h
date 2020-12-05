@@ -1,18 +1,18 @@
 #pragma once
 
-#include "EditorProject.h"
+#include "Behavior/EditorProject.h"
 #include <OverEngine.h>
 
 #include <OverEngine/Assets/Asset.h>
 #include <OverEngine/Assets/AssetCollection.h>
 #include <OverEngine/Core/FileSystem/FileSystem.h>
 
-#include "Action.h"
-#include "SceneEditor.h"
-#include "Panels/ViewportPanel.h"
-#include "Panels/SceneHierarchyPanel.h"
-#include "Panels/ConsolePanel.h"
-#include "Panels/AssetsPanel.h"
+#include "Behavior/Action.h"
+#include "Behavior/SceneEditor.h"
+#include "UI/Panels/ViewportPanel.h"
+#include "UI/Panels/SceneHierarchyPanel.h"
+#include "UI/Panels/ConsolePanel.h"
+#include "UI/Panels/AssetsPanel.h"
 
 namespace OverEditor
 {

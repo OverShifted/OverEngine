@@ -2,7 +2,7 @@
 
 #include <OverEngine.h>
 #include <OverEngine/ImGui/ImGuiPanel.h>
-#include "SceneEditor.h"
+#include "Behavior/SceneEditor.h"
 
 namespace OverEditor
 {

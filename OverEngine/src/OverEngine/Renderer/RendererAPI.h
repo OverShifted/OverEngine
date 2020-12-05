@@ -5,6 +5,11 @@
 
 namespace OverEngine
 {
+	enum class DrawType
+	{
+		None = 0, Points, Lines, Triangles
+	};
+
 	class RendererAPI
 	{
 	public:
@@ -20,7 +25,7 @@ namespace OverEngine
 		virtual void SetClearDepth(float depth) = 0;
 		virtual void Clear(const ClearFlags& flags) = 0;
 
-		virtual void DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0) = 0;
+		virtual void DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0, DrawType drawType = DrawType::Triangles) = 0;
 
 		virtual uint32_t GetMaxTextureSize() = 0;
 		virtual uint32_t GetMaxTextureSlotCount() = 0;

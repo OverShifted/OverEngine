@@ -74,10 +74,16 @@ namespace OverEngine
 		glClear(mask);
 	}
 
-	void OpenGLRendererAPI::DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indexCount)
+	void OpenGLRendererAPI::DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indexCount, DrawType drawType)
 	{
 		uint32_t count = indexCount ? indexCount : vertexArray->GetIndexBuffer()->GetCount();
-		glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
+
+		GLenum mode;
+		if (drawType == DrawType::Points)    mode = GL_POINTS;
+		if (drawType == DrawType::Lines)     mode = GL_LINES;
+		if (drawType == DrawType::Triangles) mode = GL_TRIANGLES;
+
+		glDrawElements(mode, count, GL_UNSIGNED_INT, nullptr);
 	}
 
 	uint32_t OpenGLRendererAPI::GetMaxTextureSize()
@@ -93,5 +99,4 @@ namespace OverEngine
 		glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &texture_units);
 		return texture_units;
 	}
-
 }

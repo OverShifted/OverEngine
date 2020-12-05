@@ -137,26 +137,10 @@ namespace OverEditor
 
 					static UIElements::EnumValues wrappingValues = {
 						{ 0, "None (Use default)" }, { 1, "Repeat" },
-						{ 2, "MirroredRepeat" }, { 3, "ClampToEdge" },{ 4, "ClampToBorder" }
+						{ 2, "Clamp" }, { 3, "Mirror" }
 					};
 					UIElements::BasicEnum_U("Wrapping.x", "##Wrapping.x", wrappingValues, (int8_t*)&sp.Wrapping.x, __BASIC_ENUM_ACTION_VAL(SpriteRendererComponent, TextureWrapping, Wrapping.x));
 					UIElements::BasicEnum_U("Wrapping.y", "##Wrapping.y", wrappingValues, (int8_t*)&sp.Wrapping.y, __BASIC_ENUM_ACTION_VAL(SpriteRendererComponent, TextureWrapping, Wrapping.y));
-
-					if (sp.Wrapping.x == TextureWrapping::ClampToBorder || sp.Wrapping.y == TextureWrapping::ClampToBorder)
-					{
-						UIElements::CheckboxField_U("OverrideTextureBorderColor",
-							"##OverrideTextureBorderColor", &sp.TextureBorderColor.first,
-							__BASIC_ACTION_VAL(SpriteRendererComponent, TextureBorderColor.first)
-						);
-
-						if (sp.TextureBorderColor.first)
-						{
-							UIElements::Color4Field_U("TextureBorderColor)",
-								"##BorderColor", glm::value_ptr(sp.TextureBorderColor.second),
-								__BASIC_ACTION_VAL(SpriteRendererComponent, TextureBorderColor.second)
-							);
-						}
-					}
 
 					ImGui::TreePop();
 				}

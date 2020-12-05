@@ -28,13 +28,11 @@ namespace OverEngine
 
 		switch ((AssetType)Serializer::GetGlobalEnumValue("AssetType", node["Type"].as<String>()))
 		{
-		case AssetType::Folder:
-			return nullptr;
+		case AssetType::Folder:    return nullptr;
 		case AssetType::Texture2D: return CreateRef<Texture2DAsset>(node, assetsDirectoryRoot);
 		case AssetType::Scene:     return CreateRef<SceneAsset>(node, assetsDirectoryRoot);
-		default:
-			OE_CORE_ASSERT(false, "Unknown asset type");
-			return nullptr;
+		
+		default: OE_CORE_ASSERT(false, "Unknown asset type"); return nullptr;
 		}
 	}
 

@@ -63,9 +63,9 @@ namespace OverEngine
 			GLint val = 0;
 			if (wrapping == TextureWrapping::Repeat)
 				val = GL_REPEAT;
-			else if (wrapping == TextureWrapping::MirroredRepeat)
+			else if (wrapping == TextureWrapping::Mirror)
 				val = GL_MIRRORED_REPEAT;
-			else if (wrapping == TextureWrapping::ClampToEdge)
+			else if (wrapping == TextureWrapping::Clamp)
 				val = GL_CLAMP_TO_EDGE;
 			else if (wrapping == TextureWrapping::ClampToBorder)
 				val = GL_CLAMP_TO_BORDER;
@@ -79,9 +79,9 @@ namespace OverEngine
 			GLint val = 0;
 			if (wrapping == TextureWrapping::Repeat)
 				val = GL_REPEAT;
-			else if (wrapping == TextureWrapping::MirroredRepeat)
+			else if (wrapping == TextureWrapping::Mirror)
 				val = GL_MIRRORED_REPEAT;
-			else if (wrapping == TextureWrapping::ClampToEdge)
+			else if (wrapping == TextureWrapping::Clamp)
 				val = GL_CLAMP_TO_EDGE;
 			else if (wrapping == TextureWrapping::ClampToBorder)
 				val = GL_CLAMP_TO_BORDER;

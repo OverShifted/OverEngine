@@ -18,12 +18,6 @@ namespace OverEngine
 
 		Vec2T<TextureWrapping> Wrapping{ TextureWrapping::None, TextureWrapping::None };
 		TextureFiltering Filtering = TextureFiltering::None;
-
-		/**
-		 * first : Is overriding TextureBorderColor?
-		 * second : Override TextureBorderColor to what?
-		 */
-		std::pair<bool, Color> TextureBorderColor{ false, Color(1.0f) };
 	};
 
 	class Renderer2D

@@ -1,6 +1,6 @@
 #include "EditorLayer.h"
 
-#include "EditorConsoleSink.h"
+#include "UI/EditorConsoleSink.h"
 
 #include <OverEngine/Core/FileSystem/FileSystem.h>
 #include <OverEngine/Scene/SceneSerializer.h>

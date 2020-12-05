@@ -10,7 +10,6 @@
 // For OE(_CORE)_ASSERT
 #include "OverEngine/Core/Log.h"
 #include "OverEngine/Core/Math/Math.h"
-// #include "OverEngine/Core/Memory/Allocator.h"
 
 // Platform detection using predefined macros
 #ifdef _WIN32
@@ -161,7 +160,6 @@ namespace OverEngine
 	// Vector ///////////////////////////////////////////////////////////////////
 	template<typename T>
 	using Vector = std::vector<T>;
-	//using Vector = std::vector<T, OverEngine::Allocator<T>>;
 
 	template<typename T>
 	using RefVec = Ref<Vector<T>>;

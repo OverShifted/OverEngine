@@ -234,7 +234,6 @@ namespace OverEngine
 					data.Flip = sprite.Flip;
 					data.Wrapping = sprite.Wrapping;
 					data.Filtering = sprite.Filtering;
-					data.TextureBorderColor = sprite.TextureBorderColor;
 
 					Renderer2D::DrawQuad(sptransform, sprite.Sprite, data);
 				}

@@ -276,9 +276,8 @@ namespace OverEngine
 						Serializer::DefineGlobalEnum("TextureWrapping", {
 							{ 0, "None" },
 							{ 1, "Repeat" },
-							{ 2, "MirroredRepeat" },
-							{ 3, "ClampToEdge" },
-							{ 4, "ClampToBorder" }
+							{ 2, "Clamp" },
+							{ 3, "Mirror" },
 						});
 					}
 
@@ -304,8 +303,6 @@ namespace OverEngine
 					sp.Wrapping.x = (TextureWrapping)Serializer::GetGlobalEnumValue("TextureWrapping", spriteRendererComponent["Wrapping.x"].as<String>());
 					sp.Wrapping.y = (TextureWrapping)Serializer::GetGlobalEnumValue("TextureWrapping", spriteRendererComponent["Wrapping.y"].as<String>());
 					sp.Filtering = (TextureFiltering)Serializer::GetGlobalEnumValue("TextureFiltering", spriteRendererComponent["Filtering"].as<String>());
-					sp.TextureBorderColor.first = spriteRendererComponent["IsOverridingTextureBorderColor"].as<bool>();
-					sp.TextureBorderColor.second = spriteRendererComponent["TextureBorderColor"].as<Color>();
 				}
 
 				if (auto rigidBody2DComponent = entity["RigidBody2DComponent"])
@@ -322,15 +319,15 @@ namespace OverEngine
 					}
 
 					rbc.Initializer.Type = (RigidBody2DType)Serializer::GetGlobalEnumValue("RigidBody2DType", rigidBody2DComponent["Type"].as<String>());
-					rbc.Initializer.LinearVelocity = rigidBody2DComponent["LinearVelocity"].as<Vector2>();
+					rbc.Initializer.LinearVelocity  = rigidBody2DComponent["LinearVelocity"].as<Vector2>();
 					rbc.Initializer.AngularVelocity = rigidBody2DComponent["AngularVelocity"].as<float>();
-					rbc.Initializer.LinearDamping = rigidBody2DComponent["LinearDamping"].as<float>();
-					rbc.Initializer.AngularDamping = rigidBody2DComponent["AngularDamping"].as<float>();
-					rbc.Initializer.AllowSleep = rigidBody2DComponent["AllowSleep"].as<bool>();
-					rbc.Initializer.Awake = rigidBody2DComponent["Awake"].as<bool>();
-					rbc.Initializer.FixedRotation = rigidBody2DComponent["FixedRotation"].as<bool>();
-					rbc.Initializer.GravityScale = rigidBody2DComponent["GravityScale"].as<float>();
-					rbc.Initializer.Bullet = rigidBody2DComponent["Bullet"].as<bool>();
+					rbc.Initializer.LinearDamping   = rigidBody2DComponent["LinearDamping"].as<float>();
+					rbc.Initializer.AngularDamping  = rigidBody2DComponent["AngularDamping"].as<float>();
+					rbc.Initializer.AllowSleep      = rigidBody2DComponent["AllowSleep"].as<bool>();
+					rbc.Initializer.Awake           = rigidBody2DComponent["Awake"].as<bool>();
+					rbc.Initializer.FixedRotation   = rigidBody2DComponent["FixedRotation"].as<bool>();
+					rbc.Initializer.GravityScale    = rigidBody2DComponent["GravityScale"].as<float>();
+					rbc.Initializer.Bullet          = rigidBody2DComponent["Bullet"].as<bool>();
 				}
 
 				if (auto colliders2DComponent = entity["Colliders2DComponent"])
