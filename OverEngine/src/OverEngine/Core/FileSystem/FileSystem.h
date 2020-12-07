@@ -36,6 +36,7 @@ namespace OverEngine
 	class FileWatcher
 	{
 	public:
+		typedef void(*ActionFn)(const String&, FileWatcherEvent, void*);
 
 		String m_PathToWatch;
 		std::chrono::duration<int, std::milli> m_Delay;
@@ -46,7 +47,7 @@ namespace OverEngine
 		FileWatcher()
 			: m_PathToWatch(""), m_Delay(std::chrono::milliseconds(5000)), m_Running(false), m_Stopped(false)
 		{
-			m_Action = [](String, FileWatcherEvent) {};
+			m_Action = [](const String&, FileWatcherEvent, void*) {};
 		}
 
 		~FileWatcher()
@@ -56,13 +57,15 @@ namespace OverEngine
 		}
 
 		void Reset(String pathToWatch, std::chrono::duration<int, std::milli> delay);
-		void Start(void(*action)(String, FileWatcherEvent));
+		void Start(ActionFn action, void* userData);
 	private:
 		void Thread();
 	private:
-		std::thread m_Thread;
-		std::unordered_map<String, std::filesystem::file_time_type> m_Paths;
-		void(*m_Action)(String, FileWatcherEvent);
 		bool m_Stopped = false;
+		std::thread m_Thread;
+		ActionFn m_Action;
+		void* m_UserData = nullptr;
+
+		std::unordered_map<String, std::filesystem::file_time_type> m_Paths;
 	};
 }

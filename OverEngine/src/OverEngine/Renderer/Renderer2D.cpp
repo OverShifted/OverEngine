@@ -9,16 +9,15 @@ namespace OverEngine
 
 	struct Vertex
 	{
-		Vector3 a_Position      = Vector3(0.0f);
+		Vector3 a_Position    = Vector3(0.0f);
 
-		Color   a_Color         = Color  (0.0f);
-		float   a_TexSlot       =        -1.0f;
-		float   a_TexFilter     =         0.0f;
-		Vector2 a_TexWrapping   = Vector2(0.0f);
-		Rect    a_TexRect       = Rect   (0.0f);
-		Vector2 a_TexSize       = Vector2(0.0f);
-		Vector2 a_TexCoord      = Vector2(0.0f);
-		Rect    a_TexCoordRange = Vector4(0.0f);
+		Color   a_Color       = Color  (0.0f);
+		float   a_TexSlot     =        -1.0f;
+		float   a_TexFilter   =         0.0f;
+		Vector2 a_TexWrapping = Vector2(0.0f);
+		Rect    a_TexRect     = Rect   (0.0f);
+		Vector2 a_TexSize     = Vector2(0.0f);
+		Vector2 a_TexCoord    = Vector2(0.0f);
 	};
 
 	using DrawQuadVertices = std::array<Vertex, 4>;
@@ -55,8 +54,8 @@ namespace OverEngine
 		static constexpr uint32_t QuadIndices[6] = { 0, 1, 2, 2, 3, 0 };
 
 		static constexpr int ShaderSampler2Ds[32] = {
-			0, 1, 2, 3, 4, 5, 6, 7,
-			8, 9, 10, 11, 12, 13, 14, 15,
+			0 , 1 , 2 , 3 , 4 , 5 , 6 , 7 ,
+			8 , 9 , 10, 11, 12, 13, 14, 15,
 			16, 17, 18, 19, 20, 21, 22, 23,
 			24, 25, 26, 27, 28, 29, 30, 31
 		};
@@ -128,7 +127,6 @@ namespace OverEngine
 			{ ShaderDataType::Float4, "a_TexRect" },
 			{ ShaderDataType::Float2, "a_TexSize" },
 			{ ShaderDataType::Float2, "a_TexCoord" },
-			{ ShaderDataType::Float4, "a_TexCoordRange" },
 		});
 		s_Data->vertexArray->AddVertexBuffer(s_Data->vertexBuffer);
 
@@ -374,6 +372,12 @@ namespace OverEngine
 			else
 				vertex.a_TexWrapping.y = (float)texture->GetYWrapping();
 
+			if (vertex.a_TexWrapping.x == (float)TextureWrapping::ClampToBorder)
+				vertex.a_TexWrapping.x = (float)TextureWrapping::Repeat;
+
+			if (vertex.a_TexWrapping.y == (float)TextureWrapping::ClampToBorder)
+				vertex.a_TexWrapping.y = (float)TextureWrapping::Repeat;
+
 			// a_TexRect
 			vertex.a_TexRect = texture->GetRect();
 
@@ -386,15 +390,6 @@ namespace OverEngine
 				float yTexCoord = Renderer2DData::QuadVertices[1 + 3 * i] > 0.0f ? extraData.Tiling.y + extraData.Offset.y : extraData.Offset.y;
 				vertex.a_TexCoord.x = extraData.Flip.x ? extraData.Tiling.x - xTexCoord : xTexCoord;
 				vertex.a_TexCoord.y = extraData.Flip.y ? extraData.Tiling.y - yTexCoord : yTexCoord;
-
-				vertex.a_TexCoordRange.x = extraData.Flip.x ? extraData.Tiling.x - extraData.Offset.x : extraData.Offset.x; // Min X
-				vertex.a_TexCoordRange.y = extraData.Flip.y ? extraData.Tiling.y - extraData.Offset.y : extraData.Offset.y; // Min Y
-
-				float maxXTexCoord = extraData.Tiling.x + extraData.Offset.x;
-				float maxYTexCoord = extraData.Tiling.y + extraData.Offset.y;
-
-				vertex.a_TexCoordRange.z = extraData.Flip.x ? extraData.Tiling.x - maxXTexCoord : maxXTexCoord; // Max X
-				vertex.a_TexCoordRange.w = extraData.Flip.y ? extraData.Tiling.y - maxYTexCoord : maxYTexCoord; // Max Y
 			}
 		}
 

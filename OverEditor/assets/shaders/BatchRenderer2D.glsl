@@ -8,8 +8,7 @@ layout(location = 3) in float a_TexFilter; // Linear / Point
 layout(location = 4) in vec2 a_TexWrapping; // Repeat, MirroredRepeat, ...
 layout(location = 5) in vec4 a_TexRect; // 0 -> 1 Rect from Atlas
 layout(location = 6) in vec2 a_TexSize; // Texture size in pixels
-layout(location = 7) in vec2 a_TexCoord; // UV Coord
-layout(location = 8) in vec4 a_TexCoordRange;
+layout(location = 7) in vec2 a_UV; // UV Coord with tiling and offset applied
 
 flat out vec4 v_Color;
 flat out int v_TexSlot;
@@ -18,21 +17,19 @@ flat out int v_TexSWrapping;
 flat out int v_TexTWrapping;
 flat out vec4 v_TexRect;
 flat out vec2 v_TexSize;
-out vec2 v_TexCoord;
-flat out vec4 v_TexCoordRange;
+out vec2 v_UV;
 
 void main()
 {
-	gl_Position = vec4(a_Position, 1.0);
-	v_Color = a_Color;
-	v_TexSlot = int(a_TexSlot);
+	gl_Position    = vec4(a_Position, 1.0);
+	v_Color        = a_Color;
+	v_TexSlot      = int(a_TexSlot);
 	v_TexSWrapping = int(a_TexWrapping.x);
 	v_TexTWrapping = int(a_TexWrapping.y);
-	v_TexFilter = int(a_TexFilter);
-	v_TexRect = a_TexRect;
-	v_TexSize = a_TexSize;
-	v_TexCoord = vec2(a_TexCoord.x, 1 - a_TexCoord.y);
-	v_TexCoordRange = a_TexCoordRange;
+	v_TexFilter    = int(a_TexFilter);
+	v_TexRect      = a_TexRect;
+	v_TexSize      = a_TexSize;
+	v_UV           = vec2(a_UV.x, 1 - a_UV.y);
 }
 
 #type fragment
@@ -50,8 +47,7 @@ flat in int v_TexSWrapping;
 flat in int v_TexTWrapping;
 flat in vec4 v_TexRect;
 flat in vec2 v_TexSize;
-in vec2 v_TexCoord;
-flat in vec4 v_TexCoordRange;
+in vec2 v_UV;
 
 vec4 PointSampleFromAtlas(sampler2D slot, vec2 coord);
 
@@ -62,15 +58,11 @@ vec4 BiLinearSampleFromAtlas(sampler2D slot, vec2 coord)
 	float a = mod(coord.x, texelSize.x) * v_TexSize.x;
 	float b = mod(coord.y, texelSize.y) * v_TexSize.y;
 
-	if (a > 0.5)
-		a -= 0.5;
-	else if (a < 0.5)
-		a += 0.5;
+	if (a > 0.5) a -= 0.5;
+	else if (a < 0.5) a += 0.5;
 
-	if (b > 0.5)
-		b -= 0.5;
-	else if (b < 0.5)
-		b += 0.5;
+	if (b > 0.5) b -= 0.5;
+	else if (b < 0.5) b += 0.5;
 
 	float xmin = coord.x - texelSize.x / 2;
 	float xmax = coord.x + texelSize.x / 2;
@@ -78,17 +70,14 @@ vec4 BiLinearSampleFromAtlas(sampler2D slot, vec2 coord)
 	float ymin = coord.y - texelSize.y / 2;
 	float ymax = coord.y + texelSize.y / 2;
 
-	if (xmin < v_TexCoordRange.x)
-		xmin = v_TexCoordRange.x;
+	float xtile = floor(v_UV.x);
+	float ytile = floor(v_UV.y);
 
-	if (ymin < v_TexCoordRange.y)
-		ymin = v_TexCoordRange.y;
+	if (floor(xmin) < xtile) xmin = xtile + 0.001;
+	if (floor(xmax) > xtile) xmax = xtile - 0.001;
 
-	if (xmax > v_TexCoordRange.z)
-		xmax = v_TexCoordRange.z;
-
-	if (ymax > v_TexCoordRange.w)
-		ymax = v_TexCoordRange.w;
+	if (floor(ymin) < ytile) ymin = ytile + 0.001;
+	if (floor(ymax) > ytile) ymax = ytile - 0.001;
 
 	vec4 upperLeft  = PointSampleFromAtlas(slot, vec2(xmin, ymin));
 	vec4 upperRight = PointSampleFromAtlas(slot, vec2(xmax, ymin));
@@ -120,22 +109,22 @@ vec4 PointSampleFromAtlas(sampler2D slot, vec2 coord)
 	coord.x = wrap(coord.x, v_TexSWrapping);
 	coord.y = wrap(coord.y, v_TexTWrapping);
 
-	coord.x = clamp(coord.x, 0.001, 0.999);
-	coord.y = clamp(coord.y, 0.001, 0.999);
-	return texture(slot, vec2(v_TexRect.x + coord.x * v_TexRect.z, v_TexRect.y + coord.y * v_TexRect.w));
+	return texture(slot, vec2(
+		v_TexRect.x + (coord.x * v_TexRect.z),
+		v_TexRect.y + (coord.y * v_TexRect.w)
+	));
 }
 
 vec4 Sample(sampler2D slot)
 {
-	vec4 color;
+	vec4 color = v_Color;
+
 	if (v_TexFilter == 1)
-		color = PointSampleFromAtlas(slot, v_TexCoord) * v_Color;
+		color *= PointSampleFromAtlas(slot, v_UV);
 	else
-		color = BiLinearSampleFromAtlas(slot, v_TexCoord) * v_Color;
+		color *= BiLinearSampleFromAtlas(slot, v_UV);
 
-	if (color.a <= 0.0)
-		discard;
-
+	if (color.a <= 0.0) discard;
 	return color;
 }
 

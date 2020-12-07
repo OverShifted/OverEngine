@@ -48,19 +48,17 @@ SandboxECS::SandboxECS()
 #pragma endregion
 
 #pragma region Textures
-	m_CheckerBoardTexture = Texture2D::CreateMaster("assets/textures/Checkerboard.png");
-	m_CheckerBoardTexture->SetXWrapping(TextureWrapping::ClampToBorder);
-	m_CheckerBoardTexture->SetYWrapping(TextureWrapping::ClampToBorder);
-	m_CheckerBoardTexture->SetBorderColor({ 0.0f, 1.0f, 1.0f, 1.0f });
-	m_CheckerBoardTexture->SetFiltering(TextureFiltering::Nearest);
+	// m_CheckerBoardTexture = Texture2D::CreateMaster("assets/textures/Checkerboard.png");
+	// m_CheckerBoardTexture->SetXWrapping(TextureWrapping::Repeat);
+	// m_CheckerBoardTexture->SetYWrapping(TextureWrapping::Repeat);
+	// m_CheckerBoardTexture->SetFiltering(TextureFiltering::Nearest);
 
-	m_OELogoTexture = Texture2D::CreateMaster("assets/textures/OELogo.png");
-	m_OELogoTexture->SetFiltering(TextureFiltering::Linear);
+	// m_OELogoTexture = Texture2D::CreateMaster("assets/textures/OELogo.png");
+	// m_OELogoTexture->SetFiltering(TextureFiltering::Linear);
 
 	m_SpriteSheet = Texture2D::CreateMaster("assets/textures/platformPack_tilesheet@2.png");
-	m_SpriteSheet->SetXWrapping(TextureWrapping::ClampToBorder);
-	m_SpriteSheet->SetYWrapping(TextureWrapping::ClampToBorder);
-	m_SpriteSheet->SetBorderColor({ 0.0f, 1.0f, 1.0f, 1.0f });
+	m_SpriteSheet->SetXWrapping(TextureWrapping::Repeat);
+	m_SpriteSheet->SetYWrapping(TextureWrapping::Repeat);
 	m_SpriteSheet->SetFiltering(TextureFiltering::Nearest);
 
 	m_Sprite = Texture2D::CreateSubTexture(m_SpriteSheet, { 128 * 1, 128 * 5, 128, 128 });

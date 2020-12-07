@@ -25,9 +25,6 @@ namespace OverEngine
 		virtual void SetXWrapping(TextureWrapping wrapping) = 0;
 		virtual void SetYWrapping(TextureWrapping wrapping) = 0;
 
-		virtual const Color& GetBorderColor() const = 0;
-		virtual void SetBorderColor(const Color& color) = 0;
-
 		virtual TextureFormat GetFormat() const = 0;
 		virtual TextureType GetType() const = 0;
 
@@ -46,7 +43,6 @@ namespace OverEngine
 
 		TextureFiltering Filtering;
 		Vec2T<TextureWrapping> Wrapping = { TextureWrapping::Repeat, TextureWrapping::Repeat };
-		Color BorderColor = { 0.0f, 0.0f, 0.0f, 1.0f };
 
 		uint8_t* Pixels;
 
@@ -116,9 +112,6 @@ namespace OverEngine
 
 		virtual void SetXWrapping(TextureWrapping wrapping) override { __Texture2D_COMMON_ASSERT(Wrapping.x, wrapping, "Wrapping"); }
 		virtual void SetYWrapping(TextureWrapping wrapping) override { __Texture2D_COMMON_ASSERT(Wrapping.y, wrapping, "Wrapping"); }
-
-		virtual const Color& GetBorderColor() const override { __Texture2D_COMMON_GET(BorderColor, NULL_REF(Color)); }
-		virtual void SetBorderColor(const Color& color) override { __Texture2D_COMMON_ASSERT(BorderColor, color, "BorderColor"); }
 
 		virtual TextureFormat GetFormat() const override { __Texture2D_COMMON_GET(Format, TextureFormat::None); }
 		inline virtual TextureType GetType() const override { return m_Type; }

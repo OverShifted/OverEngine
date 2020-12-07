@@ -131,7 +131,7 @@ namespace OverEditor
 				if (open)
 				{
 					static UIElements::EnumValues filteringValues = {
-						{ 0, "None (Use default)" }, { 1, "Linear" }, { 2, "Linear" }
+						{ 0, "None (Use default)" }, { 1, "Nearest" }, { 2, "Linear" }
 					};
 					UIElements::BasicEnum("Filtering", "##Filtering", filteringValues, (int8_t*)&sp.Filtering);
 

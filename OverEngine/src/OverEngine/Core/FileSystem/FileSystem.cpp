@@ -123,7 +123,7 @@ namespace OverEngine
 			m_Paths[entry.path().string()] = std::filesystem::last_write_time(entry);
 		}
 
-		m_Action = [](String, FileWatcherEvent) {};
+		m_Action = [](const String&, FileWatcherEvent, void*) {};
 	}
 
 	void FileWatcher::Reset(String pathToWatch, std::chrono::duration<int, std::milli> delay)
@@ -136,13 +136,14 @@ namespace OverEngine
 			m_Paths[entry.path().string()] = std::filesystem::last_write_time(entry);
 		}
 
-		m_Action = [](String, FileWatcherEvent) {};
+		m_Action = [](const String&, FileWatcherEvent, void*) {};
 	}
 
-	void FileWatcher::Start(void(*action)(String, FileWatcherEvent))
+	void FileWatcher::Start(ActionFn action, void* userData)
 	{
-		m_Action = action;
 		m_Running = true;
+		m_Action = action;
+		m_UserData = userData;
 		m_Thread = std::thread([this]() { Thread(); });
 	}
 
@@ -162,7 +163,7 @@ namespace OverEngine
 				{
 					if (!std::filesystem::exists(it->first))
 					{
-						m_Action(it->first, FileWatcherEvent::Deleted);
+						m_Action(it->first, FileWatcherEvent::Deleted, m_UserData);
 						it = m_Paths.erase(it);
 					}
 					else
@@ -174,18 +175,19 @@ namespace OverEngine
 				for (auto& entry : std::filesystem::recursive_directory_iterator(m_PathToWatch))
 				{
 					auto currentFileLastWriteTime = std::filesystem::last_write_time(entry);
+					auto pathString = entry.path().string();
 
-					if (m_Paths.find(entry.path().string()) == m_Paths.end())
+					if (m_Paths.find(pathString) == m_Paths.end())
 					{
-						m_Paths[entry.path().string()] = currentFileLastWriteTime;
-						m_Action(entry.path().string(), FileWatcherEvent::Created);
+						m_Paths[pathString] = currentFileLastWriteTime;
+						m_Action(pathString, FileWatcherEvent::Created, m_UserData);
 					}
 					else
 					{
-						if (m_Paths[entry.path().string()] != currentFileLastWriteTime)
+						if (m_Paths[pathString] != currentFileLastWriteTime)
 						{
-							m_Paths[entry.path().string()] = currentFileLastWriteTime;
-							m_Action(entry.path().string(), FileWatcherEvent::Modified);
+							m_Paths[pathString] = currentFileLastWriteTime;
+							m_Action(pathString, FileWatcherEvent::Modified, m_UserData);
 
 						}
 					}
