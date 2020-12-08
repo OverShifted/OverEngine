@@ -298,8 +298,12 @@ namespace OverEngine
 
 					sp.Tint = spriteRendererComponent["Tint"].as<Color>();
 					sp.Tiling = spriteRendererComponent["Tiling"].as<Vector2>();
-					sp.Flip.x = spriteRendererComponent["Flip.x"].as<bool>();
-					sp.Flip.y = spriteRendererComponent["Flip.y"].as<bool>();
+
+					if (spriteRendererComponent["Flip.x"].as<bool>())
+						sp.Flip |= SpriteRendererComponent::Flip_X;
+					if (spriteRendererComponent["Flip.y"].as<bool>())
+						sp.Flip |= SpriteRendererComponent::Flip_Y;
+
 					sp.Wrapping.x = (TextureWrapping)Serializer::GetGlobalEnumValue("TextureWrapping", spriteRendererComponent["Wrapping.x"].as<String>());
 					sp.Wrapping.y = (TextureWrapping)Serializer::GetGlobalEnumValue("TextureWrapping", spriteRendererComponent["Wrapping.y"].as<String>());
 					sp.Filtering = (TextureFiltering)Serializer::GetGlobalEnumValue("TextureFiltering", spriteRendererComponent["Filtering"].as<String>());

@@ -78,10 +78,10 @@ namespace OverEngine
 	{
 		uint32_t count = indexCount ? indexCount : vertexArray->GetIndexBuffer()->GetCount();
 
-		GLenum mode;
-		if (drawType == DrawType::Points)    mode = GL_POINTS;
-		if (drawType == DrawType::Lines)     mode = GL_LINES;
-		if (drawType == DrawType::Triangles) mode = GL_TRIANGLES;
+		GLenum mode = GL_TRIANGLES;
+		if (drawType == DrawType::Points)         mode = GL_POINTS;
+		else if (drawType == DrawType::Lines)     mode = GL_LINES;
+		else if (drawType == DrawType::Triangles) mode = GL_TRIANGLES;
 
 		glDrawElements(mode, count, GL_UNSIGNED_INT, nullptr);
 	}

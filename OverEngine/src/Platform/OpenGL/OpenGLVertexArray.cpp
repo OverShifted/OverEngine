@@ -46,7 +46,7 @@ namespace OverEngine
 		glBindVertexArray(0);
 	}
 
-	void OpenGLVertexArray::AddVertexBuffer(const std::shared_ptr<VertexBuffer>& vertexBuffer)
+	void OpenGLVertexArray::AddVertexBuffer(const Ref<VertexBuffer>& vertexBuffer)
 	{
 		OE_CORE_ASSERT(vertexBuffer->GetLayout().GetElements().size(), "Vertex Buffer has no layout!");
 
@@ -58,12 +58,26 @@ namespace OverEngine
 		for (const auto& element : layout)
 		{
 			glEnableVertexAttribArray(index + m_VertexBufferIndexOffset);
-			glVertexAttribPointer(index + m_VertexBufferIndexOffset,
-				element.GetComponentCount(),
-				ShaderDataTypeToOpenGLBaseType(element.Type),
-				element.Normalized ? GL_TRUE : GL_FALSE,
-				layout.GetStride(),
-				(const void*)(intptr_t)element.Offset);
+
+			if (ShaderDataTypeToOpenGLBaseType(element.Type) == GL_INT)
+			{
+				glVertexAttribIPointer(index + m_VertexBufferIndexOffset,
+					element.GetComponentCount(),
+					ShaderDataTypeToOpenGLBaseType(element.Type),
+					layout.GetStride(),
+					(const void*)(intptr_t)element.Offset
+				);
+			}
+			else
+			{
+				glVertexAttribPointer(index + m_VertexBufferIndexOffset,
+					element.GetComponentCount(),
+					ShaderDataTypeToOpenGLBaseType(element.Type),
+					element.Normalized ? GL_TRUE : GL_FALSE,
+					layout.GetStride(),
+					(const void*)(intptr_t)element.Offset
+				);
+			}
 			index++;
 		}
 
@@ -71,7 +85,7 @@ namespace OverEngine
 		m_VertexBufferIndexOffset += (uint32_t)layout.GetElements().size();
 	}
 
-	void OpenGLVertexArray::SetIndexBuffer(const std::shared_ptr<IndexBuffer>& indexBuffer)
+	void OpenGLVertexArray::SetIndexBuffer(const Ref<IndexBuffer>& indexBuffer)
 	{
 		glBindVertexArray(m_RendererID);
 		indexBuffer->Bind();

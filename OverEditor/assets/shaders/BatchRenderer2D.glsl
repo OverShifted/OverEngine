@@ -1,35 +1,128 @@
 #type vertex
 #version 450 core
 
-layout(location = 0) in vec3 a_Position;
-layout(location = 1) in vec4 a_Color;       // Tint
-layout(location = 2) in float a_TexSlot;    // Texture Unit or -1 for no texture
-layout(location = 3) in float a_TexFilter;  // Linear / Point
-layout(location = 4) in vec2 a_TexWrapping; // Repeat, MirroredRepeat, ...
-layout(location = 5) in vec4 a_TexRect;     // 0 -> 1 Rect from Atlas
-layout(location = 6) in vec2 a_TexSize;     // Texture size in pixels
-layout(location = 7) in vec2 a_UV;          // UV Coord with tiling and offset applied
+layout(location = 0) in vec3  a_Position0;
+layout(location = 1) in vec3  a_Position1;
+layout(location = 2) in vec3  a_Position2;
+layout(location = 3) in vec3  a_Position3;
+
+layout(location = 4) in vec4  a_Color;       // Tint
+
+layout(location = 5) in vec2   a_TexTiling;
+layout(location = 6) in vec2   a_TexOffset;
+layout(location = 7) in int    a_TexFlip;
+layout(location = 8) in int    a_TexSlot;     // Texture Unit or -1 for no texture
+layout(location = 9) in int    a_TexFilter;   // Linear / Point
+layout(location = 10) in ivec2 a_TexWrapping; // Repeat, MirroredRepeat, ...
+layout(location = 11) in vec2  a_TexSize;     // Texture size in pixels
+layout(location = 12) in vec4  a_TexRect;     // 0 -> 1 Rect from Atlas
+
+out VS_OUT {
+	vec3  Position1;
+	vec3  Position2;
+	vec3  Position3;
+
+	vec4  Color;
+
+	vec2  TexTiling;
+	vec2  TexOffset;
+	int   TexFlip;
+	int   TexSlot;
+	int   TexFilter;
+	ivec2 TexWrapping;
+	vec2  TexSize;
+	vec4  TexRect;
+} vs_out;
+
+void main()
+{
+	gl_Position    = vec4(a_Position0, 1.0);
+
+	vs_out.Position1 = a_Position1;
+	vs_out.Position2 = a_Position2;
+	vs_out.Position3 = a_Position3;
+
+	vs_out.Color = a_Color;
+
+	vs_out.TexTiling   = a_TexTiling;
+	vs_out.TexOffset   = a_TexOffset;
+	vs_out.TexFlip     = a_TexFlip;
+	vs_out.TexSlot     = a_TexSlot;
+	vs_out.TexFilter   = a_TexFilter;
+	vs_out.TexWrapping = a_TexWrapping;
+	vs_out.TexSize     = a_TexSize;
+	vs_out.TexRect     = a_TexRect;
+}
+
+#type geometry
+#version 450 core
+
+layout (points) in;
+layout (triangle_strip, max_vertices = 4) out;
+
+in VS_OUT {
+	vec3  Position1;
+	vec3  Position2;
+	vec3  Position3;
+
+	vec4  Color;
+
+	vec2  TexTiling;
+	vec2  TexOffset;
+	int   TexFlip;
+	int   TexSlot;
+	int   TexFilter;
+	ivec2 TexWrapping;
+	vec2  TexSize;
+	vec4  TexRect;
+} gs_in[];
 
 flat out vec4 v_Color;
 flat out int v_TexSlot;
 flat out int v_TexFilter;
-flat out int v_TexSWrapping;
-flat out int v_TexTWrapping;
-flat out vec4 v_TexRect;
+flat out ivec2 v_TexWrapping;
 flat out vec2 v_TexSize;
+flat out vec4 v_TexRect;
 out vec2 v_UV;
+
+#define FLIP_X (1 << 0)
+#define FLIP_Y (1 << 1)
+
+vec2 FlipUV(vec2 uv)
+{
+	if ((gs_in[0].TexFlip & FLIP_X) == FLIP_X)
+		uv.x = 1.0 - uv.x;
+	if ((gs_in[0].TexFlip & FLIP_Y) == FLIP_Y)
+		uv.y = 1.0 - uv.y;
+	return uv;
+}
 
 void main()
 {
-	gl_Position    = vec4(a_Position, 1.0);
-	v_Color        = a_Color;
-	v_TexSlot      = int(a_TexSlot);
-	v_TexSWrapping = int(a_TexWrapping.x);
-	v_TexTWrapping = int(a_TexWrapping.y);
-	v_TexFilter    = int(a_TexFilter);
-	v_TexRect      = a_TexRect;
-	v_TexSize      = a_TexSize;
-	v_UV           = vec2(a_UV.x, 1 - a_UV.y);
+	v_Color       = gs_in[0].Color;
+	v_TexSlot     = gs_in[0].TexSlot;
+	v_TexFilter   = gs_in[0].TexFilter;
+	v_TexWrapping = gs_in[0].TexWrapping;
+	v_TexRect     = gs_in[0].TexRect;
+	v_TexSize     = gs_in[0].TexSize;
+
+	gl_Position = gl_in[0].gl_Position;
+	v_UV = FlipUV(vec2(gs_in[0].TexOffset.x, 1.0 - gs_in[0].TexOffset.y));
+	EmitVertex();
+
+	gl_Position = vec4(gs_in[0].Position1, 1.0);
+	v_UV = FlipUV(vec2(gs_in[0].TexTiling.x + gs_in[0].TexOffset.x, 1.0 - gs_in[0].TexOffset.y));
+	EmitVertex();
+
+	gl_Position = vec4(gs_in[0].Position2, 1.0);
+	v_UV = FlipUV(vec2(gs_in[0].TexOffset.x, 1.0 - (gs_in[0].TexTiling.y + gs_in[0].TexOffset.y)));
+	EmitVertex();
+
+	gl_Position = vec4(gs_in[0].Position3, 1.0);
+	v_UV = FlipUV(vec2(gs_in[0].TexTiling.x + gs_in[0].TexOffset.x, 1.0 - (gs_in[0].TexTiling.y + gs_in[0].TexOffset.y)));
+	EmitVertex();
+
+	EndPrimitive();
 }
 
 #type fragment
@@ -43,10 +136,9 @@ uniform sampler2D[32] u_Slots;
 flat in vec4 v_Color;
 flat in int v_TexSlot;
 flat in int v_TexFilter;
-flat in int v_TexSWrapping;
-flat in int v_TexTWrapping;
-flat in vec4 v_TexRect;
+flat in ivec2 v_TexWrapping;
 flat in vec2 v_TexSize;
+flat in vec4 v_TexRect;
 in vec2 v_UV;
 
 vec2 texelSize;
@@ -92,22 +184,22 @@ vec4 BiLinearSampleFromAtlas(sampler2D slot, vec2 coord)
 }
 
 // Based on https://www.khronos.org/registry/OpenGL/specs/gl/glspec46.core.pdf
-// page 260 in header and 282 in pdf
+// page 260
 float mirror(float a, float texel_size) { return (a >= 0 ? a : -(texel_size + a)); }
 float wrap(float value, int wrapping, float texel_size)
 {
 	switch (wrapping)
 	{
-	case 1: return mod(value, 1.0);                       // Repeat
+	case 1: return clamp(mod(value, 1.0), 0.0, 1.0 - texel_size);                       // Repeat
 	case 2: return clamp(value, 0.0, 1.0 - texel_size);            // Clamp
-	case 3: return (1.0 - texel_size) - mirror(mod(value, 2.0) - 1.0, texel_size); // Mirror
+	case 3: return clamp((1 - texel_size) - mirror(mod(value, 2.0) - 1.0, texel_size), 0.0, 1.0 - texel_size); // Mirror
 	}
 }
 
 vec4 PointSampleFromAtlas(sampler2D slot, vec2 coord)
 {
-	coord.x = wrap(coord.x, v_TexSWrapping, texelSize.x);
-	coord.y = wrap(coord.y, v_TexTWrapping, texelSize.y);
+	coord.x = wrap(coord.x, v_TexWrapping.x, texelSize.x);
+	coord.y = wrap(coord.y, v_TexWrapping.y, texelSize.y);
 
 	return texture(slot, vec2(
 		v_TexRect.x + (coord.x * v_TexRect.z),
@@ -132,6 +224,11 @@ vec4 Sample(sampler2D slot)
 
 void main()
 {
+	// if (v_TexWrapping.y == 0)
+	// {
+	// 	o_Color = vec4(v_TexWrapping.y,0.0,0.0,1.0);
+	// 	return;
+	// }
 	switch (v_TexSlot)
 	{
 	case -1 : o_Color = v_Color; return;

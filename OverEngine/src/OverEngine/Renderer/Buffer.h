@@ -108,15 +108,15 @@ namespace OverEngine
 		virtual void Bind() const = 0;
 		virtual void Unbind() const = 0;
 
-		virtual void BufferData(const float* vertices, uint32_t size, bool staticDraw = true) const = 0;
-		virtual void BufferSubData(const float* vertices, uint32_t size, uint32_t offset = 0) const = 0;
+		virtual void BufferData(const void* vertices, uint32_t size, bool staticDraw = true) const = 0;
+		virtual void BufferSubData(const void* vertices, uint32_t size, uint32_t offset = 0) const = 0;
 		virtual void AllocateStorage(uint32_t size) const = 0;
 
 		virtual const BufferLayout& GetLayout() const = 0;
 		virtual void SetLayout(const BufferLayout& layout) = 0;
 
 		static Ref<VertexBuffer> Create();
-		static Ref<VertexBuffer> Create(const float* vertices, uint32_t size, bool staticDraw = true);
+		static Ref<VertexBuffer> Create(const void* vertices, uint32_t size, bool staticDraw = true);
 	};
 
 	class IndexBuffer

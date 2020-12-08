@@ -96,8 +96,7 @@ namespace OverEngine
 		/////////////////////////////////////////////////////
 
 		// Update Physics
-		//m_PhysicWorld2D->OnUpdate(deltaTime, 8, 3);
-		m_PhysicWorld2D->OnUpdate(deltaTime, 1, 1);
+		m_PhysicWorld2D->OnUpdate(deltaTime, 8, 3);
 
 		m_Registry.view<RigidBody2DComponent, TransformComponent>().each([](auto& rbc, auto& tc)
 		{
@@ -117,7 +116,7 @@ namespace OverEngine
 					else
 					{
 						// Push changes to OverEngine transform system
-						tc.SetPosition(Vector3(rbc.RigidBody->GetPosition(), 0));
+						tc.SetPosition(Vector3(rbc.RigidBody->GetPosition(), tc.GetPosition().z));
 						const auto& angles = tc.GetEulerAngles();
 						tc.SetEulerAngles({ angles.x, angles.y, glm::degrees(rbc.RigidBody->GetRotation()) });
 					}

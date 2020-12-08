@@ -206,7 +206,7 @@ namespace OverEditor
 	{
 		bool changed = CheckboxFlagsField(fieldName, fieldID, flags, value);
 		if (changed)
-			EditorLayer::Get().GetActionStack().Do(CreateRef<BoolEditAction>(getter, setter));
+			EditorLayer::Get().GetActionStack().Do(CreateRef<BoolEditAction>(getter, setter), false);
 
 		return changed;
 	}

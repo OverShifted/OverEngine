@@ -9,7 +9,7 @@ namespace OverEngine
 	// VertexBuffer /////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////
 
-	OpenGLVertexBuffer::OpenGLVertexBuffer(const float* vertices, uint32_t size, bool staticDraw)
+	OpenGLVertexBuffer::OpenGLVertexBuffer(const void* vertices, uint32_t size, bool staticDraw)
 	{
 		glCreateBuffers(1, &m_RendererID);
 		BufferData(vertices, size, staticDraw);
@@ -35,13 +35,13 @@ namespace OverEngine
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 
-	void OpenGLVertexBuffer::BufferData(const float* vertices, uint32_t size, bool staticDraw /*= true*/) const
+	void OpenGLVertexBuffer::BufferData(const void* vertices, uint32_t size, bool staticDraw /*= true*/) const
 	{
 		glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
 		glBufferData(GL_ARRAY_BUFFER, size, vertices, staticDraw ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW);
 	}
 
-	void OpenGLVertexBuffer::BufferSubData(const float* vertices, uint32_t size, uint32_t offset /*= 0*/) const
+	void OpenGLVertexBuffer::BufferSubData(const void* vertices, uint32_t size, uint32_t offset /*= 0*/) const
 	{
 		glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
 		glBufferSubData(GL_ARRAY_BUFFER, offset, size, vertices);

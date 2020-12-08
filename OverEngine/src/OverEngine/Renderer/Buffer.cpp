@@ -8,7 +8,7 @@
 
 namespace OverEngine
 {
-	Ref<VertexBuffer> VertexBuffer::Create(const float* vertices, uint32_t size, bool staticDraw /*= true*/)
+	Ref<VertexBuffer> VertexBuffer::Create(const void* vertices, uint32_t size, bool staticDraw /*= true*/)
 	{
 		switch (RendererAPI::GetAPI())
 		{

@@ -8,14 +8,14 @@ namespace OverEngine
 	{
 	public:
 		OpenGLVertexBuffer();
-		OpenGLVertexBuffer(const float* vertices, uint32_t size, bool staticDraw);
+		OpenGLVertexBuffer(const void* vertices, uint32_t size, bool staticDraw);
 		virtual ~OpenGLVertexBuffer();
 
 		virtual void Bind() const override;
 		virtual void Unbind() const override;
 
-		virtual void BufferData(const float* vertices, uint32_t size, bool staticDraw = true) const override;
-		virtual void BufferSubData(const float* vertices, uint32_t size, uint32_t offset = 0) const override;
+		virtual void BufferData(const void* vertices, uint32_t size, bool staticDraw = true) const override;
+		virtual void BufferSubData(const void* vertices, uint32_t size, uint32_t offset = 0) const override;
 		virtual void AllocateStorage(uint32_t size) const override;
 
 		virtual const BufferLayout& GetLayout() const override { return m_Layout; }

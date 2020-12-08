@@ -14,7 +14,15 @@ namespace OverEngine
 
 		Vector2 Tiling = Vector2(1.0f);
 		Vector2 Offset = Vector2(0.0f);
-		Vec2T<bool> Flip{ false, false };
+		uint8_t Flip = 0;
+
+		enum Flip_ : uint8_t
+		{
+			Flip_None = 0,
+			Flip_X = BIT(0),
+			Flip_Y = BIT(1),
+			Flip_Both = Flip_X | Flip_Y
+		};
 
 		Vec2T<TextureWrapping> Wrapping{ TextureWrapping::None, TextureWrapping::None };
 		TextureFiltering Filtering = TextureFiltering::None;
@@ -53,8 +61,8 @@ namespace OverEngine
 				DrawCalls = 0;
 			}
 
-			uint32_t GetIndexCount() { return 6 * QuadCount; }
-			uint32_t GetVertexCount() { return 4 * QuadCount; }
+			uint32_t GetIndexCount() { return QuadCount; }
+			uint32_t GetVertexCount() { return QuadCount; }
 
 			uint32_t QuadCount;
 			uint32_t DrawCalls;

@@ -90,9 +90,9 @@ namespace OverEngine
 	{
 		GLuint program = glCreateProgram();
 
-		OE_CORE_ASSERT(shaderSources.size() <= 2, "{0} shader sources got but 2 is maximim", shaderSources.size());
+		OE_CORE_ASSERT(shaderSources.size() <= 3, "{0} shader sources got but 3 is maximim", shaderSources.size());
 
-		std::array<GLenum, 3> glShaderIDs;
+		std::array<GLint, 3> glShaderIDs{ -1, -1, -1 };
 		int glShaderIdIndex = 0;
 		bool allCompiled = true;
 
@@ -160,8 +160,11 @@ namespace OverEngine
 
 			for (auto id : glShaderIDs)
 			{
-				glDetachShader(program, id);
-				glDeleteShader(id);
+				if (id != -1)
+				{
+					glDetachShader(program, (GLint)id);
+					glDeleteShader((GLint)id);
+				}
 			}
 		}
 	}
