@@ -119,7 +119,6 @@ namespace OverEditor
 			{
 				UIElements::CheckboxFlagsField_U("Flip.x", "##Flip.x", __BASIC_FLAG_ACTION(SpriteRendererComponent, uint8_t, SpriteRendererComponent::Flip_X, Flip));
 				UIElements::CheckboxFlagsField_U("Flip.y", "##Flip.y", __BASIC_FLAG_ACTION(SpriteRendererComponent, uint8_t, SpriteRendererComponent::Flip_Y, Flip));
-				OE_CORE_INFO(sp.Flip);
 
 				UIElements::DragFloat2Field_U("Tiling", "##Tiling", glm::value_ptr(sp.Tiling), __BASIC_ACTION_VAL(SpriteRendererComponent, Tiling), 0.02f);
 				UIElements::DragFloat2Field_U("Offset", "##Offset", glm::value_ptr(sp.Offset), __BASIC_ACTION_VAL(SpriteRendererComponent, Offset), 0.02f);
