@@ -47,9 +47,11 @@ namespace OverEngine
 		uint8_t* Pixels;
 
 		Ref<GAPI::Texture2D> MappedTexture;
-		Rect MappedTextureRect;
+		Vec2T<uint32_t> MappedPos;
 
 		Texture2DAsset* Asset = nullptr;
+
+		String ImageFilePath;
 	};
 
 	class Texture2D;
@@ -127,6 +129,8 @@ namespace OverEngine
 			OE_CORE_ERROR("SubTextures don't have PixelBuffer!");
 			return nullptr;
 		}
+
+		void Reload(String path = String());
 
 		Texture2DAsset* GetAsset() const { __Texture2D_COMMON_GET(Asset, nullptr); }
 		const auto& GetData() const { return m_Data; }

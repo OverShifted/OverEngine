@@ -12,11 +12,11 @@ namespace OverEngine
 	{
 		Vector<Ref<Texture2D>> MasterTextures;
 
-		Vector<stbrp_node> NodeCache;
+		stbrp_node* Nodes = nullptr;
+		uint32_t NodeCount = 0;
 		Vector<stbrp_rect> RectCache;
 
 		Vector<Ref<GAPI::Texture2D>> GPUTextures;
-		Vector<stbrp_context> RectanglePackers;
 	};
 
 	static TextureManagerData* s_ManagerData;
@@ -24,6 +24,9 @@ namespace OverEngine
 	void TextureManager::Init()
 	{
 		s_ManagerData = new TextureManagerData();
+
+		s_ManagerData->Nodes = new stbrp_node;
+		s_ManagerData->NodeCount = 1;
 	}
 
 	void TextureManager::Shutdown()
@@ -47,54 +50,28 @@ namespace OverEngine
 		}
 
 		// Now we should handle a new valid Texture
-
 		s_ManagerData->MasterTextures.push_back(texture);
-
-		if (s_ManagerData->GPUTextures.empty())
-		{
-			s_ManagerData->GPUTextures.push_back(GAPI::Texture2D::Create());
-			s_ManagerData->RectanglePackers.push_back(stbrp_context());
-
-			s_ManagerData->GPUTextures[0]->SetMinFilter(TextureFiltering::Nearest);
-			s_ManagerData->GPUTextures[0]->SetMagFilter(TextureFiltering::Nearest);
-
-			s_ManagerData->GPUTextures[0]->SetSWrapping(TextureWrapping::ClampToBorder);
-			s_ManagerData->GPUTextures[0]->SetTWrapping(TextureWrapping::ClampToBorder);
-			s_ManagerData->GPUTextures[0]->SetBorderColor({ 1.0f, 0.5f, 1.0f, 1.0f });
-
-			s_ManagerData->GPUTextures[0]->AllocateStorage(TextureFormat::RGBA, texture->GetWidth(), texture->GetHeight());
-			s_ManagerData->GPUTextures[0]->SubImage(texture->GetPixels(), texture->GetWidth(), texture->GetHeight(), texture->GetFormat());
-			s_ManagerData->GPUTextures[0]->GetMemberTextures().push_back(texture);
-			std::get<MasterTextureData>(texture->m_Data).MappedTexture = s_ManagerData->GPUTextures[0];
-			std::get<MasterTextureData>(texture->m_Data).MappedTextureRect = {
-				0, 0, texture->GetWidth(), texture->GetHeight()
-			};
-
-			return;
-		}
 
 		// Loop through all GPUTextures to put our new Texture into them
 		uint32_t maxSize = RenderCommand::GetMaxTextureSize();
-		float wastedSpaceRatioIncrementValue = 0.03f;
+		float wastedSpaceRatioGrowRate = 0.1f;
 
-		for (uint32_t tID = 0; tID < s_ManagerData->GPUTextures.size(); tID++)
+		for (auto& currentGPUTexture : s_ManagerData->GPUTextures)
 		{
 			uint32_t textureHeightSum = 0;
 			uint32_t textureWidthSum = 0;
 
 			float wastedSpaceRatio = 0.0f;
 
-			Ref<GAPI::Texture2D> currentGPUTexture = s_ManagerData->GPUTextures[tID];
-			stbrp_context* currentContext = &s_ManagerData->RectanglePackers[tID];
-
-			auto& currentGPUTextureMembers = currentGPUTexture->GetMemberTextures();
-			uint32_t currentGPUTextureMemberCount = (uint32_t)currentGPUTextureMembers.size();
+			stbrp_context currentContext;
+			auto& gpuTextureMembers = currentGPUTexture->GetMemberTextures();
+			uint32_t gpuTextureMemberCount = (uint32_t)gpuTextureMembers.size();
 
 			s_ManagerData->RectCache.clear();
-			if (s_ManagerData->RectCache.capacity() < currentGPUTextureMemberCount + (uint32_t)1)
-				s_ManagerData->RectCache.reserve(currentGPUTextureMemberCount + (uint32_t)1);
+			if (s_ManagerData->RectCache.capacity() < gpuTextureMemberCount + 1u)
+				s_ManagerData->RectCache.reserve(gpuTextureMemberCount + 1u);
 
-			for (auto& t : currentGPUTextureMembers)
+			for (auto& t : gpuTextureMembers)
 			{
 				stbrp_rect rect;
 				rect.w = t->GetWidth();
@@ -111,75 +88,77 @@ namespace OverEngine
 			textureHeightSum += rect.h;
 			s_ManagerData->RectCache.push_back(rect);
 
+			textureHeightSum /= 100;
+			textureWidthSum  /= 100;
 			uint32_t totalWidth = (uint32_t)(textureWidthSum * (1 + wastedSpaceRatio));
 			uint32_t totalHeigth = (uint32_t)(textureHeightSum * (1 + wastedSpaceRatio));
 
-			s_ManagerData->NodeCache.clear();
-			if (s_ManagerData->NodeCache.capacity() < totalWidth)
-				s_ManagerData->NodeCache.reserve(totalWidth);
-
-			for (uint32_t i = 0; i < totalWidth; i++)
+			if (s_ManagerData->NodeCount < totalWidth)
 			{
-				stbrp_node node;
-				s_ManagerData->NodeCache.push_back(node);
+				delete[] s_ManagerData->Nodes;
+				s_ManagerData->Nodes = new stbrp_node[totalWidth];
+				s_ManagerData->NodeCount = totalWidth;
 			}
 
-			stbrp_init_target(currentContext, totalWidth, totalHeigth, s_ManagerData->NodeCache.data(), (int)s_ManagerData->NodeCache.size());
-			bool allPacked = stbrp_pack_rects(currentContext, s_ManagerData->RectCache.data(), (int)s_ManagerData->RectCache.size());
+			stbrp_init_target(&currentContext, totalWidth, totalHeigth, s_ManagerData->Nodes, (int)s_ManagerData->NodeCount);
+			bool allPacked = stbrp_pack_rects(&currentContext, s_ManagerData->RectCache.data(), (int)s_ManagerData->RectCache.size());
 
 			bool textureOutOfSize = false;
 
 			if (totalHeigth >= maxSize || totalWidth >= maxSize)
-				textureOutOfSize = true;
-
-			while (!allPacked)
 			{
-				wastedSpaceRatio += wastedSpaceRatioIncrementValue;
-
-				totalWidth = (uint32_t)(textureWidthSum * (1 + wastedSpaceRatio));
-				totalHeigth = (uint32_t)(textureHeightSum * (1 + wastedSpaceRatio));
-
-				if (totalHeigth >= maxSize || totalWidth >= maxSize)
+				textureOutOfSize = true;
+			}
+			else
+			{
+				while (!allPacked)
 				{
-					textureOutOfSize = true;
-					break;
-				}
+					wastedSpaceRatio += wastedSpaceRatioGrowRate;
 
-				stbrp_init_target(currentContext, totalWidth, totalHeigth, s_ManagerData->NodeCache.data(), (int)s_ManagerData->NodeCache.size());
-				allPacked = stbrp_pack_rects(currentContext, s_ManagerData->RectCache.data(), (int)s_ManagerData->RectCache.size());
+					totalWidth = (uint32_t)(textureWidthSum * (1 + wastedSpaceRatio));
+					totalHeigth = (uint32_t)(textureHeightSum * (1 + wastedSpaceRatio));
+
+					if (totalHeigth >= maxSize || totalWidth >= maxSize)
+					{
+						textureOutOfSize = true;
+						break;
+					}
+
+					stbrp_init_target(&currentContext, totalWidth, totalHeigth, s_ManagerData->Nodes, (int)s_ManagerData->NodeCount);
+					allPacked = stbrp_pack_rects(&currentContext, s_ManagerData->RectCache.data(), (int)s_ManagerData->RectCache.size());
+				}
 			}
 
 			if (textureOutOfSize)
 				continue;
 
 			// Packed!
-			currentGPUTextureMembers.push_back(texture);
+			gpuTextureMembers.push_back(texture);
 			currentGPUTexture->AllocateStorage(TextureFormat::RGBA, totalWidth, totalHeigth);
 
-			for (uint32_t i = 0; i < currentGPUTextureMemberCount + 1; i++)
+			for (uint32_t i = 0; i < gpuTextureMemberCount + 1; i++)
 			{
 				currentGPUTexture->SubImage(
-					currentGPUTextureMembers[i]->GetPixels(),
+					gpuTextureMembers[i]->GetPixels(),
 					s_ManagerData->RectCache[i].w, s_ManagerData->RectCache[i].h,
-					currentGPUTextureMembers[i]->GetFormat(),
+					gpuTextureMembers[i]->GetFormat(),
 					s_ManagerData->RectCache[i].x, s_ManagerData->RectCache[i].y
 				);
 
-				std::get<MasterTextureData>(currentGPUTextureMembers[i]->m_Data).MappedTextureRect = {
+				std::get<MasterTextureData>(gpuTextureMembers[i]->m_Data).MappedPos = {
 					s_ManagerData->RectCache[i].x, s_ManagerData->RectCache[i].y,
-					s_ManagerData->RectCache[i].w, s_ManagerData->RectCache[i].h
 				};
 			}
 
 			std::get<MasterTextureData>(texture->m_Data).MappedTexture = currentGPUTexture;
+
 			return;
 		}
 
-		// We need to create another GPUTexture and ...
-		s_ManagerData->GPUTextures.push_back(GAPI::Texture2D::Create());
-		s_ManagerData->RectanglePackers.push_back(stbrp_context());
+		// We need to create another GPUTexture
+		auto currentGPUTexture = GAPI::Texture2D::Create();
 
-		auto currentGPUTexture = s_ManagerData->GPUTextures[s_ManagerData->GPUTextures.size() - 1];
+		s_ManagerData->GPUTextures.push_back(currentGPUTexture);
 
 		currentGPUTexture->SetMinFilter(TextureFiltering::Nearest);
 		currentGPUTexture->SetMagFilter(TextureFiltering::Nearest);
@@ -191,9 +170,9 @@ namespace OverEngine
 		currentGPUTexture->AllocateStorage(TextureFormat::RGBA, texture->GetWidth(), texture->GetHeight());
 		currentGPUTexture->SubImage(texture->GetPixels(), texture->GetWidth(), texture->GetHeight(), texture->GetFormat());
 		currentGPUTexture->GetMemberTextures().push_back(texture);
-		std::get<MasterTextureData>(texture->m_Data).MappedTexture = currentGPUTexture;
-		std::get<MasterTextureData>(texture->m_Data).MappedTextureRect = {
-			0, 0, texture->GetWidth(), texture->GetHeight()
-		};
+
+		auto& masterTData = std::get<MasterTextureData>(texture->m_Data);
+		masterTData.MappedTexture = currentGPUTexture;
+		masterTData.MappedPos = { 0, 0 };
 	}
 }

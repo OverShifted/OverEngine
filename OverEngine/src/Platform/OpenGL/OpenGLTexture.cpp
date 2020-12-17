@@ -8,36 +8,67 @@ namespace OverEngine
 {
 	namespace GAPI
 	{
+		static GLint GetOpenGLFilteringValue(const TextureFiltering& wrapping)
+		{
+			switch (wrapping)
+			{
+			case TextureFiltering::Nearest: return GL_NEAREST;
+			case TextureFiltering::Linear:  return GL_LINEAR;
+			}
+
+			return GL_NEAREST;
+		}
+
+		static TextureFormat GetTextureFormat(int channels)
+		{
+			switch (channels)
+			{
+			case 3: return TextureFormat::RGB;
+			case 4: return TextureFormat::RGBA;
+			}
+
+			return TextureFormat::None;
+		}
+
+		static std::pair<GLenum, GLenum> GetOpenGLTextureFormatValue(const TextureFormat& wrapping)
+		{
+			GLenum internalFormat = 0;
+			GLenum dataFormat = 0;
+			
+			if (wrapping == TextureFormat::RGB)
+			{
+				internalFormat = GL_RGB8;
+				dataFormat = GL_RGB;
+			}
+			else if (wrapping == TextureFormat::RGBA)
+			{
+				internalFormat = GL_RGBA8;
+				dataFormat = GL_RGBA;
+			}
+
+			return { internalFormat, dataFormat };
+		}
+
 		OpenGLTexture2D::OpenGLTexture2D(const String& path, TextureFiltering minFilter, TextureFiltering magFilter)
 			: m_MinFilter(minFilter), m_MagFilter(magFilter), m_Format(TextureFormat::None)
 		{
 			int width, height, channels;
 			stbi_set_flip_vertically_on_load(1);
 			stbi_uc* data = stbi_load(path.c_str(), &width, &height, &channels, 0);
-			OE_CORE_ASSERT(data, "Failde to load image!");
+			OE_CORE_ASSERT(data, "Failed to load image!");
 			m_Width = width;
 			m_Height = height;
 
-			GLenum dataFormat = 0, internalFormat = 0;
-			if (channels == 3)
-			{
-				m_Format = TextureFormat::RGB;
-				dataFormat = GL_RGB;
-				internalFormat = GL_RGB8;
-			}
-			else if (channels == 4)
-			{
-				m_Format = TextureFormat::RGBA;
-				dataFormat = GL_RGBA;
-				internalFormat = GL_RGBA8;
-			}
+			m_Format = GetTextureFormat(channels);
+			auto [internalFormat, dataFormat] = GetOpenGLTextureFormatValue(m_Format);
+
 			OE_CORE_ASSERT(dataFormat & internalFormat, "Unsupported image format");
 
 			glCreateTextures(GL_TEXTURE_2D, 1, &m_RendererID);
 			glTextureStorage2D(m_RendererID, 1, internalFormat, m_Width, m_Height);
 
-			glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, minFilter == TextureFiltering::Linear ? GL_LINEAR : GL_NEAREST);
-			glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, magFilter == TextureFiltering::Linear ? GL_LINEAR : GL_NEAREST);
+			glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, GetOpenGLFilteringValue(minFilter));
+			glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, GetOpenGLFilteringValue(magFilter));
 
 			glTextureSubImage2D(m_RendererID, 0, 0, 0, m_Width, m_Height, dataFormat, GL_UNSIGNED_BYTE, data);
 
@@ -58,54 +89,47 @@ namespace OverEngine
 			glDeleteTextures(1, &m_RendererID);
 		}
 
+		static GLint GetOpenGLWrappingValue(const TextureWrapping& wrapping)
+		{
+			switch (wrapping)
+			{
+			case TextureWrapping::Repeat:        return GL_REPEAT;
+			case TextureWrapping::Clamp:         return GL_CLAMP_TO_EDGE;
+			case TextureWrapping::Mirror:        return GL_MIRRORED_REPEAT;
+			case TextureWrapping::ClampToBorder: return GL_CLAMP_TO_BORDER;
+			}
+
+			return GL_REPEAT;
+		}
+
 		void OpenGLTexture2D::SetSWrapping(TextureWrapping wrapping)
 		{
-			GLint val = 0;
-			if (wrapping == TextureWrapping::Repeat)
-				val = GL_REPEAT;
-			else if (wrapping == TextureWrapping::Mirror)
-				val = GL_MIRRORED_REPEAT;
-			else if (wrapping == TextureWrapping::Clamp)
-				val = GL_CLAMP_TO_EDGE;
-			else if (wrapping == TextureWrapping::ClampToBorder)
-				val = GL_CLAMP_TO_BORDER;
-
-			glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_S, val);
 			m_SWrapping = wrapping;
+			glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_S, GetOpenGLWrappingValue(wrapping));
 		}
 
 		void OpenGLTexture2D::SetTWrapping(TextureWrapping wrapping)
 		{
-			GLint val = 0;
-			if (wrapping == TextureWrapping::Repeat)
-				val = GL_REPEAT;
-			else if (wrapping == TextureWrapping::Mirror)
-				val = GL_MIRRORED_REPEAT;
-			else if (wrapping == TextureWrapping::Clamp)
-				val = GL_CLAMP_TO_EDGE;
-			else if (wrapping == TextureWrapping::ClampToBorder)
-				val = GL_CLAMP_TO_BORDER;
-
-			glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_T, val);
 			m_TWrapping = wrapping;
+			glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_T, GetOpenGLWrappingValue(wrapping));
 		}
 
 		void OpenGLTexture2D::SetBorderColor(const Color& color)
 		{
-			glTextureParameterfv(m_RendererID, GL_TEXTURE_BORDER_COLOR, glm::value_ptr(color));
 			m_BorderColor = color;
+			glTextureParameterfv(m_RendererID, GL_TEXTURE_BORDER_COLOR, glm::value_ptr(color));
 		}
 
 		void OpenGLTexture2D::SetMinFilter(TextureFiltering filter)
 		{
-			glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, filter == TextureFiltering::Linear ? GL_LINEAR : GL_NEAREST);
 			m_MinFilter = filter;
+			glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, GetOpenGLFilteringValue(filter));
 		}
 
 		void OpenGLTexture2D::SetMagFilter(TextureFiltering filter)
 		{
-			glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, filter == TextureFiltering::Linear ? GL_LINEAR : GL_NEAREST);
 			m_MagFilter = filter;
+			glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, GetOpenGLFilteringValue(filter));
 		}
 
 		void OpenGLTexture2D::Bind(uint32_t slot /*= 0*/) const
@@ -115,48 +139,32 @@ namespace OverEngine
 
 		void OpenGLTexture2D::AllocateStorage(TextureFormat format, uint32_t width, uint32_t height)
 		{
-			GLenum internalFormat = 0;
-			if (format == TextureFormat::RGB)
-			{
-				internalFormat = GL_RGB8;
-			}
-			else if (format == TextureFormat::RGBA)
-			{
-				internalFormat = GL_RGBA8;
-			}
-
 			m_Width = width;
 			m_Height = height;
 			m_Format = format;
+
+			auto [internalFormat, dataFormat] = GetOpenGLTextureFormatValue(m_Format);
 
 			glDeleteTextures(1, &m_RendererID);
 			glCreateTextures(GL_TEXTURE_2D, 1, &m_RendererID);
 			glTextureStorage2D(m_RendererID, 1, internalFormat, width, height);
 
-			glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, m_MinFilter == TextureFiltering::Linear ? GL_LINEAR : GL_NEAREST);
-			glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, m_MagFilter == TextureFiltering::Linear ? GL_LINEAR : GL_NEAREST);
+			uint32_t clear = 0;
+			glClearTexImage(m_RendererID, 0, dataFormat, GL_UNSIGNED_BYTE, &clear);
+
+			SetMinFilter(m_MinFilter);
+			SetMagFilter(m_MagFilter);
 
 			SetTWrapping(m_TWrapping);
 			SetSWrapping(m_SWrapping);
 
-			glTextureParameterfv(m_RendererID, GL_TEXTURE_BORDER_COLOR, glm::value_ptr(m_BorderColor));
+			SetBorderColor(m_BorderColor);
 		}
 
-		void OpenGLTexture2D::SubImage(const unsigned char* pixels, uint32_t width, uint32_t height, TextureFormat dataFormat, int xOffset /*= 0*/, int yOffset /*= 0*/)
+		void OpenGLTexture2D::SubImage(const uint8_t* pixels, uint32_t width, uint32_t height, TextureFormat dataFormat, int xOffset /*= 0*/, int yOffset /*= 0*/)
 		{
-			m_Format = dataFormat;
-
-			GLenum GLdataFormat = 0;
-			if (m_Format == TextureFormat::RGB)
-			{
-				GLdataFormat = GL_RGB;
-			}
-			else if (m_Format == TextureFormat::RGBA)
-			{
-				GLdataFormat = GL_RGBA;
-			}
+			auto [internalFormat, GLdataFormat] = GetOpenGLTextureFormatValue(dataFormat);
 			glTextureSubImage2D(m_RendererID, 0, xOffset, yOffset, width, height, GLdataFormat, GL_UNSIGNED_BYTE, pixels);
 		}
 	}
-
 }

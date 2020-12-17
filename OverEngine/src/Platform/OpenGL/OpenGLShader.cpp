@@ -42,6 +42,7 @@ namespace OverEngine
 	}
 
 	OpenGLShader::OpenGLShader(const String& name, const char* vertexSrc, const char* fragmentSrc)
+		: m_Name(name)
 	{
 		UnorderedMap<GLenum, const char*> sources;
 		sources[GL_VERTEX_SHADER] = vertexSrc;
@@ -120,8 +121,7 @@ namespace OverEngine
 				glDeleteShader(shader);
 				glDeleteProgram(program);
 
-				OE_CORE_ERROR("{0}", infoLog.data());
-				OE_THROW(Exception("Shader compilation failure!"));
+				OE_THROW("Shader compilation failure! {}", infoLog.data());
 				allCompiled = false;
 
 				break;

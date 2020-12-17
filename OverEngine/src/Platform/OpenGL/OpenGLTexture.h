@@ -42,7 +42,7 @@ namespace OverEngine
 			}
 
 			virtual void AllocateStorage(TextureFormat format, uint32_t width, uint32_t height) override;
-			virtual void SubImage(const unsigned char* image, uint32_t width, uint32_t height, TextureFormat dataFormat, int xOffset = 0, int yOffset = 0) override;
+			virtual void SubImage(const uint8_t* image, uint32_t width, uint32_t height, TextureFormat dataFormat, int xOffset = 0, int yOffset = 0) override;
 
 			inline virtual Vector<Ref<::OverEngine::Texture2D>>& GetMemberTextures() override { return m_Members; }
 		private:

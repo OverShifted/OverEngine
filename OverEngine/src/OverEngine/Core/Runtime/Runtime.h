@@ -1,5 +1,7 @@
 #pragma once
 
+#include <fmt/format.h>
+
 namespace OverEngine
 {
 	enum class RuntimeType
@@ -32,5 +34,5 @@ namespace OverEngine
 		String m_Message;
 	};
 
-	#define OE_THROW(exceptipn) (::OverEngine::Runtime::HandleException(exceptipn))
+	#define OE_THROW(...) (::OverEngine::Runtime::HandleException(Exception(fmt::format(__VA_ARGS__))))
 }

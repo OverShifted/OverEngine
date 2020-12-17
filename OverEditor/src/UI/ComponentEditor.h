@@ -304,13 +304,25 @@ namespace OverEditor
 							{
 								float radius = collider.Collider->GetSizeHint().x;
 								if (UIElements::DragFloatField("Radius", "##Radius", &radius))
+								{
+									if (radius < 0.001f)
+										radius = 0.001f;
+
 									collider.Collider->ReShape(radius);
+								}
 							}
 							else if (collider.Initializer.Shape.Type == Collider2DType::Box)
 							{
 								auto size = collider.Collider->GetSizeHint();
 								if (UIElements::DragFloat2Field("Size", "##Size", glm::value_ptr(size)))
+								{
+									if (size.x < 0.001f)
+										size.x = 0.001f;
+									if (size.y < 0.001f)
+										size.y = 0.001f;
+
 									collider.Collider->ReShape(size);
+								}
 							}
 						}
 

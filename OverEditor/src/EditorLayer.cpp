@@ -1,6 +1,7 @@
 #include "EditorLayer.h"
 
 #include "UI/EditorConsoleSink.h"
+#include "Behavior/AssetManager.h"
 
 #include <OverEngine/Core/FileSystem/FileSystem.h>
 #include <OverEngine/Scene/SceneSerializer.h>
@@ -46,6 +47,17 @@ namespace OverEditor
 		OE_PROFILE_FUNCTION();
 
 		m_ViewportPanel.OnRender();
+
+		if (m_EditingProject)
+		{
+			std::lock_guard<std::mutex> lock(m_EditingProject->GetAssetLoadCommandBufferMutex());
+
+			auto& cmdBuffer = m_EditingProject->GetAssetLoadCommandBuffer();
+			for (const auto& path : cmdBuffer)
+				AssetManager::ImportAndLoad(path, m_EditingProject->GetAssetsDirectoryPath(), &m_EditingProject->GetAssets());
+
+			cmdBuffer.clear();
+		}
 	}
 
 	void EditorLayer::OnImGuiRender()
@@ -149,6 +161,45 @@ namespace OverEditor
 			ImGui::Columns(1);
 			ImGui::End();
 		}
+
+		ImGui::Begin("Textures");
+		ImGui::Text("%d", Renderer2D::GetStatistics().DrawCalls);
+		ImGui::SameLine();
+		if (ImGui::Button("Load Stuff"))
+		{
+			Texture2D::CreateMaster("assets/textures/Icons.png");
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Load lot of Stuff"))
+		{
+			for (uint32_t i = 0; i < 100; i++)
+				Texture2D::CreateMaster("assets/textures/Icons.png");
+		}
+		static int v;
+		ImGui::SliderInt("##!~!~!~!~!", &v, 0, 32);
+
+		auto size = ImGui::GetContentRegionAvail();
+		ImVec2 pos{ ImGui::GetCursorPos().x + ImGui::GetWindowPos().x, ImGui::GetCursorPos().y + ImGui::GetWindowPos().y };
+		ImGui::Image((void*)(intptr_t)v, size);
+
+		auto& drawList = *ImGui::GetWindowDrawList();
+		auto gpuT = m_IconsTexture->GetGPUTexture();
+		Vector2 texSize{ gpuT->GetWidth(), gpuT->GetHeight() };
+		for (const auto& t : gpuT->GetMemberTextures())
+		{
+			try
+			{
+				ImVec2 min{ pos.x + t->GetRect().x * size.x,
+							pos.y + t->GetRect().y * size.y };
+
+				ImVec2 max{ min.x + t->GetRect().z * size.x,
+							min.y + t->GetRect().w * size.y };
+
+				drawList.AddRect(min, max, ImColor(255, 0, 0));
+			} catch (const std::exception&) {}
+		}
+
+		ImGui::End();
 	}
 
 	void EditorLayer::OnEvent(Event& event)

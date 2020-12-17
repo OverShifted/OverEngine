@@ -11,17 +11,25 @@ namespace OverEditor
 {
 	Ref<Asset> AssetManager::ImportAndLoad(const String& physicalPath, const String& assetsDirectoryRoot, AssetCollection* collection)
 	{
+		auto assetPath = FileSystem::FixPath(physicalPath.substr(assetsDirectoryRoot.size(), physicalPath.size()));
+
+		#if 0
+		if (collection->AssetExists(assetPath))
+			return nullptr;
+		#endif
+
 		if (std::filesystem::is_directory(physicalPath))
 		{
 			YAML::Emitter emitter;
 			emitter << YAML::BeginMap;
 			emitter << YAML::Key << "Name" << YAML::Value << FileSystem::ExtractFileNameFromPath(physicalPath);
-			emitter << YAML::Key << "Path" << YAML::Value << physicalPath.substr(assetsDirectoryRoot.size(), physicalPath.size());
+			emitter << YAML::Key << "Path" << YAML::Value << assetPath;
 			emitter << YAML::Key << "Guid" << YAML::Value << YAML::Hex << Random::UInt64();
 			emitter << YAML::Key << "Type" << YAML::Value << "Folder";
 			emitter << YAML::EndMap;
 
 			String metaFilePath = physicalPath + "." + OE_META_ASSET_FILE_EXTENSION;
+			FileSystem::FixPath(metaFilePath);
 			std::ofstream metaFile(metaFilePath);
 			metaFile << emitter.c_str();
 			metaFile.flush();
@@ -31,40 +39,41 @@ namespace OverEditor
 		}
 
 		auto extension = FileSystem::ExtractFileExtentionFromPath(physicalPath);
-		auto type = FindAssetTypeFromExtension(physicalPath);
+		auto type = FindAssetTypeFromExtension(extension);
 
-		// switch (type)
-		// {
-		// case AssetType::Texture2D:
-		// 	YAML::Emitter emitter;
-		//
-		// 	auto name = FileSystem::ExtractFileNameFromPath(physicalPath);
-		// 	emitter << YAML::BeginMap;
-		// 	emitter << YAML::Key << "Name" << YAML::Value << name;
-		// 	emitter << YAML::Key << "Path" << YAML::Value << physicalPath.substr(assetsDirectoryRoot.size(), physicalPath.size());
-		// 	emitter << YAML::Key << "Guid" << YAML::Value << YAML::Hex << Random::UInt64();
-		// 	emitter << YAML::Key << "Type" << YAML::Value << "Texture2D";
-		//
-		// 	emitter << YAML::Key << "Textures" << YAML::Value << YAML::BeginSeq;
-		//
-		// 	emitter << YAML::BeginMap;
-		// 	emitter << YAML::Key << "Texture2D" << YAML::Value << YAML::Hex << Random::UInt64();
-		// 	emitter << YAML::Key << "Type" << YAML::Value << "Master";
-		// 	emitter << YAML::Key << "Name" << YAML::Value << name << "MasterTexture";
-		// 	emitter << YAML::EndMap;
-		//
-		// 	emitter << YAML::EndSeq;
-		//
-		// 	emitter << YAML::EndMap;
-		//
-		// 	String metaFilePath = physicalPath + "." + OE_META_ASSET_FILE_EXTENSION;
-		// 	std::ofstream metaFile(metaFilePath);
-		// 	metaFile << emitter.c_str();
-		// 	metaFile.flush();
-		// 	metaFile.close();
-		// 	break;
-		// default:
-		// }
+		switch (type)
+		{
+		case AssetType::Texture2D:
+		{
+			YAML::Emitter emitter;
+
+			auto name = FileSystem::ExtractFileNameFromPath(physicalPath);
+			emitter << YAML::BeginMap;
+			emitter << YAML::Key << "Name" << YAML::Value << name;
+			emitter << YAML::Key << "Path" << YAML::Value << assetPath;
+			emitter << YAML::Key << "Guid" << YAML::Value << YAML::Hex << Random::UInt64();
+			emitter << YAML::Key << "Type" << YAML::Value << "Texture2D";
+
+			emitter << YAML::Key << "Textures" << YAML::Value << YAML::BeginSeq;
+
+			emitter << YAML::BeginMap;
+			emitter << YAML::Key << "Texture2D" << YAML::Value << YAML::Hex << Random::UInt64();
+			emitter << YAML::Key << "Type" << YAML::Value << "Master";
+			emitter << YAML::Key << "Name" << YAML::Value << name + "MasterTexture";
+			emitter << YAML::EndMap;
+
+			emitter << YAML::EndSeq;
+
+			emitter << YAML::EndMap;
+
+			String metaFilePath = physicalPath + "." + OE_META_ASSET_FILE_EXTENSION;
+			std::ofstream metaFile(metaFilePath);
+			metaFile << emitter.c_str();
+			metaFile.flush();
+			metaFile.close();
+			return Asset::Load(metaFilePath, true, assetsDirectoryRoot, collection);
+		}
+		}
 
 		OE_CORE_INFO(extension);
 
@@ -73,13 +82,9 @@ namespace OverEditor
 
 	AssetType AssetManager::FindAssetTypeFromExtension(const String& extension)
 	{
-		static UnorderedMap<String, AssetType> extensions
-		{
-			{ "png", AssetType::Texture2D },
-			{ "jpg", AssetType::Texture2D },
-			{ "oes", AssetType::Scene },
-		};
+		if (extension == "png" || extension == "jpg")
+			return AssetType::Texture2D;
 
-		return extensions[extension];
+		return AssetType::None;
 	}
 }

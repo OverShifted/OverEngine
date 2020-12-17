@@ -26,89 +26,42 @@ namespace OverEngine
 		Rect       a_TexRect     = Rect(0.0f);
 	};
 
+	// Limits
+	static constexpr uint32_t MaxTextureCount = 32;
+	static const uint32_t MaxQuadCount = 1000000;
+	
 	struct Renderer2DData
 	{
-		Ref<VertexArray> vertexArray = nullptr;
-		Ref<VertexBuffer> vertexBuffer = nullptr;
-		Ref<IndexBuffer> indexBuffer = nullptr;
+		Ref<VertexArray>  QuadVA = nullptr;
+		Ref<VertexBuffer> QuadVB = nullptr;
 
-		Vector<Vertex> Vertices;
-		Vector<uint32_t> Indices;
+		Vertex* QuadBufferBasePtr = nullptr;
+		Vertex* QuadBufferPtr = nullptr;
+
 		Vector<float> QuadsZIndices;
-
-		uint32_t QuadCapacity;
-		uint32_t FlushingQuadCount;
-
 		uint32_t OpaqueInsertIndex = 0;
 
-		Ref<Shader> BatchRenderer2DShader = nullptr;
+		uint32_t QuadCount = 0;
+		uint32_t TextureCount = 0;
 
-		UnorderedMap<uint32_t, Ref<GAPI::Texture2D>> TextureBindList;
+		Ref<OverEngine::Shader> Shader = nullptr;
+
+		std::array<Ref<GAPI::Texture2D>, MaxTextureCount> TextureBindList;
 
 		Mat4x4 ViewProjectionMatrix;
-
-		static constexpr int ShaderSampler2Ds[32] = {
-			0 , 1 , 2 , 3 , 4 , 5 , 6 , 7 ,
-			8 , 9 , 10, 11, 12, 13, 14, 15,
-			16, 17, 18, 19, 20, 21, 22, 23,
-			24, 25, 26, 27, 28, 29, 30, 31
-		};
 	};
 
 	static Renderer2DData* s_Data;
 
-	static void InsertVertex(bool transparent, const float& z, const Vertex& vertex)
-	{
-		if (transparent)
-		{
-			for (auto idx = s_Data->Vertices.begin() + s_Data->OpaqueInsertIndex; idx < s_Data->Vertices.end(); idx++)
-			{
-				auto i = idx - s_Data->Vertices.begin();
-				if (z < s_Data->QuadsZIndices[i])
-				{
-					s_Data->Vertices.emplace(idx, vertex);
-					s_Data->QuadsZIndices.emplace(s_Data->QuadsZIndices.begin() + i, z);
-					return;
-				}
-			}
-
-			s_Data->Vertices.emplace_back(vertex);
-			s_Data->QuadsZIndices.emplace_back(z);
-			return;
-		}
-
-		// Opaque
-		s_Data->Vertices.emplace(s_Data->Vertices.begin(), vertex);
-		s_Data->QuadsZIndices.emplace(s_Data->QuadsZIndices.begin(), z);
-		s_Data->OpaqueInsertIndex++;
-	}
-
-	static void GenIndices(uint32_t quadCount, uint32_t indexCount)
-	{
-		// Allocate storage
-		s_Data->indexBuffer->AllocateStorage(indexCount);
-		s_Data->Indices.reserve(quadCount);
-
-		for (uint32_t i = (uint32_t)s_Data->Indices.size(); i < quadCount; i++)
-		{
-			// Generate indices
-			s_Data->Indices.push_back(i);
-		}
-
-		// Upload data to GPU
-		s_Data->indexBuffer->BufferSubData((uint32_t*)s_Data->Indices.data(), indexCount);
-	}
-
-	void Renderer2D::Init(uint32_t initQuadCapacity)
+	void Renderer2D::Init()
 	{
 		s_Data = new Renderer2DData();
 
-		s_Data->vertexArray = VertexArray::Create();
-		s_Data->QuadCapacity = initQuadCapacity;
+		s_Data->QuadVA = VertexArray::Create();
 
-		s_Data->vertexBuffer = VertexBuffer::Create();
-		s_Data->vertexBuffer->AllocateStorage(initQuadCapacity * sizeof(Vertex));
-		s_Data->vertexBuffer->SetLayout({
+		s_Data->QuadVB = VertexBuffer::Create();
+		s_Data->QuadVB->AllocateStorage(MaxQuadCount * sizeof(Vertex));
+		s_Data->QuadVB->SetLayout({
 			{ ShaderDataType::Float3, "a_Position0" },
 			{ ShaderDataType::Float3, "a_Position1" },
 			{ ShaderDataType::Float3, "a_Position2" },
@@ -125,60 +78,66 @@ namespace OverEngine
 			{ ShaderDataType::Float2, "a_TexSize" },
 			{ ShaderDataType::Float4, "a_TexRect" },
 		});
-		s_Data->vertexArray->AddVertexBuffer(s_Data->vertexBuffer);
+		s_Data->QuadVA->AddVertexBuffer(s_Data->QuadVB);
 
-		s_Data->indexBuffer = IndexBuffer::Create();
-		s_Data->indexBuffer->AllocateStorage(initQuadCapacity);
-		s_Data->vertexArray->SetIndexBuffer(s_Data->indexBuffer);
+		{
+			auto quadIB = IndexBuffer::Create();
+			uint32_t* indices = new uint32_t[MaxQuadCount];
 
-		s_Data->Vertices.reserve(initQuadCapacity);
-		GenIndices(initQuadCapacity, initQuadCapacity);
-		s_Data->QuadsZIndices.reserve(initQuadCapacity);
+			for (uint32_t i = 0; i < MaxQuadCount; i++)
+				indices[i] = i;
 
-		s_Data->BatchRenderer2DShader = Shader::Create("assets/shaders/BatchRenderer2D.glsl");
-		s_Data->BatchRenderer2DShader->Bind();
-		s_Data->BatchRenderer2DShader->UploadUniformIntArray("u_Slots", Renderer2DData::ShaderSampler2Ds, 32);
+			quadIB->BufferData(indices, MaxQuadCount);
+			delete[] indices;
+
+			s_Data->QuadVA->SetIndexBuffer(quadIB);
+		}
+
+		s_Data->QuadBufferBasePtr = new Vertex[MaxQuadCount];
+		s_Data->QuadBufferPtr = s_Data->QuadBufferBasePtr;
+		s_Data->QuadsZIndices.reserve(MaxQuadCount);
+
+		s_Data->Shader = Shader::Create("assets/shaders/BatchRenderer2D.glsl");
+		{
+			int textureIDs[MaxTextureCount];
+
+			for (int i = 0; i < MaxTextureCount; i++)
+				textureIDs[i] = i;
+
+			s_Data->Shader->Bind();
+			s_Data->Shader->UploadUniformIntArray("u_Slots", textureIDs, MaxTextureCount);
+		}
 
 		s_Statistics.Reset();
 	}
 
 	void Renderer2D::Shutdown()
 	{
+		delete[] s_Data->QuadBufferBasePtr;
 		delete s_Data;
 	}
 
 	Ref<Shader>& Renderer2D::GetShader()
 	{
-		return s_Data->BatchRenderer2DShader;
+		return s_Data->Shader;
 	}
 
 	void Renderer2D::Reset()
 	{
-		s_Data->Vertices.clear();
+		s_Data->QuadBufferPtr = s_Data->QuadBufferBasePtr;
 		s_Data->QuadsZIndices.clear();
 		s_Data->OpaqueInsertIndex = 0;
-		s_Data->FlushingQuadCount = 0;
-		s_Data->TextureBindList.clear();
+		s_Data->QuadCount = 0;
+		s_Data->TextureCount = 0;
 
 		s_Statistics.Reset();
 	}
 
-	void Renderer2D::BeginScene(const Mat4x4& viewProjectionMatrix)
-	{
-		Reset();
-		s_Data->ViewProjectionMatrix = viewProjectionMatrix;
-	}
-
 	void Renderer2D::BeginScene(const Mat4x4& viewMatrix, const Camera& camera)
 	{
-		Reset();
 		s_Data->ViewProjectionMatrix = camera.GetProjection() * viewMatrix;
-	}
-
-	void Renderer2D::BeginScene(const Mat4x4& viewMatrix, const Mat4x4& projectionMatrix)
-	{
 		Reset();
-		s_Data->ViewProjectionMatrix = projectionMatrix * viewMatrix;
+		StartBatch();
 	}
 
 	void Renderer2D::EndScene()
@@ -186,48 +145,41 @@ namespace OverEngine
 		Flush();
 	}
 
-	void Renderer2D::Flush()
+	void Renderer2D::StartBatch()
 	{
-		if (s_Data->FlushingQuadCount == 0) // Nothing to draw
-			return;
-
-		uint32_t indexCount = s_Statistics.GetIndexCount();
-
-		// Grow GPU Buffers
-		if (s_Data->QuadCapacity < s_Data->FlushingQuadCount)
-		{
-			s_Data->QuadCapacity = s_Data->FlushingQuadCount;
-			s_Data->vertexBuffer->AllocateStorage(s_Data->QuadCapacity * sizeof(Vertex));
-			GenIndices(s_Data->QuadCapacity, indexCount);
-		}
-
-		// Upload Data
-		s_Data->vertexBuffer->BufferSubData((void*)s_Data->Vertices.data(), s_Statistics.GetVertexCount() * sizeof(Vertex));
-
-		// Bind Textures
-		for (auto& t : s_Data->TextureBindList)
-			t.second->Bind(t.first);
-
-		// Bind VertexArray
-		s_Data->vertexArray->Bind();
-
-		// Bind Shader
-		s_Data->BatchRenderer2DShader->Bind();
-
-		// DrawCall
-		RenderCommand::DrawIndexed(s_Data->vertexArray, indexCount, DrawType::Points);
-		s_Statistics.DrawCalls++;
-	}
-
-	void Renderer2D::FlushAndReset()
-	{
-		Flush();
-
-		s_Data->Vertices.clear();
+		s_Data->QuadBufferPtr = s_Data->QuadBufferBasePtr;
 		s_Data->QuadsZIndices.clear();
 		s_Data->OpaqueInsertIndex = 0;
-		s_Data->FlushingQuadCount = 0;
-		s_Data->TextureBindList.clear();
+		s_Data->QuadCount = 0;
+		s_Data->TextureCount = 0;
+	}
+
+	void Renderer2D::NextBatch()
+	{
+		Flush();
+		StartBatch();
+	}
+
+	void Renderer2D::Flush()
+	{
+		// Nothing to draw
+		if (s_Data->QuadCount == 0)
+			return;
+
+		// Upload Data
+		s_Data->QuadVB->BufferSubData((void*)s_Data->QuadBufferBasePtr, s_Data->QuadCount * sizeof(Vertex));
+
+		// Bind Textures
+		for (uint32_t i = 0; i < s_Data->TextureCount; i++)
+			s_Data->TextureBindList[i]->Bind(i);
+
+		// Bind VertexArray & Shader
+		s_Data->QuadVA->Bind();
+		s_Data->Shader->Bind();
+
+		// DrawCall
+		RenderCommand::DrawIndexed(s_Data->QuadVA, s_Data->QuadCount, DrawType::Points);
+		s_Statistics.DrawCalls++;
 	}
 
 	/////////////////////////////////////////////////////////
@@ -254,124 +206,125 @@ namespace OverEngine
 		if (color.a  == 0)
 			return;
 
+		if (s_Data->QuadCount + 1 >= MaxQuadCount)
+		{
+			NextBatch();
+		}
+
 		bool transparent = color.a < 1.0f;
 
 		Vertex vertex;
 
 		auto mat = s_Data->ViewProjectionMatrix * transform;
 
-		vertex.a_Position0 = Vector3(mat * Vector4(-0.5, -0.5, 0.0, 1.0));
-		vertex.a_Position1 = Vector3(mat * Vector4( 0.5, -0.5, 0.0, 1.0));
-		vertex.a_Position2 = Vector3(mat * Vector4(-0.5,  0.5, 0.0, 1.0));
-		vertex.a_Position3 = Vector3(mat * Vector4( 0.5,  0.5, 0.0, 1.0));
+		s_Data->QuadBufferPtr->a_Position0 = Vector3(mat * Vector4(-0.5, -0.5, 0.0, 1.0));
+		s_Data->QuadBufferPtr->a_Position1 = Vector3(mat * Vector4( 0.5, -0.5, 0.0, 1.0));
+		s_Data->QuadBufferPtr->a_Position2 = Vector3(mat * Vector4(-0.5,  0.5, 0.0, 1.0));
+		s_Data->QuadBufferPtr->a_Position3 = Vector3(mat * Vector4( 0.5,  0.5, 0.0, 1.0));
 
-		vertex.a_Color = color;
+		s_Data->QuadBufferPtr->a_Color = color;
+		s_Data->QuadBufferPtr->a_TexSlot = -1;
 
-		InsertVertex(transparent, mat[3].z, vertex);
-
+		s_Data->QuadBufferPtr++;
+		s_Data->QuadCount++;
 		s_Statistics.QuadCount++;
-		s_Data->FlushingQuadCount++;
 	}
 
 	/////////////////////////////////////////////////////////
 	// Textured Quad ////////////////////////////////////////
 	/////////////////////////////////////////////////////////
 
-	void Renderer2D::DrawQuad(const Vector2& position, float rotation, const Vector2& size, Ref<Texture2D> texture, const TexturedQuadExtraData& extraData)
+	void Renderer2D::DrawQuad(const Vector2& position, float rotation, const Vector2& size, const TexturedQuadProps& props)
 	{
-		DrawQuad(Vector3(position, 0.0f), rotation, size, texture, extraData);
+		DrawQuad(Vector3(position, 0.0f), rotation, size, props);
 	}
 
-	void Renderer2D::DrawQuad(const Vector3& position, float rotation, const Vector2& size, Ref<Texture2D> texture, const TexturedQuadExtraData& extraData)
+	void Renderer2D::DrawQuad(const Vector3& position, float rotation, const Vector2& size, const TexturedQuadProps& props)
 	{
 		Mat4x4 transform =
 			glm::translate(Mat4x4(1.0f), position) *
 			glm::rotate(Mat4x4(1.0f), rotation, Vector3(0, 0, 1)) *
 			glm::scale(Mat4x4(1.0f), Vector3(size, 1.0f));
 
-		DrawQuad(transform, texture, extraData);
+		DrawQuad(transform, props);
 	}
 
-	void Renderer2D::DrawQuad(const Mat4x4& transform, Ref<Texture2D> texture, const TexturedQuadExtraData& extraData)
+	void Renderer2D::DrawQuad(const Mat4x4& transform, const TexturedQuadProps& props)
 	{
-		if (!texture || texture->GetType() == TextureType::Placeholder)
+		if (!props.Texture || props.Texture->GetType() == TextureType::Placeholder)
 			return;
 
-		if (extraData.Tint.a == 0)
+		if (props.Tint.a == 0)
 			return;
 
-		auto textureToBind = texture->GetGPUTexture();
+		if (s_Data->QuadCount + 1 >= MaxQuadCount)
+		{
+			NextBatch();
+		}
+
+		auto textureToBind = props.Texture->GetGPUTexture();
 
 		int8_t textureSlot = -1;
-		for (const auto& t : s_Data->TextureBindList)
+		for (uint32_t i = 0; i < s_Data->TextureCount; i++)
 		{
-			if (*t.second == *textureToBind)
+			if (s_Data->TextureBindList[i] == textureToBind)
 			{
-				textureSlot = t.first;
+				textureSlot = i;
 				break;
 			}
 		}
 
 		if (textureSlot == -1)
 		{
-			uint32_t slot = (uint32_t)s_Data->TextureBindList.size();
+			uint32_t slot = s_Data->TextureCount;
 			if (slot + 1 > RenderCommand::GetMaxTextureSlotCount())
 			{
-				Flush();
-				Reset();
+				NextBatch();
 				slot = 0;
 			}
 			s_Data->TextureBindList[slot] = textureToBind;
+			s_Data->TextureCount++;
 			textureSlot = slot;
 		}
 
-		bool transparent = extraData.Tint.a < 1.0f || texture->GetFormat() == TextureFormat::RGBA;
-
-		Vertex vertex;
+		bool transparent = props.Tint.a < 1.0f || props.Texture->GetFormat() == TextureFormat::RGBA;
 
 		auto mat = s_Data->ViewProjectionMatrix * transform;
 
-		vertex.a_Position0 = Vector3(mat * Vector4(-0.5, -0.5, 0.0, 1.0));
-		vertex.a_Position1 = Vector3(mat * Vector4( 0.5, -0.5, 0.0, 1.0));
-		vertex.a_Position2 = Vector3(mat * Vector4(-0.5,  0.5, 0.0, 1.0));
-		vertex.a_Position3 = Vector3(mat * Vector4( 0.5,  0.5, 0.0, 1.0));
+		s_Data->QuadBufferPtr->a_Position0 = Vector3(mat * Vector4(-0.5, -0.5, 0.0, 1.0));
+		s_Data->QuadBufferPtr->a_Position1 = Vector3(mat * Vector4( 0.5, -0.5, 0.0, 1.0));
+		s_Data->QuadBufferPtr->a_Position2 = Vector3(mat * Vector4(-0.5,  0.5, 0.0, 1.0));
+		s_Data->QuadBufferPtr->a_Position3 = Vector3(mat * Vector4( 0.5,  0.5, 0.0, 1.0));
 
-		vertex.a_Color = extraData.Tint;
+		s_Data->QuadBufferPtr->a_Color = props.Tint;
 
-		vertex.a_TexTiling = extraData.Tiling;
-		vertex.a_TexOffset = extraData.Offset;
-		vertex.a_TexFlip = extraData.Flip;
-		vertex.a_TexSlot = textureSlot;
+		s_Data->QuadBufferPtr->a_TexTiling = props.Tiling;
+		s_Data->QuadBufferPtr->a_TexOffset = props.Offset;
+		s_Data->QuadBufferPtr->a_TexFlip = props.Flip;
+		s_Data->QuadBufferPtr->a_TexSlot = textureSlot;
 		
 		// a_TexFilter
-		if (extraData.Filtering != TextureFiltering::None)
-			vertex.a_TexFilter = (int)extraData.Filtering;
+		if (props.Filtering != TextureFiltering::None)
+			s_Data->QuadBufferPtr->a_TexFilter = (int)props.Filtering;
 		else
-			vertex.a_TexFilter = (int)texture->GetFiltering();
+			s_Data->QuadBufferPtr->a_TexFilter = (int)props.Texture->GetFiltering();
 
 		// a_TexSWrapping & a_TexTWrapping
-		if (extraData.Wrapping.x != TextureWrapping::None)
-			vertex.a_TexWrapping.x = (int)extraData.Wrapping.x;
+		if (props.Wrapping.x != TextureWrapping::None)
+			s_Data->QuadBufferPtr->a_TexWrapping.x = (int)props.Wrapping.x;
 		else
-			vertex.a_TexWrapping.x = (int)texture->GetXWrapping();
+			s_Data->QuadBufferPtr->a_TexWrapping.x = (int)props.Texture->GetXWrapping();
 
-		if (extraData.Wrapping.y != TextureWrapping::None)
-			vertex.a_TexWrapping.y = (int)extraData.Wrapping.y;
+		if (props.Wrapping.y != TextureWrapping::None)
+			s_Data->QuadBufferPtr->a_TexWrapping.y = (int)props.Wrapping.y;
 		else
-			vertex.a_TexWrapping.y = (int)texture->GetYWrapping();
+			s_Data->QuadBufferPtr->a_TexWrapping.y = (int)props.Texture->GetYWrapping();
 
-		if (vertex.a_TexWrapping.x == (int)TextureWrapping::ClampToBorder)
-			vertex.a_TexWrapping.x = (int)TextureWrapping::Repeat;
+		s_Data->QuadBufferPtr->a_TexSize = { props.Texture->GetWidth(), props.Texture->GetHeight() };
+		s_Data->QuadBufferPtr->a_TexRect = props.Texture->GetRect();
 
-		if (vertex.a_TexWrapping.y == (int)TextureWrapping::ClampToBorder)
-			vertex.a_TexWrapping.y = (int)TextureWrapping::Repeat;
-
-		vertex.a_TexSize = { texture->GetWidth() ,texture->GetHeight() };
-		vertex.a_TexRect = texture->GetRect();
-
-		InsertVertex(transparent, mat[3].z, vertex);
-
+		s_Data->QuadBufferPtr++;
+		s_Data->QuadCount++;
 		s_Statistics.QuadCount++;
-		s_Data->FlushingQuadCount++;
 	}
 }

@@ -8,9 +8,10 @@
 
 namespace OverEngine
 {
-	struct TexturedQuadExtraData
+	struct TexturedQuadProps
 	{
 		Color Tint = Color(1.0f);
+		Ref<Texture2D> Texture;
 
 		Vector2 Tiling = Vector2(1.0f);
 		Vector2 Offset = Vector2(0.0f);
@@ -31,27 +32,25 @@ namespace OverEngine
 	class Renderer2D
 	{
 	public:
-		static void Init(uint32_t initQuadCapacity = 10);
+		static void Init();
 		static void Shutdown();
-		static Ref<Shader>& GetShader();
 
 		static void Reset();
 
-		static void BeginScene(const Mat4x4& viewProjectionMatrix);
 		static void BeginScene(const Mat4x4& viewMatrix, const Camera& camera);
-		static void BeginScene(const Mat4x4& viewMatrix, const Mat4x4& projectionMatrix);
-
 		static void EndScene();
-		static void Flush();
-		static void FlushAndReset();
 
-		inline static void DrawQuad(const Vector2& position, float rotation, const Vector2& size, const Color& color);
+		static void StartBatch();
+		static void NextBatch();
+		static void Flush();
+
+		static void DrawQuad(const Vector2& position, float rotation, const Vector2& size, const Color& color);
 		static void DrawQuad(const Vector3& position, float rotation, const Vector2& size, const Color& color);
 		static void DrawQuad(const Mat4x4& transform, const Color& color);
 
-		inline static void DrawQuad(const Vector2& position, float rotation, const Vector2& size, Ref<Texture2D> texture, const TexturedQuadExtraData& extraData = TexturedQuadExtraData());
-		static void DrawQuad(const Vector3& position, float rotation, const Vector2& size, Ref<Texture2D> texture, const TexturedQuadExtraData& extraData = TexturedQuadExtraData());
-		static void DrawQuad(const Mat4x4& transform, Ref<Texture2D> texture, const TexturedQuadExtraData& extraData = TexturedQuadExtraData());
+		static void DrawQuad(const Vector2& position, float rotation, const Vector2& size, const TexturedQuadProps& props = TexturedQuadProps());
+		static void DrawQuad(const Vector3& position, float rotation, const Vector2& size, const TexturedQuadProps& props = TexturedQuadProps());
+		static void DrawQuad(const Mat4x4& transform, const TexturedQuadProps& props = TexturedQuadProps());
 
 		struct Statistics
 		{
@@ -69,6 +68,7 @@ namespace OverEngine
 		};
 
 		static Statistics& GetStatistics() { return s_Statistics; }
+		static Ref<Shader>& GetShader();
 	private:
 		static Statistics s_Statistics;
 	};

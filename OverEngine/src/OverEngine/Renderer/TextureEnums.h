@@ -9,5 +9,10 @@ namespace OverEngine
 		None = 0, Repeat, Clamp, Mirror,
 		ClampToBorder // Only used for GPUTextures
 	};
-	enum class TextureFormat    : int8_t { None   = 0, RGB, RGBA };
+	enum class TextureFormat : int8_t { None   = 0, RGB, RGBA };
+	enum class TextureOptimization : int8_t
+	{
+		None = 0, // Texture allocates its own GPU texture object
+		Batched, // used for Renderer2D and GUI
+	};
 }

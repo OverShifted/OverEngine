@@ -88,6 +88,9 @@ namespace OverEngine
 	{
 		Collider2D* colliderA_ptr = (Collider2D*)(contact->GetFixtureA()->GetUserData().pointer);
 		Collider2D* colliderB_ptr = (Collider2D*)(contact->GetFixtureB()->GetUserData().pointer);
+
+		if (!colliderA_ptr || !colliderB_ptr)
+			return;
 		
 		auto colliderA = colliderA_ptr->GetAttachedBody()->FindCollider(colliderA_ptr);
 		auto colliderB = colliderB_ptr->GetAttachedBody()->FindCollider(colliderB_ptr);
@@ -103,6 +106,9 @@ namespace OverEngine
 	{
 		Collider2D* colliderA_ptr = (Collider2D*)(contact->GetFixtureA()->GetUserData().pointer);
 		Collider2D* colliderB_ptr = (Collider2D*)(contact->GetFixtureB()->GetUserData().pointer);
+
+		if (!colliderA_ptr || !colliderB_ptr)
+			return;
 		
 		auto colliderA = colliderA_ptr->GetAttachedBody()->FindCollider(colliderA_ptr);
 		auto colliderB = colliderB_ptr->GetAttachedBody()->FindCollider(colliderB_ptr);

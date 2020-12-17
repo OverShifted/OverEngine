@@ -20,7 +20,7 @@ namespace OverEditor
 		Ref<Asset> RecursiveDraw(const Ref<Asset>& resourceToDraw);
 		void DrawThumbnail(const Ref<Asset>& asset, bool last);
 	private:
-		bool m_IsOpen;
+		bool m_IsOpen = true;
 
 		Vector<Ref<Asset>> m_SelectionContext;
 

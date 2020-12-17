@@ -84,10 +84,8 @@ namespace OverEngine
 			out << YAML::Key << "Enabled" << YAML::Value << sp.Enabled;
 
 			out << YAML::Key << "Sprite" << YAML::Value;
-			if (sp.Sprite)
+			if (sp.Sprite && auto* asset = sp.Sprite->GetAsset())
 			{
-				auto* asset = sp.Sprite->GetAsset();
-
 				out << YAML::Flow << YAML::BeginMap;
 				out << YAML::Key << "Asset" << YAML::Value << YAML::Hex << asset->GetGuid();
 				out << YAML::Key << "Texture2D" << YAML::Value << YAML::Hex << asset->GetTextureGuid(sp.Sprite);

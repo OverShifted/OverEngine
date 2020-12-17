@@ -7,8 +7,10 @@
 #include <unordered_map>
 #include <map>
 
-// For OE(_CORE)_ASSERT
+// For Assertion
 #include "OverEngine/Core/Log.h"
+
+// For mathematical stuff
 #include "OverEngine/Core/Math/Math.h"
 
 // Platform detection using predefined macros
@@ -51,11 +53,11 @@
 #else
 	/* Unknown compiler/platform */
 	#error "Unknown platform!"
-#endif // End of platform detection
-
+#endif
 #if defined(OE_PLATFORM_LINUX) || defined(OE_PLATFORM_MACOS)
 	#define OE_PLATFORM_UNIX_BASE
-#endif
+	#define LUA_USE_POSIX
+#endif // End of platform detection
 
 #ifdef OE_DEBUG
 	// debugbreak
@@ -65,55 +67,68 @@
 		#include <signal.h>
 		#define OE_DEBUGBREAK raise(SIGTRAP)
 	#endif // End of debugbreak
-
+	
 	#define OE_ENABLE_ASSERTS
 #else
-	#define OE_ENABLE_ASSERTS
 	#define OE_DEBUGBREAK
 #endif // OE_DEBUG
 
 #ifdef OE_ENABLE_ASSERTS
-#define ASSERT_FAILED_START_TXT "========== Assertion Failed =========="
-#define ASSERT_FAILED_END_TXT "========== Assertion Failed =========="
-#define OE_ASSERT(x, ...) { if(!(x)) { OE_ERROR(ASSERT_FAILED_START_TXT); OE_ERROR(__VA_ARGS__); OE_ERROR(ASSERT_FAILED_END_TXT); OE_DEBUGBREAK; } }
-#define OE_CORE_ASSERT(x, ...) { if(!(x)) { OE_CORE_ERROR(ASSERT_FAILED_START_TXT); OE_CORE_ERROR(__VA_ARGS__); OE_CORE_ERROR(ASSERT_FAILED_END_TXT); OE_DEBUGBREAK; } }
+	#define _OE_ASSERT_TXT "========== Assertion Failed =========="
+
+	#define OE_ASSERT(x, ...)                               \
+	{                                                       \
+		if(!(x))                                            \
+		{                                                   \
+			OE_ERROR(_OE_ASSERT_TXT);                       \
+			OE_ERROR(__VA_ARGS__);                          \
+			OE_ERROR(_OE_ASSERT_TXT); OE_DEBUGBREAK;        \
+		}                                                   \
+	}
+
+	#define OE_CORE_ASSERT(x, ...)                          \
+	{                                                       \
+		if(!(x))                                            \
+		{                                                   \
+			OE_CORE_ERROR(_OE_ASSERT_TXT);                  \
+			OE_CORE_ERROR(__VA_ARGS__);                     \
+			OE_CORE_ERROR(_OE_ASSERT_TXT); OE_DEBUGBREAK;   \
+		}                                                   \
+	}
 #else
-	#define OE_ASSERT( ... )
-	#define OE_CORE_ASSERT( ... )
+	#define OE_ASSERT(x, ...)        { if (!(x)) OE_THROW(__VA_ARGS__); }
+	#define OE_CORE_ASSERT(x, ...)   { if (!(x)) OE_THROW(__VA_ARGS__); }
 #endif
 
 #if !defined(_MSC_VER)
-	#define sprintf_s(a, b, c, ...) sprintf(a, c, __VA_ARGS__)
-	#define strcpy_s(a, b, c) strcpy(a, c)
+	#define sprintf_s(buffer, size, format, ...) snprintf(buffer, size, format, __VA_ARGS__)
+	#define strcpy_s(dest, destsz, src) strncpy(dest, src, destsz)
 	#define strcat_s(a, b, c) strcat(a, c)
 	#define sscanf_s sscanf
 #endif
 
-#define BIT(x) (1 << x)
+/// Constants
+#define OE_IMGUI_BASE_TREE_VIEW_FLAGS           \
+	(ImGuiTreeNodeFlags_OpenOnArrow |           \
+	 ImGuiTreeNodeFlags_OpenOnDoubleClick |     \
+	 ImGuiTreeNodeFlags_SpanAvailWidth |        \
+	 ImGuiTreeNodeFlags_SpanFullWidth)
 
-#define BIND_FN(fn) [this](auto&&... args) -> decltype(auto) { return this->fn(std::forward<decltype(args)>(args)...); }
-
+/// Template Constants
 #define NULL_REF(T) (*(T*)nullptr)
 
-#define CAPITAL_A_ASCII 65
-#define SMALL_A_ASCII 97
-#define CHAR_1_ASCII 49
-#define CHAR_0_ASCII 48
-
-#define DIGIT_TO_CHAR(digit) ((char)(digit + CHAR_0_ASCII))
-
-#define OE_IMGUI_BASE_TREE_VIEW_FLAGS (ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_SpanFullWidth)
-
+/// Operators
+#define BIT(x) (1 << x)
 #define OE_ARRAY_SIZE(a) (sizeof(a) / sizeof(*a))
-
-#define IMVEC2_2_VECTOR2(imvec2) (::OverEngine::Vector2(imvec2.x, imvec2.y))
-#define IMVEC4_2_VECTOR2(imvec4) (::OverEngine::Vector4(imvec4.x, imvec4.y, imvec4.z, imvec4.w))
-
-#define TYPE_PAWN(var, T) (*((T*)&var))
-#define OE_BOOL_SWAP(a) (a = !a)
-
 #define STD_CONTAINER_FIND(cont, val) (std::find(cont.begin(), cont.end(), val))
 #define STD_CONTAINER_HAS(cont, val) std::find(cont.begin(), cont.end(), val) != cont.end()
+
+/// Casts / Converters
+#define IMVEC2_2_VECTOR2(imvec2) (::OverEngine::Vector2(imvec2.x, imvec2.y))
+#define TYPE_PAWN(var, T) (*((T*)&var))
+
+/// Other
+#define BIND_FN(fn) [this](auto&&... args) -> decltype(auto) { return this->fn(std::forward<decltype(args)>(args)...); }
 
 namespace OverEngine
 {
@@ -126,17 +141,16 @@ namespace OverEngine
 
 	// See https://stackoverflow.com/questions/45447361/how-to-move-certain-elements-of-stdvector-to-a-new-index-within-the-vector
 	template<typename T>
-	void Move(std::vector<T>& v, size_t oldIndex, size_t newIndex)
+	void Move(std::vector<T>& v, size_t from, size_t to)
 	{
-		if (oldIndex > newIndex)
-			std::rotate(v.rend() - oldIndex - 1, v.rend() - oldIndex, v.rend() - newIndex);
+		if (from > to)
+			std::rotate(v.rend() - from - 1, v.rend() - from, v.rend() - to);
 		else
-			std::rotate(v.begin() + oldIndex, v.begin() + oldIndex + 1, v.begin() + newIndex + 1);
+			std::rotate(v.begin() + from, v.begin() + from + 1, v.begin() + to + 1);
 	}
 
-	// Scope ////////////////////////////////////////////////////////////////////
-	template<typename T>
-	using Scope = std::unique_ptr<T>;
+	template<typename T> using Scope = std::unique_ptr<T>;
+	template<typename T> using Ref = std::shared_ptr<T>;
 
 	template<typename T, typename ... Args>
 	constexpr Scope<T> CreateScope(Args&& ... args)
@@ -144,37 +158,19 @@ namespace OverEngine
 		return std::make_unique<T>(std::forward<Args>(args)...);
 	}
 
-	// Ref //////////////////////////////////////////////////////////////////////
-	template<typename T>
-	using Ref = std::shared_ptr<T>;
-
 	template<typename T, typename ... Args>
 	constexpr Ref<T> CreateRef(Args&& ... args)
 	{
 		return std::make_shared<T>(std::forward<Args>(args)...);
 	}
 
-	// String ///////////////////////////////////////////////////////////////////
 	using String = std::string;
 
-	// Vector ///////////////////////////////////////////////////////////////////
-	template<typename T>
-	using Vector = std::vector<T>;
+	template<typename T> using Vector = std::vector<T>;
+	template<typename T> using RefVec = Ref<Vector<T>>;
 
-	template<typename T>
-	using RefVec = Ref<Vector<T>>;
+	template<typename T, typename U> using UnorderedMap = std::unordered_map<T, U>;
+	template<typename T, typename U> using Map = std::map<T, U>;
 
-	template<typename T, typename U>
-	using VecPair = Vector<std::pair<T, U>>;
-
-	// UnorderedMap /////////////////////////////////////////////////////////////
-	template<typename T, typename U>
-	using UnorderedMap = std::unordered_map<T, U>;
-
-	// Map //////////////////////////////////////////////////////////////////////
-	template<typename T, typename U>
-	using Map = std::map<T, U>;
-
-	template<typename T>
-	struct Vec2T { T x, y; };
+	template<typename T> struct Vec2T { T x, y; };
 }

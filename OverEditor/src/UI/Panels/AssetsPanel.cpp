@@ -23,6 +23,15 @@ namespace OverEditor
 	{
 		ImGui::Begin("Assets");
 
+		if (m_SelectionContext.size() == 1)
+		{
+			auto asset = m_SelectionContext[0];
+			ImGui::Begin("Asset Settings");
+			ImGui::TextUnformatted(asset->GetName().c_str());
+			ImGui::TextUnformatted(asset->GetPath().c_str());
+			ImGui::End();
+		}
+
 		if (!m_OneColumnView)
 			ImGui::Columns(2);
 
@@ -133,7 +142,7 @@ namespace OverEditor
 				for (const auto& asset : a->GetFolderAsset()->GetAssets())
 				{
 					ImGui::PushID(n);
-					DrawThumbnail(asset, n + 1 == count);
+					DrawThumbnail(asset.second, n + 1 == count);
 					ImGui::PopID();
 					n++;
 				}
@@ -151,8 +160,10 @@ namespace OverEditor
 	{
 		Ref<Asset> selectedItem;
 
-		for (const auto& asset : assetToDraw->GetFolderAsset()->GetAssets())
+		for (const auto& nameAndAsset : assetToDraw->GetFolderAsset()->GetAssets())
 		{
+			const auto& asset = nameAndAsset.second;
+
 			if (!m_OneColumnView && !asset->IsFolder())
 				continue;
 
@@ -177,8 +188,6 @@ namespace OverEditor
 				});
 
 				UIElements::Texture2DDragSource(asset->GetTexture2DAsset()->GetTextures().begin()->second, asset->GetName().c_str(), true);
-
-				ImGui::PopStyleVar();
 			}
 
 			if (ImGui::IsItemClicked())
@@ -230,7 +239,7 @@ namespace OverEditor
 
 		if (icon)
 		{
-			ImGui::ImageButton(icon, thumbnailSize, -1, { 0.0f, 0.0f, 0.0f, 0.0f });
+			ImGui::ImageButton(icon, thumbnailSize);
 		}
 		else
 		{
@@ -332,6 +341,6 @@ namespace OverEditor
 		if (!last && nextBtn < rightMost)
 			ImGui::SameLine();
 		else
-			ImGui::Dummy({ 0, 25 });
+			ImGui::Dummy({ 0, 50 });
 	}
 }

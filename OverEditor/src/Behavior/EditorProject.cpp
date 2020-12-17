@@ -1,6 +1,5 @@
 #include "EditorProject.h"
 
-#include "Behavior/AssetManager.h"
 #include <OverEngine/Core/Extentions.h>
 
 namespace OverEditor
@@ -63,7 +62,8 @@ namespace OverEditor
 
 			if (event == FileWatcherEvent::Created)
 			{
-				AssetManager::ImportAndLoad(path, proj.GetAssetsDirectoryPath(), &proj.GetAssets());
+				std::lock_guard<std::mutex> lock(proj.GetAssetLoadCommandBufferMutex());
+				proj.GetAssetLoadCommandBuffer().push_back(path);
 			}
 
 		}, this);

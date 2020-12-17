@@ -26,87 +26,80 @@ namespace OverEngine
 
 			if (extention == OE_META_ASSET_FILE_EXTENSION)
 			{
-				if (auto asset = Asset::Load(path, true, assetsDirectoryPath, this))
+				if (auto asset = Asset::Load(path, true, assetsDirectoryPath, nullptr))
 					AddAsset(asset, true);
 			}
 		}
 	}
 
-	void AssetCollection::AddAsset(const Ref<Asset> asset, bool loading)
+	void AssetCollection::AddAsset(const Ref<Asset> asset, bool makeFolders)
 	{
-		AddAsset(asset, asset->GetPath(), loading);
-	}
+		asset->m_Collection = this;
+		m_AllAssets.insert(asset);
 
-	void AssetCollection::AddAsset(const Ref<Asset> asset, const String& path, bool loading)
-	{
-		auto lastSlash = path.find_last_of("/");
+		if (!makeFolders)
+		{
+			asset->GetParent()->GetFolderAsset()->GetAssets()[asset->GetName()] = asset;
+			return;
+		}
 
-		auto nodesNames = SplitString(path, '/');
-
-		Ref<FolderAsset> currentAsset = m_RootAsset;
-		bool missing = false;
+		auto nodesNames = SplitString(FileSystem::FixPath(asset->GetPath()), '/');
 
 		uint32_t currentPathNodeIndex = 0;
+		Ref<FolderAsset> currentAsset = m_RootAsset;
+
 		for (const String& nodeName : *nodesNames)
 		{
-			if (currentPathNodeIndex == nodesNames->size() - 1)
-				break;
-			currentPathNodeIndex++;
-
-			if (!missing)
+			if (currentAsset->GetAssets().count(nodeName))
 			{
-				bool founded = false;
-				for (const auto& child : currentAsset->GetAssets())
-				{
-					if (child->GetName() == nodeName)
-					{
-						if (child->IsFolder())
-							currentAsset = TYPE_PAWN(child, Ref<FolderAsset>);
-						founded = true;
-						break;
-					}
-				}
+				auto& asset = currentAsset->GetAssets()[nodeName];
 
-				if (!founded)
+				if (currentPathNodeIndex == nodesNames->size() - 1)
 				{
-					auto newAsset = CreateRef<FolderAsset>(currentAsset->GetPath() + "/" + nodeName, Random::UInt64());
-					currentAsset->GetAssets().push_back(newAsset);
-					currentAsset = newAsset;
-					currentAsset->m_Collection = this;
-					missing = true;
+					if (asset->IsFolder())
+					{
+						asset->m_Guid = asset->GetGuid();
+						return;
+					}
+
+					OE_THROW("Asset '{}' already exists!", nodeName);
+					return;
+				}
+				
+				if (asset->IsFolder())
+				{
+					currentAsset = TYPE_PAWN(asset, Ref<FolderAsset>);
+				}
+				else
+				{
+					OE_THROW("Invalid asset path '{}' (at least one node '{}' is not a folder)", asset->GetPath(), currentAsset->GetName());
+					return;
 				}
 			}
 			else
 			{
-				auto newAsset = CreateRef<FolderAsset>(currentAsset->GetPath() + "/" + nodeName, Random::UInt64());
-				currentAsset->GetAssets().push_back(newAsset);
-				currentAsset = newAsset;
-				currentAsset->m_Collection = this;
-			}
-		}
-
-		auto parentAsset = GetAsset(path.substr(0, lastSlash + 1));
-		auto& parentAssetChildren = parentAsset->GetFolderAsset()->GetAssets();
-
-		for (auto& a : parentAssetChildren)
-		{
-			if (a->GetName() == asset->GetName())
-			{
-				if (!loading)
+				if (currentPathNodeIndex == nodesNames->size() - 1)
 				{
-					OE_CORE_ASSERT(false, "Asset already exists!");
+					currentAsset->GetAssets()[nodeName] = asset;
+					OE_CORE_INFO("Added {} to {} on {} and {}", asset->GetName(), currentAsset->GetName(), (void*)asset.get(), (void*)currentAsset.get());
 					return;
 				}
 
-				//a->m_Type = asset->m_Type;
-				a->m_Path = asset->m_Path;
-				a->m_Guid = asset->m_Guid;
-				return;
-			}
-		}
+				String newFolderAssetPath = currentAsset->GetPath();
+				if (newFolderAssetPath[newFolderAssetPath.size() - 1] != '/')
+					newFolderAssetPath += '/';
+				newFolderAssetPath += nodeName;
 
-		asset->m_Collection = this;
-		parentAssetChildren.push_back(asset);
+				auto newFolderAsset = CreateRef<FolderAsset>(nodeName, newFolderAssetPath, Random::UInt64());
+				newFolderAsset->m_Collection = this;
+
+				currentAsset->GetAssets()[nodeName] = newFolderAsset;
+				m_AllAssets.insert(newFolderAsset);
+				currentAsset = newFolderAsset;
+			}
+
+			currentPathNodeIndex++;
+		}
 	}
 
 	Ref<Asset> AssetCollection::GetAsset(const String& path)
@@ -124,61 +117,48 @@ namespace OverEngine
 
 		uint32_t currentPathNodeIndex = 0;
 		Ref<FolderAsset> currentAsset = m_RootAsset;
+
 		for (const String& nodeName : *nodesNames)
 		{
-			bool founded = false;
-			for (const auto& child : currentAsset->GetAssets())
+			if (currentAsset->GetAssets().count(nodeName))
 			{
-				if (child->GetName() == nodeName)
+				auto& asset = currentAsset->GetAssets()[nodeName];
+
+				if (currentPathNodeIndex == nodesNames->size() - 1)
+					return asset;
+				
+				if (asset->IsFolder())
 				{
-					if (currentPathNodeIndex == nodesNames->size() - 1)
-					{
-						return child;
-					}
-					else if (child->IsFolder())
-					{
-						currentAsset = TYPE_PAWN(child, Ref<FolderAsset>);
-						founded = true;
-					}
-					else
-					{
-						OE_CORE_ASSERT(false, "Invalid asset path '{}' (at least one node '{}' is not a folder)", path, currentAsset->GetName());
-						return nullptr;
-					}
-					break;
+					currentAsset = TYPE_PAWN(asset, Ref<FolderAsset>);
+				}
+				else
+				{
+					OE_THROW("Invalid asset path '{}' (at least one node '{}' is not a folder)", path, currentAsset->GetName());
+					return nullptr;
 				}
 			}
-
-			if (!founded)
+			else
 			{
-				OE_CORE_ASSERT(false, "Invalid asset path '{}' (node '{}' not founded)", path, nodeName);
+				OE_THROW("Invalid asset path '{}' (node '{}' not founded)", path, nodeName);
 				return nullptr;
 			}
 
 			currentPathNodeIndex++;
 		}
 
-		return nullptr;
+		return currentAsset;
 	}
-
-	static Ref<Asset> FindAssetByGuidRecursive(Ref<Asset> asset, const uint64_t& guid)
-	{
-		if (asset->GetGuid() == guid)
-			return asset;
-
-		if (!asset->IsFolder())
-			return nullptr;
-
-		for (const auto& child : asset->GetFolderAsset()->GetAssets())
-			if (auto result = FindAssetByGuidRecursive(child, guid))
-				return result;
-
-		return nullptr;
-	};
 
 	Ref<Asset> AssetCollection::GetAsset(const uint64_t& guid)
 	{
-		return FindAssetByGuidRecursive(m_RootAsset, guid);
+		for (auto asset : m_AllAssets)
+		{
+			if (asset->GetGuid() == guid)
+				return asset;
+		}
+
+		OE_THROW("Cant find asset with {0:#x} GUID!", guid);
+		return nullptr;
 	}
 
 	bool AssetCollection::AssetExists(const String& path)
@@ -189,29 +169,38 @@ namespace OverEngine
 			return false;
 		}
 
-		auto nodesNames = SplitString(path, '/');
+		if (path.size() == 1) // path == "/"
+			return true;
+
+		auto nodesNames = SplitString(FileSystem::FixPath(path), '/');
 
 		uint32_t currentPathNodeIndex = 0;
 		Ref<FolderAsset> currentAsset = m_RootAsset;
+
 		for (const String& nodeName : *nodesNames)
 		{
-			for (const auto& child : currentAsset->GetAssets())
+			if (currentAsset->GetAssets().count(nodeName))
 			{
-				if (child->GetName() == nodeName)
-				{
-					if (currentPathNodeIndex == nodesNames->size() - 1)
-						return true;
-					else if (child->IsFolder())
-						currentAsset = TYPE_PAWN(child, Ref<FolderAsset>);
-					else
-						return false;
-					break;
-				}
+				auto& asset = currentAsset->GetAssets()[nodeName];
+
+				if (currentPathNodeIndex == nodesNames->size() - 1)
+					return true;
+				
+				if (asset->IsFolder())
+					currentAsset = TYPE_PAWN(asset, Ref<FolderAsset>);
+				else
+					return false;
+
+				break;
+			}
+			else
+			{
+				return false;
 			}
 
 			currentPathNodeIndex++;
 		}
 
-		return true;
+		return false;
 	}
 }

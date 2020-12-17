@@ -26,14 +26,21 @@ namespace OverEngine
 			});
 		}
 
+		Ref<Asset> asset = nullptr;
+
 		switch ((AssetType)Serializer::GetGlobalEnumValue("AssetType", node["Type"].as<String>()))
 		{
-		case AssetType::Folder:    return nullptr;
-		case AssetType::Texture2D: return CreateRef<Texture2DAsset>(node, assetsDirectoryRoot);
-		case AssetType::Scene:     return CreateRef<SceneAsset>(node, assetsDirectoryRoot);
+		case AssetType::Folder:    asset = CreateRef<FolderAsset>   (node, assetsDirectoryRoot); break;
+		case AssetType::Texture2D: asset = CreateRef<Texture2DAsset>(node, assetsDirectoryRoot); break;
+		case AssetType::Scene:     asset = CreateRef<SceneAsset>    (node, assetsDirectoryRoot); break;
 		
 		default: OE_CORE_ASSERT(false, "Unknown asset type"); return nullptr;
 		}
+
+		if (asset && collection)
+			collection->AddAsset(asset);
+
+		return asset;
 	}
 
 	Ref<Asset> Asset::GetParent() const
@@ -44,7 +51,7 @@ namespace OverEngine
 		OE_CORE_ASSERT(m_Collection, "Asset is not owned by a collection");
 
 		auto lastSlash = m_Path.find_last_of('/');
-		return m_Collection->GetAsset(m_Path.substr(0, lastSlash));
+		return m_Collection->GetAsset(m_Path.substr(0, lastSlash + 1));
 	}
 
 	FolderAsset* Asset::GetFolderAsset()

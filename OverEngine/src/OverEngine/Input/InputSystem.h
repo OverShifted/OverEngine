@@ -91,8 +91,8 @@ namespace OverEngine
 				m_Triggers[3] = triggers[3];
 				break;
 			default:
-				OE_CORE_ASSERT(false, "{0} is too many for an InputBinding!", triggers.size())
-					break;
+				OE_CORE_ASSERT(false, "{0} is too many for an InputBinding!", triggers.size());
+				break;
 			}
 		}
 

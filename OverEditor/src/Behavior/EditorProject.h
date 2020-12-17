@@ -24,6 +24,8 @@ namespace OverEditor
 		inline const String& GetRootPath() { return m_RootPath; }
 		inline const String& GetAssetsDirectoryPath() { return m_AssetsDirectoryPath; }
 		inline AssetCollection& GetAssets() { return m_Assets; }
+		inline auto& GetAssetLoadCommandBuffer() { return m_AssetLoadCommandBuffer; }
+		inline auto& GetAssetLoadCommandBufferMutex() { return m_AssetLoadCommandBufferMutex; }
 
 		String ResolvePhysicalAssetPath(const String& virtualPath);
 	private:
@@ -36,5 +38,8 @@ namespace OverEditor
 		AssetCollection m_Assets;
 
 		FileWatcher m_Watcher;
+
+		Vector<String> m_AssetLoadCommandBuffer;
+		std::mutex m_AssetLoadCommandBufferMutex;
 	};
 }

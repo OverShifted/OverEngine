@@ -116,21 +116,21 @@ namespace OverEngine
 
 		if (m_Type == TextureType::Master)
 		{
-			const auto& boundedGPUTexture = __Texture2D_GetMasterTextureData.MappedTexture;
-			finalRect.x = __Texture2D_GetMasterTextureData.MappedTextureRect.x / boundedGPUTexture->GetWidth();
-			finalRect.y = __Texture2D_GetMasterTextureData.MappedTextureRect.y / boundedGPUTexture->GetHeight();
-			finalRect.z = __Texture2D_GetMasterTextureData.MappedTextureRect.z / boundedGPUTexture->GetWidth();
-			finalRect.w = __Texture2D_GetMasterTextureData.MappedTextureRect.w / boundedGPUTexture->GetHeight();
+			const auto& master = __Texture2D_GetMasterTextureData;
+			const auto& boundedGPUTexture = master.MappedTexture;
+			finalRect.x = ((float)master.MappedPos.x / (float)boundedGPUTexture->GetWidth());
+			finalRect.y = ((float)master.MappedPos.y / (float)boundedGPUTexture->GetHeight());
+			finalRect.z = ((float)master.Width       / (float)boundedGPUTexture->GetWidth());
+			finalRect.w = ((float)master.Height      / (float)boundedGPUTexture->GetHeight());
 		}
 		else
 		{
 			const auto& boundedGPUTexture = __Texture2D_GetParentMasterTextureData.MappedTexture;
 
-			const Rect& parentRect = __Texture2D_GetParentMasterTextureData.MappedTextureRect;
 			Rect rect = __Texture2D_GetSubTextureData.Rect;
 
-			rect.x += parentRect.x;
-			rect.y += parentRect.y;
+			rect.x += __Texture2D_GetParentMasterTextureData.MappedPos.x;
+			rect.y += __Texture2D_GetParentMasterTextureData.MappedPos.y;
 
 			finalRect.x = rect.x / boundedGPUTexture->GetWidth();
 			finalRect.y = rect.y / boundedGPUTexture->GetHeight();
@@ -139,5 +139,10 @@ namespace OverEngine
 		}
 
 		return finalRect;
+	}
+
+	void Texture2D::Reload(String path /*= String()*/)
+	{
+
 	}
 }

@@ -226,15 +226,16 @@ namespace OverEngine
 
 				if (sprite.Sprite && sprite.Sprite->GetType() != TextureType::Placeholder)
 				{
-					TexturedQuadExtraData data;
-					data.Tint = sprite.Tint;
-					data.Tiling = sprite.Tiling;
-					data.Offset = sprite.Offset;
-					data.Flip = sprite.Flip;
-					data.Wrapping = sprite.Wrapping;
-					data.Filtering = sprite.Filtering;
+					TexturedQuadProps props;
+					props.Tint      = sprite.Tint;
+					props.Texture   = sprite.Sprite;
+					props.Tiling    = sprite.Tiling;
+					props.Offset    = sprite.Offset;
+					props.Flip      = sprite.Flip;
+					props.Wrapping  = sprite.Wrapping;
+					props.Filtering = sprite.Filtering;
 
-					Renderer2D::DrawQuad(sptransform, sprite.Sprite, data);
+					Renderer2D::DrawQuad(sptransform, props);
 				}
 				else
 				{
@@ -286,10 +287,9 @@ namespace OverEngine
 			if (sp.Sprite && sp.Sprite->GetType() == TextureType::Placeholder)
 			{
 				const auto& pl = std::get<PlaceHolderTextureData>(sp.Sprite->GetData());
-
 				auto asset = assetCollection.GetAsset(pl.AssetGuid);
 
-				if (asset->GetType() == AssetType::Texture2D)
+				if (asset && asset->GetType() == AssetType::Texture2D)
 				{
 					sp.Sprite = asset->GetTexture2DAsset()->GetTextures()[pl.Texture2DGuid];
 				}
