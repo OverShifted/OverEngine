@@ -237,7 +237,7 @@ namespace OverEngine
 		glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
 	}
 
-	bool OpenGLShader::Reload(String filePath)
+	bool OpenGLShader::Reload(const String& filePath)
 	{
 		if (filePath.empty())
 		{

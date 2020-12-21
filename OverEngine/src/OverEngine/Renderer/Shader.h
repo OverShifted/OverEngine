@@ -25,7 +25,7 @@ namespace OverEngine
 		virtual void UploadUniformMat3(const char* name, const Math::Mat3x3& matrix) = 0;
 		virtual void UploadUniformMat4(const char* name, const Math::Mat4x4& matrix) = 0;
 
-		virtual bool Reload(String filePath = String()) = 0;
+		virtual bool Reload(const String& filePath = String()) = 0;
 		virtual bool Reload(const String& vertexSrc, const String& fragmentSrc) = 0;
 		virtual bool Reload(const char* vertexSrc, const char* fragmentSrc) = 0;
 

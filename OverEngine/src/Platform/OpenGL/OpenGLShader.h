@@ -30,7 +30,7 @@ namespace OverEngine
 		virtual void UploadUniformMat3(const char* name, const Mat3x3& matrix) override;
 		virtual void UploadUniformMat4(const char* name, const Mat4x4& matrix) override;
 
-		virtual bool Reload(String filePath = String()) override;
+		virtual bool Reload(const String& filePath = String()) override;
 		virtual bool Reload(const String& vertexSrc, const String& fragmentSrc) override;
 		virtual bool Reload(const char* vertexSrc, const char* fragmentSrc) override;
 	private:
