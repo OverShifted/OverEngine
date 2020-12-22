@@ -130,7 +130,7 @@ namespace OverEngine
 			return nullptr;
 		}
 
-		void Reload(String path = String());
+		bool Reload(const String& filePath = String());
 
 		Texture2DAsset* GetAsset() const { __Texture2D_COMMON_GET(Asset, nullptr); }
 		const auto& GetData() const { return m_Data; }

@@ -141,7 +141,7 @@ namespace OverEngine
 		return finalRect;
 	}
 
-	void Texture2D::Reload(String path /*= String()*/)
+	bool Texture2D::Reload(const String& filePath /*= String()*/)
 	{
 
 	}
