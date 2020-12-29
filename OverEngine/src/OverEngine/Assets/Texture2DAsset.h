@@ -18,6 +18,7 @@ namespace OverEngine
 		const uint64_t& GetTextureGuid(Texture2D* texture);
 
 		auto& GetTextures() { return m_Textures; }
+		virtual void Reload() override;
 	private:
 		UnorderedMap<uint64_t, Ref<Texture2D>> m_Textures;
 	};

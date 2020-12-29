@@ -30,6 +30,10 @@ project "OverEngine"
 		-- tinyfiledialogs
 		"vendor/tinyfiledialogs/tinyfiledialogs.h",
 		"vendor/tinyfiledialogs/tinyfiledialogsBuild.cpp",
+		
+		-- md5
+		"vendor/utils/hashing/md5/md5.h",
+		"vendor/utils/hashing/md5/md5.cpp",
 
 		-- Resources
 		"res/**.h",
@@ -58,6 +62,7 @@ project "OverEngine"
 		"%{includeDir.json}",
 		"%{includeDir.fmt}",
 		"%{includeDir.yaml_cpp}",
+		"%{includeDir.cppfs}",
 	}
 
 	defines

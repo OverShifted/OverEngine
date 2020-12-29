@@ -37,6 +37,8 @@ namespace OverEngine
 
 		inline const AssetType& GetType() const { return m_Type; }
 
+		virtual void Reload() {}
+
 		FolderAsset* GetFolderAsset();
 		Texture2DAsset* GetTexture2DAsset();
 		SceneAsset* GetSceneAsset();

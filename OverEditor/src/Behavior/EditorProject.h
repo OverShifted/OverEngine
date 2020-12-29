@@ -2,7 +2,9 @@
 
 #include <OverEngine.h>
 
-#include <OverEngine/Core/FileSystem/FileSystem.h>
+#include <cppfs/Tree.h>
+#include <cppfs/FileHandle.h>
+#include <future>
 
 namespace OverEditor
 {
@@ -19,27 +21,33 @@ namespace OverEditor
 		EditorProject() = default;
 		EditorProject(const String& path);
 
+		~EditorProject();
+
 		inline const String& GetName() { return m_Name; }
 
-		inline const String& GetRootPath() { return m_RootPath; }
+		inline const String& GetRootPath()            { return m_RootPath; }
 		inline const String& GetAssetsDirectoryPath() { return m_AssetsDirectoryPath; }
-		inline AssetCollection& GetAssets() { return m_Assets; }
-		inline auto& GetAssetLoadCommandBuffer() { return m_AssetLoadCommandBuffer; }
-		inline auto& GetAssetLoadCommandBufferMutex() { return m_AssetLoadCommandBufferMutex; }
+
+		inline AssetCollection& GetAssets()           { return m_Assets; }
 
 		String ResolvePhysicalAssetPath(const String& virtualPath);
+
+		// Update file watcher and load assets
+		void OnUpdate(TimeStep ts);
 	private:
 		String m_Name;
 
+		// Paths
 		String m_ProjectFilePath;
 		String m_RootPath;
 		String m_AssetsDirectoryPath;
 
+		// Asset Management
 		AssetCollection m_Assets;
+		std::unique_ptr<cppfs::Tree> m_LastAssetsFileTree;
+		std::unique_ptr<cppfs::Diff> m_LastAssetsDiff;
 
-		FileWatcher m_Watcher;
-
-		Vector<String> m_AssetLoadCommandBuffer;
-		std::mutex m_AssetLoadCommandBufferMutex;
+		std::future<void> m_AssetsDiffFuture;
+		cppfs::FileHandle m_AssetsDirectory;
 	};
 }

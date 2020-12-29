@@ -27,10 +27,10 @@ namespace OverEditor
 	{
 		OE_PROFILE_FUNCTION();
 
-		auto editorConsoleSink = std::make_shared<EditorConsoleSink_mt>(&m_ConsolePanel);
-		editorConsoleSink->set_pattern("%v");
-		Log::GetCoreLogger()->sinks().push_back(editorConsoleSink);
-		Log::GetClientLogger()->sinks().push_back(editorConsoleSink);
+		// auto editorConsoleSink = std::make_shared<EditorConsoleSink_mt>(&m_ConsolePanel);
+		// editorConsoleSink->set_pattern("%v");
+		// Log::GetCoreLogger()->sinks().push_back(editorConsoleSink);
+		// Log::GetClientLogger()->sinks().push_back(editorConsoleSink);
 
 		m_SceneContext = CreateRef<SceneEditor>();
 		m_SceneContext->PrimaryScene = nullptr;
@@ -42,7 +42,7 @@ namespace OverEditor
 		m_Icons["SceneIcon"] = Texture2D::CreateSubTexture(m_IconsTexture, { 0, 0, 256, 256 });
 	}
 
-	void EditorLayer::OnUpdate(TimeStep DeltaTime)
+	void EditorLayer::OnUpdate(TimeStep deltaTime)
 	{
 		OE_PROFILE_FUNCTION();
 
@@ -50,13 +50,15 @@ namespace OverEditor
 
 		if (m_EditingProject)
 		{
-			std::lock_guard<std::mutex> lock(m_EditingProject->GetAssetLoadCommandBufferMutex());
+			/*std::lock_guard<std::mutex> lock(m_EditingProject->GetAssetLoadCommandBufferMutex());
 
 			auto& cmdBuffer = m_EditingProject->GetAssetLoadCommandBuffer();
 			for (const auto& path : cmdBuffer)
 				AssetManager::ImportAndLoad(path, m_EditingProject->GetAssetsDirectoryPath(), &m_EditingProject->GetAssets());
 
-			cmdBuffer.clear();
+			cmdBuffer.clear();*/
+
+			m_EditingProject->OnUpdate(deltaTime);
 		}
 	}
 
@@ -175,28 +177,29 @@ namespace OverEditor
 			for (uint32_t i = 0; i < 100; i++)
 				Texture2D::CreateMaster("assets/textures/Icons.png");
 		}
-		static int v;
-		ImGui::SliderInt("##!~!~!~!~!", &v, 0, 32);
 
 		auto size = ImGui::GetContentRegionAvail();
 		ImVec2 pos{ ImGui::GetCursorPos().x + ImGui::GetWindowPos().x, ImGui::GetCursorPos().y + ImGui::GetWindowPos().y };
-		ImGui::Image((void*)(intptr_t)v, size);
+		ImGui::Image((void*)(intptr_t)m_IconsTexture->GetGPUTexture()->GetRendererID(), size);
 
 		auto& drawList = *ImGui::GetWindowDrawList();
 		auto gpuT = m_IconsTexture->GetGPUTexture();
 		Vector2 texSize{ gpuT->GetWidth(), gpuT->GetHeight() };
 		for (const auto& t : gpuT->GetMemberTextures())
 		{
-			try
-			{
-				ImVec2 min{ pos.x + t->GetRect().x * size.x,
-							pos.y + t->GetRect().y * size.y };
+//			try
+//			{
+				if (auto ref = t.lock())
+				{
+					ImVec2 min{ pos.x + ref->GetRect().x * size.x,
+								pos.y + ref->GetRect().y * size.y };
 
-				ImVec2 max{ min.x + t->GetRect().z * size.x,
-							min.y + t->GetRect().w * size.y };
+					ImVec2 max{ min.x + ref->GetRect().z * size.x,
+								min.y + ref->GetRect().w * size.y };
 
-				drawList.AddRect(min, max, ImColor(255, 0, 0));
-			} catch (const std::exception&) {}
+					drawList.AddRect(min, max, ImColor(255, 0, 0));
+				}
+//			} catch (const std::exception&) {}
 		}
 
 		ImGui::End();
@@ -285,7 +288,11 @@ namespace OverEditor
 
 				if (ImGui::Button("Open Test Project"))
 				{
+				#ifdef OE_PLATFORM_WINDOWS
 					auto project = CreateRef<EditorProject>("D:/overenginedev/SuperMario/project.oep");
+				#elif defined(OE_PLATFORM_LINUX)
+					auto project = CreateRef<EditorProject>("/home/overshifted/dev/SuperMario/project.oep");
+				#endif
 					m_EditingProject = project;
 
 					char buf[128];

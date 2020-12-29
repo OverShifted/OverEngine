@@ -15,15 +15,15 @@ namespace OverEngine
 		logSinks.emplace_back(std::make_shared<spdlog::sinks::stdout_color_sink_mt>());
 		logSinks.emplace_back(std::make_shared<spdlog::sinks::basic_file_sink_mt>("OverEngine.log", true));
 
-		logSinks[0]->set_pattern("%^[%T] %n: %v%$");
-		logSinks[1]->set_pattern("[%T] [%l] %n: %v");
+		logSinks[0]->set_pattern("%^[%T] [thread %t] %n: %v%$");
+		logSinks[1]->set_pattern("[%T] [%l] [thread %t] %n: %v");
 
-		s_CoreLogger = std::make_shared<spdlog::logger>("OverEngine", begin(logSinks), end(logSinks));
+		s_CoreLogger = std::make_shared<spdlog::logger>("OverEngine", std::begin(logSinks), std::end(logSinks));
 		spdlog::register_logger(s_CoreLogger);
 		s_CoreLogger->set_level(spdlog::level::trace);
 		s_CoreLogger->flush_on(spdlog::level::trace);
 
-		s_ClientLogger = std::make_shared<spdlog::logger>("APP", begin(logSinks), end(logSinks));
+		s_ClientLogger = std::make_shared<spdlog::logger>("APP", std::begin(logSinks), std::end(logSinks));
 		spdlog::register_logger(s_ClientLogger);
 		s_ClientLogger->set_level(spdlog::level::trace);
 		s_ClientLogger->flush_on(spdlog::level::trace);

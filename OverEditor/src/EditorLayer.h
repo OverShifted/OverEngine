@@ -24,7 +24,7 @@ namespace OverEditor
 		EditorLayer();
 
 		void OnAttach() override;
-		void OnUpdate(TimeStep DeltaTime) override;
+		void OnUpdate(TimeStep deltaTime) override;
 		void OnImGuiRender() override;
 		void OnEvent(Event& event) override;
 

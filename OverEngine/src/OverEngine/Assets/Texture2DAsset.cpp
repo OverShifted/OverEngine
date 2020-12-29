@@ -51,4 +51,16 @@ namespace OverEngine
 		OE_CORE_ASSERT(false, "Texture doesn't belongs to this asset");
 		return NULL_REF(uint64_t);
 	}
+
+	void Texture2DAsset::Reload()
+	{
+		for (const auto& tex : m_Textures)
+		{
+			if (tex.second->GetType() == TextureType::Master)
+			{
+				tex.second->Reload();
+				return;
+			}
+		}
+	}
 }

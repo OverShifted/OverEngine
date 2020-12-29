@@ -44,7 +44,7 @@ namespace OverEngine
 			virtual void AllocateStorage(TextureFormat format, uint32_t width, uint32_t height) override;
 			virtual void SubImage(const uint8_t* image, uint32_t width, uint32_t height, TextureFormat dataFormat, int xOffset = 0, int yOffset = 0) override;
 
-			inline virtual Vector<Ref<::OverEngine::Texture2D>>& GetMemberTextures() override { return m_Members; }
+			inline virtual Vector<std::weak_ptr<::OverEngine::Texture2D>>& GetMemberTextures() override { return m_Members; }
 		private:
 			uint32_t m_Width, m_Height;
 			TextureFiltering m_MinFilter, m_MagFilter;
@@ -52,7 +52,7 @@ namespace OverEngine
 			Color m_BorderColor;
 			TextureFormat m_Format;
 			uint32_t m_RendererID = 0;
-			Vector<Ref<::OverEngine::Texture2D>> m_Members;
+			Vector<std::weak_ptr<::OverEngine::Texture2D>> m_Members;
 		};
 	}
 }

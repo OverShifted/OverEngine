@@ -2,10 +2,12 @@
 
 // For type aliases
 #include <memory>
-#include <vector>
 #include <string>
-#include <unordered_map>
+
+#include <vector>
 #include <map>
+#include <unordered_map>
+#include <unordered_set>
 
 // For Assertion
 #include "OverEngine/Core/Log.h"
@@ -101,11 +103,12 @@
 #endif
 
 #if !defined(_MSC_VER)
-	#define sprintf_s(buffer, size, format, ...) snprintf(buffer, size, format, __VA_ARGS__)
-	#define strcpy_s(dest, destsz, src) strncpy(dest, src, destsz)
-	#define strcat_s(a, b, c) strcat(a, c)
+	#define sprintf_s snprintf
 	#define sscanf_s sscanf
+	#define strcpy_s(dest, destsz, src) strncpy(dest, src, destsz)
+	#define strcat_s(dest, destsz, src) strncat(dest, src, destsz)
 #endif
+
 
 /// Constants
 #define OE_IMGUI_BASE_TREE_VIEW_FLAGS           \
@@ -129,6 +132,7 @@
 
 /// Other
 #define BIND_FN(fn) [this](auto&&... args) -> decltype(auto) { return this->fn(std::forward<decltype(args)>(args)...); }
+#define STD_FUTURE_IS_DONE(f) (f.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
 
 namespace OverEngine
 {
@@ -147,6 +151,20 @@ namespace OverEngine
 			std::rotate(v.rend() - from - 1, v.rend() - from, v.rend() - to);
 		else
 			std::rotate(v.begin() + from, v.begin() + from + 1, v.begin() + to + 1);
+	}
+
+	// See https://stackoverflow.com/questions/24263259/c-stdseterase-with-stdremove-if
+	// And https://stackoverflow.com/a/24263441
+	template <class T, class Comp, class Alloc, class Predicate>
+	void DiscardIf(std::unordered_set<T, Comp, Alloc>& c, Predicate pred)
+	{
+		for (auto it{ c.begin() }, end{ c.end() }; it != end;)
+		{
+			if (pred(*it))
+				it = c.erase(it);
+			else
+				++it;
+		}
 	}
 
 	template<typename T> using Scope = std::unique_ptr<T>;

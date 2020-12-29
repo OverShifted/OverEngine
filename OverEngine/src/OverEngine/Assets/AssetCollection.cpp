@@ -81,7 +81,6 @@ namespace OverEngine
 				if (currentPathNodeIndex == nodesNames->size() - 1)
 				{
 					currentAsset->GetAssets()[nodeName] = asset;
-					OE_CORE_INFO("Added {} to {} on {} and {}", asset->GetName(), currentAsset->GetName(), (void*)asset.get(), (void*)currentAsset.get());
 					return;
 				}
 
@@ -151,7 +150,7 @@ namespace OverEngine
 
 	Ref<Asset> AssetCollection::GetAsset(const uint64_t& guid)
 	{
-		for (auto asset : m_AllAssets)
+		for (const auto& asset : m_AllAssets)
 		{
 			if (asset->GetGuid() == guid)
 				return asset;

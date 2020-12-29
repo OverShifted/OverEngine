@@ -52,6 +52,7 @@ namespace OverEditor
 			emitter << YAML::Key << "Name" << YAML::Value << name;
 			emitter << YAML::Key << "Path" << YAML::Value << assetPath;
 			emitter << YAML::Key << "Guid" << YAML::Value << YAML::Hex << Random::UInt64();
+			emitter << YAML::Key << "Hash" << YAML::Value << FileSystem::HashFile(physicalPath);
 			emitter << YAML::Key << "Type" << YAML::Value << "Texture2D";
 
 			emitter << YAML::Key << "Textures" << YAML::Value << YAML::BeginSeq;
@@ -73,6 +74,7 @@ namespace OverEditor
 			metaFile.close();
 			return Asset::Load(metaFilePath, true, assetsDirectoryRoot, collection);
 		}
+		default: break;
 		}
 
 		OE_CORE_INFO(extension);

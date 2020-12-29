@@ -50,6 +50,7 @@ includeDir["box2d"]        = "%{wks.location}/OverEngine/vendor/box2d/include"
 includeDir["json"]         = "%{wks.location}/OverEngine/vendor/json/include"
 includeDir["fmt"]          = "%{wks.location}/OverEngine/vendor/fmt/include"
 includeDir["yaml_cpp"]     = "%{wks.location}/OverEngine/vendor/yaml-cpp/include"
+includeDir["cppfs"]        = "%{wks.location}/OverEngine/vendor/cppfs/source/cppfs/include"
 
 linkLibs = {
 	"GLFW",
@@ -57,7 +58,8 @@ linkLibs = {
 	"imgui",
 	"lua-overengine",
 	"box2d",
-	"yaml-cpp"
+	"yaml-cpp",
+	"cppfs"
 }
 
 group "Dependencies"
@@ -67,6 +69,7 @@ group "Dependencies"
 	include "OverEngine/vendor/lua-overengine"
 	include "OverEngine/vendor/box2d"
 	include "OverEngine/vendor/yaml-cpp"
+	include "OverEngine/vendor/cppfs"
 group ""
 
 include "OverEngine"

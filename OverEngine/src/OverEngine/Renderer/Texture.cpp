@@ -36,10 +36,11 @@ namespace OverEngine
 		int width, height, channels;
 		stbi_set_flip_vertically_on_load(0);
 		stbi_uc* data = stbi_load(path.c_str(), &width, &height, &channels, 0);
-		OE_CORE_ASSERT(data, "Failde to load image!");
+		OE_CORE_ASSERT(data, "Failed to load image! reason: '{}'", stbi_failure_reason());
 
 		__Texture2D_GetMasterTextureData.Width = width;
 		__Texture2D_GetMasterTextureData.Height = height;
+		__Texture2D_GetMasterTextureData.ImageFilePath = path;
 
 		TextureFormat format = TextureFormat::None;
 		if (channels == 3)
@@ -69,8 +70,12 @@ namespace OverEngine
 
 	Texture2D::~Texture2D()
 	{
+		OE_CORE_INFO("Hey!! Bye Bye!!");
 		if (m_Type == TextureType::Master)
+		{
+			TextureManager::RemoveTexture(this);
 			stbi_image_free(__Texture2D_GetMasterTextureData.Pixels);
+		}
 	}
 
 	const String& Texture2D::GetName() const
@@ -143,6 +148,42 @@ namespace OverEngine
 
 	bool Texture2D::Reload(const String& filePath /*= String()*/)
 	{
+		const char* realPath = filePath.c_str();
+		if (filePath.empty())
+		{
+			const auto& internalImagefilePath = __Texture2D_GetMasterTextureData.ImageFilePath;
 
+			if (internalImagefilePath.empty())
+				return false;
+
+			realPath = internalImagefilePath.c_str();
+		}
+
+		int width, height, channels;
+		stbi_set_flip_vertically_on_load(0);
+		stbi_uc* data = stbi_load(realPath, &width, &height, &channels, 0);
+		OE_CORE_ASSERT(data, "Failed to load image! reason: '{}'", stbi_failure_reason());
+
+		__Texture2D_GetMasterTextureData.Width = width;
+		__Texture2D_GetMasterTextureData.Height = height;
+
+		TextureFormat format = TextureFormat::None;
+		if (channels == 3)
+		{
+			format = TextureFormat::RGB;
+		}
+		else if (channels == 4)
+		{
+			format = TextureFormat::RGBA;
+		}
+		OE_CORE_ASSERT(format != TextureFormat::None, "Unsupported image format");
+
+		__Texture2D_GetMasterTextureData.Format = format;
+		__Texture2D_GetMasterTextureData.Filtering = TextureFiltering::Linear;
+		__Texture2D_GetMasterTextureData.Pixels = data;
+
+		TextureManager::ReloadTexture(this);
+
+		return true;
 	}
 }

@@ -10,6 +10,8 @@ namespace OverEngine
 		static void Init();
 		static void Shutdown();
 
-		static void AddTexture(Ref<Texture2D>& texture);
+		static void AddTexture(const Ref<Texture2D>& texture);
+		static void RemoveTexture(Texture2D* texture);
+		static void ReloadTexture(Texture2D* texture);
 	};
 }

@@ -18,11 +18,11 @@ namespace OverEditor
 		virtual bool GetIsOpen() override { return m_IsOpen; }
 	private:
 		Ref<Asset> RecursiveDraw(const Ref<Asset>& resourceToDraw);
-		void DrawThumbnail(const Ref<Asset>& asset, bool last);
+		void DrawThumbnail(Ref<Asset> asset, bool last);
 	private:
 		bool m_IsOpen = true;
 
-		Vector<Ref<Asset>> m_SelectionContext;
+		Ref<Asset> m_SelectionContext;
 
 		bool m_OneColumnView = false;
 		uint32_t m_ThumbnailSize = 100;

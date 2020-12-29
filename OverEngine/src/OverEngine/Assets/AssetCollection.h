@@ -14,11 +14,11 @@ namespace OverEngine
 
 		void AddAsset(const Ref<Asset> asset, bool makeFolders = false);
 
-		// Returns the matching Asset with the path
-		// use 'assets://' to get the root Asset
+		// Returns the matching Asset with the path.
+		// use '/' to get the root Asset.
 		Ref<Asset> GetAsset(const String& path);
 
-		// Returns the matching Asset with the path
+		// Returns the matching Asset with the guid.
 		Ref<Asset> GetAsset(const uint64_t& guid);
 
 		bool AssetExists(const String& path);

@@ -10,7 +10,7 @@ namespace OverEngine
 {
 	struct TextureManagerData
 	{
-		Vector<Ref<Texture2D>> MasterTextures;
+		Vector<std::weak_ptr<Texture2D>> MasterTextures;
 
 		stbrp_node* Nodes = nullptr;
 		uint32_t NodeCount = 0;
@@ -19,7 +19,7 @@ namespace OverEngine
 		Vector<Ref<GAPI::Texture2D>> GPUTextures;
 	};
 
-	static TextureManagerData* s_ManagerData;
+	static TextureManagerData* s_ManagerData = nullptr;
 
 	void TextureManager::Init()
 	{
@@ -32,17 +32,30 @@ namespace OverEngine
 	void TextureManager::Shutdown()
 	{
 		delete s_ManagerData;
+		s_ManagerData = nullptr;
 	}
 
-	void TextureManager::AddTexture(Ref<Texture2D>& texture)
+	void TextureManager::AddTexture(const Ref<Texture2D>& texture)
 	{
+		if (!s_ManagerData)
+			return;
+
 		if (texture->GetType() == TextureType::Subtexture)
 		{
 			OE_CORE_ERROR("Cannot add SubTextures to TextureManager!");
 			return;
 		}
 
-		auto it = STD_CONTAINER_FIND(s_ManagerData->MasterTextures, texture);
+		auto it = std::find_if(
+			s_ManagerData->MasterTextures.begin(),
+			s_ManagerData->MasterTextures.end(),
+			[&texture](const auto& v)
+			{
+				auto t = v.lock();
+				return t && texture == t;
+			}
+		);
+
 		if (it != s_ManagerData->MasterTextures.end())
 		{
 			OE_CORE_WARN("Texture is already handeled by TextureManager!");
@@ -73,12 +86,15 @@ namespace OverEngine
 
 			for (auto& t : gpuTextureMembers)
 			{
-				stbrp_rect rect;
-				rect.w = t->GetWidth();
-				rect.h = t->GetHeight();
-				textureWidthSum += rect.w;
-				textureHeightSum += rect.h;
-				s_ManagerData->RectCache.push_back(rect);
+				if (auto ref = t.lock())
+				{
+					stbrp_rect rect;
+					rect.w = ref->GetWidth();
+					rect.h = ref->GetHeight();
+					textureWidthSum += rect.w;
+					textureHeightSum += rect.h;
+					s_ManagerData->RectCache.push_back(rect);
+				}
 			}
 
 			stbrp_rect rect;
@@ -138,17 +154,22 @@ namespace OverEngine
 
 			for (uint32_t i = 0; i < gpuTextureMemberCount + 1; i++)
 			{
-				currentGPUTexture->SubImage(
-					gpuTextureMembers[i]->GetPixels(),
-					s_ManagerData->RectCache[i].w, s_ManagerData->RectCache[i].h,
-					gpuTextureMembers[i]->GetFormat(),
-					s_ManagerData->RectCache[i].x, s_ManagerData->RectCache[i].y
-				);
+				if (auto ref = gpuTextureMembers[i].lock())
+				{
+					currentGPUTexture->SubImage(
+						ref->GetPixels(),
+						s_ManagerData->RectCache[i].w, s_ManagerData->RectCache[i].h,
+						ref->GetFormat(),
+						s_ManagerData->RectCache[i].x, s_ManagerData->RectCache[i].y
+					);
 
-				std::get<MasterTextureData>(gpuTextureMembers[i]->m_Data).MappedPos = {
-					s_ManagerData->RectCache[i].x, s_ManagerData->RectCache[i].y,
-				};
+					std::get<MasterTextureData>(ref->m_Data).MappedPos = {
+						s_ManagerData->RectCache[i].x, s_ManagerData->RectCache[i].y,
+					};
+				}
 			}
+
+			OE_CORE_INFO("Total {} textures buffered {}", gpuTextureMemberCount + 1, gpuTextureMembers.size());
 
 			std::get<MasterTextureData>(texture->m_Data).MappedTexture = currentGPUTexture;
 
@@ -174,5 +195,48 @@ namespace OverEngine
 		auto& masterTData = std::get<MasterTextureData>(texture->m_Data);
 		masterTData.MappedTexture = currentGPUTexture;
 		masterTData.MappedPos = { 0, 0 };
+	}
+
+	void TextureManager::RemoveTexture(Texture2D* texture)
+	{
+		if (!s_ManagerData)
+			return;
+
+		auto mts = s_ManagerData->MasterTextures;
+
+		mts.erase(
+			std::remove_if(
+				mts.begin(),
+				mts.end(),
+				[](const auto& v) { return v.expired(); }
+			),
+			mts.end()
+		);
+
+		auto& members = texture->GetGPUTexture()->GetMemberTextures();
+		auto it = std::find_if(members.begin(), members.end(), [&texture](const auto& v)
+		{
+			return v.expired() || v.lock().get() == texture;
+		});
+
+		OE_CORE_ASSERT(it != members.end(), "Texture {} not found in its mapped(GPU)Texture's members!", (void*)texture);
+		members.erase(it);
+	}
+
+	void TextureManager::ReloadTexture(Texture2D* texture)
+	{
+		if (!s_ManagerData)
+			return;
+		OE_CORE_INFO("Removed {} :((", (void*)texture);
+		auto mts = s_ManagerData->MasterTextures;
+		auto it = std::find_if(mts.begin(), mts.end(), [&texture](const auto& v)
+		{
+			auto t = v.lock();
+			return t && t.get() == texture;
+		});
+		auto textureRef = it->lock();
+
+		RemoveTexture(texture);
+		AddTexture(textureRef);
 	}
 }

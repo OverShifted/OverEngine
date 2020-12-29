@@ -17,6 +17,9 @@ set(OE_CROSS_PLATFORM_FILES
 
 	"vendor/tinyfiledialogs/tinyfiledialogs.h"
 	"vendor/tinyfiledialogs/tinyfiledialogsBuild.cpp"
+
+	"vendor/utils/hashing/md5/md5.h"
+	"vendor/utils/hashing/md5/md5.cpp"
 )
 
 file(GLOB_RECURSE opengl_platform_source_files "src/Platform/OpenGL/*.cpp")
@@ -69,6 +72,7 @@ target_include_directories(OverEngine PUBLIC
 	"vendor/json/include"
 	"vendor/fmt/include"
 	"vendor/yaml-cpp/include"
+	"vendor/cppfs/source/cppfs/include"
 )
 
 target_compile_definitions(OverEngine PRIVATE
@@ -93,4 +97,4 @@ if (CMAKE_BUILD_TYPE STREQUAL "MinSizeRel")
 endif()
 
 target_link_libraries(OverEngine PRIVATE glfw glad)
-target_link_libraries(OverEngine PUBLIC imgui lua-overengine box2d yaml-cpp)
+target_link_libraries(OverEngine PUBLIC imgui lua-overengine box2d yaml-cpp cppfs)

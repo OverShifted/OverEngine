@@ -9,8 +9,6 @@
 #include <imgui/imgui.h>
 #include <imgui/imgui_internal.h>
 
-#include <experimental/vector>
-
 namespace OverEditor
 {
 	using namespace OverEngine;
@@ -23,12 +21,11 @@ namespace OverEditor
 	{
 		ImGui::Begin("Assets");
 
-		if (m_SelectionContext.size() == 1)
+		if (m_SelectionContext)
 		{
-			auto asset = m_SelectionContext[0];
 			ImGui::Begin("Asset Settings");
-			ImGui::TextUnformatted(asset->GetName().c_str());
-			ImGui::TextUnformatted(asset->GetPath().c_str());
+			ImGui::TextUnformatted(m_SelectionContext->GetName().c_str());
+			ImGui::TextUnformatted(m_SelectionContext->GetPath().c_str());
 			ImGui::End();
 		}
 
@@ -42,9 +39,8 @@ namespace OverEditor
 		{
 			if (ImGui::Checkbox("One Column View", &m_OneColumnView) && m_OneColumnView == false)
 			{
-				std::experimental::erase_if(m_SelectionContext, [](const Ref<Asset>& asset) {
-					return !asset->IsFolder();
-				});
+				if (!m_SelectionContext->IsFolder())
+					m_SelectionContext = nullptr;
 			}
 
 			ImGui::EndPopup();
@@ -54,7 +50,7 @@ namespace OverEditor
 
 		ImGuiTreeNodeFlags rootNodeFlags = OE_IMGUI_BASE_TREE_VIEW_FLAGS;
 
-		if (STD_CONTAINER_HAS(m_SelectionContext, rootAsset))
+		if (m_SelectionContext == rootAsset)
 			rootNodeFlags |= ImGuiTreeNodeFlags_Selected;
 
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, { 0.0f, 0.0f });
@@ -77,20 +73,7 @@ namespace OverEditor
 
 		if (clickedItem)
 		{
-			if (ImGui::GetIO().KeyCtrl)
-			{
-				auto it = STD_CONTAINER_FIND(m_SelectionContext, clickedItem);
-
-				if (it != m_SelectionContext.end())
-					m_SelectionContext.erase(it);
-				else
-					m_SelectionContext.push_back(clickedItem);
-			}
-			else
-			{
-				m_SelectionContext.clear();
-				m_SelectionContext.push_back(clickedItem);
-			}
+			m_SelectionContext = clickedItem;
 		}
 
 		//////////////////////////////////////////////////////
@@ -110,36 +93,28 @@ namespace OverEditor
 			}
 			ImGui::PopItemWidth();
 
-			if (m_SelectionContext.size() > 1)
-				ImGui::TextUnformatted("Showing multiple files and folders");
-			else if (m_SelectionContext.size() == 1)
+			if (m_SelectionContext)
 			{
 				if (ImGui::ArrowButton("AssetThumbnailBackButton", ImGuiDir_Left))
 				{
-					auto parent = m_SelectionContext[0]->GetParent();
-					if (parent)
-						m_SelectionContext[0] = m_SelectionContext[0]->GetParent();
+					if (auto parent = m_SelectionContext->GetParent())
+						m_SelectionContext = parent;
 				}
+
 				ImGui::SameLine();
-				ImGui::TextUnformatted(m_SelectionContext[0]->GetName().c_str());
+				ImGui::TextUnformatted(m_SelectionContext->GetName().c_str());
 			}
 
 			ImGui::BeginChild("##ThumbnailView", { 0, 0 }, false, ImGuiWindowFlags_AlwaysUseWindowPadding);
 
 			uint32_t count = 0;
-			for (const auto& a : m_SelectionContext)
-			{
-				if (a->IsFolder())
-					count += (uint32_t)a->GetFolderAsset()->GetAssets().size();
-			}
+			if (m_SelectionContext && m_SelectionContext->IsFolder())
+				count = (uint32_t)m_SelectionContext->GetFolderAsset()->GetAssets().size();
 
 			uint32_t n = 0;
-			for (const auto& a : m_SelectionContext)
+			if (m_SelectionContext && m_SelectionContext->IsFolder())
 			{
-				if (!a->IsFolder())
-					continue;
-
-				for (const auto& asset : a->GetFolderAsset()->GetAssets())
+				for (const auto& asset : m_SelectionContext->GetFolderAsset()->GetAssets())
 				{
 					ImGui::PushID(n);
 					DrawThumbnail(asset.second, n + 1 == count);
@@ -169,7 +144,7 @@ namespace OverEditor
 
 			ImGuiTreeNodeFlags nodeFlags = OE_IMGUI_BASE_TREE_VIEW_FLAGS;
 
-			if (STD_CONTAINER_HAS(m_SelectionContext, asset))
+			if (m_SelectionContext == asset)
 				nodeFlags |= ImGuiTreeNodeFlags_Selected;
 
 			if (!asset->IsFolder())
@@ -213,7 +188,7 @@ namespace OverEditor
 		return selectedItem;
 	}
 
-	void AssetsPanel::DrawThumbnail(const Ref<Asset>& asset, bool last)
+	void AssetsPanel::DrawThumbnail(Ref<Asset> asset, bool last)
 	{
 		ImVec2 thumbnailSize{ (float)m_ThumbnailSize, (float)m_ThumbnailSize };
 
@@ -252,8 +227,7 @@ namespace OverEditor
 		{
 			if (asset->IsFolder())
 			{
-				m_SelectionContext.clear();
-				m_SelectionContext.push_back(asset);
+				m_SelectionContext = asset;
 			}
 			else if (asset->GetType() == AssetType::Scene)
 			{

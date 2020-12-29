@@ -1,6 +1,8 @@
 #include "pcheader.h"
 #include "FileSystem.h"
 
+#include <utils/hashing/md5/md5.h>
+
 #include <fstream>
 #include <filesystem>
 
@@ -9,7 +11,8 @@ namespace OverEngine
 	String FileSystem::ReadFile(const String& path)
 	{
 		String result;
-		std::ifstream in(path, std::ios::in | std::ios::binary);
+		std::ifstream in(path, std::ios::binary);
+
 		if (in)
 		{
 			in.seekg(0, std::ios::end);
@@ -20,10 +23,37 @@ namespace OverEngine
 		}
 		else
 		{
-			OE_CORE_ERROR("Could not open file '{0}'", path);
+			OE_CORE_ASSERT("Could not open file '{0}'", path);
 		}
 
 		return result;
+	}
+
+	String FileSystem::HashFile(const String& path)
+	{
+		std::ifstream in(path, std::ios::binary);
+		char* result;
+		size_t size;
+
+		if (in)
+		{
+			in.seekg(0, std::ios::end);
+			size = in.tellg();
+			result = new char[size];
+			in.seekg(0, std::ios::beg);
+
+			in.read(result, size);
+			in.close();
+		}
+		else
+		{
+			OE_CORE_ASSERT("Could not open file '{0}'", path);
+		}
+
+		MD5 hash;
+		hash.update(result, (MD5::size_type)size);
+		hash.finalize();
+		return hash.hexdigest();
 	}
 
 	bool FileSystem::FileExists(const String& path)
@@ -109,90 +139,5 @@ namespace OverEngine
 	String FileSystem::ExtractFileExtentionFromPath(const String& path)
 	{
 		return ExtractFileExtentionFromName(ExtractFileNameFromPath(path));
-	}
-
-	////////////////////////////////////////////////////////////////////////
-	// FileWatcher /////////////////////////////////////////////////////////
-	////////////////////////////////////////////////////////////////////////
-
-	FileWatcher::FileWatcher(String pathToWatch, std::chrono::duration<int, std::milli> delay)
-		: m_PathToWatch(m_PathToWatch), m_Delay(m_Delay), m_Running(false), m_Stopped(false)
-	{
-		for (const auto& entry : std::filesystem::recursive_directory_iterator(m_PathToWatch))
-		{
-			m_Paths[entry.path().string()] = std::filesystem::last_write_time(entry);
-		}
-
-		m_Action = [](const String&, FileWatcherEvent, void*) {};
-	}
-
-	void FileWatcher::Reset(String pathToWatch, std::chrono::duration<int, std::milli> delay)
-	{
-		m_PathToWatch = pathToWatch;
-		m_Delay = delay;
-
-		for (const auto& entry : std::filesystem::recursive_directory_iterator(m_PathToWatch))
-		{
-			m_Paths[entry.path().string()] = std::filesystem::last_write_time(entry);
-		}
-
-		m_Action = [](const String&, FileWatcherEvent, void*) {};
-	}
-
-	void FileWatcher::Start(ActionFn action, void* userData)
-	{
-		m_Running = true;
-		m_Action = action;
-		m_UserData = userData;
-		m_Thread = std::thread([this]() { Thread(); });
-	}
-
-	void FileWatcher::Thread()
-	{
-		while (true)
-		{
-			if (m_Stopped)
-				return;
-
-			std::this_thread::sleep_for(m_Delay);
-
-			if (m_Running)
-			{
-				auto it = m_Paths.begin();
-				while (it != m_Paths.end())
-				{
-					if (!std::filesystem::exists(it->first))
-					{
-						m_Action(it->first, FileWatcherEvent::Deleted, m_UserData);
-						it = m_Paths.erase(it);
-					}
-					else
-					{
-						it++;
-					}
-				}
-
-				for (auto& entry : std::filesystem::recursive_directory_iterator(m_PathToWatch))
-				{
-					auto currentFileLastWriteTime = std::filesystem::last_write_time(entry);
-					auto pathString = entry.path().string();
-
-					if (m_Paths.find(pathString) == m_Paths.end())
-					{
-						m_Paths[pathString] = currentFileLastWriteTime;
-						m_Action(pathString, FileWatcherEvent::Created, m_UserData);
-					}
-					else
-					{
-						if (m_Paths[pathString] != currentFileLastWriteTime)
-						{
-							m_Paths[pathString] = currentFileLastWriteTime;
-							m_Action(pathString, FileWatcherEvent::Modified, m_UserData);
-
-						}
-					}
-				}
-			}
-		}
 	}
 }

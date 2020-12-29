@@ -48,7 +48,7 @@ namespace OverEngine
 			virtual void AllocateStorage(TextureFormat format, uint32_t width, uint32_t height) = 0;
 			virtual void SubImage(const uint8_t* pixels, uint32_t width, uint32_t height, TextureFormat dataFormat, int xOffset = 0, int yOffset = 0) = 0;
 
-			virtual Vector<Ref<::OverEngine::Texture2D>>& GetMemberTextures() = 0;
+			virtual Vector<std::weak_ptr<::OverEngine::Texture2D>>& GetMemberTextures() = 0;
 		};
 	}
 
