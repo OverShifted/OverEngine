@@ -121,7 +121,7 @@ namespace OverEngine
 				glDeleteShader(shader);
 				glDeleteProgram(program);
 
-				OE_THROW("Shader compilation failure! {}", infoLog.data());
+				OE_CORE_ASSERT(false, "Shader compilation failure! {}", infoLog.data());
 				allCompiled = false;
 
 				break;

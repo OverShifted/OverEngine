@@ -237,13 +237,13 @@ namespace OverEngine
 				}
 				else
 				{
-					OE_THROW("Invalid asset path '{}' (at least one node '{}' is not a folder)", path, currentAsset->GetName());
+					OE_CORE_ASSERT(false, "Invalid asset path '{}' (at least one node '{}' is not a folder)", path, currentAsset->GetName());
 					return nullptr;
 				}
 			}
 			else
 			{
-				OE_THROW("Invalid asset path '{}' (node '{}' not founded)", path, nodeName);
+				OE_CORE_ASSERT(false, "Invalid asset path '{}' (node '{}' not founded)", path, nodeName);
 				return nullptr;
 			}
 
@@ -261,7 +261,7 @@ namespace OverEngine
 				return asset;
 		}
 
-		OE_THROW("Cant find asset with {0:#x} GUID!", guid);
+		OE_CORE_ASSERT(false, "Cant find asset with {0:#x} GUID!", guid);
 		return nullptr;
 	}
 

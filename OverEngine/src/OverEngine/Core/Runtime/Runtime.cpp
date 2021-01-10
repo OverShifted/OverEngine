@@ -17,6 +17,6 @@ namespace OverEngine
 
 	void Runtime::HandleException(const Exception& exception)
 	{
-		OE_CORE_ERROR(exception.What());
+		throw exception;
 	}
 }

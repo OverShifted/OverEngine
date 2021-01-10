@@ -1,6 +1,7 @@
 #pragma once
 
 #include <fmt/format.h>
+#include <exception>
 
 namespace OverEngine
 {
@@ -21,18 +22,13 @@ namespace OverEngine
 		static RuntimeType s_Type;
 	};
 
-	class Exception
+	// Base of all OverEngine exceptions
+	class Exception : public std::runtime_error
 	{
 	public:
-		Exception(const String& message = String())
-			: m_Message(message)
-		{
-		}
-
-		virtual const char* What() const { return m_Message.empty() ? "Unknown Exception!" : m_Message.c_str(); }
-	protected:
-		String m_Message;
+		Exception(const String& message) : std::runtime_error(message.c_str()) {}
+		Exception(const char* message) : std::runtime_error(message) {}
 	};
 
-	#define OE_THROW(...) (::OverEngine::Runtime::HandleException(Exception(fmt::format(__VA_ARGS__))))
+	#define OE_THROW(...) (::OverEngine::Runtime::HandleException(::OverEngine::Exception(fmt::format(__VA_ARGS__))))
 }
