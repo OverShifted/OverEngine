@@ -19,6 +19,3 @@
 [submodule "OverEngine/vendor/yaml-cpp"]
 	path = OverEngine/vendor/yaml-cpp
 	url = https://github.com/jbeder/yaml-cpp
-[submodule "OverEngine/vendor/cppfs"]
-	path = OverEngine/vendor/cppfs
-	url = https://github.com/cginternals/cppfs
