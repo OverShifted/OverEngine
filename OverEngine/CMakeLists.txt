@@ -72,29 +72,23 @@ target_include_directories(OverEngine PUBLIC
 	"vendor/json/include"
 	"vendor/fmt/include"
 	"vendor/yaml-cpp/include"
-	"vendor/cppfs/source/cppfs/include"
+	"vendor/efsw/include"
 )
 
-target_compile_definitions(OverEngine PRIVATE
+target_compile_definitions(
+	OverEngine
+
+	PRIVATE
 	"_CRT_SECURE_NO_WARNINGS"
 	"GLFW_INCLUDE_NONE"
+
+	PUBLIC
+	$<$<CONFIG:Debug>:OE_DEBUG>
+	$<$<CONFIG:Release>:OE_RELEASE>
+
+	$<$<CONFIG:RelWithDebInfo>:OE_DEBUG>
+	$<$<CONFIG:MinSizeRel>:OE_RELEASE>
 )
 
-if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-	add_compile_definitions("OE_DEBUG")
-endif()
-	
-if (CMAKE_BUILD_TYPE STREQUAL "Release")
-	add_compile_definitions("OE_RELEASE")
-endif()
-
-if (CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
-	add_compile_definitions("OE_DEBUG")
-endif()
-
-if (CMAKE_BUILD_TYPE STREQUAL "MinSizeRel")
-	add_compile_definitions("OE_RELEASE")
-endif()
-
 target_link_libraries(OverEngine PRIVATE glfw glad)
-target_link_libraries(OverEngine PUBLIC imgui lua-overengine box2d yaml-cpp cppfs)
+target_link_libraries(OverEngine PUBLIC imgui lua-overengine box2d yaml-cpp)

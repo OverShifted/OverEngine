@@ -10,7 +10,10 @@ namespace OverEngine
 	public:
 		AssetCollection();
 
+		// Editor only
 		void InitFromAssetsDirectory(const String& assetsDirectoryPath, const uint64_t& assetsDirectoryGuid);
+		void Refresh();
+		Ref<Asset> ImportAndLoad(const String& physicalPath);
 
 		void AddAsset(const Ref<Asset> asset, bool makeFolders = false);
 
@@ -25,5 +28,8 @@ namespace OverEngine
 	private:
 		Ref<FolderAsset> m_RootAsset;
 		std::unordered_set<Ref<Asset>> m_AllAssets;
+
+		// Editor only
+		String m_AssetsDirectoryPath;
 	};
 }

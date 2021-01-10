@@ -38,7 +38,7 @@ namespace OverEngine
 		}
 
 		if (asset && collection)
-			collection->AddAsset(asset);
+			collection->AddAsset(asset, true);
 
 		return asset;
 	}

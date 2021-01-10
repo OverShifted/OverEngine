@@ -169,8 +169,6 @@ namespace OverEngine
 				}
 			}
 
-			OE_CORE_INFO("Total {} textures buffered {}", gpuTextureMemberCount + 1, gpuTextureMembers.size());
-
 			std::get<MasterTextureData>(texture->m_Data).MappedTexture = currentGPUTexture;
 
 			return;
@@ -227,7 +225,7 @@ namespace OverEngine
 	{
 		if (!s_ManagerData)
 			return;
-		OE_CORE_INFO("Removed {} :((", (void*)texture);
+
 		auto mts = s_ManagerData->MasterTextures;
 		auto it = std::find_if(mts.begin(), mts.end(), [&texture](const auto& v)
 		{

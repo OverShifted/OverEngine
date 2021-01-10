@@ -30,7 +30,6 @@ project "OverEditor"
 		"%{includeDir.json}",
 		"%{includeDir.fmt}",
 		"%{includeDir.yaml_cpp}",
-		"%{includeDir.cppfs}",
 	}
 
 	links "OverEngine"

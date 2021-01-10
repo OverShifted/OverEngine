@@ -12,9 +12,9 @@ add_library(lua-overengine
 )
 
 if(WIN32)
-	target_compile_definitions(lua-overengine PRIVATE
-		"LUA_USE_WINDOWS"
-	)
+#	target_compile_definitions(lua-overengine PRIVATE
+#		"LUA_USE_WINDOWS"
+#	)
 elseif("${CMAKE_SYSTEM}" MATCHES "Linux")
 	target_compile_definitions(lua-overengine PRIVATE
 		"LUA_USE_LINUX"

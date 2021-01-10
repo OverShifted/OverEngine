@@ -62,7 +62,6 @@ project "OverEngine"
 		"%{includeDir.json}",
 		"%{includeDir.fmt}",
 		"%{includeDir.yaml_cpp}",
-		"%{includeDir.cppfs}",
 	}
 
 	defines

@@ -5,6 +5,7 @@
 #include "OverEngine/Core/Random.h"
 #include "OverEngine/Core/Extentions.h"
 #include "OverEngine/Core/String.h"
+
 #include <filesystem>
 
 namespace OverEngine
@@ -17,6 +18,8 @@ namespace OverEngine
 
 	void AssetCollection::InitFromAssetsDirectory(const String& assetsDirectoryPath, const uint64_t& assetsDirectoryGuid)
 	{
+		m_AssetsDirectoryPath = assetsDirectoryPath;
+
 		m_RootAsset->SetGuid(assetsDirectoryGuid);
 
 		for (const auto& entry : std::filesystem::recursive_directory_iterator(assetsDirectoryPath))
@@ -30,6 +33,108 @@ namespace OverEngine
 					AddAsset(asset, true);
 			}
 		}
+	}
+
+	void AssetCollection::Refresh()
+	{
+		for (const auto& entry : std::filesystem::recursive_directory_iterator(m_AssetsDirectoryPath))
+		{
+			auto path = entry.path().string();
+			auto extention = FileSystem::ExtractFileExtentionFromPath(path);
+
+			if (!extention.empty() && extention != OE_META_ASSET_FILE_EXTENSION)
+			{
+				if (!std::filesystem::exists(path + '.' + OE_META_ASSET_FILE_EXTENSION))
+				{
+					auto asset = ImportAndLoad(path);
+					OE_CORE_INFO("New asset loaded! '{}'", asset->GetPath());
+				}
+			}
+
+			// TODO: Handle Scenes and asset reloading
+		}
+	}
+
+	static AssetType FindAssetTypeFromExtension(const String& extension)
+	{
+		if (extension == "png" || extension == "jpg")
+			return AssetType::Texture2D;
+
+		return AssetType::None;
+	}
+
+	Ref<Asset> AssetCollection::ImportAndLoad(const String& physicalPath)
+	{
+		auto assetPath = FileSystem::FixPath(physicalPath.substr(m_AssetsDirectoryPath.size(), physicalPath.size()));
+
+		#if 0
+		if (collection->AssetExists(assetPath))
+			return nullptr;
+		#endif
+
+		if (std::filesystem::is_directory(physicalPath))
+		{
+			YAML::Emitter emitter;
+			emitter << YAML::BeginMap;
+			emitter << YAML::Key << "Name" << YAML::Value << FileSystem::ExtractFileNameFromPath(physicalPath);
+			emitter << YAML::Key << "Path" << YAML::Value << assetPath;
+			emitter << YAML::Key << "Guid" << YAML::Value << YAML::Hex << Random::UInt64();
+			emitter << YAML::Key << "Type" << YAML::Value << "Folder";
+			emitter << YAML::EndMap;
+
+			String metaFilePath = physicalPath + "." + OE_META_ASSET_FILE_EXTENSION;
+			FileSystem::FixPath(metaFilePath);
+			std::ofstream metaFile(metaFilePath);
+			metaFile << emitter.c_str();
+			metaFile.flush();
+			metaFile.close();
+
+			return Asset::Load(metaFilePath, true, m_AssetsDirectoryPath, this);
+		}
+
+		auto extension = FileSystem::ExtractFileExtentionFromPath(physicalPath);
+		auto type = FindAssetTypeFromExtension(extension);
+
+		switch (type)
+		{
+		case AssetType::Texture2D:
+		{
+			YAML::Emitter emitter;
+
+			auto name = FileSystem::ExtractFileNameFromPath(physicalPath);
+			emitter << YAML::BeginMap;
+			emitter << YAML::Key << "Name" << YAML::Value << name;
+			emitter << YAML::Key << "Path" << YAML::Value << assetPath;
+			emitter << YAML::Key << "Guid" << YAML::Value << YAML::Hex << Random::UInt64();
+			emitter << YAML::Key << "Hash" << YAML::Value << FileSystem::HashFile(physicalPath);
+			emitter << YAML::Key << "Type" << YAML::Value << "Texture2D";
+
+			emitter << YAML::Key << "Textures" << YAML::Value << YAML::BeginSeq;
+
+			emitter << YAML::BeginMap;
+			emitter << YAML::Key << "Texture2D" << YAML::Value << YAML::Hex << Random::UInt64();
+			emitter << YAML::Key << "Type" << YAML::Value << "Master";
+			emitter << YAML::Key << "Name" << YAML::Value << name + "MasterTexture";
+			emitter << YAML::EndMap;
+
+			emitter << YAML::EndSeq;
+
+			emitter << YAML::EndMap;
+
+			String metaFilePath = physicalPath + "." + OE_META_ASSET_FILE_EXTENSION;
+			std::ofstream metaFile(metaFilePath);
+			metaFile << emitter.c_str();
+			metaFile.flush();
+			metaFile.close();
+
+			return Asset::Load(metaFilePath, true, m_AssetsDirectoryPath, this);
+		}
+		default: break;
+		}
+
+		OE_CORE_INFO(extension);
+
+		return nullptr;
 	}
 
 	void AssetCollection::AddAsset(const Ref<Asset> asset, bool makeFolders)
@@ -62,7 +167,7 @@ namespace OverEngine
 						return;
 					}
 
-					OE_THROW("Asset '{}' already exists!", nodeName);
+					OE_CORE_ASSERT(false, "Asset '{}' already exists!", nodeName);
 					return;
 				}
 				
@@ -72,7 +177,7 @@ namespace OverEngine
 				}
 				else
 				{
-					OE_THROW("Invalid asset path '{}' (at least one node '{}' is not a folder)", asset->GetPath(), currentAsset->GetName());
+					OE_CORE_ASSERT(false, "Invalid asset path '{}' (at least one node '{}' is not a folder)", asset->GetPath(), currentAsset->GetName());
 					return;
 				}
 			}

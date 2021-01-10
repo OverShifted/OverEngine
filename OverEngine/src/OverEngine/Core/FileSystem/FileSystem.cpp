@@ -31,29 +31,24 @@ namespace OverEngine
 
 	String FileSystem::HashFile(const String& path)
 	{
-		std::ifstream in(path, std::ios::binary);
-		char* result;
-		size_t size;
-
-		if (in)
+		if (auto in = std::ifstream(path, std::ios::binary))
 		{
 			in.seekg(0, std::ios::end);
-			size = in.tellg();
-			result = new char[size];
-			in.seekg(0, std::ios::beg);
+			size_t size = in.tellg();
+			char* result = new char[size];
 
+			in.seekg(0, std::ios::beg);
 			in.read(result, size);
 			in.close();
-		}
-		else
-		{
-			OE_CORE_ASSERT("Could not open file '{0}'", path);
+
+			MD5 hash;
+			hash.update(result, (MD5::size_type)size);
+			hash.finalize();
+			return hash.hexdigest();
 		}
 
-		MD5 hash;
-		hash.update(result, (MD5::size_type)size);
-		hash.finalize();
-		return hash.hexdigest();
+		OE_CORE_ASSERT("Could not open file '{}'", path);
+		return "";
 	}
 
 	bool FileSystem::FileExists(const String& path)
@@ -132,6 +127,9 @@ namespace OverEngine
 	String FileSystem::ExtractFileExtentionFromName(const String& name)
 	{
 		auto lastDot = name.rfind('.');
+		if (lastDot == String::npos)
+			return "";
+
 		lastDot = lastDot == String::npos ? 0 : lastDot + 1;
 		return name.substr(lastDot, name.size() - lastDot);
 	}

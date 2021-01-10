@@ -2,10 +2,6 @@
 
 #include <OverEngine.h>
 
-#include <cppfs/Tree.h>
-#include <cppfs/FileHandle.h>
-#include <future>
-
 namespace OverEditor
 {
 	using namespace OverEngine;
@@ -44,10 +40,5 @@ namespace OverEditor
 
 		// Asset Management
 		AssetCollection m_Assets;
-		std::unique_ptr<cppfs::Tree> m_LastAssetsFileTree;
-		std::unique_ptr<cppfs::Diff> m_LastAssetsDiff;
-
-		std::future<void> m_AssetsDiffFuture;
-		cppfs::FileHandle m_AssetsDirectory;
 	};
 }

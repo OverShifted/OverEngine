@@ -1,7 +1,6 @@
 #include "EditorLayer.h"
 
 #include "UI/EditorConsoleSink.h"
-#include "Behavior/AssetManager.h"
 
 #include <OverEngine/Core/FileSystem/FileSystem.h>
 #include <OverEngine/Scene/SceneSerializer.h>
@@ -164,19 +163,9 @@ namespace OverEditor
 			ImGui::End();
 		}
 
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 1, 1 });
 		ImGui::Begin("Textures");
-		ImGui::Text("%d", Renderer2D::GetStatistics().DrawCalls);
-		ImGui::SameLine();
-		if (ImGui::Button("Load Stuff"))
-		{
-			Texture2D::CreateMaster("assets/textures/Icons.png");
-		}
-		ImGui::SameLine();
-		if (ImGui::Button("Load lot of Stuff"))
-		{
-			for (uint32_t i = 0; i < 100; i++)
-				Texture2D::CreateMaster("assets/textures/Icons.png");
-		}
+		ImGui::PopStyleVar();
 
 		auto size = ImGui::GetContentRegionAvail();
 		ImVec2 pos{ ImGui::GetCursorPos().x + ImGui::GetWindowPos().x, ImGui::GetCursorPos().y + ImGui::GetWindowPos().y };
@@ -187,19 +176,16 @@ namespace OverEditor
 		Vector2 texSize{ gpuT->GetWidth(), gpuT->GetHeight() };
 		for (const auto& t : gpuT->GetMemberTextures())
 		{
-//			try
-//			{
-				if (auto ref = t.lock())
-				{
-					ImVec2 min{ pos.x + ref->GetRect().x * size.x,
-								pos.y + ref->GetRect().y * size.y };
+			if (auto ref = t.lock())
+			{
+				ImVec2 min{ pos.x + ref->GetRect().x * size.x,
+							pos.y + ref->GetRect().y * size.y };
 
-					ImVec2 max{ min.x + ref->GetRect().z * size.x,
-								min.y + ref->GetRect().w * size.y };
+				ImVec2 max{ min.x + ref->GetRect().z * size.x,
+							min.y + ref->GetRect().w * size.y };
 
-					drawList.AddRect(min, max, ImColor(255, 0, 0));
-				}
-//			} catch (const std::exception&) {}
+				drawList.AddRect(min, max, ImColor(255, 0, 0));
+			}
 		}
 
 		ImGui::End();
@@ -275,6 +261,7 @@ namespace OverEditor
 					{
 						FileSystem::FixPath(filePath);
 
+						m_EditingProject = nullptr;
 						auto project = CreateRef<EditorProject>(filePath);
 						m_EditingProject = project;
 
@@ -288,6 +275,7 @@ namespace OverEditor
 
 				if (ImGui::Button("Open Test Project"))
 				{
+					m_EditingProject = nullptr;
 				#ifdef OE_PLATFORM_WINDOWS
 					auto project = CreateRef<EditorProject>("D:/overenginedev/SuperMario/project.oep");
 				#elif defined(OE_PLATFORM_LINUX)

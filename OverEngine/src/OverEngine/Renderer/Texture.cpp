@@ -56,6 +56,7 @@ namespace OverEngine
 		__Texture2D_GetMasterTextureData.Format = format;
 		__Texture2D_GetMasterTextureData.Filtering = TextureFiltering::Linear;
 		__Texture2D_GetMasterTextureData.Pixels = data;
+		__Texture2D_GetMasterTextureData.ImageFilePath = path;
 	}
 
 	Texture2D::Texture2D(Ref<Texture2D> masterTexture, Rect rect)
@@ -70,7 +71,6 @@ namespace OverEngine
 
 	Texture2D::~Texture2D()
 	{
-		OE_CORE_INFO("Hey!! Bye Bye!!");
 		if (m_Type == TextureType::Master)
 		{
 			TextureManager::RemoveTexture(this);
