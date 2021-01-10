@@ -1,56 +1,60 @@
 - ID: 0x578caa54
   Parent: ~
   Flags: 1032
-  Position: [86, 168]
+  Position: [60, 142]
   Size: [1600, 841]
   SplitRatio: 0.811249971
   SplitAxis: 0
 - ID: 0x1
   Parent: 0x578caa54
   Flags: 8
-  Position: [86, 168]
+  Position: [60, 142]
   Size: [1298, 841]
-  SplitRatio: 0.656361461
+  SplitRatio: 1
   SplitAxis: 1
 - ID: 0x2
   Parent: 0x578caa54
   Flags: 8
-  Tabs:
-    - Project Manager
-    - Inspector
-  SelectedTab: 0xf02cd328
-  Position: [1386, 168]
+  Position: [1360, 142]
   Size: [300, 841]
+  SplitRatio: 0.739595711
+  SplitAxis: 1
 - ID: 0x3
   Parent: 0x1
   Flags: 8
-  Position: [86, 168]
-  Size: [1298, 552]
+  Position: [60, 142]
+  Size: [1298, 841]
   SplitRatio: 0.175654858
   SplitAxis: 0
 - ID: 0x4
   Parent: 0x1
   Flags: 8
-  Tabs:
-    - Viewport Settings
-    - Assets
-    - Renderer2D
-  SelectedTab: 0x7e7d78b8
   Position: [86, 722]
   Size: [1298, 287]
 - ID: 0x5
   Parent: 0x3
   Flags: 8
-  Tabs:
-    - Scene Hierarchy
-  SelectedTab: 0x9a68760c
   Position: [86, 168]
   Size: [228, 552]
 - ID: 0x6
   Parent: 0x3
   Flags: 2056
+  Position: [60, 142]
+  Size: [1298, 841]
+- ID: 0x7
+  Parent: 0x2
+  Flags: 8
   Tabs:
-    - Viewport
-  SelectedTab: 0x995b0cf8
-  Position: [316, 168]
-  Size: [1068, 552]
+    - Project Manager
+    - Dear ImGui Demo
+  SelectedTab: 0x5e32ade2
+  Position: [1360, 142]
+  Size: [300, 622]
+- ID: 0x8
+  Parent: 0x2
+  Flags: 8
+  Tabs:
+    - Textures
+  SelectedTab: 0x5cf1db40
+  Position: [1360, 766]
+  Size: [300, 217]

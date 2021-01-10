@@ -24,7 +24,7 @@ namespace OverEngine
 		NameComponent, IDComponent, ActivationComponent, TransformComponent,
 		CameraComponent, SpriteRendererComponent,
 		RigidBody2DComponent, Colliders2DComponent,
-		NativeScriptsComponent
+		NativeScriptsComponent, LuaScriptsComponent
 	};
 
 	#define COMPONENT_TYPE(type) static ComponentType GetStaticType() { return ComponentType::type; }\
@@ -215,7 +215,10 @@ namespace OverEngine
 		UnorderedMap<size_t, _Script> Scripts;
 
 		NativeScriptsComponent() = default;
-		NativeScriptsComponent(const NativeScriptsComponent&) = default;
+
+		// Don't copy `Scripts` to other instance since it will lead to double free on entt::registry::destroy
+		NativeScriptsComponent(const NativeScriptsComponent& other)
+			: Component(other.AttachedEntity) {}
 
 		NativeScriptsComponent(const Entity& entity)
 			: Component(entity) {}
@@ -225,7 +228,11 @@ namespace OverEngine
 		{
 			auto hash = typeid(T).hash_code();
 
-			OE_CORE_ASSERT(!HasScript<T>(), "Script is already attached to Entity!");
+			if (HasScript(hash))
+			{
+				OE_CORE_ASSERT(false, "Script is already attached to Entity!");
+				return;
+			}
 
 			Scripts[hash] = _Script{
 				nullptr,
@@ -265,7 +272,11 @@ namespace OverEngine
 
 		void RemoveScript(size_t hash)
 		{
-			OE_CORE_ASSERT(HasScript(hash), "Script is not attached to Entity!");
+			if (!HasScript(hash))
+			{
+				OE_CORE_ASSERT(false, "Script is not attached to Entity!");
+				return;
+			}
 
 			if (Runtime)
 			{
@@ -277,5 +288,20 @@ namespace OverEngine
 		}
 
 		COMPONENT_TYPE(NativeScriptsComponent)
+	};
+
+	struct LuaScriptsComponent : public Component
+	{
+		// TODO: Store compiled bytecode instead of raw string
+		// name => source
+		UnorderedMap<String, String> Scripts;
+
+		LuaScriptsComponent() = default;
+		LuaScriptsComponent(const LuaScriptsComponent&) = default;
+
+		LuaScriptsComponent(const Entity& entity)
+			: Component(entity) {}
+
+		COMPONENT_TYPE(LuaScriptsComponent)
 	};
 }

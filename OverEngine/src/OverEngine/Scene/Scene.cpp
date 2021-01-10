@@ -10,6 +10,8 @@
 #include "OverEngine/Physics/PhysicWorld2D.h"
 #include "OverEngine/Assets/Texture2DAsset.h"
 
+#include "OverEngine/Scripting/ScriptingEngine.h"
+
 #include "OverEngine/Core/Random.h"
 
 #include "OverEngine/Core/Serialization/YamlConverters.h"
@@ -25,7 +27,7 @@ namespace OverEngine
 	}
 
 	template<typename T>
-	void CopyComponents(entt::registry& src, entt::registry& dst, Scene* dstScene)
+	void CopyComponents_fn(entt::registry& src, entt::registry& dst, Scene* dstScene)
 	{
 		// Copy
 		auto view = src.view<T>();
@@ -37,7 +39,7 @@ namespace OverEngine
 		});
 	}
 
-	#define CopyComponents(T) CopyComponents<T>(other.m_Registry, m_Registry, this);
+	#define CopyComponents(T) CopyComponents_fn<T>(other.m_Registry, m_Registry, this);
 
 	Scene::Scene(Scene& other)
 		: m_Registry(), m_ViewportWidth(other.m_ViewportWidth), m_ViewportHeight(other.m_ViewportHeight),
@@ -57,6 +59,13 @@ namespace OverEngine
 
 	Scene::~Scene()
 	{
+		m_Registry.view<RigidBody2DComponent>().each([this](auto entity, auto& rbc)
+		{
+			m_Registry.destroy(entity);
+		});
+
+		if (m_PhysicWorld2D) delete m_PhysicWorld2D;
+		if (m_LuaEngine) delete m_LuaEngine;
 	}
 
 	Entity Scene::CreateEntity(const String& name, uint64_t uuid)
@@ -140,6 +149,14 @@ namespace OverEngine
 				script.second.Instance->OnUpdate(deltaTime);
 			}
 		});
+
+		m_Registry.view<LuaScriptsComponent>().each([this, &deltaTime](auto entity, auto& nsc)
+		{
+			for (auto& script : nsc.Scripts)
+			{
+				m_LuaEngine->GetSolState()[script.first]["update"](deltaTime.GetSeconds());
+			}
+		});
 	}
 
 	void Scene::OnScenePlay()
@@ -201,6 +218,7 @@ namespace OverEngine
 
 	void Scene::InitializeScripts()
 	{
+		// Initialize native scripts (C++)
 		m_Registry.view<NativeScriptsComponent>().each([this](auto entity, auto& nsc)
 		{
 			nsc.Runtime = true;
@@ -210,6 +228,23 @@ namespace OverEngine
 				script.second.Instance = script.second.InstantiateScript();
 				script.second.Instance->AttachedEntity = Entity{ entity, this };
 				script.second.Instance->OnCreate();
+			}
+		});
+
+		// Initialize lua scripts
+		m_Registry.view<LuaScriptsComponent>().each([this](auto entity, auto& lsc)
+		{
+			// Dont create lua VM if we dont have any lua scripts
+			if (!m_LuaEngine)
+			{
+				m_LuaEngine = new LuaScriptingEngine();
+				ScriptingEngine::LoadApi(m_LuaEngine->GetSolState());
+			}
+
+			for (auto& script : lsc.Scripts)
+			{
+				m_LuaEngine->GetSolState().do_string(script.second);
+				m_LuaEngine->GetSolState()[script.first]["entity"] = Entity{ entity, this };
 			}
 		});
 	}

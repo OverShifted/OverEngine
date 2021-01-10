@@ -3,6 +3,7 @@
 #include "OverEngine/Core/Time/TimeStep.h"
 #include "OverEngine/Core/Random.h"
 #include "OverEngine/Physics/PhysicWorld2D.h"
+#include "OverEngine/Scripting/LuaScriptingEngine.h"
 #include "OverEngine/Assets/AssetCollection.h"
 
 #include <entt.hpp>
@@ -79,6 +80,7 @@ namespace OverEngine
 	private:
 		entt::registry m_Registry;
 		PhysicWorld2D* m_PhysicWorld2D = nullptr;
+		LuaScriptingEngine* m_LuaEngine = nullptr;
 
 		uint32_t m_ViewportWidth = 0, m_ViewportHeight = 0; // TODO: set viewport size for new camera components
 

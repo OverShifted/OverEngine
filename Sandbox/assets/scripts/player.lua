@@ -14,7 +14,7 @@ function player.update(delta)
 	if Input.IsKeyPressed(KeyCode.W) then vel.y = vel.y + mult end
 	if Input.IsKeyPressed(KeyCode.S) then vel.y = vel.y - mult end
 
-	rb = entity:GetRigidBody2DComponent().RigidBody
+	rb = player.entity:GetRigidBody2DComponent().RigidBody
 	rb:ApplyLinearImpulseToCenter(vel, true)
 
 end

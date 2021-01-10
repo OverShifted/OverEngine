@@ -34,6 +34,4 @@ private:
 	Entity m_MainCamera;
 	TransformComponent* m_MainCameraTransform;
 	SceneCamera* m_MainCameraCameraHandle;
-
-	sol::state m_Lua;
 };

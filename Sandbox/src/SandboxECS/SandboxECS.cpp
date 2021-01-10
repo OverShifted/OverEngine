@@ -1,6 +1,7 @@
 #include "SandboxECS.h"
 
 #include <OverEngine/Scripting/ScriptingEngine.h>
+#include <OverEngine/Core/FileSystem/FileSystem.h>
 #include <imgui.h>
 
 using namespace OverEngine;
@@ -93,6 +94,8 @@ SandboxECS::SandboxECS()
 	cprops.Density = 1.0f;
 	playerColliderList.Colliders.push_back({ cprops, nullptr });
 
+	m_Player.AddComponent<LuaScriptsComponent>().Scripts["player"] = FileSystem::ReadFile("assets/scripts/player.lua");
+
 	////////////////////////////////////////////////////////////////
 	// Obstacle ////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////
@@ -173,10 +176,6 @@ SandboxECS::SandboxECS()
 
 	#pragma endregion
 
-	ScriptingEngine::LoadApi(m_Lua);
-	m_Lua["entity"] = m_Player;
-	m_Lua.script_file("assets/scripts/player.lua");
-
 	class Player : public ScriptableEntity
 	{
 	public:
@@ -223,8 +222,6 @@ static char fpsText[32];
 void SandboxECS::OnUpdate(TimeStep deltaTime)
 {
 	OE_PROFILE_FUNCTION();
-
-	m_Lua["player"]["update"](deltaTime.GetSeconds());
 
 	m_MainCameraCameraHandle = &m_MainCamera.GetComponent<CameraComponent>().Camera;
 	m_MainCameraTransform = &m_MainCamera.GetComponent<TransformComponent>();
