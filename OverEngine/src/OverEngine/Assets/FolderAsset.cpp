@@ -16,8 +16,11 @@ namespace OverEngine
 	FolderAsset::FolderAsset(const String& path, const uint64_t& guid)
 	{
 		m_Type = AssetType::Folder;
-		auto splitted = SplitString(path, '/');
-		m_Name = (*splitted)[splitted->size() - 1];
+
+		Vector<String> splitted;
+		SplitString(path, '/', splitted);
+		m_Name = splitted[splitted.size() - 1];
+
 		m_Path = path;
 		m_Guid = guid;
 	}

@@ -148,18 +148,19 @@ namespace OverEngine
 			return;
 		}
 
-		auto nodesNames = SplitString(FileSystem::FixPath(asset->GetPath()), '/');
+		Vector<String> nodesNames;
+		SplitString(FileSystem::FixPath(asset->GetPath()), '/', nodesNames);
 
 		uint32_t currentPathNodeIndex = 0;
 		Ref<FolderAsset> currentAsset = m_RootAsset;
 
-		for (const String& nodeName : *nodesNames)
+		for (const String& nodeName : nodesNames)
 		{
 			if (currentAsset->GetAssets().count(nodeName))
 			{
 				auto& asset = currentAsset->GetAssets()[nodeName];
 
-				if (currentPathNodeIndex == nodesNames->size() - 1)
+				if (currentPathNodeIndex == nodesNames.size() - 1)
 				{
 					if (asset->IsFolder())
 					{
@@ -183,7 +184,7 @@ namespace OverEngine
 			}
 			else
 			{
-				if (currentPathNodeIndex == nodesNames->size() - 1)
+				if (currentPathNodeIndex == nodesNames.size() - 1)
 				{
 					currentAsset->GetAssets()[nodeName] = asset;
 					return;
@@ -217,18 +218,19 @@ namespace OverEngine
 		if (path.size() == 1) // path == "/"
 			return m_RootAsset;
 
-		auto nodesNames = SplitString(FileSystem::FixPath(path), '/');
+		Vector<String> nodesNames;
+		SplitString(FileSystem::FixPath(path), '/', nodesNames);
 
 		uint32_t currentPathNodeIndex = 0;
 		Ref<FolderAsset> currentAsset = m_RootAsset;
 
-		for (const String& nodeName : *nodesNames)
+		for (const String& nodeName : nodesNames)
 		{
 			if (currentAsset->GetAssets().count(nodeName))
 			{
 				auto& asset = currentAsset->GetAssets()[nodeName];
 
-				if (currentPathNodeIndex == nodesNames->size() - 1)
+				if (currentPathNodeIndex == nodesNames.size() - 1)
 					return asset;
 				
 				if (asset->IsFolder())
@@ -261,7 +263,10 @@ namespace OverEngine
 				return asset;
 		}
 
+		#if 0
 		OE_CORE_ASSERT(false, "Cant find asset with {0:#x} GUID!", guid);
+		#endif
+
 		return nullptr;
 	}
 
@@ -276,18 +281,19 @@ namespace OverEngine
 		if (path.size() == 1) // path == "/"
 			return true;
 
-		auto nodesNames = SplitString(FileSystem::FixPath(path), '/');
+		Vector<String> nodesNames;
+		SplitString(FileSystem::FixPath(path), '/', nodesNames);
 
 		uint32_t currentPathNodeIndex = 0;
 		Ref<FolderAsset> currentAsset = m_RootAsset;
 
-		for (const String& nodeName : *nodesNames)
+		for (const String& nodeName : nodesNames)
 		{
 			if (currentAsset->GetAssets().count(nodeName))
 			{
 				auto& asset = currentAsset->GetAssets()[nodeName];
 
-				if (currentPathNodeIndex == nodesNames->size() - 1)
+				if (currentPathNodeIndex == nodesNames.size() - 1)
 					return true;
 				
 				if (asset->IsFolder())

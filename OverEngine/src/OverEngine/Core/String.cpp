@@ -3,18 +3,16 @@
 
 namespace OverEngine
 {
-	RefVec<String> SplitString(const String& string, const String& delimiters)
+	void SplitString(const String& string, const String& delimiters, Vector<String>& result)
 	{
 		size_t start = 0;
 		size_t end = string.find_first_of(delimiters);
-
-		RefVec<String> result = CreateRef<Vector<String>>();
 
 		while (end <= String::npos)
 		{
 			String token = string.substr(start, end - start);
 			if (!token.empty())
-				result->push_back(token);
+				result.push_back(token);
 
 			if (end == String::npos)
 				break;
@@ -22,12 +20,10 @@ namespace OverEngine
 			start = end + 1;
 			end = string.find_first_of(delimiters, start);
 		}
-
-		return result;
 	}
 
-	RefVec<String> SplitString(const String& string, const char delimiter)
+	void SplitString(const String& string, const char delimiter, Vector<String>& result)
 	{
-		return SplitString(string, String(1, delimiter));
+		return SplitString(string, String(1, delimiter), result);
 	}
 }
