@@ -63,16 +63,19 @@ this is my own ideal way to develop OverEngine:
 On Windows, I use `GenerateProjectFiles.bat` to generate project files for Visual Studio 2019 using Premake. Premake's VS project generator is fast and clean.
 
 ### On Linux
-On Linux on the other hand; Preamke's `gmake2` generator is just trash. it's dependency manager is garbage and build's are too slow because of `make`.
-I use `CMake`'s `ninja` generator to build. Ninja it super fast and uses all cpu core's. You can use make but its slow.
+On Linux I prefer using `CMake` because it is just better and cleaner than `premake`'s `gmake2` generator.
+You can use any generator but `Ninja` and `Unix Makefiles` generators are my favorite ones.
 ```bash
 # we are in project's root directory
 # 'mkdir build' is not needed
+# run this command:
 cmake -S . -B build -G Ninja
+# or this one (not both)
+cmake -S . -B build -G "Unix Makefiles"
 
 # To build
 cmake --build build
-# or
+# or (not both)
 cd build
 ninja
 ```
@@ -80,6 +83,3 @@ ninja
 ## IDE / Build tool - platform - compiler support
 * Visual Studio 2019 - Windows - MSVC
 * CMake (with make or ninja) - Linux - GCC / G++
-
-![WindowsBuilt](https://img.shields.io/badge/Windows-built-green?logo=windows)
-![LinuxBuilt](https://img.shields.io/badge/Linux-built-green?logo=Linux)
