@@ -2,8 +2,6 @@
 
 #include "SerializableElement.h"
 
-#include <json.hpp>
-
 #include "OverEngine/Core/Serialization/YamlConverters.h"
 #include <yaml-cpp/yaml.h>
 
@@ -12,8 +10,6 @@ namespace OverEngine
 	class Serializer
 	{
 	public:
-		static void SerializeToJson(const SerializationContext& ctx, void* source, nlohmann::json& out);
-		static void SerializeToYaml(const SerializationContext& ctx, void* source, YAML::Node& out);
 		static void SerializeToYaml(const SerializationContext& ctx, void* source, YAML::Emitter& out);
 
 		using EnumValues = UnorderedMap<int, String>;
