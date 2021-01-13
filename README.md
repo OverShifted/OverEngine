@@ -30,6 +30,7 @@
 * [stb_rect_pack](https://github.com/nothings/stb/blob/master/stb_rect_pack.h) Rectangle packer
 * [EnTT](https://github.com/skypjack/entt) Entity Component System (ECS)
 * [box2d](https://github.com/erincatto/box2d) 2D physics library
+* [yaml-cpp](https://github.com/jbeder/yaml-cpp) YAML parser and emitter
 
 ## License
 
