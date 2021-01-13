@@ -61,7 +61,7 @@ namespace OverEngine
 			if (value.second == name)
 				return value.first;
 		
-		OE_CORE_ASSERT(false, "Cant find enum value for {0}", name);
+		OE_CORE_ASSERT(false, "Can't find enum value for {0}", name);
 		return INT_MAX;
 	}
 }
