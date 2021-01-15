@@ -37,21 +37,64 @@ namespace OverEngine
 
 	void AssetCollection::Refresh()
 	{
+		String path;
+		String extention;
+
+		auto ImportAndLoadAndLog = [this, &path]()
+		{
+			auto asset = ImportAndLoad(path);
+			OE_CORE_INFO("New asset loaded! '{}'", asset->GetPath());
+		};
+
 		for (const auto& entry : std::filesystem::recursive_directory_iterator(m_AssetsDirectoryPath))
 		{
-			auto path = entry.path().string();
-			auto extention = FileSystem::ExtractFileExtentionFromPath(path);
+			path = entry.path().string();
+			extention = FileSystem::ExtractFileExtentionFromPath(path);
 
 			if (!extention.empty() && extention != OE_META_ASSET_FILE_EXTENSION)
 			{
-				if (!std::filesystem::exists(path + '.' + OE_META_ASSET_FILE_EXTENSION))
+				String metaFilePath = path + '.' + OE_META_ASSET_FILE_EXTENSION;
+
+				// Check if a .meta file associated with the asset located at the 'path' already exists
+				if (!std::filesystem::exists(metaFilePath))
 				{
-					auto asset = ImportAndLoad(path);
-					OE_CORE_INFO("New asset loaded! '{}'", asset->GetPath());
+					// Import the asset
+					ImportAndLoadAndLog();
+				}
+				else
+				{
+					// Check if .meta file is valid
+
+					YAML::Node node;
+					bool errorLoadingNode = false;
+
+					try
+					{
+						node = YAML::LoadFile(metaFilePath);
+					}
+
+					// Can't open file or parse it's content
+					catch (const std::runtime_error&)
+					{
+						errorLoadingNode = true;
+
+						// So first lets delete the .meta file
+						std::filesystem::remove(metaFilePath);
+
+						// And then import the asset
+						ImportAndLoadAndLog();
+					}
+
+					// TODO: Make sure 'node' is a valid OverEngine meta file document
+
+					// Handle asset reloading
+					if (!errorLoadingNode && FileSystem::HashFile(path) != node["Hash"].as<String>())
+					{
+						// Asset has been changed => reload it
+						GetAsset(node["Path"].as<String>())->Reload();
+					}
 				}
 			}
-
-			// TODO: Handle Scenes and asset reloading
 		}
 	}
 
