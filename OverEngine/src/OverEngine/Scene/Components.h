@@ -216,9 +216,13 @@ namespace OverEngine
 
 		NativeScriptsComponent() = default;
 
-		// Don't copy `Scripts` to other instance since it will lead to double free on entt::registry::destroy
+		// Don't copy 'Scripts' to other instance when 'Runtime' is true; since it will lead to double free on entt::registry::destroy
 		NativeScriptsComponent(const NativeScriptsComponent& other)
-			: Component(other.AttachedEntity) {}
+			: Component(other.AttachedEntity)
+		{
+			if (!other.Runtime)
+				Scripts = other.Scripts;
+		}
 
 		NativeScriptsComponent(const Entity& entity)
 			: Component(entity) {}
