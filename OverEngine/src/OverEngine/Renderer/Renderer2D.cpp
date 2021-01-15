@@ -46,7 +46,7 @@ namespace OverEngine
 
 		Ref<OverEngine::Shader> Shader = nullptr;
 
-		std::array<Ref<GAPI::Texture2D>, MaxTextureCount> TextureBindList;
+		std::array<Ref<GPUTexture2D>, MaxTextureCount> TextureBindList;
 
 		Mat4x4 ViewProjectionMatrix;
 	};

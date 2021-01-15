@@ -1,7 +1,7 @@
 #include "pcheader.h"
 #include "TextureManager.h"
 
-#include "OverEngine/Renderer/GAPI/GTexture.h"
+#include "OverEngine/Renderer/GPUTexture.h"
 #include "OverEngine/Renderer/RenderCommand.h"
 
 #include <stb_rectpack.h>
@@ -16,7 +16,7 @@ namespace OverEngine
 		uint32_t NodeCount = 0;
 		Vector<stbrp_rect> RectCache;
 
-		Vector<Ref<GAPI::Texture2D>> GPUTextures;
+		Vector<Ref<GPUTexture2D>> GPUTextures;
 	};
 
 	static TextureManagerData* s_ManagerData = nullptr;
@@ -175,7 +175,7 @@ namespace OverEngine
 		}
 
 		// We need to create another GPUTexture
-		auto currentGPUTexture = GAPI::Texture2D::Create();
+		auto currentGPUTexture = GPUTexture2D::Create();
 
 		s_ManagerData->GPUTextures.push_back(currentGPUTexture);
 

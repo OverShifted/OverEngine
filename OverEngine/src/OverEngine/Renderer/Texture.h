@@ -1,7 +1,7 @@
 #pragma once
 
 #include "OverEngine/Core/Core.h"
-#include "OverEngine/Renderer/GAPI/GTexture.h"
+#include "OverEngine/Renderer/GPUTexture.h"
 #include "OverEngine/Renderer/TextureEnums.h"
 
 #include <variant>
@@ -28,7 +28,7 @@ namespace OverEngine
 		virtual TextureFormat GetFormat() const = 0;
 		virtual TextureType GetType() const = 0;
 
-		virtual Ref<GAPI::Texture2D> GetGPUTexture() const = 0;
+		virtual Ref<GPUTexture2D> GetGPUTexture() const = 0;
 		virtual Rect GetRect() const = 0;
 	};
 
@@ -46,7 +46,7 @@ namespace OverEngine
 
 		uint8_t* Pixels;
 
-		Ref<GAPI::Texture2D> MappedTexture;
+		Ref<GPUTexture2D> MappedTexture;
 		Vec2T<uint32_t> MappedPos;
 
 		Texture2DAsset* Asset = nullptr;
@@ -118,7 +118,7 @@ namespace OverEngine
 		virtual TextureFormat GetFormat() const override { __Texture2D_COMMON_GET(Format, TextureFormat::None); }
 		inline virtual TextureType GetType() const override { return m_Type; }
 
-		inline virtual Ref<GAPI::Texture2D> GetGPUTexture() const override { __Texture2D_COMMON_GET(MappedTexture, nullptr); }
+		inline virtual Ref<GPUTexture2D> GetGPUTexture() const override { __Texture2D_COMMON_GET(MappedTexture, nullptr); }
 		virtual Rect GetRect() const;
 
 		inline uint8_t* GetPixels() const
@@ -134,9 +134,9 @@ namespace OverEngine
 
 		Texture2DAsset* GetAsset() const { __Texture2D_COMMON_GET(Asset, nullptr); }
 		const auto& GetData() const { return m_Data; }
+
 	private:
 		TextureType m_Type;
-
 		std::variant<MasterTextureData, SubTextureData, PlaceHolderTextureData> m_Data;
 	};
 }
