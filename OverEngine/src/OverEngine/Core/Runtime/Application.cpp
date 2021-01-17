@@ -23,9 +23,11 @@ namespace OverEngine
 		Random::Init();
 
 		#ifdef _MSC_VER
-		OE_CORE_INFO("OverEngine v0.0 [MSC {}]", _MSC_VER);
+			OE_CORE_INFO("OverEngine v0.0 [MSC {}]", _MSC_VER);
+		#elif defined(__GNUC__)
+			OE_CORE_INFO("OverEngine v0.0 [GCC {}.{}.{}]", __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
 		#else
-		OE_CORE_INFO("OverEngine v0.0");
+			OE_CORE_INFO("OverEngine v0.0 [UNKNOWN COMPILER (not GCC or MSVC)]");
 		#endif
 
 		// Some window should exist to init Renderer
