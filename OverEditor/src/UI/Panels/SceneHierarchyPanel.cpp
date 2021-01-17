@@ -7,6 +7,8 @@
 #include <imgui/imgui.h>
 #include <imgui/imgui_internal.h>
 
+#include <fmt/format.h>
+
 namespace OverEditor
 {
 	template<typename T>
@@ -122,13 +124,20 @@ namespace OverEditor
 		{
 			Entity selectedEntity{ m_Context->Selection[0], m_Context->GetActiveScene().get() };
 
-			char buffer[35];
-			sprintf_s(buffer, OE_ARRAY_SIZE(buffer), "INSPECTOR_ENTITY_EDITOR%i", (uint32_t)selectedEntity);
-			ImGui::PushID(buffer);
+			{
+				fmt::basic_memory_buffer<char, 100> buffer;
 
-			sprintf_s(buffer, OE_ARRAY_SIZE(buffer), "0x%llx", selectedEntity.GetComponent<IDComponent>().ID);
+				auto end = fmt::format_to(buffer, "INSPECTOR_ENTITY_EDITOR{}", selectedEntity.GetRuntimeID());
+				*end = '\0';
+				
+				ImGui::PushID(buffer.data());
 
-			ImGui::InputText(buffer, &selectedEntity.GetComponent<NameComponent>().Name);
+				buffer.clear();
+				end = fmt::format_to(buffer, "0x{0:x}", selectedEntity.GetComponent<IDComponent>().ID);
+				*end = '\0';
+
+				ImGui::InputText(buffer.data(), &selectedEntity.GetComponent<NameComponent>().Name);
+			}
 
 			bool wannaDestroy = false;
 			if (ImGui::Button("Destroy Entity"))
