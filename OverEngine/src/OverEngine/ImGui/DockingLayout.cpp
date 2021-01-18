@@ -103,44 +103,72 @@ namespace OverEngine
 		m_RootNode = nullptr;
 		m_Nodes.clear();
 
-		for (auto dockData : data)
+		// Node Object => Parent ID
+		Map<Ref<DockNode>, ImGuiID> parentAssignList;
+
+		for (auto dockNodeProps : data)
 		{
-			auto id = dockData["ID"].as<ImGuiID>();
 			auto node = CreateRef<DockNode>();
 
+			ImGuiID id = dockNodeProps["ID"].as<ImGuiID>();
+			node->ID = id;
+
 			if (!m_RootNode)
+			{
 				m_RootNode = node;
+			}
 			else
+			{
 				m_Nodes[id] = node;
 
-			node->ID = id;
-			if (!dockData["Parent"].IsNull())
-			{
-				auto parent = GetNode(dockData["Parent"].as<ImGuiID>());
-				node->ParentNode = parent;
+				// Can be nullptr
+				ImGuiID parentID = dockNodeProps["Parent"].as<ImGuiID>();
+				auto parent = GetNode(parentID);
 
-				if (parent->ChildNodes[0])
-					parent->ChildNodes[1] = node;
+				if (parent)
+				{
+					node->ParentNode = parent;
+
+					if (parent->ChildNodes[0])
+						parent->ChildNodes[1] = node;
+					else
+						parent->ChildNodes[0] = node;
+				}
 				else
-					parent->ChildNodes[0] = node;
+				{
+					parentAssignList[node] = parentID;
+				}
 			}
 
-			node->Flags = dockData["Flags"].as<ImGuiDockNodeFlags>();
+			node->Flags = dockNodeProps["Flags"].as<ImGuiDockNodeFlags>();
 
-			if (dockData["Tabs"])
+			if (dockNodeProps["Tabs"])
 			{
-				node->Tabs = dockData["Tabs"].as<Vector<String>>();
-				node->SelectedTab = dockData["SelectedTab"].as<ImGuiID>();
+				node->Tabs = dockNodeProps["Tabs"].as<Vector<String>>();
+				node->SelectedTab = dockNodeProps["SelectedTab"].as<ImGuiID>();
 			}
 
-			node->Position = dockData["Position"].as<Vector2>();
-			node->Size = dockData["Size"].as<Vector2>();
+			node->Position = dockNodeProps["Position"].as<Vector2>();
+			node->Size = dockNodeProps["Size"].as<Vector2>();
 
-			if (dockData["SplitRatio"])
+			if (dockNodeProps["SplitRatio"])
 			{
-				node->SplitRatio = dockData["SplitRatio"].as<float>();
-				node->SplitAxis = (ImGuiAxis)dockData["SplitAxis"].as<int>();
+				node->SplitRatio = dockNodeProps["SplitRatio"].as<float>();
+				node->SplitAxis = (ImGuiAxis)dockNodeProps["SplitAxis"].as<int>();
 			}
+		}
+
+		for (auto& parentAssignCmd : parentAssignList)
+		{
+			const auto& node = parentAssignCmd.first;
+			const auto& parent = GetNode(parentAssignCmd.second);
+
+			node->ParentNode = parent;
+
+			if (parent->ChildNodes[0])
+				parent->ChildNodes[1] = node;
+			else
+				parent->ChildNodes[0] = node;
 		}
 	}
 
