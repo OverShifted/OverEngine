@@ -13,9 +13,10 @@ namespace OverEngine
 		// Editor only
 		void InitFromAssetsDirectory(const String& assetsDirectoryPath, const uint64_t& assetsDirectoryGuid);
 		void Refresh();
-		Ref<Asset> ImportAndLoad(const String& physicalPath);
+		Ref<Asset> ImportAndLoad(const String& physicalPath, uint64_t guid = 0);
 
 		void AddAsset(const Ref<Asset> asset, bool makeFolders = false);
+		void RemoveAsset(const String& path);
 
 		// Returns the matching Asset with the path.
 		// use '/' to get the root Asset.

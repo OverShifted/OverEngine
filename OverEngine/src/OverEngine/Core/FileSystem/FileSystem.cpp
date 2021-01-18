@@ -84,22 +84,50 @@ namespace OverEngine
 	String FileSystem::FixPath(String path)
 	{
 		size_t backSlash = path.find_first_of('\\');
+		size_t nextCharPos = backSlash + 1;
+		char nextChar = '\0';
+
 		while (backSlash != String::npos)
 		{
 			path[backSlash] = '/';
+
+			if (nextCharPos < path.size())
+			{
+				nextChar = path[nextCharPos];
+
+				if (nextChar == '/' || nextChar == '\\')
+					path.erase(nextCharPos);
+			}
+
 			backSlash = path.find_first_of('\\');
+			nextCharPos = backSlash + 1;
 		}
 
 		return path;
 	}
 
-	void FileSystem::FixPath(String* path)
+	void FileSystem::FixPath(String* path_ptr)
 	{
-		size_t backSlash = path->find_first_of('\\');
+		String& path = *path_ptr;
+
+		size_t backSlash = path.find_first_of('\\');
+		size_t nextCharPos = backSlash + 1;
+		char nextChar = '\0';
+
 		while (backSlash != String::npos)
 		{
-			(*path)[backSlash] = '/';
-			backSlash = path->find_first_of('\\');
+			path[backSlash] = '/';
+
+			if (nextCharPos < path.size())
+			{
+				nextChar = path[nextCharPos];
+				
+				if (nextChar == '/' || nextChar == '\\')
+					path.erase(nextCharPos);
+			}
+
+			backSlash = path.find_first_of('\\');
+			nextCharPos = backSlash + 1;
 		}
 	}
 

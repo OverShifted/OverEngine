@@ -23,4 +23,15 @@ namespace OverEngine
 		out << YAML::BeginSeq << v.x << v.y << v.z << v.w << YAML::EndSeq;
 		return out;
 	}
+
+	bool YamlCppHelper::IsNodeString(const YAML::Node& node)
+	{
+		try
+		{
+			return node.as<String>().size();
+		}
+		catch(const std::runtime_error&) {}
+		
+		return false;
+	}
 }

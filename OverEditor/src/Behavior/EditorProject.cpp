@@ -5,7 +5,7 @@
 
 namespace OverEditor
 {
-	Ref<EditorProject> NewProject(const String &name, const String &directoryPath)
+	Ref<EditorProject> NewProject(const String& name, const String& directoryPath)
 	{
 		if (name.size() == 0 || directoryPath.size() == 0)
 			return nullptr;
@@ -42,7 +42,7 @@ namespace OverEditor
 	// EditorProject ///////////////////////////////////////////
 	////////////////////////////////////////////////////////////
 
-	EditorProject::EditorProject(const String &path)
+	EditorProject::EditorProject(const String& path)
 		: m_ProjectFilePath(path)
 	{
 		auto lastSlash = path.find_last_of("/\\");
@@ -55,19 +55,19 @@ namespace OverEditor
 		m_AssetsDirectoryPath = m_RootPath + "/" + projectNode["AssetsRoot"].as<String>();
 
 		m_Assets.InitFromAssetsDirectory(m_AssetsDirectoryPath, projectNode["AssetsRootGuid"].as<uint64_t>());
+		m_Assets.Refresh();
 	}
 
 	EditorProject::~EditorProject()
 	{
 	}
 
-	String EditorProject::ResolvePhysicalAssetPath(const String &virtualPath)
+	String EditorProject::ResolvePhysicalAssetPath(const String& virtualPath)
 	{
 		return m_AssetsDirectoryPath + "/" + virtualPath.substr(9, virtualPath.size());
 	}
 
 	void EditorProject::OnUpdate(TimeStep ts)
 	{
-		m_Assets.Refresh();
 	}
 }

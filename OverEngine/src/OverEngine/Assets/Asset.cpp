@@ -38,7 +38,10 @@ namespace OverEngine
 		}
 
 		if (asset && collection)
+		{
+			collection->RemoveAsset(asset->GetPath());
 			collection->AddAsset(asset, true);
+		}
 
 		return asset;
 	}

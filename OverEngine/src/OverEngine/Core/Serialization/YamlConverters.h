@@ -87,4 +87,10 @@ namespace OverEngine
 	YAML::Emitter& operator<<(YAML::Emitter& out, const OverEngine::Vector2& v);
 	YAML::Emitter& operator<<(YAML::Emitter& out, const OverEngine::Vector3& v);
 	YAML::Emitter& operator<<(YAML::Emitter& out, const OverEngine::Vector4& v);
+
+	class YamlCppHelper
+	{
+	public:
+		static bool IsNodeString(const YAML::Node& node);
+	};
 }

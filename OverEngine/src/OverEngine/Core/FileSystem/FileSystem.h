@@ -22,7 +22,7 @@ namespace OverEngine
 		static bool IsDirectory(const std::filesystem::path& path);
 
 		static String FixPath(String path);
-		static void FixPath(String* path);
+		static void FixPath(String* path_ptr);
 		static void FixPath(char* path);
 
 		static String ExtractFileNameFromPath(const String& path);

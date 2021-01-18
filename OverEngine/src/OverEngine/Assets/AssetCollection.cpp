@@ -1,6 +1,7 @@
 #include "pcheader.h"
 #include "AssetCollection.h"
 
+#include "OverEngine/Core/Serialization/YamlConverters.h"
 #include "OverEngine/Core/FileSystem/FileSystem.h"
 #include "OverEngine/Core/Random.h"
 #include "OverEngine/Core/Extentions.h"
@@ -35,14 +36,34 @@ namespace OverEngine
 		}
 	}
 
+	#define __CHECK_META_YAML_PARAM_VALIDATION(param, type) isValid &&= node[param].IsDefined() && node[param].Is##type(); if (!isValid) break
+
+	static bool IsYamlNodeValidMetaDocument(const YAML::Node& node)
+	{
+		if (!YamlCppHelper::IsNodeString(node["Name"]))           return false;
+		if (!YamlCppHelper::IsNodeString(node["Path"]))           return false;
+		if (!                            node["Guid"].IsScalar()) return false;
+		if (!YamlCppHelper::IsNodeString(node["Hash"]))           return false;
+		if (!YamlCppHelper::IsNodeString(node["Type"]))           return false;
+
+		return true;
+	}
+
 	void AssetCollection::Refresh()
 	{
 		String path;
 		String extention;
 
-		auto ImportAndLoadAndLog = [this, &path]()
+		auto ImportAndLoadAndLog = [this, &path](const uint64_t& guid = 0)
 		{
-			auto asset = ImportAndLoad(path);
+			auto asset = ImportAndLoad(path, guid);
+
+			if (!asset)
+			{
+				OE_CORE_WARN("AssetCollection::Refresh() : Asset {} could not be loaded!", FileSystem::FixPath(path));
+				return;
+			}
+
 			OE_CORE_INFO("New asset loaded! '{}'", asset->GetPath());
 		};
 
@@ -66,7 +87,6 @@ namespace OverEngine
 					// Check if .meta file is valid
 
 					YAML::Node node;
-					bool errorLoadingNode = false;
 
 					try
 					{
@@ -76,22 +96,59 @@ namespace OverEngine
 					// Can't open file or parse it's content
 					catch (const std::runtime_error&)
 					{
-						errorLoadingNode = true;
-
 						// So first lets delete the .meta file
 						std::filesystem::remove(metaFilePath);
 
 						// And then import the asset
+						// Cant pass any guid
 						ImportAndLoadAndLog();
+
+						try
+						{
+							node = YAML::LoadFile(metaFilePath);
+						}
+						catch (const std::runtime_error&)
+						{
+							OE_CORE_ASSERT(false, "Cant't, open YAML file after re-import! This is a BUG in the engine.");
+							return;
+						}
 					}
 
-					// TODO: Make sure 'node' is a valid OverEngine meta file document
+					// Make sure 'node' is a valid OverEngine meta file document
+					if (!IsYamlNodeValidMetaDocument(node))
+					{
+						uint64_t guid = 0;
+
+						try
+						{
+							guid = node["Guid"].as<uint64_t>();
+						}
+						catch (const std::runtime_error&) {}
+
+						ImportAndLoadAndLog(guid);
+						
+						try
+						{
+							node = YAML::LoadFile(metaFilePath);
+						}
+						catch (const std::runtime_error&)
+						{
+							OE_CORE_ASSERT(false, "Cant't, open YAML file after re-import! This is a BUG in the engine.");
+							return;
+						}
+					}
 
 					// Handle asset reloading
-					if (!errorLoadingNode && FileSystem::HashFile(path) != node["Hash"].as<String>())
+					if (auto lastHashNode = node["Hash"]; node && lastHashNode)
 					{
-						// Asset has been changed => reload it
-						GetAsset(node["Path"].as<String>())->Reload();
+						String lastHash = lastHashNode.as<String>();
+						String currentHash = FileSystem::HashFile(path);
+
+						if (lastHash != currentHash)
+						{
+							// Asset has been changed => reload it
+							GetAsset(node["Path"].as<String>())->Reload();
+						}
 					}
 				}
 			}
@@ -103,10 +160,13 @@ namespace OverEngine
 		if (extension == "png" || extension == "jpg")
 			return AssetType::Texture2D;
 
+		if (extension == OE_SCENE_FILE_EXTENSION)
+			return AssetType::Scene;
+
 		return AssetType::None;
 	}
 
-	Ref<Asset> AssetCollection::ImportAndLoad(const String& physicalPath)
+	Ref<Asset> AssetCollection::ImportAndLoad(const String& physicalPath, uint64_t guid)
 	{
 		auto assetPath = FileSystem::FixPath(physicalPath.substr(m_AssetsDirectoryPath.size(), physicalPath.size()));
 
@@ -115,18 +175,21 @@ namespace OverEngine
 			return nullptr;
 		#endif
 
+		if (guid == 0)
+			guid = Random::UInt64();
+
 		if (std::filesystem::is_directory(physicalPath))
 		{
 			YAML::Emitter emitter;
 			emitter << YAML::BeginMap;
 			emitter << YAML::Key << "Name" << YAML::Value << FileSystem::ExtractFileNameFromPath(physicalPath);
 			emitter << YAML::Key << "Path" << YAML::Value << assetPath;
-			emitter << YAML::Key << "Guid" << YAML::Value << YAML::Hex << Random::UInt64();
+			emitter << YAML::Key << "Guid" << YAML::Value << YAML::Hex << guid;
 			emitter << YAML::Key << "Type" << YAML::Value << "Folder";
 			emitter << YAML::EndMap;
 
 			String metaFilePath = physicalPath + "." + OE_META_ASSET_FILE_EXTENSION;
-			FileSystem::FixPath(metaFilePath);
+
 			std::ofstream metaFile(metaFilePath);
 			metaFile << emitter.c_str();
 			metaFile.flush();
@@ -148,7 +211,7 @@ namespace OverEngine
 			emitter << YAML::BeginMap;
 			emitter << YAML::Key << "Name" << YAML::Value << name;
 			emitter << YAML::Key << "Path" << YAML::Value << assetPath;
-			emitter << YAML::Key << "Guid" << YAML::Value << YAML::Hex << Random::UInt64();
+			emitter << YAML::Key << "Guid" << YAML::Value << YAML::Hex << guid;
 			emitter << YAML::Key << "Hash" << YAML::Value << FileSystem::HashFile(physicalPath);
 			emitter << YAML::Key << "Type" << YAML::Value << "Texture2D";
 
@@ -165,6 +228,7 @@ namespace OverEngine
 			emitter << YAML::EndMap;
 
 			String metaFilePath = physicalPath + "." + OE_META_ASSET_FILE_EXTENSION;
+
 			std::ofstream metaFile(metaFilePath);
 			metaFile << emitter.c_str();
 			metaFile.flush();
@@ -172,11 +236,33 @@ namespace OverEngine
 
 			return Asset::Load(metaFilePath, true, m_AssetsDirectoryPath, this);
 		}
+
+		case AssetType::Scene:
+		{
+			YAML::Emitter emitter;
+
+			auto name = FileSystem::ExtractFileNameFromPath(physicalPath);
+			emitter << YAML::BeginMap;
+			emitter << YAML::Key << "Name" << YAML::Value << name;
+			emitter << YAML::Key << "Path" << YAML::Value << assetPath;
+			emitter << YAML::Key << "Guid" << YAML::Value << YAML::Hex << guid;
+			emitter << YAML::Key << "Hash" << YAML::Value << FileSystem::HashFile(physicalPath);
+			emitter << YAML::Key << "Type" << YAML::Value << "Scene";
+			emitter << YAML::EndMap;
+
+			String metaFilePath = physicalPath + "." + OE_META_ASSET_FILE_EXTENSION;
+			std::ofstream metaFile(metaFilePath);
+			metaFile << emitter.c_str();
+			metaFile.flush();
+			metaFile.close();
+
+			return Asset::Load(metaFilePath, true, m_AssetsDirectoryPath, this);
+		}
+
 		default: break;
 		}
 
-		OE_CORE_INFO(extension);
-
+		OE_CORE_WARN("Asset {} could not be loaded!", assetPath);
 		return nullptr;
 	}
 
@@ -248,6 +334,16 @@ namespace OverEngine
 
 			currentPathNodeIndex++;
 		}
+	}
+
+	void AssetCollection::RemoveAsset(const String& path)
+	{
+		if (!AssetExists(path))
+			return;
+
+		auto asset = GetAsset(path);
+		auto& parentAssets = asset->GetParent()->GetFolderAsset()->GetAssets();
+		parentAssets.erase(asset->GetName());
 	}
 
 	Ref<Asset> AssetCollection::GetAsset(const String& path)

@@ -211,7 +211,18 @@ namespace OverEditor
 			}
 
 			return false;
+
 		});
+
+		if (m_EditingProject)
+		{
+			dispatcher.Dispatch<WindowFocusEvent>([this](WindowFocusEvent& event) -> bool {
+
+				m_EditingProject->GetAssets().Refresh();
+				return false;
+
+			});
+		}
 	}
 
 	void EditorLayer::EditScene(const Ref<SceneAsset>& sceneAsset)
