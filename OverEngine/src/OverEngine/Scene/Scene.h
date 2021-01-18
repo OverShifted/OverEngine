@@ -2,7 +2,7 @@
 
 #include "OverEngine/Core/Time/TimeStep.h"
 #include "OverEngine/Core/Random.h"
-#include "OverEngine/Physics/PhysicWorld2D.h"
+#include "OverEngine/Physics/PhysicsWorld2D.h"
 #include "OverEngine/Scripting/LuaScriptingEngine.h"
 #include "OverEngine/Assets/AssetCollection.h"
 
@@ -65,8 +65,8 @@ namespace OverEngine
 
 		void LoadReferences(AssetCollection& assetCollection);
 
-		inline PhysicWorld2D& GetPhysicWorld2D() { return *m_PhysicWorld2D; }
-		inline const PhysicWorld2D& GetPhysicWorld2D() const { return *m_PhysicWorld2D; }
+		inline PhysicsWorld2D& GetPhysicsWorld2D() { return *m_PhysicsWorld2D; }
+		inline const PhysicsWorld2D& GetPhysicsWorld2D() const { return *m_PhysicsWorld2D; }
 
 		inline const Vector<entt::entity>& GetRootHandles() const { return m_RootHandles; }
 		inline Vector<entt::entity>& GetRootHandles() { return m_RootHandles; }
@@ -79,7 +79,7 @@ namespace OverEngine
 		void OnCollisionExit(const Collision2D& collision);
 	private:
 		entt::registry m_Registry;
-		PhysicWorld2D* m_PhysicWorld2D = nullptr;
+		PhysicsWorld2D* m_PhysicsWorld2D = nullptr;
 		LuaScriptingEngine* m_LuaEngine = nullptr;
 
 		uint32_t m_ViewportWidth = 0, m_ViewportHeight = 0; // TODO: set viewport size for new camera components

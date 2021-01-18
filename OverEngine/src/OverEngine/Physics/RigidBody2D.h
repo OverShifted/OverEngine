@@ -30,7 +30,7 @@ namespace OverEngine
 		void* UserPointer;
 	};
 
-	class PhysicWorld2D;
+	class PhysicsWorld2D;
 
 	class RigidBody2D
 	{
@@ -67,7 +67,7 @@ namespace OverEngine
 		b2Body* m_BodyHandle;
 		Vector<Ref<Collider2D>> m_Colliders;
 
-		friend class PhysicWorld2D;
+		friend class PhysicsWorld2D;
 		friend class Collider2D;
 	};
 }

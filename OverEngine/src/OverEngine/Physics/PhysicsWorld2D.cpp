@@ -1,17 +1,17 @@
 #include "pcheader.h"
-#include "PhysicWorld2D.h"
+#include "PhysicsWorld2D.h"
 
 #include <box2d/box2d.h>
 
 namespace OverEngine
 {
-	PhysicWorld2D::PhysicWorld2D(Vector2 gravity)
+	PhysicsWorld2D::PhysicsWorld2D(Vector2 gravity)
 		: m_WorldHandle(b2Vec2(gravity.x, gravity.y))
 	{
 		m_WorldHandle.SetContactListener(static_cast<b2ContactListener*>(&m_CollisionListener));
 	}
 
-	Ref<RigidBody2D> PhysicWorld2D::CreateRigidBody(const RigidBody2DProps& props)
+	Ref<RigidBody2D> PhysicsWorld2D::CreateRigidBody(const RigidBody2DProps& props)
 	{
 		b2BodyDef def;
 
@@ -39,7 +39,7 @@ namespace OverEngine
 		return body;
 	}
 
-	void PhysicWorld2D::DestroyRigidBody(const Ref<RigidBody2D>& rigidBody)
+	void PhysicsWorld2D::DestroyRigidBody(const Ref<RigidBody2D>& rigidBody)
 	{
 		if (!rigidBody || !rigidBody->m_BodyHandle)
 			return;
@@ -54,37 +54,37 @@ namespace OverEngine
 		m_Bodies.erase(it);
 	}
 
-	Vector2 PhysicWorld2D::GetGravity() const
+	Vector2 PhysicsWorld2D::GetGravity() const
 	{
 		return { m_WorldHandle.GetGravity().x, m_WorldHandle.GetGravity().y };
 	}
 
-	void PhysicWorld2D::SetGravity(const Vector2& gravity)
+	void PhysicsWorld2D::SetGravity(const Vector2& gravity)
 	{
 		m_WorldHandle.SetGravity({ gravity.x, gravity.y });
 	}
 
-	void PhysicWorld2D::OnUpdate(TimeStep ts, uint32_t velocityIterations, uint32_t positionIterations)
+	void PhysicsWorld2D::OnUpdate(TimeStep ts, uint32_t velocityIterations, uint32_t positionIterations)
 	{
 		m_WorldHandle.Step(ts, velocityIterations, positionIterations);
 	}
 
-	void PhysicWorld2D::SetOnCollisionCallbackUserData(void* userData)
+	void PhysicsWorld2D::SetOnCollisionCallbackUserData(void* userData)
 	{
 		m_CollisionListener.UserData = userData;
 	}
 
-	void PhysicWorld2D::SetOnCollisionEnterCallback(void (*callback)(const Collision2D&, void*))
+	void PhysicsWorld2D::SetOnCollisionEnterCallback(void (*callback)(const Collision2D&, void*))
 	{
 		m_CollisionListener.OnCollisionEnter = callback;
 	}
 
-	void PhysicWorld2D::SetOnCollisionExitCallback(void (*callback)(const Collision2D&, void*))
+	void PhysicsWorld2D::SetOnCollisionExitCallback(void (*callback)(const Collision2D&, void*))
 	{
 		m_CollisionListener.OnCollisionExit = callback;
 	}
 
-	void PhysicWorld2D::CollisionListener::BeginContact(b2Contact* contact)
+	void PhysicsWorld2D::CollisionListener::BeginContact(b2Contact* contact)
 	{
 		Collider2D* colliderA_ptr = (Collider2D*)(contact->GetFixtureA()->GetUserData().pointer);
 		Collider2D* colliderB_ptr = (Collider2D*)(contact->GetFixtureB()->GetUserData().pointer);
@@ -102,7 +102,7 @@ namespace OverEngine
 		OnCollisionEnter(collision, UserData);
 	}
 
-	void PhysicWorld2D::CollisionListener::EndContact(b2Contact* contact)
+	void PhysicsWorld2D::CollisionListener::EndContact(b2Contact* contact)
 	{
 		Collider2D* colliderA_ptr = (Collider2D*)(contact->GetFixtureA()->GetUserData().pointer);
 		Collider2D* colliderB_ptr = (Collider2D*)(contact->GetFixtureB()->GetUserData().pointer);

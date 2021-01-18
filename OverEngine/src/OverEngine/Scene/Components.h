@@ -163,7 +163,7 @@ namespace OverEngine
 
 		~RigidBody2DComponent()
 		{
-			AttachedEntity.GetScene()->GetPhysicWorld2D().DestroyRigidBody(RigidBody);
+			AttachedEntity.GetScene()->GetPhysicsWorld2D().DestroyRigidBody(RigidBody);
 		}
 
 		static SerializationContext* Reflect();

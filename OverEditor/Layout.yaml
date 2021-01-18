@@ -1,16 +1,16 @@
 - ID: 0x578caa54
   Parent: ~
   Flags: 1032
-  Position: [163, 114]
-  Size: [1600, 885]
+  Position: [34, 116]
+  Size: [1600, 841]
   SplitRatio: 0.827499986
   SplitAxis: 0
 - ID: 0x1
   Parent: 0x578caa54
   Flags: 8
-  Position: [163, 114]
-  Size: [1324, 885]
-  SplitRatio: 1
+  Position: [34, 116]
+  Size: [1324, 841]
+  SplitRatio: 0.950282514
   SplitAxis: 1
 - ID: 0x2
   Parent: 0x578caa54
@@ -19,13 +19,13 @@
     - Project Manager
     - Inspector
   SelectedTab: 0xf02cd328
-  Position: [1489, 114]
-  Size: [274, 885]
+  Position: [1360, 116]
+  Size: [274, 841]
 - ID: 0x3
   Parent: 0x1
   Flags: 8
-  Position: [163, 114]
-  Size: [1324, 885]
+  Position: [34, 116]
+  Size: [1324, 841]
   SplitRatio: 0.172205433
   SplitAxis: 0
 - ID: 0x4
@@ -41,30 +41,30 @@
 - ID: 0x6
   Parent: 0x3
   Flags: 8
-  Position: [163, 114]
-  Size: [1324, 885]
-  SplitRatio: 0.697175145
+  Position: [34, 116]
+  Size: [1324, 841]
+  SplitRatio: 0.662146866
   SplitAxis: 1
 - ID: 0x7
   Parent: 0x6
   Flags: 8
-  Position: [163, 114]
-  Size: [1324, 617]
+  Position: [34, 116]
+  Size: [1324, 586]
   SplitRatio: 0.1978852
   SplitAxis: 0
 - ID: 0x8
   Parent: 0x6
   Flags: 8
-  Position: [163, 733]
-  Size: [1324, 266]
+  Position: [34, 704]
+  Size: [1324, 253]
   SplitRatio: 0.808157086
   SplitAxis: 0
 - ID: 0x9
   Parent: 0x7
   Flags: 8
-  Position: [163, 114]
-  Size: [262, 617]
-  SplitRatio: 0.800648272
+  Position: [34, 116]
+  Size: [262, 586]
+  SplitRatio: 0.760129631
   SplitAxis: 1
 - ID: 0xa
   Parent: 0x7
@@ -72,16 +72,16 @@
   Tabs:
     - Viewport
   SelectedTab: 0x995b0cf8
-  Position: [427, 114]
-  Size: [1060, 617]
+  Position: [298, 116]
+  Size: [1060, 586]
 - ID: 0xb
   Parent: 0x9
   Flags: 8
   Tabs:
     - Scene Hierarchy
   SelectedTab: 0x9a68760c
-  Position: [163, 114]
-  Size: [262, 494]
+  Position: [34, 116]
+  Size: [262, 469]
 - ID: 0xc
   Parent: 0x9
   Flags: 8
@@ -89,21 +89,22 @@
     - Viewport Settings
     - Renderer2D
   SelectedTab: 0xee606726
-  Position: [163, 610]
-  Size: [262, 121]
+  Position: [34, 587]
+  Size: [262, 115]
 - ID: 0xd
   Parent: 0x8
   Flags: 8
   Tabs:
     - Assets
   SelectedTab: 0x7e7d78b8
-  Position: [163, 733]
-  Size: [1070, 266]
+  Position: [34, 704]
+  Size: [1070, 253]
 - ID: 0xe
   Parent: 0x8
   Flags: 8
   Tabs:
     - Textures
-  SelectedTab: 0x5cf1db40
-  Position: [1235, 733]
-  Size: [252, 266]
+    - Asset Settings
+  SelectedTab: 0x7c26accf
+  Position: [1106, 704]
+  Size: [252, 253]

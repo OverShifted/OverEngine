@@ -42,7 +42,7 @@
 // -----------------------------------
 
 // ------- Physics -------------------
-#include "OverEngine/Physics/PhysicWorld2D.h"
+#include "OverEngine/Physics/PhysicsWorld2D.h"
 #include "OverEngine/Physics/RigidBody2D.h"
 #include "OverEngine/Physics/Collider2D.h"
 // -----------------------------------
@@ -54,6 +54,6 @@
 
 // ------- Entry Point ---------------
 #ifdef OE_CLIENT_INCLUDE_ENTRY_POINT
-#include "OverEngine/Core/Runtime/EntryPoint.h"
+	#include "OverEngine/Core/Runtime/EntryPoint.h"
 #endif
 //------------------------------------

@@ -1,7 +1,7 @@
 #include "pcheader.h"
 #include "RigidBody2D.h"
 
-#include "PhysicWorld2D.h"
+#include "PhysicsWorld2D.h"
 
 #include <box2d/b2_body.h>
 #include <box2d/b2_fixture.h>

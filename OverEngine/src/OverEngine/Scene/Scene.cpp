@@ -7,7 +7,7 @@
 #include "SceneCollision2D.h"
 
 #include "OverEngine/Renderer/Renderer2D.h"
-#include "OverEngine/Physics/PhysicWorld2D.h"
+#include "OverEngine/Physics/PhysicsWorld2D.h"
 #include "OverEngine/Assets/Texture2DAsset.h"
 
 #include "OverEngine/Scripting/ScriptingEngine.h"
@@ -22,7 +22,7 @@
 namespace OverEngine
 {
 	Scene::Scene(const SceneSettings& settings)
-		: m_PhysicWorld2D(nullptr)
+		: m_PhysicsWorld2D(nullptr)
 	{
 	}
 
@@ -64,7 +64,7 @@ namespace OverEngine
 			m_Registry.destroy(entity);
 		});
 
-		if (m_PhysicWorld2D) delete m_PhysicWorld2D;
+		if (m_PhysicsWorld2D) delete m_PhysicsWorld2D;
 		if (m_LuaEngine) delete m_LuaEngine;
 	}
 
@@ -97,7 +97,7 @@ namespace OverEngine
 
 	void Scene::OnPhysicsUpdate(TimeStep deltaTime)
 	{
-		if (!m_PhysicWorld2D)
+		if (!m_PhysicsWorld2D)
 			return;
 
 		/////////////////////////////////////////////////////
@@ -105,7 +105,7 @@ namespace OverEngine
 		/////////////////////////////////////////////////////
 
 		// Update Physics
-		m_PhysicWorld2D->OnUpdate(deltaTime, 8, 3);
+		m_PhysicsWorld2D->OnUpdate(deltaTime, 8, 3);
 
 		m_Registry.view<RigidBody2DComponent, TransformComponent>().each([](auto& rbc, auto& tc)
 		{
@@ -179,18 +179,18 @@ namespace OverEngine
 
 	void Scene::InitializePhysics()
 	{
-		if (m_PhysicWorld2D)
-			delete m_PhysicWorld2D;
+		if (m_PhysicsWorld2D)
+			delete m_PhysicsWorld2D;
 
-		m_PhysicWorld2D = new PhysicWorld2D({ 0.0, -9.8 });
-		m_PhysicWorld2D->SetOnCollisionCallbackUserData(this);
+		m_PhysicsWorld2D = new PhysicsWorld2D({ 0.0, -9.8 });
+		m_PhysicsWorld2D->SetOnCollisionCallbackUserData(this);
 
-		m_PhysicWorld2D->SetOnCollisionEnterCallback([](const Collision2D& collision, void* userData)
+		m_PhysicsWorld2D->SetOnCollisionEnterCallback([](const Collision2D& collision, void* userData)
 		{
 			static_cast<Scene*>(userData)->OnCollisionEnter(collision);
 		});
 
-		m_PhysicWorld2D->SetOnCollisionExitCallback([](const Collision2D& collision, void* userData)
+		m_PhysicsWorld2D->SetOnCollisionExitCallback([](const Collision2D& collision, void* userData)
 		{
 			static_cast<Scene*>(userData)->OnCollisionExit(collision);
 		});
@@ -199,7 +199,7 @@ namespace OverEngine
 		m_Registry.view<RigidBody2DComponent>().each([this](entt::entity entity, auto& rbc)
 		{
 			auto& tc = m_Registry.get<TransformComponent>(entity);
-			rbc.RigidBody = m_PhysicWorld2D->CreateRigidBody(rbc.Initializer);
+			rbc.RigidBody = m_PhysicsWorld2D->CreateRigidBody(rbc.Initializer);
 			rbc.RigidBody->UserData = (void*)entity;
 			rbc.RigidBody->SetPosition(tc.GetPosition());
 			rbc.RigidBody->SetRotation(tc.GetEulerAngles().z);

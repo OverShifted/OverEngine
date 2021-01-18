@@ -11,10 +11,10 @@
 
 namespace OverEngine
 {
-	class PhysicWorld2D
+	class PhysicsWorld2D
 	{
 	public:
-		PhysicWorld2D(Vector2 gravity);
+		PhysicsWorld2D(Vector2 gravity);
 
 		Ref<RigidBody2D> CreateRigidBody(const RigidBody2DProps& props = RigidBody2DProps());
 		void DestroyRigidBody(const Ref<RigidBody2D>& rigidBody);
