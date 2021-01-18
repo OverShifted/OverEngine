@@ -3,6 +3,9 @@
 
 ![Logo](https://repository-images.githubusercontent.com/246120634/f6e9f080-a288-11ea-9a12-502646520a32)
 
+![linux-build](https://github.com/OverShifted/OverEngine/workflows/linux-build/badge.svg)
+![windows-build](https://github.com/OverShifted/OverEngine/workflows/windows-build/badge.svg)
+
 ## Game Editor
 * Work in progress 🚧
 * Drag and drop support
