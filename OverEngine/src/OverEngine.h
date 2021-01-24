@@ -31,6 +31,7 @@
 // ------- Renderer ------------------
 #include "OverEngine/Renderer/Renderer.h"
 #include "OverEngine/Renderer/Renderer2D.h"
+#include "OverEngine/Renderer/ParticleSystem2D.h"
 
 #include "OverEngine/Renderer/VertexArray.h"
 #include "OverEngine/Renderer/Buffer.h"

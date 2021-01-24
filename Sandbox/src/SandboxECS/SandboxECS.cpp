@@ -179,21 +179,49 @@ SandboxECS::SandboxECS()
 	class Player : public ScriptableEntity
 	{
 	public:
+
+		Player(ParticleSystem2D* particleSystem)
+			: m_ParticleSystem(particleSystem)
+		{
+		}
+
 		virtual void OnUpdate(TimeStep ts) override
 		{
+			bool moving = false;
 			Vector2 vel(0.0f);
 			float mult = 10 * ts;
+
 			if (Input::IsKeyPressed(KeyCode::A))
+			{
 				vel.x -= mult;
+				moving = true;
+			}
 			if (Input::IsKeyPressed(KeyCode::D))
+			{
 				vel.x += mult;
+				moving = true;
+			}
 			if (Input::IsKeyPressed(KeyCode::W))
+			{
 				vel.y += mult;
+				moving = true;
+			}
 			if (Input::IsKeyPressed(KeyCode::S))
+			{
 				vel.y -= mult;
+				moving = true;
+			}
 
 			auto& rb = GetComponent<RigidBody2DComponent>().RigidBody;
 			rb->ApplyLinearImpulseToCenter(vel);
+
+			static ParticleProps2D props = ParticleProps2D();
+			props.Position = GetComponent<TransformComponent>().GetPosition();
+			props.Position.z = -0.1f;
+
+			float len = glm::fastLength(rb->GetLinearVelocity());
+			for (int i = 0; i < len; i += 10)
+				m_ParticleSystem->Emit(props);
 		}
 
 		virtual void OnCollisionEnter(const SceneCollision2D& collision) override
@@ -206,18 +234,23 @@ SandboxECS::SandboxECS()
 		{
 			GetComponent<SpriteRendererComponent>().Tint = { 1.0f, 1.0f, 1.0f, 1.0f };
 		}
+
+	private:
+		ParticleSystem2D* m_ParticleSystem;
 	};
 
-	m_Player.AddComponent<NativeScriptsComponent>().AddScript<Player>();
+	m_Player.AddComponent<NativeScriptsComponent>().AddScript<Player>(&m_ParticleSystem);
 
 	m_Scene->OnScenePlay();
 	ImGui::GetStyle().Alpha = 0.8f;
 }
 
 static Vector<float> s_FPSSamples(200);
-int maxFPS = 0;
+static int maxFPS = 0;
 static bool VSync = true;
 static char fpsText[32];
+
+static int emitPerFrame = 1;
 
 void SandboxECS::OnUpdate(TimeStep deltaTime)
 {
@@ -251,6 +284,10 @@ void SandboxECS::OnUpdate(TimeStep deltaTime)
 	Window& win = Application::Get().GetWindow();
 	m_Scene->SetViewportSize(win.GetWidth(), win.GetHeight());
 	m_Scene->OnUpdate(deltaTime);
+
+	//for (int i = 0; i < emitPerFrame; i++)
+	//	m_ParticleSystem.Emit({});
+	m_ParticleSystem.UpdateAndRender(deltaTime, glm::inverse(m_MainCameraTransform->GetLocalToWorld()), *m_MainCameraCameraHandle);
 }
 
 void SandboxECS::OnImGuiRender()
@@ -327,6 +364,8 @@ void SandboxECS::OnImGuiRender()
 
 	if (ImGui::Checkbox("V-Sync", &VSync))
 		Application::Get().GetWindow().SetVSync(VSync);
+
+	ImGui::DragInt("Emit Per Frame", &emitPerFrame);
 
 	ImGui::End();
 }

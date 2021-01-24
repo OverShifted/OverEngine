@@ -30,6 +30,10 @@ namespace OverEngine
 		virtual uint32_t GetMaxTextureSize() = 0;
 		virtual uint32_t GetMaxTextureSlotCount() = 0;
 
+		virtual bool IsDepthTestingEnabled() = 0;
+		virtual void DisableDepthTesting() = 0;
+		virtual void EnableDepthTesting() = 0;
+
 		inline static API GetAPI() { return s_API; }
 	private:
 		static API s_API;

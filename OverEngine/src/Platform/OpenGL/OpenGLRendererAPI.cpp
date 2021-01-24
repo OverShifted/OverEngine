@@ -99,4 +99,19 @@ namespace OverEngine
 		glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &texture_units);
 		return texture_units;
 	}
+
+	bool OpenGLRendererAPI::IsDepthTestingEnabled()
+	{
+		return glIsEnabled(GL_DEPTH_TEST);
+	}
+
+	void OpenGLRendererAPI::DisableDepthTesting()
+	{
+		glDisable(GL_DEPTH_TEST);
+	}
+
+	void OpenGLRendererAPI::EnableDepthTesting()
+	{
+		glEnable(GL_DEPTH_TEST);
+	}
 }

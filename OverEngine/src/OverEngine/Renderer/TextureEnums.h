@@ -15,4 +15,13 @@ namespace OverEngine
 		None = 0, // Texture allocates its own GPU texture object
 		Batched, // used for Renderer2D and GUI
 	};
+
+	using TextureFlip = uint8_t;
+	enum TextureFlip_ : uint8_t
+	{
+		TextureFlip_None = 0,
+		TextureFlip_X = BIT(0),
+		TextureFlip_Y = BIT(1),
+		TextureFlip_Both = TextureFlip_X | TextureFlip_Y
+	};
 }

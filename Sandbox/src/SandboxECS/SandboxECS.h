@@ -34,4 +34,6 @@ private:
 	Entity m_MainCamera;
 	TransformComponent* m_MainCameraTransform;
 	SceneCamera* m_MainCameraCameraHandle;
+
+	ParticleSystem2D m_ParticleSystem;
 };

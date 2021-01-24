@@ -201,7 +201,7 @@ namespace OverEngine
 		{
 			ScriptableEntity* Instance = nullptr;
 
-			ScriptableEntity* (*InstantiateScript)();
+			std::function<ScriptableEntity*()> InstantiateScript;
 			void (*DestroyScript)(_Script*);
 
 			~_Script()
@@ -227,8 +227,8 @@ namespace OverEngine
 		NativeScriptsComponent(const Entity& entity)
 			: Component(entity) {}
 
-		template<typename T>
-		void AddScript()
+		template<typename T, typename... Args>
+		void AddScript(Args&&... args)
 		{
 			auto hash = typeid(T).hash_code();
 
@@ -240,7 +240,15 @@ namespace OverEngine
 
 			Scripts[hash] = _Script{
 				nullptr,
-				[]() { return static_cast<ScriptableEntity*>(new T()); },
+
+				// TODO: Use C++20 features here https://stackoverflow.com/a/49902823/11814750
+				[args = std::make_tuple(std::forward<Args>(args)...)]() mutable
+				{
+					return std::apply([](auto&& ... args) {
+						return static_cast<ScriptableEntity*>(new T(std::forward<Args>(args)...));
+					}, std::move(args));
+				},
+
 				[](_Script* s) { delete s->Instance; s->Instance = nullptr; }
 			};
 

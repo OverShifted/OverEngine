@@ -61,6 +61,6 @@ namespace OverEngine
 		float m_AspectRatio = 0.0f;
 
 		ClearFlags m_ClearFlags = ClearFlags_ClearColor | ClearFlags_ClearDepth;
-		Color m_ClearColor = Color(0.0f, 0.1f, 0.5f, 1.0f);
+		Color m_ClearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
 	};
 }

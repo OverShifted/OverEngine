@@ -49,6 +49,33 @@ namespace OverEngine
 		{
 			return s_MaxTextureSlotCount;
 		}
+
+		inline static bool IsDepthTestingEnabled()
+		{
+			return s_RendererAPI->IsDepthTestingEnabled();
+		}
+
+		inline static void DisableDepthTesting()
+		{
+			s_RendererAPI->DisableDepthTesting();
+		}
+
+		inline static void EnableDepthTesting()
+		{
+			s_RendererAPI->EnableDepthTesting();
+		}
+
+		inline static void SetDepthTesting(bool isEnabled)
+		{
+			if (isEnabled)
+			{
+				EnableDepthTesting();
+				return;
+			}
+
+			DisableDepthTesting();
+		}
+
 	private:
 		static RendererAPI* s_RendererAPI;
 

@@ -18,5 +18,9 @@ namespace OverEngine
 
 		virtual uint32_t GetMaxTextureSize() override;
 		virtual uint32_t GetMaxTextureSlotCount() override;
+
+		virtual bool IsDepthTestingEnabled() override;
+		virtual void DisableDepthTesting() override;
+		virtual void EnableDepthTesting() override;
 	};
 }

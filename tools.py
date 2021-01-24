@@ -28,17 +28,21 @@ if fix:
 	fix_files(glob("**/imgui.ini", recursive=True), False)
 
 if clean:
-	if (os.path.isdir("bin")):
-		shutil.rmtree("bin")
 
-	if (os.path.isdir("bin-int")):
-		shutil.rmtree("bin-int")
+	to_remove = [
+		"bin",
+		"bin-int",
+		"build",
+		"build-linux",
+		"OverEngine.sln",
+	]
 
-	if (os.path.isdir("build")):
-		shutil.rmtree("build")
+	for i in to_remove:
+		if os.path.isdir(i):
+			shutil.rmtree(i)
+		elif os.path.isfile(i):
+			os.remove("OverEngine.sln")
 
-	if (os.path.isfile("OverEngine.sln")):
-		os.remove("OverEngine.sln")
 
 	for file_path in glob("OverEngine/vendor/*"):
 		if (os.path.isdir(f"{file_path}/bin")):
