@@ -19,13 +19,15 @@ project "OverEngine"
 		"src/OverEngine/**.h",
 		"src/OverEngine/**.cpp",
 
-		-- stb_image
-		"vendor/stb_image/stb_image.h",
-		"vendor/stb_image/stb_image.cpp",
+		-- stb
+		"vendor/stb/stb_image.h",
+		"vendor/stb/stb_image.cpp",
 
-		-- stb_rectpack
-		"vendor/stb_rectpack/stb_rectpack.h",
-		"vendor/stb_rectpack/stb_rectpack.cpp",
+		"vendor/stb/stb_rectpack.h",
+		"vendor/stb/stb_rectpack.cpp",
+
+		"vendor/stb/stb_sprintf.h",
+		"vendor/stb/stb_sprintf.cpp",
 
 		-- tinyfiledialogs
 		"vendor/tinyfiledialogs/tinyfiledialogs.h",
@@ -55,8 +57,7 @@ project "OverEngine"
 		"%{includeDir.lua}",
 		"%{includeDir.sol}",
 		"%{includeDir.glm}",
-		"%{includeDir.stb_image}",
-		"%{includeDir.stb_rectpack}",
+		"%{includeDir.stb}",
 		"%{includeDir.entt}",
 		"%{includeDir.box2d}",
 		"%{includeDir.json}",

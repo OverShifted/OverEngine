@@ -15,21 +15,7 @@ project "Sandbox"
 		"assets/shaders/**.glsl"
 	}
 
-	includedirs
-	{
-		"%{wks.location}/OverEngine/src",
-		"%{wks.location}/OverEngine/vendor",
-		"%{includeDir.spdlog}",
-		"%{includeDir.imgui}",
-		"%{includeDir.lua}",
-		"%{includeDir.sol}",
-		"%{includeDir.glm}",
-		"%{includeDir.entt}",
-		"%{includeDir.box2d}",
-		"%{includeDir.json}",
-		"%{includeDir.fmt}",
-		"%{includeDir.yaml_cpp}",
-	}
+	includedirs (clientIncludes)
 
 	links "OverEngine"
 	links (linkLibs)

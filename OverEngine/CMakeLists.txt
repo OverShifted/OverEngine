@@ -9,11 +9,14 @@ set(OE_CROSS_PLATFORM_FILES
 	${overengine_source_files}
 	${overengine_header_files}
 
-	"vendor/stb_image/stb_image.h"
-	"vendor/stb_image/stb_image.cpp"
+	"vendor/stb/stb_image.h"
+	"vendor/stb/stb_image.cpp"
 
-	"vendor/stb_rectpack/stb_rectpack.h"
-	"vendor/stb_rectpack/stb_rectpack.cpp"
+	"vendor/stb/stb_rectpack.h"
+	"vendor/stb/stb_rectpack.cpp"
+
+	"vendor/stb/stb_sprintf.h"
+	"vendor/stb/stb_sprintf.cpp"
 
 	"vendor/tinyfiledialogs/tinyfiledialogs.h"
 	"vendor/tinyfiledialogs/tinyfiledialogsBuild.cpp"
@@ -54,8 +57,6 @@ target_include_directories(OverEngine PRIVATE
 	"res"
 	"vendor/GLFW/include"
 	"vendor/glad/include"
-	"vendor/stb_image"
-	"vendor/stb_rectpack"
 )
 
 target_include_directories(OverEngine PUBLIC
@@ -66,6 +67,7 @@ target_include_directories(OverEngine PUBLIC
 	"vendor/lua-overengine/lua/src"
 	"vendor/lua-overengine/sol/include"
 	"vendor/glm"
+	"vendor/stb"
 	"vendor/lua/src"
 	"vendor/entt/include"
 	"vendor/box2d/include"

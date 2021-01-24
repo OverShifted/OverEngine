@@ -36,20 +36,19 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 -- include directories related to Solution folder
 includeDir = {}
-includeDir["GLFW"]         = "%{wks.location}/OverEngine/vendor/GLFW/include"
-includeDir["glad"]         = "%{wks.location}/OverEngine/vendor/glad/include"
-includeDir["spdlog"]       = "%{wks.location}/OverEngine/vendor/spdlog/include"
-includeDir["imgui"]        = "%{wks.location}/OverEngine/vendor/imgui"
-includeDir["lua"]          = "%{wks.location}/OverEngine/vendor/lua-overengine/lua/src"
-includeDir["sol"]          = "%{wks.location}/OverEngine/vendor/lua-overengine/sol/include"
-includeDir["glm"]          = "%{wks.location}/OverEngine/vendor/glm"
-includeDir["stb_image"]    = "%{wks.location}/OverEngine/vendor/stb_image"
-includeDir["stb_rectpack"] = "%{wks.location}/OverEngine/vendor/stb_rectpack"
-includeDir["entt"]         = "%{wks.location}/OverEngine/vendor/entt/include"
-includeDir["box2d"]        = "%{wks.location}/OverEngine/vendor/box2d/include"
-includeDir["json"]         = "%{wks.location}/OverEngine/vendor/json/include"
-includeDir["fmt"]          = "%{wks.location}/OverEngine/vendor/fmt/include"
-includeDir["yaml_cpp"]     = "%{wks.location}/OverEngine/vendor/yaml-cpp/include"
+includeDir["GLFW"]     = "%{wks.location}/OverEngine/vendor/GLFW/include"
+includeDir["glad"]     = "%{wks.location}/OverEngine/vendor/glad/include"
+includeDir["spdlog"]   = "%{wks.location}/OverEngine/vendor/spdlog/include"
+includeDir["imgui"]    = "%{wks.location}/OverEngine/vendor/imgui"
+includeDir["lua"]      = "%{wks.location}/OverEngine/vendor/lua-overengine/lua/src"
+includeDir["sol"]      = "%{wks.location}/OverEngine/vendor/lua-overengine/sol/include"
+includeDir["glm"]      = "%{wks.location}/OverEngine/vendor/glm"
+includeDir["stb"]      = "%{wks.location}/OverEngine/vendor/stb"
+includeDir["entt"]     = "%{wks.location}/OverEngine/vendor/entt/include"
+includeDir["box2d"]    = "%{wks.location}/OverEngine/vendor/box2d/include"
+includeDir["json"]     = "%{wks.location}/OverEngine/vendor/json/include"
+includeDir["fmt"]      = "%{wks.location}/OverEngine/vendor/fmt/include"
+includeDir["yaml_cpp"] = "%{wks.location}/OverEngine/vendor/yaml-cpp/include"
 
 linkLibs = {
 	"GLFW",
@@ -58,6 +57,22 @@ linkLibs = {
 	"lua-overengine",
 	"box2d",
 	"yaml-cpp",
+}
+
+clientIncludes = {
+	"%{wks.location}/OverEngine/src",
+	"%{wks.location}/OverEngine/vendor",
+	"%{includeDir.spdlog}",
+	"%{includeDir.imgui}",
+	"%{includeDir.lua}",
+	"%{includeDir.sol}",
+	"%{includeDir.glm}",
+	"%{includeDir.stb}",
+	"%{includeDir.entt}",
+	"%{includeDir.box2d}",
+	"%{includeDir.json}",
+	"%{includeDir.fmt}",
+	"%{includeDir.yaml_cpp}",
 }
 
 group "Dependencies"
