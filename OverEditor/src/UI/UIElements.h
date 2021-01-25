@@ -212,7 +212,7 @@ namespace OverEditor
 	}
 
 	template <typename T>
-	bool UIElements::BasicEnum_U(const char* fieldName, const char* fieldID, EnumValues& values, T* currentValue, const IntEditAction::GetterFn& getter, const IntEditAction::SetterFn& setter, const ImGuiSelectableFlags& flags /*= 0*/)
+	bool UIElements::BasicEnum_U(const char* fieldName, const char* fieldID, EnumValues& values, T* currentValue, const IntEditAction::GetterFn& getter, const IntEditAction::SetterFn& setter, const ImGuiSelectableFlags& flags)
 	{
 		T val = *currentValue;
 		bool changed = BasicEnum(fieldName, fieldID, values, currentValue, flags);

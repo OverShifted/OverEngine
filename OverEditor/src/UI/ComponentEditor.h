@@ -117,30 +117,46 @@ namespace OverEditor
 
 			if (sp.Sprite && sp.Sprite->GetType() != TextureType::Placeholder)
 			{
-				UIElements::CheckboxFlagsField_U("Flip.x", "##Flip.x", __BASIC_FLAG_ACTION(SpriteRendererComponent, uint8_t, SpriteRendererComponent::Flip_X, Flip));
-				UIElements::CheckboxFlagsField_U("Flip.y", "##Flip.y", __BASIC_FLAG_ACTION(SpriteRendererComponent, uint8_t, SpriteRendererComponent::Flip_Y, Flip));
+				UIElements::CheckboxFlagsField_U("Flip.x", "##Flip.x",
+					__BASIC_FLAG_ACTION(SpriteRendererComponent, uint8_t, TextureFlip_X, Flip)
+				);
+				UIElements::CheckboxFlagsField_U("Flip.y", "##Flip.y",
+					__BASIC_FLAG_ACTION(SpriteRendererComponent, uint8_t, TextureFlip_Y, Flip)
+				);
 
-				UIElements::DragFloat2Field_U("Tiling", "##Tiling", glm::value_ptr(sp.Tiling), __BASIC_ACTION_VAL(SpriteRendererComponent, Tiling), 0.02f);
-				UIElements::DragFloat2Field_U("Offset", "##Offset", glm::value_ptr(sp.Offset), __BASIC_ACTION_VAL(SpriteRendererComponent, Offset), 0.02f);
+				UIElements::DragFloat2Field_U("Tiling", "##Tiling", glm::value_ptr(sp.Tiling),
+					__BASIC_ACTION_VAL(SpriteRendererComponent, Tiling), 0.02f
+				);
+				UIElements::DragFloat2Field_U("Offset", "##Offset", glm::value_ptr(sp.Offset),
+					__BASIC_ACTION_VAL(SpriteRendererComponent, Offset), 0.02f
+				);
 
 				UIElements::EndFieldGroup();
+
 				ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-				bool open = ImGui::TreeNodeEx("Advance Options##SpriteRendererComponentEditor", ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_AllowItemOverlap);
+				bool open = ImGui::TreeNodeEx("Advance Options##SpriteRendererComponentEditor",
+					ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_AllowItemOverlap
+				);
+
 				UIElements::BeginFieldGroup();
 
 				if (open)
 				{
-					static UIElements::EnumValues filteringValues = {
+					static UIElements::EnumValues filterValues = {
 						{ 0, "None (Use default)" }, { 1, "Nearest" }, { 2, "Linear" }
 					};
-					UIElements::BasicEnum("Filtering", "##Filtering", filteringValues, (int8_t*)&sp.Filtering);
+					UIElements::BasicEnum("Filter", "##Filter", filterValues, (int8_t*)&sp.Filter);
 
-					static UIElements::EnumValues wrappingValues = {
+					static UIElements::EnumValues wrapValues = {
 						{ 0, "None (Use default)" }, { 1, "Repeat" },
 						{ 2, "Clamp" }, { 3, "Mirror" }
 					};
-					UIElements::BasicEnum_U("Wrapping.x", "##Wrapping.x", wrappingValues, (int8_t*)&sp.Wrapping.x, __BASIC_ENUM_ACTION_VAL(SpriteRendererComponent, TextureWrapping, Wrapping.x));
-					UIElements::BasicEnum_U("Wrapping.y", "##Wrapping.y", wrappingValues, (int8_t*)&sp.Wrapping.y, __BASIC_ENUM_ACTION_VAL(SpriteRendererComponent, TextureWrapping, Wrapping.y));
+					UIElements::BasicEnum_U("Wrap.x", "##Wrap.x", wrapValues, (int8_t*)&sp.Wrap.x,
+						__BASIC_ENUM_ACTION_VAL(SpriteRendererComponent, TextureWrap, Wrap.x)
+					);
+					UIElements::BasicEnum_U("Wrap.y", "##Wrap.y", wrapValues, (int8_t*)&sp.Wrap.y,
+						__BASIC_ENUM_ACTION_VAL(SpriteRendererComponent, TextureWrap, Wrap.y)
+					);
 
 					ImGui::TreePop();
 				}
@@ -167,19 +183,36 @@ namespace OverEditor
 			float OrthographicFarClip = camera.Camera.GetOrthographicFarClip();
 
 			// TODO: Perspective Camera
-			if (UIElements::DragFloatField_U("Orthographic Size", "##Orthographic Size", &orthoSize, __BASIC_ACTION_FUNCS(CameraComponent, Camera.SetOrthographicSize, Camera.GetOrthographicSize), 0.5f, 0.0001f, FLT_MAX))
+			if (UIElements::DragFloatField_U("Orthographic Size", "##Orthographic Size", &orthoSize,
+				__BASIC_ACTION_FUNCS(CameraComponent, Camera.SetOrthographicSize, Camera.GetOrthographicSize),
+				0.5f, 0.0001f, FLT_MAX))
+			{
 				camera.Camera.SetOrthographicSize(orthoSize);
+			}
 
-			if (UIElements::DragFloatField_U("OrthographicNearClip", "##OrthographicNearClip", &OrthographicNearClip, __BASIC_ACTION_FUNCS(CameraComponent, Camera.SetOrthographicNearClip, Camera.GetOrthographicNearClip), 0.5f))
+			if (UIElements::DragFloatField_U("OrthographicNearClip", "##OrthographicNearClip", &OrthographicNearClip,
+				__BASIC_ACTION_FUNCS(CameraComponent, Camera.SetOrthographicNearClip, Camera.GetOrthographicNearClip), 0.5f))
+			{
 				camera.Camera.SetOrthographicNearClip(OrthographicNearClip);
-			if (UIElements::DragFloatField_U("OrthographicFarClip", "##OrthographicFarClip", &OrthographicFarClip, __BASIC_ACTION_FUNCS(CameraComponent, Camera.SetOrthographicFarClip, Camera.GetOrthographicFarClip), 0.5f))
+			}
+
+			if (UIElements::DragFloatField_U("OrthographicFarClip", "##OrthographicFarClip", &OrthographicFarClip,
+				__BASIC_ACTION_FUNCS(CameraComponent, Camera.SetOrthographicFarClip, Camera.GetOrthographicFarClip), 0.5f))
+			{
 				camera.Camera.SetOrthographicFarClip(OrthographicFarClip);
+			}
 
-			if (UIElements::Color4Field_U("Clear Color", "##Clear Color", glm::value_ptr(clearColor), __BASIC_ACTION_FUNCS(CameraComponent, Camera.SetClearColor, Camera.GetClearColor)))
+			if (UIElements::Color4Field_U("Clear Color", "##Clear Color", glm::value_ptr(clearColor),
+				__BASIC_ACTION_FUNCS(CameraComponent, Camera.SetClearColor, Camera.GetClearColor)))
+			{
 				camera.Camera.SetClearColor(clearColor);
+			}
 
-			UIElements::CheckboxFlagsField_U("Is Clearing Color", "##Is Clearing Color", __BASIC_FLAG_ACTION(CameraComponent, uint8_t, ClearFlags_ClearColor, Camera.GetClearFlags()));
-			UIElements::CheckboxFlagsField_U("Is Clearing Depth", "##Is Clearing Depth", __BASIC_FLAG_ACTION(CameraComponent, uint8_t, ClearFlags_ClearDepth, Camera.GetClearFlags()));
+			UIElements::CheckboxFlagsField_U("Is Clearing Color", "##Is Clearing Color",
+				__BASIC_FLAG_ACTION(CameraComponent, uint8_t, ClearFlags_ClearColor, Camera.GetClearFlags()));
+
+			UIElements::CheckboxFlagsField_U("Is Clearing Depth", "##Is Clearing Depth",
+				__BASIC_FLAG_ACTION(CameraComponent, uint8_t, ClearFlags_ClearDepth, Camera.GetClearFlags()));
 
 			UIElements::EndFieldGroup();
 		}

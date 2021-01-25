@@ -21,7 +21,7 @@ namespace OverEngine
 		int        a_TexFlip     = 0;
 		int        a_TexSlot     = -1;
 		int        a_TexFilter   = 0;
-		glm::ivec2 a_TexWrapping = glm::ivec2(0);
+		glm::ivec2 a_TexWrap = glm::ivec2(0);
 		Vector2    a_TexSize     = Vector2(0.0f);
 		Rect       a_TexRect     = Rect(0.0f);
 	};
@@ -74,7 +74,7 @@ namespace OverEngine
 			{ ShaderDataType::Int, "a_TexFlip" },
 			{ ShaderDataType::Int, "a_TexSlot" },
 			{ ShaderDataType::Int, "a_TexFilter" },
-			{ ShaderDataType::Int2, "a_TexWrapping" },
+			{ ShaderDataType::Int2, "a_TexWrap" },
 			{ ShaderDataType::Float2, "a_TexSize" },
 			{ ShaderDataType::Float4, "a_TexRect" },
 		});
@@ -287,7 +287,7 @@ namespace OverEngine
 			textureSlot = slot;
 		}
 
-		bool transparent = props.Tint.a < 1.0f || props.Texture->GetFormat() == TextureFormat::RGBA;
+		bool transparent = props.Tint.a < 1.0f || props.Texture->GetFormat() == TextureFormat::RGBA8;
 
 		auto mat = s_Data->ViewProjectionMatrix * transform;
 
@@ -304,21 +304,21 @@ namespace OverEngine
 		s_Data->QuadBufferPtr->a_TexSlot = textureSlot;
 		
 		// a_TexFilter
-		if (props.Filtering != TextureFiltering::None)
-			s_Data->QuadBufferPtr->a_TexFilter = (int)props.Filtering;
+		if (props.Filter != TextureFilter::None)
+			s_Data->QuadBufferPtr->a_TexFilter = (int)props.Filter;
 		else
-			s_Data->QuadBufferPtr->a_TexFilter = (int)props.Texture->GetFiltering();
+			s_Data->QuadBufferPtr->a_TexFilter = (int)props.Texture->GetFilter();
 
-		// a_TexSWrapping & a_TexTWrapping
-		if (props.Wrapping.x != TextureWrapping::None)
-			s_Data->QuadBufferPtr->a_TexWrapping.x = (int)props.Wrapping.x;
+		// a_TexUWrap & a_TexVWrap
+		if (props.Wrap.x != TextureWrap::None)
+			s_Data->QuadBufferPtr->a_TexWrap.x = (int)props.Wrap.x;
 		else
-			s_Data->QuadBufferPtr->a_TexWrapping.x = (int)props.Texture->GetXWrapping();
+			s_Data->QuadBufferPtr->a_TexWrap.x = (int)props.Texture->GetUWrap();
 
-		if (props.Wrapping.y != TextureWrapping::None)
-			s_Data->QuadBufferPtr->a_TexWrapping.y = (int)props.Wrapping.y;
+		if (props.Wrap.y != TextureWrap::None)
+			s_Data->QuadBufferPtr->a_TexWrap.y = (int)props.Wrap.y;
 		else
-			s_Data->QuadBufferPtr->a_TexWrapping.y = (int)props.Texture->GetYWrapping();
+			s_Data->QuadBufferPtr->a_TexWrap.y = (int)props.Texture->GetVWrap();
 
 		s_Data->QuadBufferPtr->a_TexSize = { props.Texture->GetWidth(), props.Texture->GetHeight() };
 		s_Data->QuadBufferPtr->a_TexRect = props.Texture->GetRect();

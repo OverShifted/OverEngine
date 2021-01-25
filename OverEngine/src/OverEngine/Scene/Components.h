@@ -115,18 +115,10 @@ namespace OverEngine
 
 		Vector2 Tiling = Vector2(1.0f);
 		Vector2 Offset = Vector2(0.0f);
-		uint8_t Flip = 0;
-
-		enum Flip_ : uint8_t
-		{
-			Flip_None = 0,
-			Flip_X = BIT(0),
-			Flip_Y = BIT(1),
-			Flip_Both = Flip_X | Flip_Y
-		};
+		TextureFlip Flip = 0;
 		
-		Vec2T<TextureWrapping> Wrapping{ TextureWrapping::None, TextureWrapping::None };
-		TextureFiltering Filtering = TextureFiltering::None;
+		Vec2T<TextureWrap> Wrap{ TextureWrap::None, TextureWrap::None };
+		TextureFilter Filter = TextureFilter::None;
 
 	public:
 		SpriteRendererComponent() = default;

@@ -50,17 +50,17 @@ SandboxECS::SandboxECS()
 
 #pragma region Textures
 	// m_CheckerBoardTexture = Texture2D::CreateMaster("assets/textures/Checkerboard.png");
-	// m_CheckerBoardTexture->SetXWrapping(TextureWrapping::Repeat);
-	// m_CheckerBoardTexture->SetYWrapping(TextureWrapping::Repeat);
-	// m_CheckerBoardTexture->SetFiltering(TextureFiltering::Nearest);
+	// m_CheckerBoardTexture->SetUWrap(TextureWrap::Repeat);
+	// m_CheckerBoardTexture->SetVWrap(TextureWrap::Repeat);
+	// m_CheckerBoardTexture->SetFilter(TextureFilter::Nearest);
 
 	// m_OELogoTexture = Texture2D::CreateMaster("assets/textures/OELogo.png");
-	// m_OELogoTexture->SetFiltering(TextureFiltering::Linear);
+	// m_OELogoTexture->SetFilter(TextureFilter::Linear);
 
 	m_SpriteSheet = Texture2D::CreateMaster("assets/textures/platformPack_tilesheet@2.png");
-	m_SpriteSheet->SetXWrapping(TextureWrapping::Repeat);
-	m_SpriteSheet->SetYWrapping(TextureWrapping::Repeat);
-	m_SpriteSheet->SetFiltering(TextureFiltering::Nearest);
+	m_SpriteSheet->SetUWrap(TextureWrap::Repeat);
+	m_SpriteSheet->SetVWrap(TextureWrap::Repeat);
+	m_SpriteSheet->SetFilter(TextureFilter::Nearest);
 
 	m_Sprite = Texture2D::CreateSubTexture(m_SpriteSheet, { 128 * 1, 128 * 5, 128, 128 });
 	m_ObstacleSprite = Texture2D::CreateSubTexture(m_SpriteSheet, { 128 * 0, 128 * 0, 128, 128 });
@@ -105,8 +105,8 @@ SandboxECS::SandboxECS()
 	// SpriteRenderer
 	auto& spriteRenderer = obstacle.AddComponent<SpriteRendererComponent>(m_ObstacleSprite);
 	spriteRenderer.Tiling.x = 4.0f;
-	spriteRenderer.Wrapping.x = TextureWrapping::Repeat;
-	spriteRenderer.Wrapping.y = TextureWrapping::Repeat;
+	spriteRenderer.Wrap.x = TextureWrap::Repeat;
+	spriteRenderer.Wrap.y = TextureWrap::Repeat;
 
 	// RigidBody2D
 	RigidBody2DProps obstacleBodyProps;
@@ -137,8 +137,8 @@ SandboxECS::SandboxECS()
 	// SpriteRenderer
 	auto& spriteRenderer2 = obstacle2.AddComponent<SpriteRendererComponent>(m_ObstacleSprite);
 	spriteRenderer2.Tiling.x = 4000.0f;
-	spriteRenderer2.Wrapping.x = TextureWrapping::Repeat;
-	spriteRenderer2.Wrapping.y = TextureWrapping::Repeat;
+	spriteRenderer2.Wrap.x = TextureWrap::Repeat;
+	spriteRenderer2.Wrap.y = TextureWrap::Repeat;
 
 	// RigidBody2D
 	RigidBody2DProps obstacle2BodyProps;

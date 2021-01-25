@@ -8,7 +8,7 @@
 
 namespace OverEngine
 {
-	Ref<VertexBuffer> VertexBuffer::Create(const void* vertices, uint32_t size, bool staticDraw /*= true*/)
+	Ref<VertexBuffer> VertexBuffer::Create(const void* vertices, uint32_t size, bool staticDraw)
 	{
 		switch (RendererAPI::GetAPI())
 		{
@@ -32,7 +32,7 @@ namespace OverEngine
 		return nullptr;
 	}
 
-	Ref<IndexBuffer> IndexBuffer::Create(const uint32_t* indices, uint32_t count, bool staticDraw /*= true*/)
+	Ref<IndexBuffer> IndexBuffer::Create(const uint32_t* indices, uint32_t count, bool staticDraw)
 	{
 		switch (RendererAPI::GetAPI())
 		{

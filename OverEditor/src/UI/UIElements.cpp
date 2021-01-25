@@ -123,7 +123,7 @@ namespace OverEditor
 		return changed;
 	}
 
-	bool UIElements::DragFloatField_U(const char* fieldName, const char* fieldID, float* value, const FloatEditAction::GetterFn& getter, const FloatEditAction::SetterFn& setter, float speed /*= 1.0f*/, float min /*= 0.0f*/, float max /*= 0.0f*/, const char* format /*= "%.3f"*/)
+	bool UIElements::DragFloatField_U(const char* fieldName, const char* fieldID, float* value, const FloatEditAction::GetterFn& getter, const FloatEditAction::SetterFn& setter, float speed, float min, float max, const char* format)
 	{
 		static float delta = 0.0f;
 
@@ -152,7 +152,7 @@ namespace OverEditor
 		return changed;
 	}
 
-	bool UIElements::DragFloat2Field_U(const char* fieldName, const char* fieldID, float value[2], const Vector2EditAction::GetterFn& getter, const Vector2EditAction::SetterFn& setter, float speed /*= 1.0f*/, float min /*= 0.0f*/, float max /*= 0.0f*/, const char* format /*= "%.3f"*/)
+	bool UIElements::DragFloat2Field_U(const char* fieldName, const char* fieldID, float value[2], const Vector2EditAction::GetterFn& getter, const Vector2EditAction::SetterFn& setter, float speed, float min, float max, const char* format)
 	{
 		static Vector2 delta(0.0f);
 
@@ -182,7 +182,7 @@ namespace OverEditor
 		return changed;
 	}
 
-	bool UIElements::DragFloat3Field_U(const char* fieldName, const char* fieldID, float value[3], const Vector3EditAction::GetterFn& getter, const Vector3EditAction::SetterFn& setter, float speed /*= 1.0f*/, float min /*= 0.0f*/, float max /*= 0.0f*/, const char* format /*= "%.3f"*/)
+	bool UIElements::DragFloat3Field_U(const char* fieldName, const char* fieldID, float value[3], const Vector3EditAction::GetterFn& getter, const Vector3EditAction::SetterFn& setter, float speed, float min, float max, const char* format)
 	{
 		static Vector3 delta(0.0f);
 

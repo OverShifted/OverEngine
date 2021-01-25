@@ -20,8 +20,8 @@ namespace OverEngine
 		Vector2 Offset = Vector2(0.0f);
 		TextureFlip Flip = 0;
 
-		Vec2T<TextureWrapping> Wrapping{ TextureWrapping::None, TextureWrapping::None };
-		TextureFiltering Filtering = TextureFiltering::None;
+		Vec2T<TextureWrap> Wrap{ TextureWrap::None, TextureWrap::None };
+		TextureFilter Filter = TextureFilter::None;
 	};
 
 	struct ParticleProps2D

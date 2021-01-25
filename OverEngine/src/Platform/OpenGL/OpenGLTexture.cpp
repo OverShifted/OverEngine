@@ -6,12 +6,12 @@
 
 namespace OverEngine
 {
-	static GLint GetOpenGLFilteringValue(const TextureFiltering& wrapping)
+	static GLint GetOpenGLFilterValue(const TextureFilter& wrap)
 	{
-		switch (wrapping)
+		switch (wrap)
 		{
-		case TextureFiltering::Nearest: return GL_NEAREST;
-		case TextureFiltering::Linear:  return GL_LINEAR;
+		case TextureFilter::Nearest: return GL_NEAREST;
+		case TextureFilter::Linear:  return GL_LINEAR;
 		}
 
 		return GL_NEAREST;
@@ -21,24 +21,24 @@ namespace OverEngine
 	{
 		switch (channels)
 		{
-		case 3: return TextureFormat::RGB;
-		case 4: return TextureFormat::RGBA;
+		case 3: return TextureFormat::RGB8;
+		case 4: return TextureFormat::RGBA8;
 		}
 
 		return TextureFormat::None;
 	}
 
-	static std::pair<GLenum, GLenum> GetOpenGLTextureFormatValue(const TextureFormat& wrapping)
+	static std::pair<GLenum, GLenum> GetOpenGLTextureFormatValue(const TextureFormat& wrap)
 	{
 		GLenum internalFormat = 0;
 		GLenum dataFormat = 0;
 		
-		if (wrapping == TextureFormat::RGB)
+		if (wrap == TextureFormat::RGB8)
 		{
 			internalFormat = GL_RGB8;
 			dataFormat = GL_RGB;
 		}
-		else if (wrapping == TextureFormat::RGBA)
+		else if (wrap == TextureFormat::RGBA8)
 		{
 			internalFormat = GL_RGBA8;
 			dataFormat = GL_RGBA;
@@ -47,7 +47,7 @@ namespace OverEngine
 		return { internalFormat, dataFormat };
 	}
 
-	OpenGLTexture2D::OpenGLTexture2D(const String& path, TextureFiltering minFilter, TextureFiltering magFilter)
+	OpenGLTexture2D::OpenGLTexture2D(const String& path, TextureFilter minFilter, TextureFilter magFilter)
 		: m_MinFilter(minFilter), m_MagFilter(magFilter), m_Format(TextureFormat::None)
 	{
 		int width, height, channels;
@@ -65,8 +65,8 @@ namespace OverEngine
 		glCreateTextures(GL_TEXTURE_2D, 1, &m_RendererID);
 		glTextureStorage2D(m_RendererID, 1, internalFormat, m_Width, m_Height);
 
-		glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, GetOpenGLFilteringValue(minFilter));
-		glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, GetOpenGLFilteringValue(magFilter));
+		glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, GetOpenGLFilterValue(minFilter));
+		glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, GetOpenGLFilterValue(magFilter));
 
 		glTextureSubImage2D(m_RendererID, 0, 0, 0, m_Width, m_Height, dataFormat, GL_UNSIGNED_BYTE, data);
 
@@ -75,9 +75,9 @@ namespace OverEngine
 
 	OpenGLTexture2D::OpenGLTexture2D()
 		: m_Width(0), m_Height(0),
-		m_MinFilter(TextureFiltering::Linear), m_MagFilter(TextureFiltering::Linear),
-		m_SWrapping(TextureWrapping::Repeat), m_TWrapping(TextureWrapping::Repeat),
-		m_BorderColor(1.0f), m_Format(TextureFormat::None)
+		m_MinFilter(TextureFilter::Linear), m_MagFilter(TextureFilter::Linear),
+		m_UWrap(TextureWrap::Repeat), m_VWrap(TextureWrap::Repeat),
+		m_Format(TextureFormat::None)
 	{
 		glCreateTextures(GL_TEXTURE_2D, 1, &m_RendererID);
 	}
@@ -87,50 +87,43 @@ namespace OverEngine
 		glDeleteTextures(1, &m_RendererID);
 	}
 
-	static GLint GetOpenGLWrappingValue(const TextureWrapping& wrapping)
+	static GLint GetOpenGLWrapValue(const TextureWrap& wrap)
 	{
-		switch (wrapping)
+		switch (wrap)
 		{
-		case TextureWrapping::Repeat:        return GL_REPEAT;
-		case TextureWrapping::Clamp:         return GL_CLAMP_TO_EDGE;
-		case TextureWrapping::Mirror:        return GL_MIRRORED_REPEAT;
-		case TextureWrapping::ClampToBorder: return GL_CLAMP_TO_BORDER;
+		case TextureWrap::Repeat:        return GL_REPEAT;
+		case TextureWrap::Clamp:         return GL_CLAMP_TO_EDGE;
+		case TextureWrap::Mirror:        return GL_MIRRORED_REPEAT;
 		}
 
 		return GL_REPEAT;
 	}
 
-	void OpenGLTexture2D::SetSWrapping(TextureWrapping wrapping)
+	void OpenGLTexture2D::SetUWrap(TextureWrap wrap)
 	{
-		m_SWrapping = wrapping;
-		glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_S, GetOpenGLWrappingValue(wrapping));
+		m_UWrap = wrap;
+		glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_S, GetOpenGLWrapValue(wrap));
 	}
 
-	void OpenGLTexture2D::SetTWrapping(TextureWrapping wrapping)
+	void OpenGLTexture2D::SetVWrap(TextureWrap wrap)
 	{
-		m_TWrapping = wrapping;
-		glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_T, GetOpenGLWrappingValue(wrapping));
+		m_VWrap = wrap;
+		glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_T, GetOpenGLWrapValue(wrap));
 	}
 
-	void OpenGLTexture2D::SetBorderColor(const Color& color)
-	{
-		m_BorderColor = color;
-		glTextureParameterfv(m_RendererID, GL_TEXTURE_BORDER_COLOR, glm::value_ptr(color));
-	}
-
-	void OpenGLTexture2D::SetMinFilter(TextureFiltering filter)
+	void OpenGLTexture2D::SetMinFilter(TextureFilter filter)
 	{
 		m_MinFilter = filter;
-		glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, GetOpenGLFilteringValue(filter));
+		glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, GetOpenGLFilterValue(filter));
 	}
 
-	void OpenGLTexture2D::SetMagFilter(TextureFiltering filter)
+	void OpenGLTexture2D::SetMagFilter(TextureFilter filter)
 	{
 		m_MagFilter = filter;
-		glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, GetOpenGLFilteringValue(filter));
+		glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, GetOpenGLFilterValue(filter));
 	}
 
-	void OpenGLTexture2D::Bind(uint32_t slot /*= 0*/) const
+	void OpenGLTexture2D::Bind(uint32_t slot) const
 	{
 		glBindTextureUnit(slot, m_RendererID);
 	}
@@ -153,13 +146,11 @@ namespace OverEngine
 		SetMinFilter(m_MinFilter);
 		SetMagFilter(m_MagFilter);
 
-		SetTWrapping(m_TWrapping);
-		SetSWrapping(m_SWrapping);
-
-		SetBorderColor(m_BorderColor);
+		SetVWrap(m_VWrap);
+		SetUWrap(m_UWrap);
 	}
 
-	void OpenGLTexture2D::SubImage(const uint8_t* pixels, uint32_t width, uint32_t height, TextureFormat dataFormat, int xOffset /*= 0*/, int yOffset /*= 0*/)
+	void OpenGLTexture2D::SubImage(const uint8_t* pixels, uint32_t width, uint32_t height, TextureFormat dataFormat, int xOffset, int yOffset)
 	{
 		auto [internalFormat, GLdataFormat] = GetOpenGLTextureFormatValue(dataFormat);
 		glTextureSubImage2D(m_RendererID, 0, xOffset, yOffset, width, height, GLdataFormat, GL_UNSIGNED_BYTE, pixels);

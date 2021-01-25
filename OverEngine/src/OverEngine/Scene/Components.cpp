@@ -12,9 +12,9 @@ namespace OverEngine
 		{
 			initialized = true;
 
-			if (!Serializer::GlobalEnumExists("TextureWrapping"))
+			if (!Serializer::GlobalEnumExists("TextureWrap"))
 			{
-				Serializer::DefineGlobalEnum("TextureWrapping", {
+				Serializer::DefineGlobalEnum("TextureWrap", {
 					{ 0, "None" },
 					{ 1, "Repeat" },
 					{ 2, "Clamp" },
@@ -22,9 +22,9 @@ namespace OverEngine
 				});
 			}
 
-			if (!Serializer::GlobalEnumExists("TextureFiltering"))
+			if (!Serializer::GlobalEnumExists("TextureFilter"))
 			{
-				Serializer::DefineGlobalEnum("TextureFiltering", {
+				Serializer::DefineGlobalEnum("TextureFilter", {
 					{ 0, "None" },
 					{ 1, "Nearest" },
 					{ 2, "Linear" }
@@ -39,9 +39,9 @@ namespace OverEngine
 			ctx.AddField(SerializableType::Bool, OffsetOf(&SpriteRendererComponent::Flip), "Flip.x");
 			ctx.AddField(SerializableType::Bool, OffsetOf(&SpriteRendererComponent::Flip) + sizeof(bool), "Flip.y");
 
-			ctx.AddEnumField(SerializableType::Int8Enum, "TextureWrapping", OffsetOf(&SpriteRendererComponent::Wrapping), "Wrapping.x");
-			ctx.AddEnumField(SerializableType::Int8Enum, "TextureWrapping", OffsetOf(&SpriteRendererComponent::Wrapping) + sizeof(TextureWrapping), "Wrapping.y");
-			ctx.AddEnumField(SerializableType::Int8Enum, "TextureFiltering", SERIALIZE_FIELD(SpriteRendererComponent, Filtering));
+			ctx.AddEnumField(SerializableType::Int8Enum, "TextureWrap", OffsetOf(&SpriteRendererComponent::Wrap), "Wrap.x");
+			ctx.AddEnumField(SerializableType::Int8Enum, "TextureWrap", OffsetOf(&SpriteRendererComponent::Wrap) + sizeof(TextureWrap), "Wrap.y");
+			ctx.AddEnumField(SerializableType::Int8Enum, "TextureFilter", SERIALIZE_FIELD(SpriteRendererComponent, Filter));
 		}
 
 		return &ctx;

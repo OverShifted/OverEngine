@@ -6,7 +6,7 @@
 
 namespace OverEngine
 {
-	Ref<GPUTexture2D> GPUTexture2D::Create(const String& path, TextureFiltering minFilter /*= Filtering::Linear*/, TextureFiltering magFilter /*= Filtering::Linear*/)
+	Ref<GPUTexture2D> GPUTexture2D::Create(const String& path, TextureFilter minFilter, TextureFilter magFilter)
 	{
 		switch (RendererAPI::GetAPI())
 		{

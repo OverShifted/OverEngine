@@ -85,8 +85,8 @@ namespace OverEngine
 				props.Tiling = particle.RenderingProps.Tiling;
 				props.Offset = particle.RenderingProps.Offset;
 				props.Flip = particle.RenderingProps.Flip;
-				props.Wrapping = particle.RenderingProps.Wrapping;
-				props.Filtering = particle.RenderingProps.Filtering;
+				props.Wrap = particle.RenderingProps.Wrap;
+				props.Filter = particle.RenderingProps.Filter;
 
 				Renderer2D::DrawQuad(position, particle.Rotation, size, props);
 			}

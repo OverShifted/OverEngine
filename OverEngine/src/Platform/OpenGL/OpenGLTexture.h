@@ -7,27 +7,24 @@ namespace OverEngine
 	class OpenGLTexture2D : public GPUTexture2D
 	{
 	public:
-		OpenGLTexture2D(const String& path, TextureFiltering minFilter, TextureFiltering magFilter);
+		OpenGLTexture2D(const String& path, TextureFilter minFilter, TextureFilter magFilter);
 		OpenGLTexture2D();
 		virtual ~OpenGLTexture2D();
 
 		inline virtual uint32_t GetWidth() const override { return m_Width; }
 		inline virtual uint32_t GetHeight() const override { return m_Height; }
 
-		inline virtual TextureWrapping GetSWrapping() const override { return m_SWrapping; }
-		inline virtual TextureWrapping GetTWrapping() const override { return m_TWrapping; }
-		inline virtual const Color& GetBorderColor() const override { return m_BorderColor; }
+		inline virtual TextureWrap GetUWrap() const override { return m_UWrap; }
+		inline virtual TextureWrap GetVWrap() const override { return m_VWrap; }
 
+		virtual void SetUWrap(TextureWrap wrapping) override;
+		virtual void SetVWrap(TextureWrap wrapping) override;
 
-		virtual void SetSWrapping(TextureWrapping wrapping) override;
-		virtual void SetTWrapping(TextureWrapping wrapping) override;
-		virtual void SetBorderColor(const Color& color) override;
+		inline virtual TextureFilter GetMinFilter() const override { return m_MinFilter; };
+		inline virtual TextureFilter GetMagFilter() const override { return m_MagFilter; };
 
-		inline virtual TextureFiltering GetMinFilter() const override { return m_MinFilter; };
-		inline virtual TextureFiltering GetMagFilter() const override { return m_MagFilter; };
-
-		virtual void SetMinFilter(TextureFiltering filter) override;
-		virtual void SetMagFilter(TextureFiltering filter) override;
+		virtual void SetMinFilter(TextureFilter filter) override;
+		virtual void SetMagFilter(TextureFilter filter) override;
 
 		inline virtual TextureFormat GetFormat() const override { return m_Format; }
 
@@ -49,9 +46,8 @@ namespace OverEngine
 		TextureFormat m_Format;
 		uint32_t m_Width, m_Height;
 
-		TextureFiltering m_MinFilter, m_MagFilter;
-		TextureWrapping m_SWrapping, m_TWrapping;
-		Color m_BorderColor;
+		TextureFilter m_MinFilter, m_MagFilter;
+		TextureWrap m_UWrap, m_VWrap;
 
 		Vector<std::weak_ptr<Texture2D>> m_Members;
 	};

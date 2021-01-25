@@ -150,7 +150,7 @@ namespace OverEngine
 
 			// Packed!
 			gpuTextureMembers.push_back(texture);
-			currentGPUTexture->AllocateStorage(TextureFormat::RGBA, totalWidth, totalHeigth);
+			currentGPUTexture->AllocateStorage(TextureFormat::RGBA8, totalWidth, totalHeigth);
 
 			for (uint32_t i = 0; i < gpuTextureMemberCount + 1; i++)
 			{
@@ -179,14 +179,13 @@ namespace OverEngine
 
 		s_ManagerData->GPUTextures.push_back(currentGPUTexture);
 
-		currentGPUTexture->SetMinFilter(TextureFiltering::Nearest);
-		currentGPUTexture->SetMagFilter(TextureFiltering::Nearest);
+		currentGPUTexture->SetMinFilter(TextureFilter::Nearest);
+		currentGPUTexture->SetMagFilter(TextureFilter::Nearest);
 
-		currentGPUTexture->SetSWrapping(TextureWrapping::ClampToBorder);
-		currentGPUTexture->SetTWrapping(TextureWrapping::ClampToBorder);
-		currentGPUTexture->SetBorderColor({ 1.0f, 0.0f, 1.0f, 1.0f });
+		currentGPUTexture->SetUWrap(TextureWrap::Clamp);
+		currentGPUTexture->SetVWrap(TextureWrap::Clamp);
 
-		currentGPUTexture->AllocateStorage(TextureFormat::RGBA, texture->GetWidth(), texture->GetHeight());
+		currentGPUTexture->AllocateStorage(TextureFormat::RGBA8, texture->GetWidth(), texture->GetHeight());
 		currentGPUTexture->SubImage(texture->GetPixels(), texture->GetWidth(), texture->GetHeight(), texture->GetFormat());
 		currentGPUTexture->GetMemberTextures().push_back(texture);
 

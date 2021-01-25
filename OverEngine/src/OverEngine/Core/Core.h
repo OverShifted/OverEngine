@@ -190,5 +190,10 @@ namespace OverEngine
 	template<typename T, typename U> using UnorderedMap = std::unordered_map<T, U>;
 	template<typename T, typename U> using Map = std::map<T, U>;
 
-	template<typename T> struct Vec2T { T x, y; };
+	template<typename T>
+	struct Vec2T
+	{
+		union { T x, u, s; };
+		union { T y, v, t; };
+	};
 }

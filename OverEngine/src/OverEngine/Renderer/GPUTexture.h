@@ -15,19 +15,17 @@ namespace OverEngine
 		virtual uint32_t GetWidth() const = 0;
 		virtual uint32_t GetHeight() const = 0;
 
-		virtual TextureWrapping GetSWrapping() const = 0;
-		virtual TextureWrapping GetTWrapping() const = 0;
-		virtual const Color& GetBorderColor() const = 0;
+		virtual TextureWrap GetUWrap() const = 0;
+		virtual TextureWrap GetVWrap() const = 0;
 
-		virtual void SetSWrapping(TextureWrapping wrapping) = 0;
-		virtual void SetTWrapping(TextureWrapping wrapping) = 0;
-		virtual void SetBorderColor(const Color& color) = 0;
+		virtual void SetUWrap(TextureWrap wrap) = 0;
+		virtual void SetVWrap(TextureWrap wrap) = 0;
 
-		virtual TextureFiltering GetMinFilter() const = 0;
-		virtual TextureFiltering GetMagFilter() const = 0;
+		virtual TextureFilter GetMinFilter() const = 0;
+		virtual TextureFilter GetMagFilter() const = 0;
 
-		virtual void SetMinFilter(TextureFiltering filter) = 0;
-		virtual void SetMagFilter(TextureFiltering filter) = 0;
+		virtual void SetMinFilter(TextureFilter filter) = 0;
+		virtual void SetMagFilter(TextureFilter filter) = 0;
 
 		virtual TextureFormat GetFormat() const = 0;
 
@@ -40,7 +38,7 @@ namespace OverEngine
 	class GPUTexture2D : public GPUTexture
 	{
 	public:
-		static Ref<GPUTexture2D> Create(const String& path, TextureFiltering minFilter = TextureFiltering::Linear, TextureFiltering magFilter = TextureFiltering::Linear);
+		static Ref<GPUTexture2D> Create(const String& path, TextureFilter minFilter = TextureFilter::Linear, TextureFilter magFilter = TextureFilter::Linear);
 		static Ref<GPUTexture2D> Create();
 
 		virtual void AllocateStorage(TextureFormat format, uint32_t width, uint32_t height) = 0;

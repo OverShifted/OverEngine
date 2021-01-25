@@ -89,7 +89,7 @@ namespace OverEngine
 		m_BodyHandle->ApplyLinearImpulse({ impulse.x, impulse.y }, { point.x, point.y }, wake);
 	}
 
-	void RigidBody2D::ApplyLinearImpulseToCenter(const Vector2& impulse, bool wake /*= true*/)
+	void RigidBody2D::ApplyLinearImpulseToCenter(const Vector2& impulse, bool wake)
 	{
 		m_BodyHandle->ApplyLinearImpulseToCenter({ impulse.x, impulse.y }, wake);
 	}

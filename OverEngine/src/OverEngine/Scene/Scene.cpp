@@ -262,13 +262,13 @@ namespace OverEngine
 				if (sprite.Sprite && sprite.Sprite->GetType() != TextureType::Placeholder)
 				{
 					TexturedQuadProps props;
-					props.Tint      = sprite.Tint;
-					props.Texture   = sprite.Sprite;
-					props.Tiling    = sprite.Tiling;
-					props.Offset    = sprite.Offset;
-					props.Flip      = sprite.Flip;
-					props.Wrapping  = sprite.Wrapping;
-					props.Filtering = sprite.Filtering;
+					props.Tint    = sprite.Tint;
+					props.Texture = sprite.Sprite;
+					props.Tiling  = sprite.Tiling;
+					props.Offset  = sprite.Offset;
+					props.Flip    = sprite.Flip;
+					props.Wrap    = sprite.Wrap;
+					props.Filter  = sprite.Filter;
 
 					Renderer2D::DrawQuad(sptransform, props);
 				}

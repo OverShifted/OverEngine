@@ -45,16 +45,16 @@ namespace OverEngine
 		TextureFormat format = TextureFormat::None;
 		if (channels == 3)
 		{
-			format = TextureFormat::RGB;
+			format = TextureFormat::RGB8;
 		}
 		else if (channels == 4)
 		{
-			format = TextureFormat::RGBA;
+			format = TextureFormat::RGBA8;
 		}
 		OE_CORE_ASSERT(format != TextureFormat::None, "Unsupported image format");
 
 		__Texture2D_GetMasterTextureData.Format = format;
-		__Texture2D_GetMasterTextureData.Filtering = TextureFiltering::Linear;
+		__Texture2D_GetMasterTextureData.Filter = TextureFilter::Linear;
 		__Texture2D_GetMasterTextureData.Pixels = data;
 		__Texture2D_GetMasterTextureData.ImageFilePath = path;
 	}
@@ -146,7 +146,7 @@ namespace OverEngine
 		return finalRect;
 	}
 
-	bool Texture2D::Reload(const String& filePath /*= String()*/)
+	bool Texture2D::Reload(const String& filePath)
 	{
 		const char* realPath = filePath.c_str();
 		if (filePath.empty())
@@ -170,16 +170,16 @@ namespace OverEngine
 		TextureFormat format = TextureFormat::None;
 		if (channels == 3)
 		{
-			format = TextureFormat::RGB;
+			format = TextureFormat::RGB8;
 		}
 		else if (channels == 4)
 		{
-			format = TextureFormat::RGBA;
+			format = TextureFormat::RGBA8;
 		}
 		OE_CORE_ASSERT(format != TextureFormat::None, "Unsupported image format");
 
 		__Texture2D_GetMasterTextureData.Format = format;
-		__Texture2D_GetMasterTextureData.Filtering = TextureFiltering::Linear;
+		__Texture2D_GetMasterTextureData.Filter = TextureFilter::Linear;
 		__Texture2D_GetMasterTextureData.Pixels = data;
 
 		TextureManager::ReloadTexture(this);

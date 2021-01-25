@@ -16,14 +16,14 @@ namespace OverEngine
 		virtual uint32_t GetWidth() const = 0;
 		virtual uint32_t GetHeight() const = 0;
 
-		virtual TextureFiltering GetFiltering() const = 0;
-		virtual void SetFiltering(TextureFiltering filter) = 0;
+		virtual TextureFilter GetFilter() const = 0;
+		virtual void SetFilter(TextureFilter filter) = 0;
 
-		virtual TextureWrapping GetXWrapping() const = 0;
-		virtual TextureWrapping GetYWrapping() const = 0;
+		virtual TextureWrap GetUWrap() const = 0;
+		virtual TextureWrap GetVWrap() const = 0;
 
-		virtual void SetXWrapping(TextureWrapping wrapping) = 0;
-		virtual void SetYWrapping(TextureWrapping wrapping) = 0;
+		virtual void SetUWrap(TextureWrap wrap) = 0;
+		virtual void SetVWrap(TextureWrap wrap) = 0;
 
 		virtual TextureFormat GetFormat() const = 0;
 		virtual TextureType GetType() const = 0;
@@ -41,8 +41,8 @@ namespace OverEngine
 		uint32_t Width;
 		uint32_t Height;
 
-		TextureFiltering Filtering;
-		Vec2T<TextureWrapping> Wrapping = { TextureWrapping::Repeat, TextureWrapping::Repeat };
+		TextureFilter Filter;
+		Vec2T<TextureWrap> Wrap = { TextureWrap::Repeat, TextureWrap::Repeat };
 
 		uint8_t* Pixels;
 
@@ -106,14 +106,14 @@ namespace OverEngine
 		virtual uint32_t GetWidth() const override;
 		virtual uint32_t GetHeight() const override;
 
-		virtual TextureFiltering GetFiltering() const override { __Texture2D_COMMON_GET(Filtering, TextureFiltering::None); }
-		virtual void SetFiltering(TextureFiltering filtering) override { __Texture2D_COMMON_ASSERT(Filtering, filtering, "Filtering"); }
+		virtual TextureFilter GetFilter() const override { __Texture2D_COMMON_GET(Filter, TextureFilter::None); }
+		virtual void SetFilter(TextureFilter filtering) override { __Texture2D_COMMON_ASSERT(Filter, filtering, "Filter"); }
 
-		virtual TextureWrapping GetXWrapping() const override { __Texture2D_COMMON_GET(Wrapping.x, TextureWrapping::None); }
-		virtual TextureWrapping GetYWrapping() const override { __Texture2D_COMMON_GET(Wrapping.y, TextureWrapping::None); }
+		virtual TextureWrap GetUWrap() const override { __Texture2D_COMMON_GET(Wrap.x, TextureWrap::None); }
+		virtual TextureWrap GetVWrap() const override { __Texture2D_COMMON_GET(Wrap.y, TextureWrap::None); }
 
-		virtual void SetXWrapping(TextureWrapping wrapping) override { __Texture2D_COMMON_ASSERT(Wrapping.x, wrapping, "Wrapping"); }
-		virtual void SetYWrapping(TextureWrapping wrapping) override { __Texture2D_COMMON_ASSERT(Wrapping.y, wrapping, "Wrapping"); }
+		virtual void SetUWrap(TextureWrap wrap) override { __Texture2D_COMMON_ASSERT(Wrap.x, wrap, "Wrap"); }
+		virtual void SetVWrap(TextureWrap wrap) override { __Texture2D_COMMON_ASSERT(Wrap.y, wrap, "Wrap"); }
 
 		virtual TextureFormat GetFormat() const override { __Texture2D_COMMON_GET(Format, TextureFormat::None); }
 		inline virtual TextureType GetType() const override { return m_Type; }

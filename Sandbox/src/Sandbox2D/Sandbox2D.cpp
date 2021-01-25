@@ -55,16 +55,16 @@ Sandbox2D::Sandbox2D()
 
 #pragma region Textures
 	m_CheckerBoardTexture = Texture2D::MasterFromFile("assets/textures/Checkerboard.png");
-	m_CheckerBoardTexture->SetSWrapping(TextureWrapping::ClampToBorder);
-	m_CheckerBoardTexture->SetTWrapping(TextureWrapping::ClampToBorder);
+	m_CheckerBoardTexture->SetUWrap(TextureWrap::ClampToBorder);
+	m_CheckerBoardTexture->SetVWrap(TextureWrap::ClampToBorder);
 	m_CheckerBoardTexture->SetBorderColor({ 0.0f, 1.0f, 1.0f, 1.0f });
 	m_CheckerBoardTexture->SetFilter(TextureFiltering::Nearest);
 
 	m_OELogoTexture = Texture2D::MasterFromFile("assets/textures/OELogo.png");
 
 	m_SpriteSheet = Texture2D::MasterFromFile("assets/textures/SpriteSheetTest.png");
-	m_SpriteSheet->SetSWrapping(TextureWrapping::ClampToBorder);
-	m_SpriteSheet->SetTWrapping(TextureWrapping::ClampToBorder);
+	m_SpriteSheet->SetUWrap(TextureWrap::ClampToBorder);
+	m_SpriteSheet->SetVWrap(TextureWrap::ClampToBorder);
 	m_SpriteSheet->SetBorderColor({ 0.0f, 1.0f, 1.0f, 1.0f });
 
 	m_Sprite = Texture2D::SubTextureFromExistingOne(m_SpriteSheet, { 128 * 10, 0, 128, 128 });

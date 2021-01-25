@@ -271,9 +271,9 @@ namespace OverEngine
 				{
 					auto& sp = deserializedEntity.AddComponent<SpriteRendererComponent>();
 
-					if (!Serializer::GlobalEnumExists("TextureWrapping"))
+					if (!Serializer::GlobalEnumExists("TextureWrap"))
 					{
-						Serializer::DefineGlobalEnum("TextureWrapping", {
+						Serializer::DefineGlobalEnum("TextureWrap", {
 							{ 0, "None" },
 							{ 1, "Repeat" },
 							{ 2, "Clamp" },
@@ -281,9 +281,9 @@ namespace OverEngine
 						});
 					}
 
-					if (!Serializer::GlobalEnumExists("TextureFiltering"))
+					if (!Serializer::GlobalEnumExists("TextureFilter"))
 					{
-						Serializer::DefineGlobalEnum("TextureFiltering", {
+						Serializer::DefineGlobalEnum("TextureFilter", {
 							{ 0, "None" },
 							{ 1, "Nearest" },
 							{ 2, "Linear" }
@@ -300,13 +300,13 @@ namespace OverEngine
 					sp.Tiling = spriteRendererComponent["Tiling"].as<Vector2>();
 
 					if (spriteRendererComponent["Flip.x"].as<bool>())
-						sp.Flip |= SpriteRendererComponent::Flip_X;
+						sp.Flip |= TextureFlip_X;
 					if (spriteRendererComponent["Flip.y"].as<bool>())
-						sp.Flip |= SpriteRendererComponent::Flip_Y;
+						sp.Flip |= TextureFlip_Y;
 
-					sp.Wrapping.x = (TextureWrapping)Serializer::GetGlobalEnumValue("TextureWrapping", spriteRendererComponent["Wrapping.x"].as<String>());
-					sp.Wrapping.y = (TextureWrapping)Serializer::GetGlobalEnumValue("TextureWrapping", spriteRendererComponent["Wrapping.y"].as<String>());
-					sp.Filtering = (TextureFiltering)Serializer::GetGlobalEnumValue("TextureFiltering", spriteRendererComponent["Filtering"].as<String>());
+					sp.Wrap.x = (TextureWrap)Serializer::GetGlobalEnumValue("TextureWrap", spriteRendererComponent["Wrap.x"].as<String>());
+					sp.Wrap.y = (TextureWrap)Serializer::GetGlobalEnumValue("TextureWrap", spriteRendererComponent["Wrap.y"].as<String>());
+					sp.Filter = (TextureFilter)Serializer::GetGlobalEnumValue("TextureFilter", spriteRendererComponent["Filter"].as<String>());
 				}
 
 				if (auto rigidBody2DComponent = entity["RigidBody2DComponent"])
