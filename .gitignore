@@ -2,6 +2,8 @@
 .vs/
 .vscode/
 .atom/
+*.swp
+CMakeLists.txt.user
 
 # OverEngine Binaries
 /bin/
