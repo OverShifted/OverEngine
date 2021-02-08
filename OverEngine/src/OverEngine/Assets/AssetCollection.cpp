@@ -7,6 +7,9 @@
 #include "OverEngine/Core/Extentions.h"
 #include "OverEngine/Core/String.h"
 
+#include "OverEngine/Renderer/Texture.h"
+#include "OverEngine/Scene/Scene.h"
+
 #include <filesystem>
 
 namespace OverEngine
@@ -198,8 +201,8 @@ namespace OverEngine
 			return Asset::Load(metaFilePath, true, m_AssetsDirectoryPath, this);
 		}
 
-		auto extension = FileSystem::ExtractFileExtentionFromPath(physicalPath);
-		auto type = FindAssetTypeFromExtension(extension);
+		String extension = FileSystem::ExtractFileExtentionFromPath(physicalPath);
+		AssetType type = FindAssetTypeFromExtension(extension);
 
 		switch (type)
 		{
@@ -273,7 +276,7 @@ namespace OverEngine
 
 		if (!makeFolders)
 		{
-			asset->GetParent()->GetFolderAsset()->GetAssets()[asset->GetName()] = asset;
+			asset->GetParent()->GetChild(String(asset->GetName())) = asset;
 			return;
 		}
 
@@ -342,8 +345,11 @@ namespace OverEngine
 			return;
 
 		auto asset = GetAsset(path);
-		auto& parentAssets = asset->GetParent()->GetFolderAsset()->GetAssets();
-		parentAssets.erase(asset->GetName());
+		auto& parentAssets = asset->GetParent()->GetAssets();
+
+		String name;
+		name += asset->GetName();
+		parentAssets.erase(name);
 	}
 
 	Ref<Asset> AssetCollection::GetAsset(const String& path)

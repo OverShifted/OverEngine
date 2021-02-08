@@ -36,7 +36,7 @@ namespace OverEditor
 		m_ViewportPanel.SetContext(m_SceneContext);
 		m_SceneHierarchyPanel.SetContext(m_SceneContext);
 
-		m_IconsTexture = Texture2D::CreateMaster("assets/textures/Icons.png");
+		m_IconsTexture = Texture2D::Create("assets/textures/Icons.png");
 		m_Icons["FolderIcon"] = Texture2D::CreateSubTexture(m_IconsTexture, { 256, 0, 256, 256 });
 		m_Icons["SceneIcon"] = Texture2D::CreateSubTexture(m_IconsTexture, { 0, 0, 256, 256 });
 	}

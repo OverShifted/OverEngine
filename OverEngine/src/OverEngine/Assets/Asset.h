@@ -6,14 +6,33 @@ namespace OverEngine
 {
 	enum class AssetType
 	{
-		None = 0, Folder, Texture2D, Scene
+		None = 0,
+		Folder,
+		Scene,
+		Texture2D
 	};
 
-	class AssetCollection;
+	#define OE_ASSET_CLASS(T)                                                                      \
+		public:                                                                                    \
+			static constexpr AssetType GetStaticAssetType() { return AssetType::T; }               \
+			virtual AssetType GetAssetType() const { return GetStaticAssetType(); }
 
+	/**
+	 *     Example derived class from Asset
+	 *
+	 *     class MyAsset : public Asset
+	 *     {
+	 *         OE_ASSET_CLASS(MyAsset)
+	 *
+	 *     public:
+	 *         MyReturnType MyMethod();
+	 *     };
+	 * 
+	 *     Ref<MyAsset> myAsset;
+	 */
+
+	class AssetCollection;
 	class FolderAsset;
-	class Texture2DAsset;
-	class SceneAsset;
 
 	class Asset
 	{
@@ -25,26 +44,24 @@ namespace OverEngine
 		Asset() = default;
 		virtual ~Asset() = default;
 
-		Ref<Asset> GetParent() const;
+		virtual AssetType GetAssetType() const = 0;
+		inline bool IsFolder() const { return GetAssetType() == AssetType::Folder; }
 
-		inline const String& GetName() const { return m_Name; }
-		inline const String& GetPath() const { return m_Path; }
+		virtual bool IsPlaceholder() const = 0;
 
-		inline bool IsFolder() const { return m_Type == AssetType::Folder; }
+		Ref<FolderAsset> GetParent() const;
+
+		const std::string_view GetName() const;
+		const String& GetPath() const { return m_Path; }
+
+		void Rename(const String& newName);
+		void Move(const String& newPath);
 
 		inline const uint64_t& GetGuid() const { return m_Guid; }
 		inline void SetGuid(const uint64_t& guid) { m_Guid = guid; }
 
-		inline const AssetType& GetType() const { return m_Type; }
-
 		virtual void Reload() {}
-
-		FolderAsset* GetFolderAsset();
-		Texture2DAsset* GetTexture2DAsset();
-		SceneAsset* GetSceneAsset();
 	protected:
-		AssetType m_Type = AssetType::None;
-		String m_Name;
 		String m_Path;
 		uint64_t m_Guid;
 

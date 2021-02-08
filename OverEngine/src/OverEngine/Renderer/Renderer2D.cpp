@@ -46,7 +46,7 @@ namespace OverEngine
 
 		Ref<OverEngine::Shader> Shader = nullptr;
 
-		std::array<Ref<GPUTexture2D>, MaxTextureCount> TextureBindList;
+		std::array<Ref<Texture2D>, MaxTextureCount> TextureBindList;
 
 		Mat4x4 ViewProjectionMatrix;
 	};
@@ -101,7 +101,7 @@ namespace OverEngine
 		{
 			int textureIDs[MaxTextureCount];
 
-			for (int i = 0; i < MaxTextureCount; i++)
+			for (int i = 0; i < (int)MaxTextureCount; i++)
 				textureIDs[i] = i;
 
 			s_Data->Shader->Bind();
@@ -211,10 +211,6 @@ namespace OverEngine
 			NextBatch();
 		}
 
-		bool transparent = color.a < 1.0f;
-
-		Vertex vertex;
-
 		auto mat = s_Data->ViewProjectionMatrix * transform;
 
 		s_Data->QuadBufferPtr->a_Position0 = Vector3(mat * Vector4(-0.5, -0.5, 0.0, 1.0));
@@ -251,7 +247,7 @@ namespace OverEngine
 
 	void Renderer2D::DrawQuad(const Mat4x4& transform, const TexturedQuadProps& props)
 	{
-		if (!props.Texture || props.Texture->GetType() == TextureType::Placeholder)
+		if (!props.Texture)
 			return;
 
 		if (props.Tint.a == 0)
@@ -262,32 +258,28 @@ namespace OverEngine
 			NextBatch();
 		}
 
-		auto textureToBind = props.Texture->GetGPUTexture();
 
 		int8_t textureSlot = -1;
-		for (uint32_t i = 0; i < s_Data->TextureCount; i++)
+
 		{
-			if (s_Data->TextureBindList[i] == textureToBind)
+			auto it = std::find(s_Data->TextureBindList.begin(), s_Data->TextureBindList.end(), props.Texture);
+			if (it == s_Data->TextureBindList.end())
 			{
-				textureSlot = i;
-				break;
+				uint32_t slot = s_Data->TextureCount;
+				if (slot + 1 > RenderCommand::GetMaxTextureSlotCount())
+				{
+					NextBatch();
+					slot = 0;
+				}
+				s_Data->TextureBindList[slot] = props.Texture;
+				s_Data->TextureCount++;
+				textureSlot = slot;
+			}
+			else
+			{
+				textureSlot = it - s_Data->TextureBindList.begin();
 			}
 		}
-
-		if (textureSlot == -1)
-		{
-			uint32_t slot = s_Data->TextureCount;
-			if (slot + 1 > RenderCommand::GetMaxTextureSlotCount())
-			{
-				NextBatch();
-				slot = 0;
-			}
-			s_Data->TextureBindList[slot] = textureToBind;
-			s_Data->TextureCount++;
-			textureSlot = slot;
-		}
-
-		bool transparent = props.Tint.a < 1.0f || props.Texture->GetFormat() == TextureFormat::RGBA8;
 
 		auto mat = s_Data->ViewProjectionMatrix * transform;
 
@@ -321,7 +313,11 @@ namespace OverEngine
 			s_Data->QuadBufferPtr->a_TexWrap.y = (int)props.Texture->GetVWrap();
 
 		s_Data->QuadBufferPtr->a_TexSize = { props.Texture->GetWidth(), props.Texture->GetHeight() };
-		s_Data->QuadBufferPtr->a_TexRect = props.Texture->GetRect();
+
+		if (props.Texture->GetType() == TextureType::SubTexture)
+			s_Data->QuadBufferPtr->a_TexRect = { 0, 0, 1, 1 };
+		else
+			s_Data->QuadBufferPtr->a_TexRect = std::dynamic_pointer_cast<SubTexture2D>(props.Texture)->GetRect();
 
 		s_Data->QuadBufferPtr++;
 		s_Data->QuadCount++;

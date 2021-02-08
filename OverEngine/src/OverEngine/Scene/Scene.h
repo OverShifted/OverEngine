@@ -4,6 +4,7 @@
 #include "OverEngine/Core/Random.h"
 #include "OverEngine/Physics/PhysicsWorld2D.h"
 #include "OverEngine/Scripting/LuaScriptingEngine.h"
+#include "OverEngine/Assets/Asset.h"
 #include "OverEngine/Assets/AssetCollection.h"
 
 #include <entt.hpp>
@@ -26,8 +27,10 @@ namespace OverEngine
 
 	class SceneSerializer;
 
-	class Scene
+	class Scene : public Asset
 	{
+		OE_ASSET_CLASS(Scene)
+
 	public:
 		Scene(const SceneSettings& settings = SceneSettings());
 		Scene(Scene& other);

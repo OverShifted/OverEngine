@@ -3,8 +3,9 @@
 
 #include "AssetCollection.h"
 
-#include "Texture2DAsset.h"
-#include "SceneAsset.h"
+// #include "Texture2DAsset.h"
+// #include "SceneAsset.h"
+#include "FolderAsset.h"
 
 #include "OverEngine/Core/Serialization/Serializer.h"
 #include "OverEngine/Core/FileSystem/FileSystem.h"
@@ -14,6 +15,7 @@ namespace OverEngine
 {
 	Ref<Asset> Asset::Load(const String& path, bool isPhysicalPath, const String& assetsDirectoryRoot, AssetCollection* collection)
 	{
+	#if 0
 		YAML::Node node = YAML::LoadFile(isPhysicalPath ? path : assetsDirectoryRoot + "/" + path.substr(9, path.size()));
 
 		if (!Serializer::GlobalEnumExists("AssetType"))
@@ -44,49 +46,25 @@ namespace OverEngine
 		}
 
 		return asset;
+	#else
+		return nullptr;
+	#endif
 	}
 
-	Ref<Asset> Asset::GetParent() const
+	const std::string_view Asset::GetName() const
 	{
-		if (m_Path == "/")
-			return nullptr;
-
-		OE_CORE_ASSERT(m_Collection, "Asset is not owned by a collection");
-
-		auto lastSlash = m_Path.find_last_of('/');
-		return m_Collection->GetAsset(m_Path.substr(0, lastSlash + 1));
+		auto lastSlash = m_Path.find_last_of("/\\");
+		lastSlash = lastSlash == String::npos ? 0 : lastSlash + 1;
+		return std::string_view(m_Path.c_str() + lastSlash, m_Path.size() - lastSlash);
 	}
 
-	FolderAsset* Asset::GetFolderAsset()
+	void Asset::Rename(const String& newName)
 	{
-		if (m_Type != AssetType::Folder)
-		{
-			OE_CORE_ASSERT(false, "Cannot convert this asset to FolderAsset");
-			return nullptr;
-		}
 
-		return (FolderAsset*)this;
 	}
 
-	Texture2DAsset* Asset::GetTexture2DAsset()
+	void Asset::Move(const String& newPath)
 	{
-		if (m_Type != AssetType::Texture2D)
-		{
-			OE_CORE_ASSERT(false, "Cannot convert this asset to Texture2DAsset");
-			return nullptr;
-		}
-
-		return (Texture2DAsset*)this;
-	}
-
-	SceneAsset* Asset::GetSceneAsset()
-	{
-		if (m_Type != AssetType::Scene)
-		{
-			OE_CORE_ASSERT(false, "Cannot convert this asset to SceneAsset");
-			return nullptr;
-		}
-
-		return (SceneAsset*)this;
+		
 	}
 }

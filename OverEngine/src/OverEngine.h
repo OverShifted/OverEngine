@@ -38,7 +38,6 @@
 #include "OverEngine/Renderer/Shader.h"
 #include "OverEngine/Renderer/Texture.h"
 #include "OverEngine/Renderer/FrameBuffer.h"
-#include "OverEngine/Renderer/TextureManager.h"
 #include "OverEngine/Renderer/Camera.h"
 // -----------------------------------
 

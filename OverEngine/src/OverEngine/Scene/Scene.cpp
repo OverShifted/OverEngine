@@ -8,7 +8,6 @@
 
 #include "OverEngine/Renderer/Renderer2D.h"
 #include "OverEngine/Physics/PhysicsWorld2D.h"
-#include "OverEngine/Assets/Texture2DAsset.h"
 
 #include "OverEngine/Scripting/ScriptingEngine.h"
 

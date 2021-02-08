@@ -77,7 +77,5 @@ namespace OverEngine
 
 		Vector<Particle> m_ParticlePool;
 		uint32_t m_NextParticleIndex;
-
-		Ref<Texture2D> m_Sorosh;
 	};
 }
