@@ -119,7 +119,7 @@ namespace OverEngine
 		inline virtual TextureType GetType() const override { return m_Type; }
 
 		inline virtual Ref<GPUTexture2D> GetGPUTexture() const override { __Texture2D_COMMON_GET(MappedTexture, nullptr); }
-		virtual Rect GetRect() const;
+		virtual Rect GetRect() const override;
 
 		inline uint8_t* GetPixels() const
 		{

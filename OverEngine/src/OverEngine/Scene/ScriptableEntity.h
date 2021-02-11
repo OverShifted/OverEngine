@@ -3,6 +3,8 @@
 #include "Entity.h"
 #include "SceneCollision2D.h"
 
+#include "OverEngine/Core/Time/TimeStep.h"
+
 namespace OverEngine
 {
 	class ScriptableEntity

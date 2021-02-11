@@ -65,6 +65,8 @@ namespace OverEditor
 	{
 		OE_PROFILE_FUNCTION();
 
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+
 		// Main Menubar
 		if (ImGui::BeginMainMenuBar())
 		{
@@ -94,6 +96,8 @@ namespace OverEditor
 
 			ImGui::EndMainMenuBar();
 		}
+
+		ImGui::PopStyleVar();
 
 		// DockSpace
 		static constexpr ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;

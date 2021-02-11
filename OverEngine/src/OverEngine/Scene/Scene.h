@@ -5,15 +5,12 @@
 #include "OverEngine/Physics/PhysicsWorld2D.h"
 #include "OverEngine/Scripting/LuaScriptingEngine.h"
 #include "OverEngine/Assets/AssetCollection.h"
+#include "OverEngine/Scene/Entity.h"
 
 #include <entt.hpp>
 
 namespace OverEngine
 {
-	class SceneCamera;
-	class Entity;
-	class Scene;
-
 	struct Physics2DSettings
 	{
 		Vector2 gravity = Vector2(0.0f, -9.8f);

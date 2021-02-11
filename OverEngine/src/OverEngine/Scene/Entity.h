@@ -1,7 +1,6 @@
 #pragma once
 
 #include "OverEngine/Core/Core.h"
-#include "Scene.h"
 
 #include <entt.hpp>
 
@@ -16,6 +15,8 @@ namespace OverEngine
 		return entt::type_info<T>::id();
 	}
 
+	class Scene;
+
 	class Entity
 	{
 	public:
@@ -29,23 +30,23 @@ namespace OverEngine
 		T& AddComponent(Args&&... args) const
 		{
 			OE_CORE_ASSERT(!HasComponent<T>(), "Entity already has component!");
-			m_Scene->m_ComponentList[m_EntityHandle].push_back(entt::type_info<T>::id());
-			return m_Scene->m_Registry.emplace<T>(m_EntityHandle, *this, std::forward<Args>(args)...);
+			PushIDToSceneComponentList(entt::type_info<T>::id());
+			return GetSceneRegistry().emplace<T>(m_EntityHandle, *this, std::forward<Args>(args)...);
 		}
 
 		template<typename T, typename... Args>
 		T& AddComponentDontPassEntity(Args&&... args) const
 		{
 			OE_CORE_ASSERT(!HasComponent<T>(), "Entity already has component!");
-			m_Scene->m_ComponentList[m_EntityHandle].push_back(entt::type_info<T>::id());
-			return m_Scene->m_Registry.emplace<T>(m_EntityHandle, std::forward<Args>(args)...);
+			PushIDToSceneComponentList(entt::type_info<T>::id());
+			return GetSceneRegistry().emplace<T>(m_EntityHandle, std::forward<Args>(args)...);
 		}
 
 		template<typename T>
 		T& GetComponent() const
 		{
 			OE_CORE_ASSERT(HasComponent<T>(), "Entity does not have component!");
-			return m_Scene->m_Registry.get<T>(m_EntityHandle);
+			return GetSceneRegistry().get<T>(m_EntityHandle);
 		}
 
 		template<typename T>
@@ -58,23 +59,20 @@ namespace OverEngine
 		template<typename T>
 		bool HasComponent() const
 		{
-			return m_Scene->m_Registry.has<T>(m_EntityHandle);
+			return GetSceneRegistry().has<T>(m_EntityHandle);
 		}
 
 		template<typename T>
 		void RemoveComponent() const
 		{
 			OE_CORE_ASSERT(HasComponent<T>(), "Entity does not have component!");
-			m_Scene->m_Registry.remove<T>(m_EntityHandle);
+			GetSceneRegistry().remove<T>(m_EntityHandle);
 
-			auto& componentList = m_Scene->m_ComponentList[m_EntityHandle];
-			auto it = STD_CONTAINER_FIND(componentList, entt::type_info<T>::id());
-			if (it != componentList.end())
-				componentList.erase(it);
+			RemoveIDFromSceneComponentList(entt::type_info<T>::id());
 		}
 
-		const Vector<entt::id_type>& GetComponentsTypeIDList() const { return m_Scene->m_ComponentList[m_EntityHandle]; }
-		Vector<entt::id_type>& GetComponentsTypeIDList() { return m_Scene->m_ComponentList[m_EntityHandle]; }
+		const Vector<entt::id_type>& GetComponentsTypeIDList() const;
+		Vector<entt::id_type>& GetComponentsTypeIDList();
 
 		void Destroy();
 
@@ -94,6 +92,10 @@ namespace OverEngine
 			return !(*this == other);
 		}
 	private:
+		entt::registry& GetSceneRegistry() const;
+		void PushIDToSceneComponentList(const entt::id_type id) const;
+		void RemoveIDFromSceneComponentList(const entt::id_type id) const;
+
 		entt::entity m_EntityHandle{ entt::null };
 		Scene* m_Scene;
 	};

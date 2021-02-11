@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Entity.h"
+#include "Scene.h"
 
 #include "OverEngine/Core/Core.h"
 #include "OverEngine/Core/Serialization/Serializer.h"
