@@ -1,10 +1,10 @@
 #pragma once
 
 #include "OverEngine/Core/Core.h"
-#include "OverEngine/Assets/Asset.h"
+#include "OverEngine/Core/AssetManagement/Asset.h"
 #include "OverEngine/Renderer/TextureEnums.h"
 
-#include <functional>
+#include <optional>
 
 namespace OverEngine
 {
@@ -39,20 +39,23 @@ namespace OverEngine
 
 	class Texture2D : public Texture
 	{
-		OE_ASSET_CLASS(Texture2D)
+		OE_CLASS(Texture2D)
 
 	public:
 		static Ref<Texture2D> Create(const String& path);
+		static Ref<Texture2D> Create(const uint64_t& guid);
 	};
 
-	class SubTexture2D : public Texture
+	class SubTexture2D : public Texture2D
 	{
-		OE_ASSET_CLASS(Texture2D)
+		OE_CLASS(SubTexture2D)
 
 	public:
-		static Ref<Texture> Create(const Ref<Texture2D>& texture, const Rect& rect);
+		static Ref<Texture2D> Create(const Ref<Texture2D>& texture, const Rect& rect);
+		static Ref<Texture2D> Create(const uint64_t& guid);
 
 		SubTexture2D(const Ref<Texture2D>& texture, const Rect& rect);
+		SubTexture2D(const uint64_t& guid);
 
 		virtual uint32_t GetWidth() const override;
 		virtual uint32_t GetHeight() const override;
@@ -81,15 +84,10 @@ namespace OverEngine
 		Ref<Texture2D> GetMasterTexture() const { return m_MasterTexture; }
 
 		// Asset
-		virtual bool IsPlaceholder() const { return m_Data.has_value(); }
+		virtual bool IsRefrence() const override { return m_MasterTexture == nullptr; }
 	private:
 
-		struct InternalSubTexture2DData
-		{
-			Ref<Texture2D> m_MasterTexture;
-			Rect m_Rect;
-		};
-
-		std::optional<InternalSubTexture2DData> m_Data;
+		Ref<Texture2D> m_MasterTexture = nullptr;
+		Rect m_Rect;
 	};
 }

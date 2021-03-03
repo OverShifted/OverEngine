@@ -4,8 +4,7 @@
 #include "OverEngine/Core/Random.h"
 #include "OverEngine/Physics/PhysicsWorld2D.h"
 #include "OverEngine/Scripting/LuaScriptingEngine.h"
-#include "OverEngine/Assets/Asset.h"
-#include "OverEngine/Assets/AssetCollection.h"
+#include "OverEngine/Core/AssetManagement/Asset.h"
 
 #include <entt.hpp>
 
@@ -29,29 +28,17 @@ namespace OverEngine
 
 	class Scene : public Asset
 	{
-		OE_ASSET_CLASS(Scene)
+		OE_CLASS(Scene)
 
 	public:
 		Scene(const SceneSettings& settings = SceneSettings());
 		Scene(Scene& other);
 		~Scene();
 
+		inline virtual bool IsRefrence() const override { return false; }
+
 		Entity CreateEntity(const String& name = String(), uint64_t uuid = Random::UInt64());
 		Entity CreateEntity(Entity& parent, const String& name = String(), uint64_t uuid = Random::UInt64());
-
-		/**
-		 * Func should be void(*func)(Entity);
-		 * Using template allow func to be a capturing lambda
-		 */
-		template <typename Func>
-		void Each(Func func)
-		{
-			m_Registry.each([&](auto entityID)
-			{
-				Entity entity(entityID, this);
-				func(entity);
-			});
-		}
 
 		void OnUpdate(TimeStep deltaTime);
 		void OnPhysicsUpdate(TimeStep deltaTime);
@@ -65,8 +52,6 @@ namespace OverEngine
 		bool OnRender();
 		void RenderSprites();
 		void SetViewportSize(uint32_t width, uint32_t height);
-
-		void LoadReferences(AssetCollection& assetCollection);
 
 		inline PhysicsWorld2D& GetPhysicsWorld2D() { return *m_PhysicsWorld2D; }
 		inline const PhysicsWorld2D& GetPhysicsWorld2D() const { return *m_PhysicsWorld2D; }

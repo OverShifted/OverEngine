@@ -24,8 +24,6 @@ namespace OverEditor
 		inline const String& GetRootPath()            { return m_RootPath; }
 		inline const String& GetAssetsDirectoryPath() { return m_AssetsDirectoryPath; }
 
-		inline AssetCollection& GetAssets()           { return m_Assets; }
-
 		String ResolvePhysicalAssetPath(const String& virtualPath);
 
 		// Update file watcher and load assets
@@ -37,8 +35,5 @@ namespace OverEditor
 		String m_ProjectFilePath;
 		String m_RootPath;
 		String m_AssetsDirectoryPath;
-
-		// Asset Management
-		AssetCollection m_Assets;
 	};
 }

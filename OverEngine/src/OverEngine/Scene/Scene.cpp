@@ -17,7 +17,6 @@
 #include <yaml-cpp/yaml.h>
 #include <fstream>
 
-
 namespace OverEngine
 {
 	Scene::Scene(const SceneSettings& settings)
@@ -258,7 +257,7 @@ namespace OverEngine
 			{
 				auto& sptransform = spritesGroup.get<TransformComponent>(sp);
 
-				if (sprite.Sprite && sprite.Sprite->GetType() != TextureType::Placeholder)
+				if (sprite.Sprite && !sprite.Sprite->IsRefrence())
 				{
 					TexturedQuadProps props;
 					props.Tint    = sprite.Tint;
@@ -311,23 +310,6 @@ namespace OverEngine
 		{
 			if (cc.FixedAspectRatio)
 				cc.Camera.SetViewportSize(width, height);
-		});
-	}
-
-	void Scene::LoadReferences(AssetCollection& assetCollection)
-	{
-		m_Registry.view<SpriteRendererComponent>().each([&assetCollection](SpriteRendererComponent& sp)
-		{
-			if (sp.Sprite && sp.Sprite->GetType() == TextureType::Placeholder)
-			{
-				const auto& pl = std::get<PlaceHolderTextureData>(sp.Sprite->GetData());
-				auto asset = assetCollection.GetAsset(pl.AssetGuid);
-
-				if (asset && asset->GetType() == AssetType::Texture2D)
-				{
-					sp.Sprite = asset->GetTexture2DAsset()->GetTextures()[pl.Texture2DGuid];
-				}
-			}
 		});
 	}
 

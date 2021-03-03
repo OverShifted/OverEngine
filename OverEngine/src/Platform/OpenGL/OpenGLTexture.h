@@ -9,6 +9,7 @@ namespace OverEngine
 	{
 	public:
 		OpenGLTexture2D(const String& path);
+		OpenGLTexture2D(const uint64_t& guid);
 		virtual ~OpenGLTexture2D();
 
 		virtual uint32_t GetWidth() const override;
@@ -33,19 +34,14 @@ namespace OverEngine
 		virtual TextureType GetType() const override;
 
 		// Asset
-		virtual bool IsPlaceholder() const { return m_Data.has_value(); }
+		virtual bool IsRefrence() const override { return m_RendererID == 0; }
 	private:
 
-		struct InternalOpenGLTexture2DData
-		{
-			uint32_t m_RendererID = 0;
+		uint32_t m_RendererID = 0;
 
-			uint32_t m_Width = 0, m_Height = 0;
-			TextureFormat m_Format = TextureFormat::None;
-			TextureFilter m_Filter = TextureFilter::None;
-			Vec2T<TextureWrap> m_Wrap = { TextureWrap::None, TextureWrap::None };
-		};
-
-		std::optional<InternalOpenGLTexture2DData> m_Data;
+		uint32_t m_Width = 0, m_Height = 0;
+		TextureFormat m_Format = TextureFormat::None;
+		TextureFilter m_Filter = TextureFilter::None;
+		Vec2T<TextureWrap> m_Wrap = { TextureWrap::None, TextureWrap::None };
 	};
 }

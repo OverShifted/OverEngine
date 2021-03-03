@@ -1,12 +1,13 @@
 #include "pcheader.h"
 #include "SceneSerializer.h"
+
 #include "OverEngine/Core/Serialization/Serializer.h"
+#include "OverEngine/Core/AssetManagement/Asset.h"
+#include "OverEngine/Core/AssetManagement/AssetDatabase.h"
 
 #include "Entity.h"
 #include "Components.h"
 #include "TransformComponent.h"
-
-#include "OverEngine/Assets/Texture2DAsset.h"
 
 #include <fstream>
 
@@ -84,13 +85,10 @@ namespace OverEngine
 			out << YAML::Key << "Enabled" << YAML::Value << sp.Enabled;
 
 			out << YAML::Key << "Sprite" << YAML::Value;
-			if (sp.Sprite && sp.Sprite->GetAsset())
+			if (sp.Sprite)
 			{
-				auto* asset = sp.Sprite->GetAsset();
-
 				out << YAML::Flow << YAML::BeginMap;
-				out << YAML::Key << "Asset" << YAML::Value << YAML::Hex << asset->GetGuid();
-				out << YAML::Key << "Texture2D" << YAML::Value << YAML::Hex << asset->GetTextureGuid(sp.Sprite);
+				out << YAML::Key << "Asset" << YAML::Value << YAML::Hex << sp.Sprite->GetGuid();
 				out << YAML::EndMap;
 			}
 			else
@@ -292,8 +290,14 @@ namespace OverEngine
 
 					if (!spriteRendererComponent["Sprite"].IsNull())
 					{
-						auto sprite = spriteRendererComponent["Sprite"];
-						sp.Sprite = Texture2D::CreatePlaceholder(sprite["Asset"].as<uint64_t>(), sprite["Texture2D"].as<uint64_t>());
+						uint32_t refID = spriteRendererComponent["Sprite"]["Reference"].as<uint32_t>();
+						auto asset = data["References"][refID];
+
+						String typeName = asset["Type"].as<String>();
+						if (typeName == Texture2D::GetStaticClassName())
+						{
+							sp.Sprite = AssetDatabase::RegisterAndGet<Texture2D>(asset["Guid"].as<uint64_t>());
+						}
 					}
 
 					sp.Tint = spriteRendererComponent["Tint"].as<Color>();

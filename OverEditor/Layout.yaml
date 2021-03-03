@@ -1,16 +1,16 @@
 - ID: 0x578caa54
   Parent: ~
   Flags: 1032
-  Position: [34, 116]
+  Position: [0, 88]
   Size: [1600, 841]
   SplitRatio: 0.827499986
   SplitAxis: 0
 - ID: 0x1
   Parent: 0x578caa54
   Flags: 8
-  Position: [34, 116]
+  Position: [0, 88]
   Size: [1324, 841]
-  SplitRatio: 0.950282514
+  SplitRatio: 1
   SplitAxis: 1
 - ID: 0x2
   Parent: 0x578caa54
@@ -19,12 +19,12 @@
     - Project Manager
     - Inspector
   SelectedTab: 0xf02cd328
-  Position: [1360, 116]
+  Position: [1326, 88]
   Size: [274, 841]
 - ID: 0x3
   Parent: 0x1
   Flags: 8
-  Position: [34, 116]
+  Position: [0, 88]
   Size: [1324, 841]
   SplitRatio: 0.172205433
   SplitAxis: 0
@@ -41,30 +41,30 @@
 - ID: 0x6
   Parent: 0x3
   Flags: 8
-  Position: [34, 116]
+  Position: [0, 88]
   Size: [1324, 841]
-  SplitRatio: 0.662146866
+  SplitRatio: 0.696789563
   SplitAxis: 1
 - ID: 0x7
   Parent: 0x6
   Flags: 8
-  Position: [34, 116]
+  Position: [0, 88]
   Size: [1324, 586]
   SplitRatio: 0.1978852
   SplitAxis: 0
 - ID: 0x8
   Parent: 0x6
   Flags: 8
-  Position: [34, 704]
+  Position: [0, 676]
   Size: [1324, 253]
   SplitRatio: 0.808157086
   SplitAxis: 0
 - ID: 0x9
   Parent: 0x7
   Flags: 8
-  Position: [34, 116]
+  Position: [0, 88]
   Size: [262, 586]
-  SplitRatio: 0.760129631
+  SplitRatio: 0.800341308
   SplitAxis: 1
 - ID: 0xa
   Parent: 0x7
@@ -72,7 +72,7 @@
   Tabs:
     - Viewport
   SelectedTab: 0x995b0cf8
-  Position: [298, 116]
+  Position: [264, 88]
   Size: [1060, 586]
 - ID: 0xb
   Parent: 0x9
@@ -80,7 +80,7 @@
   Tabs:
     - Scene Hierarchy
   SelectedTab: 0x9a68760c
-  Position: [34, 116]
+  Position: [0, 88]
   Size: [262, 469]
 - ID: 0xc
   Parent: 0x9
@@ -89,7 +89,7 @@
     - Viewport Settings
     - Renderer2D
   SelectedTab: 0xee606726
-  Position: [34, 587]
+  Position: [0, 559]
   Size: [262, 115]
 - ID: 0xd
   Parent: 0x8
@@ -97,14 +97,13 @@
   Tabs:
     - Assets
   SelectedTab: 0x7e7d78b8
-  Position: [34, 704]
+  Position: [0, 676]
   Size: [1070, 253]
 - ID: 0xe
   Parent: 0x8
   Flags: 8
   Tabs:
-    - Textures
     - Asset Settings
   SelectedTab: 0x7c26accf
-  Position: [1106, 704]
+  Position: [1072, 676]
   Size: [252, 253]

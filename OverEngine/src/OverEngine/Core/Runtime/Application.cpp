@@ -3,6 +3,7 @@
 
 #include "OverEngine/Core/Log.h"
 #include "OverEngine/Core/Random.h"
+#include "OverEngine/Core/AssetManagement/AssetDatabase.h"
 #include "OverEngine/Input/InputSystem.h"
 
 #include "OverEngine/ImGui/ImGuiLayer.h"
@@ -21,16 +22,20 @@ namespace OverEngine
 		Runtime::Init(props.RuntimeType);
 		Log::Init();
 		Random::Init();
+		AssetDatabase::Init();
 
-		#ifdef _MSC_VER
-			OE_CORE_INFO("OverEngine v0.0 [MSC {}]", _MSC_VER);
+		#ifdef __clang__
+			OE_CORE_INFO("OverEngine v0.0 [CLANG LLVM {}.{}.{}]", __clang_major__, __clang_minor__, __clang_patchlevel__);
 		#elif defined(__GNUC__)
 			OE_CORE_INFO("OverEngine v0.0 [GCC {}.{}.{}]", __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
+		#elif defined(_MSC_VER)
+			OE_CORE_INFO("OverEngine v0.0 [MSC {}]", _MSC_VER);
 		#else
-			OE_CORE_INFO("OverEngine v0.0 [UNKNOWN COMPILER (not GCC or MSVC)]");
+			OE_CORE_INFO("OverEngine v0.0 [UNKNOWN COMPILER]");
 		#endif
 
-		// Some window should exist to init Renderer
+		// To initialize the Renderer a Window should exist.
+		// Because Context creating is happened when a Window in created.
 		m_Window = Window::Create(props.MainWindowProps);
 		m_Window->SetEventCallback(BIND_FN(Application::OnEvent));
 
@@ -42,6 +47,7 @@ namespace OverEngine
 
 	Application::~Application()
 	{
+		AssetDatabase::Clear();
 		Renderer::Shutdown();
 	}
 

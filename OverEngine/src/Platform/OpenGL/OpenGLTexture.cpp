@@ -63,7 +63,6 @@ namespace OverEngine
 	}
 
 	OpenGLTexture2D::OpenGLTexture2D(const String& path)
-		: m_Data(InternalOpenGLTexture2DData())
 	{
 		// Load image using stb_image
 		int width, height, channels;
@@ -71,98 +70,102 @@ namespace OverEngine
 		OE_CORE_ASSERT(data, "Failed to load image at path '{}'! reason: '{}'", path, stbi_failure_reason());
 
 		// Check channel count and format
-		m_Data->m_Format = GetFormatFromChannelCount(channels);
-		OE_CORE_ASSERT(m_Data->m_Format != TextureFormat::None, "Unsupported image format (channel count = {}).", channels);
+		m_Format = GetFormatFromChannelCount(channels);
+		OE_CORE_ASSERT(m_Format != TextureFormat::None, "Unsupported image format (channel count = {}).", channels);
 
 		// Put values in members
-		m_Data->m_Width = width;
-		m_Data->m_Height = height;
-		m_Data->m_Filter = TextureFilter::BiLinear;
-		m_Data->m_Wrap = { TextureWrap::Repeat, TextureWrap::Repeat };
+		m_Width = width;
+		m_Height = height;
+		m_Filter = TextureFilter::BiLinear;
+		m_Wrap = { TextureWrap::Repeat, TextureWrap::Repeat };
 
 		// Upload image to GPU
-		auto glFormat = GetOpenGLDataAndInternalFormat(m_Data->m_Format);
+		auto glFormat = GetOpenGLDataAndInternalFormat(m_Format);
 
-		glCreateTextures(GL_TEXTURE_2D, 1, &m_Data->m_RendererID);
-		glTextureStorage2D(m_Data->m_RendererID, 1, glFormat.InternalFormat, m_Data->m_Width, m_Data->m_Height);
+		glCreateTextures(GL_TEXTURE_2D, 1, &m_RendererID);
+		glTextureStorage2D(m_RendererID, 1, glFormat.InternalFormat, m_Width, m_Height);
 
-		glTextureParameteri(m_Data->m_RendererID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTextureParameteri(m_Data->m_RendererID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-		glTextureParameteri(m_Data->m_RendererID, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTextureParameteri(m_Data->m_RendererID, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-		glTextureSubImage2D(m_Data->m_RendererID, 0, 0, 0, m_Data->m_Width, m_Data->m_Height, glFormat.DataFormat, GL_UNSIGNED_BYTE, data);
+		glTextureSubImage2D(m_RendererID, 0, 0, 0, m_Width, m_Height, glFormat.DataFormat, GL_UNSIGNED_BYTE, data);
 
 		// Free image buffer created by stb_image
 		stbi_image_free(data);
 	}
 
+	OpenGLTexture2D::OpenGLTexture2D(const uint64_t& guid)
+	{
+		SetGuid(guid);
+	}
+
 	OpenGLTexture2D::~OpenGLTexture2D()
 	{
-		if (!m_Data) return;
-		glDeleteTextures(1, &m_Data->m_RendererID);
+		glDeleteTextures(1, &m_RendererID);
 	}
 
 	uint32_t OpenGLTexture2D::GetWidth() const
 	{
-		return m_Data->m_Width;
+		return m_Width;
 	}
 
 	uint32_t OpenGLTexture2D::GetHeight() const
 	{
-		return m_Data->m_Height;
+		return m_Height;
 	}
 
 	uint32_t OpenGLTexture2D::GetRendererID() const
 	{
-		return m_Data->m_RendererID;
+		return m_RendererID;
 	}
 
 	void OpenGLTexture2D::Bind(uint32_t slot)
 	{
-		glBindTextureUnit(slot, m_Data->m_RendererID);
+		glBindTextureUnit(slot, m_RendererID);
 	}
 
 	TextureFilter OpenGLTexture2D::GetFilter() const
 	{
-		return m_Data->m_Filter;
+		return m_Filter;
 	}
 
 	void OpenGLTexture2D::SetFilter(TextureFilter filter)
 	{
-		m_Data->m_Filter = filter;
+		m_Filter = filter;
 
 		GLenum glFilter = GetOpenGLTextureFilter(filter);
-		glTextureParameteri(m_Data->m_RendererID, GL_TEXTURE_MIN_FILTER, glFilter);
-		glTextureParameteri(m_Data->m_RendererID, GL_TEXTURE_MAG_FILTER, glFilter);
+		glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, glFilter);
+		glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, glFilter);
 	}
 
 	TextureWrap OpenGLTexture2D::GetUWrap() const
 	{
-		return m_Data->m_Wrap.u;
+		return m_Wrap.u;
 	}
 
 	void OpenGLTexture2D::SetUWrap(TextureWrap wrap)
 	{
-		m_Data->m_Wrap.u = wrap;
-		glTextureParameteri(m_Data->m_RendererID, GL_TEXTURE_WRAP_S, GetOpenGLTextureWrap(wrap));
+		m_Wrap.u = wrap;
+		glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_S, GetOpenGLTextureWrap(wrap));
 	}
 
 	TextureWrap OpenGLTexture2D::GetVWrap() const
 	{
-		return m_Data->m_Wrap.v;
+		return m_Wrap.v;
 	}
 
 	void OpenGLTexture2D::SetVWrap(TextureWrap wrap)
 	{
-		m_Data->m_Wrap.v = wrap;
-		glTextureParameteri(m_Data->m_RendererID, GL_TEXTURE_WRAP_T, GetOpenGLTextureWrap(wrap));
+		m_Wrap.v = wrap;
+		glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_T, GetOpenGLTextureWrap(wrap));
 	}
 
 	TextureFormat OpenGLTexture2D::GetFormat() const
 	{
-		return m_Data->m_Format;
+		return m_Format;
 	}
 
 	TextureType OpenGLTexture2D::GetType() const

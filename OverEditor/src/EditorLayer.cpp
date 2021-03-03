@@ -4,7 +4,7 @@
 
 #include <OverEngine/Core/FileSystem/FileSystem.h>
 #include <OverEngine/Scene/SceneSerializer.h>
-#include <OverEngine/Core/Extentions.h>
+#include <OverEngine/Core/Extensions.h>
 
 #include <imgui/imgui.h>
 #include <tinyfiledialogs/tinyfiledialogs.h>
@@ -37,8 +37,8 @@ namespace OverEditor
 		m_SceneHierarchyPanel.SetContext(m_SceneContext);
 
 		m_IconsTexture = Texture2D::Create("assets/textures/Icons.png");
-		m_Icons["FolderIcon"] = Texture2D::CreateSubTexture(m_IconsTexture, { 256, 0, 256, 256 });
-		m_Icons["SceneIcon"] = Texture2D::CreateSubTexture(m_IconsTexture, { 0, 0, 256, 256 });
+		m_Icons["FolderIcon"] = SubTexture2D::Create(m_IconsTexture, { 256, 0, 256, 256 });
+		m_Icons["SceneIcon"] = SubTexture2D::Create(m_IconsTexture, { 0, 0, 256, 256 });
 	}
 
 	void EditorLayer::OnUpdate(TimeStep deltaTime)
@@ -66,6 +66,7 @@ namespace OverEditor
 		OE_PROFILE_FUNCTION();
 
 		// Main Menubar
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0);
 		if (ImGui::BeginMainMenuBar())
 		{
 			if (ImGui::BeginMenu("File"))
@@ -80,8 +81,8 @@ namespace OverEditor
 
 				if (ImGui::MenuItem("Save Scene", "Ctrl+S", nullptr, m_SceneContext->AnySceneOpen()))
 				{
-					SceneSerializer sceneSerializer(m_SceneContext->PrimaryScene->GetScene());
-					sceneSerializer.Serialize(m_EditingProject->GetAssetsDirectoryPath() + m_SceneContext->PrimaryScene->GetPath());
+					SceneSerializer sceneSerializer(m_SceneContext->PrimaryScene);
+					sceneSerializer.Serialize(m_EditingProject->GetAssetsDirectoryPath() + static_cast<String>(m_SceneContext->PrimaryScene->GetPath()));
 				}
 
 				ImGui::Separator();
@@ -94,6 +95,7 @@ namespace OverEditor
 
 			ImGui::EndMainMenuBar();
 		}
+		ImGui::PopStyleVar();
 
 		// DockSpace
 		static constexpr ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
@@ -162,33 +164,6 @@ namespace OverEditor
 			ImGui::Columns(1);
 			ImGui::End();
 		}
-
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 1, 1 });
-		ImGui::Begin("Textures");
-		ImGui::PopStyleVar();
-
-		auto size = ImGui::GetContentRegionAvail();
-		ImVec2 pos{ ImGui::GetCursorPos().x + ImGui::GetWindowPos().x, ImGui::GetCursorPos().y + ImGui::GetWindowPos().y };
-		ImGui::Image((void*)(intptr_t)m_IconsTexture->GetGPUTexture()->GetRendererID(), size);
-
-		auto& drawList = *ImGui::GetWindowDrawList();
-		auto gpuT = m_IconsTexture->GetGPUTexture();
-		Vector2 texSize{ gpuT->GetWidth(), gpuT->GetHeight() };
-		for (const auto& t : gpuT->GetMemberTextures())
-		{
-			if (auto ref = t.lock())
-			{
-				ImVec2 min{ pos.x + ref->GetRect().x * size.x,
-							pos.y + ref->GetRect().y * size.y };
-
-				ImVec2 max{ min.x + ref->GetRect().z * size.x,
-							min.y + ref->GetRect().w * size.y };
-
-				drawList.AddRect(min, max, ImColor(255, 0, 0));
-			}
-		}
-
-		ImGui::End();
 	}
 
 	void EditorLayer::OnEvent(Event& event)
@@ -218,21 +193,20 @@ namespace OverEditor
 		{
 			dispatcher.Dispatch<WindowFocusEvent>([this](WindowFocusEvent& event) -> bool {
 
-				m_EditingProject->GetAssets().Refresh();
+				AssetDatabase::Refresh();
 				return false;
 
 			});
 		}
 	}
 
-	void EditorLayer::EditScene(const Ref<SceneAsset>& sceneAsset)
+	void EditorLayer::EditScene(const Ref<Scene>& scene)
 	{
-		sceneAsset->GetScene()->LoadReferences(m_EditingProject->GetAssets());
-		m_SceneContext->PrimaryScene = sceneAsset;
+		m_SceneContext->PrimaryScene = scene;
 		m_SceneContext->Selection.clear();
 
 		char buf[128];
-		sprintf_s(buf, OE_ARRAY_SIZE(buf), "OverEditor - %s - %s", m_EditingProject->GetName().c_str(), sceneAsset->GetName().c_str());
+		sprintf_s(buf, OE_ARRAY_SIZE(buf), "OverEditor - %s - %s", m_EditingProject->GetName().c_str(), scene->GetName().c_str());
 		Application::Get().GetWindow().SetTitle(buf);
 	}
 
@@ -266,7 +240,7 @@ namespace OverEditor
 				if (ImGui::Button("Open Project"))
 				{
 					std::stringstream extension;
-					extension << "*." << OE_PROJECT_FILE_EXTENSION;
+					extension << "*." << Extensions::ProjectFileExtension;
 					const char* filters[] = { extension.str().c_str() };
 					if (char* filePath = const_cast<char*>(tinyfd_openFileDialog("Open Project", "", 1, filters, "OverEngine Project", 0)))
 					{
@@ -290,7 +264,7 @@ namespace OverEditor
 				#ifdef OE_PLATFORM_WINDOWS
 					auto project = CreateRef<EditorProject>("D:/overenginedev/SuperMario/project.oep");
 				#elif defined(OE_PLATFORM_LINUX)
-					auto project = CreateRef<EditorProject>("/home/overshifted/dev/SuperMario/project.oep");
+					auto project = CreateRef<EditorProject>("/home/sepehr/dev/SuperMario/project.oep");
 				#endif
 					m_EditingProject = project;
 

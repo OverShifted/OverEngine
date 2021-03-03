@@ -5,7 +5,7 @@
 
 using namespace OverEngine;
 
-class SandboxECS: public Layer
+class SandboxECS : public Layer
 {
 public:
 	SandboxECS();

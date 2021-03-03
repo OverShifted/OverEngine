@@ -43,10 +43,10 @@ namespace OverEngine
 		void ReShape(Vector2 size);
 		void ReShape(float radius);
 
-		inline const Vector2& GetOffset() { return m_Transform.Offset; };
+		inline const Vector2& GetOffset() { return m_Transform.Offset; }
 		void SetOffset(const Vector2& offset);
 
-		inline float GetRotation() { return m_Transform.Rotation; };
+		inline float GetRotation() { return m_Transform.Rotation; }
 		void SetRotation(float rotation);
 
 		const Vector2& GetSizeHint() const { return m_SizeHint; }

@@ -3,7 +3,7 @@
 
 namespace OverEngine
 {
-	void SplitString(const String& string, const String& delimiters, Vector<String>& result)
+	void StringUtils::Split(const String& string, const String& delimiters, Vector<String>& result)
 	{
 		size_t start = 0;
 		size_t end = string.find_first_of(delimiters);
@@ -22,8 +22,17 @@ namespace OverEngine
 		}
 	}
 
-	void SplitString(const String& string, const char delimiter, Vector<String>& result)
+	void StringUtils::Join(const Vector<String>& strings, const String& delimiter, String& out)
 	{
-		return SplitString(string, String(1, delimiter), result);
+		size_t i = 0;
+
+		for (const String& item : strings)
+		{
+			i++;
+			
+			out += item;
+			if (i != strings.size())
+				out += delimiter;
+		}
 	}
 }

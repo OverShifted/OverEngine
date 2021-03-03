@@ -1,7 +1,14 @@
 #pragma once
 
+#include <OverEngine/Core/Core.h>
+
 namespace OverEngine
 {
-	void SplitString(const String& string, const String& delimiters, Vector<String>& result);
-	void SplitString(const String& string, const char delimiter, Vector<String>& result);
+	class StringUtils
+	{
+	public:
+		static void Split(const String& string, const String& delimiters, Vector<String>& result);
+
+		static void Join(const Vector<String>& strings, const String& delimiter, String& out);
+	};
 }

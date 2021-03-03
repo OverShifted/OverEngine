@@ -1,6 +1,6 @@
 #include "EditorProject.h"
 
-#include <OverEngine/Core/Extentions.h>
+#include <OverEngine/Core/Extensions.h>
 #include <OverEngine/Core/FileSystem/FileSystem.h>
 
 namespace OverEditor
@@ -23,19 +23,19 @@ namespace OverEditor
 		if (_directoryPath[_directoryPath.size() - 1] == '/')
 		{
 			std::filesystem::create_directory(_directoryPath + name);
-			projectFile.open(_directoryPath + name + "/project." + OE_PROJECT_FILE_EXTENSION, std::ios::out);
+			projectFile.open(_directoryPath + name + "/project." + Extensions::ProjectFileExtension, std::ios::out);
 			projectRoot = _directoryPath + name;
 		}
 		else
 		{
 			std::filesystem::create_directory(_directoryPath + '/' + name);
-			projectFile.open(_directoryPath + '/' + name + "/project." + OE_PROJECT_FILE_EXTENSION, std::ios::out);
+			projectFile.open(_directoryPath + '/' + name + "/project." + Extensions::ProjectFileExtension, std::ios::out);
 			projectRoot = _directoryPath + '/' + name;
 		}
 
 		projectFile << projectNode;
 		std::filesystem::create_directory(projectRoot + "/Assets");
-		return CreateRef<EditorProject>(projectRoot + "/project." + OE_PROJECT_FILE_EXTENSION);
+		return CreateRef<EditorProject>(projectRoot + "/project." + Extensions::ProjectFileExtension);
 	}
 
 	////////////////////////////////////////////////////////////
@@ -54,8 +54,8 @@ namespace OverEditor
 		m_Name = projectNode["Name"].as<String>();
 		m_AssetsDirectoryPath = m_RootPath + "/" + projectNode["AssetsRoot"].as<String>();
 
-		m_Assets.InitFromAssetsDirectory(m_AssetsDirectoryPath, projectNode["AssetsRootGuid"].as<uint64_t>());
-		m_Assets.Refresh();
+		AssetDatabase::Init(m_AssetsDirectoryPath);
+		AssetDatabase::Refresh();
 	}
 
 	EditorProject::~EditorProject()

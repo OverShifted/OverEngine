@@ -9,6 +9,9 @@ CMakeLists.txt.user
 /bin/
 /bin-int/
 /build*/
+/OverEngine/build*/
+/OverEditor/build*/
+/Sandbox/build*/
 
 # Vendor Binaries
 /OverEngine/vendor/*/bin/

@@ -21,14 +21,41 @@ namespace OverEngine
 		return nullptr;
 	}
 
-	Ref<Texture> SubTexture2D::Create(const Ref<Texture2D>& texture, const Rect& rect)
+	Ref<Texture2D> Texture2D::Create(const uint64_t& guid)
+	{
+		switch (RendererAPI::GetAPI())
+		{
+		case RendererAPI::API::None:    OE_CORE_ASSERT(false, "RendererAPI::None is currently not supported!"); return nullptr;
+		case RendererAPI::API::OpenGL:  return CreateRef<OpenGLTexture2D>(guid);
+		}
+
+		OE_CORE_ASSERT(false, "Unknown RendererAPI!");
+		return nullptr;
+	}
+
+	Ref<Texture2D> SubTexture2D::Create(const Ref<Texture2D>& texture, const Rect& rect)
 	{
 		return CreateRef<SubTexture2D>(texture, rect);
+	}
+
+	Ref<Texture2D> SubTexture2D::Create(const uint64_t& guid)
+	{
+		return CreateRef<SubTexture2D>(guid);
 	}
 
 	SubTexture2D::SubTexture2D(const Ref<Texture2D>& texture, const Rect& rect)
 		: m_MasterTexture(texture), m_Rect(rect)
 	{
+		m_Rect /= Rect(
+			texture->GetWidth(), texture->GetHeight(),
+			texture->GetWidth(), texture->GetHeight()
+		);
+	}
+
+	SubTexture2D::SubTexture2D(const uint64_t& guid)
+		: m_Rect(0, 0, 0, 0)
+	{
+		SetGuid(guid);
 	}
 
 	uint32_t SubTexture2D::GetWidth() const

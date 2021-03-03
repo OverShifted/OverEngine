@@ -42,7 +42,7 @@ namespace OverEngine
 		uint32_t OpaqueInsertIndex = 0;
 
 		uint32_t QuadCount = 0;
-		uint32_t TextureCount = 0;
+		uint8_t TextureCount = 0;
 
 		Ref<OverEngine::Shader> Shader = nullptr;
 
@@ -170,7 +170,7 @@ namespace OverEngine
 		s_Data->QuadVB->BufferSubData((void*)s_Data->QuadBufferBasePtr, s_Data->QuadCount * sizeof(Vertex));
 
 		// Bind Textures
-		for (uint32_t i = 0; i < s_Data->TextureCount; i++)
+		for (uint8_t i = 0; i < s_Data->TextureCount; i++)
 			s_Data->TextureBindList[i]->Bind(i);
 
 		// Bind VertexArray & Shader
@@ -258,20 +258,23 @@ namespace OverEngine
 			NextBatch();
 		}
 
-
 		int8_t textureSlot = -1;
-
 		{
-			auto it = std::find(s_Data->TextureBindList.begin(), s_Data->TextureBindList.end(), props.Texture);
-			if (it == s_Data->TextureBindList.end())
+			Ref<Texture2D> gpuTex = props.Texture;
+			if (props.Texture->GetType() == TextureType::SubTexture)
+				gpuTex = std::dynamic_pointer_cast<SubTexture2D>(props.Texture)->GetMasterTexture();
+
+			auto end = s_Data->TextureBindList.begin() + s_Data->TextureCount;
+			auto it = std::find(s_Data->TextureBindList.begin(), end, gpuTex);
+			if (it == end)
 			{
-				uint32_t slot = s_Data->TextureCount;
+				uint8_t slot = s_Data->TextureCount;
 				if (slot + 1 > RenderCommand::GetMaxTextureSlotCount())
 				{
 					NextBatch();
 					slot = 0;
 				}
-				s_Data->TextureBindList[slot] = props.Texture;
+				s_Data->TextureBindList[slot] = gpuTex;
 				s_Data->TextureCount++;
 				textureSlot = slot;
 			}
@@ -314,7 +317,7 @@ namespace OverEngine
 
 		s_Data->QuadBufferPtr->a_TexSize = { props.Texture->GetWidth(), props.Texture->GetHeight() };
 
-		if (props.Texture->GetType() == TextureType::SubTexture)
+		if (props.Texture->GetType() == TextureType::Master)
 			s_Data->QuadBufferPtr->a_TexRect = { 0, 0, 1, 1 };
 		else
 			s_Data->QuadBufferPtr->a_TexRect = std::dynamic_pointer_cast<SubTexture2D>(props.Texture)->GetRect();

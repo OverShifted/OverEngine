@@ -1,8 +1,8 @@
 #include "AssetsPanel.h"
 #include "EditorLayer.h"
 
-#include <OverEngine/Assets/Texture2DAsset.h>
-#include <OverEngine/Assets/SceneAsset.h>
+#include <OverEngine/Renderer/Texture.h>
+#include <OverEngine/Scene/Scene.h>
 
 #include <OverEngine/ImGui/ExtraImGui.h>
 #include <UI/UIElements.h>
@@ -25,7 +25,7 @@ namespace OverEditor
 		{
 			ImGui::Begin("Asset Settings");
 			ImGui::TextUnformatted(m_SelectionContext->GetName().c_str());
-			ImGui::TextUnformatted(m_SelectionContext->GetPath().c_str());
+			ImGui::TextUnformatted(static_cast<String>(m_SelectionContext->GetPath()).c_str());
 			ImGui::End();
 		}
 
@@ -39,14 +39,14 @@ namespace OverEditor
 		{
 			if (ImGui::Checkbox("One Column View", &m_OneColumnView) && m_OneColumnView == false)
 			{
-				if (!m_SelectionContext->IsFolder())
+				if (m_SelectionContext->GetClassName() != AssetFolder::GetStaticClassName())
 					m_SelectionContext = nullptr;
 			}
 
 			ImGui::EndPopup();
 		}
 
-		const auto& rootAsset = EditorLayer::Get().GetProject()->GetAssets().GetAsset("/");
+		const auto& rootAsset = AssetDatabase::GetRoot();
 
 		ImGuiTreeNodeFlags rootNodeFlags = OE_IMGUI_BASE_TREE_VIEW_FLAGS;
 
@@ -95,9 +95,13 @@ namespace OverEditor
 
 			if (m_SelectionContext)
 			{
-				if (ImGui::ArrowButton("AssetThumbnailBackButton", ImGuiDir_Left))
+				if (ImGui::ArrowButton("AssetThumbnailUpFolderButton", ImGuiDir_Up))
 				{
-					if (auto parent = m_SelectionContext->GetParent())
+					AssetPath parentPath = m_SelectionContext->GetPath();
+					if (!parentPath.PathNodes.empty())
+						parentPath.PathNodes.pop_back();
+
+					if (auto parent = AssetDatabase::GetAssetByPath(parentPath))
 						m_SelectionContext = parent;
 				}
 
@@ -107,14 +111,16 @@ namespace OverEditor
 
 			ImGui::BeginChild("##ThumbnailView", { 0, 0 }, false, ImGuiWindowFlags_AlwaysUseWindowPadding);
 
+			Ref<AssetFolder> selectionFolder = std::dynamic_pointer_cast<AssetFolder>(m_SelectionContext);
+
 			uint32_t count = 0;
-			if (m_SelectionContext && m_SelectionContext->IsFolder())
-				count = (uint32_t)m_SelectionContext->GetFolderAsset()->GetAssets().size();
+			if (selectionFolder)
+				count = (uint32_t)selectionFolder->GetAssets().size();
 
 			uint32_t n = 0;
-			if (m_SelectionContext && m_SelectionContext->IsFolder())
+			if (selectionFolder)
 			{
-				for (const auto& asset : m_SelectionContext->GetFolderAsset()->GetAssets())
+				for (const auto& asset : selectionFolder->GetAssets())
 				{
 					ImGui::PushID(n);
 					DrawThumbnail(asset.second, n + 1 == count);
@@ -131,15 +137,15 @@ namespace OverEditor
 		ImGui::End();
 	}
 
-	Ref<Asset> AssetsPanel::RecursiveDraw(const Ref<Asset>& assetToDraw)
+	Ref<Asset> AssetsPanel::RecursiveDraw(const Ref<AssetFolder>& assetToDraw)
 	{
 		Ref<Asset> selectedItem;
 
-		for (const auto& nameAndAsset : assetToDraw->GetFolderAsset()->GetAssets())
+		for (const auto& nameAndAsset : assetToDraw->GetAssets())
 		{
 			const auto& asset = nameAndAsset.second;
 
-			if (!m_OneColumnView && !asset->IsFolder())
+			if (!m_OneColumnView && asset->GetClassName() != AssetFolder::GetStaticClassName())
 				continue;
 
 			ImGuiTreeNodeFlags nodeFlags = OE_IMGUI_BASE_TREE_VIEW_FLAGS;
@@ -147,39 +153,38 @@ namespace OverEditor
 			if (m_SelectionContext == asset)
 				nodeFlags |= ImGuiTreeNodeFlags_Selected;
 
-			if (!asset->IsFolder())
+			if (asset->GetClassName() != AssetFolder::GetStaticClassName())
 				nodeFlags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
 
 			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, { 0.0f, 0.0f });
-			bool nodeIsOpen = ImGui::TreeNodeBehavior(ImGui::GetCurrentWindow()->GetID((void*)asset->GetGuid()), nodeFlags, asset->GetName().c_str());
+			bool nodeIsOpen = ImGui::TreeNodeEx((void*)asset.get(), nodeFlags, asset->GetName().c_str());
 			ImGui::PopStyleVar();
 
-			// EXTREAMLY TEMPO
-			if (asset->GetType() == AssetType::Texture2D)
+			if (asset->GetClassName() == Texture2D::GetStaticClassName())
 			{
 				UIElements::Tooltip([&asset]() {
 					ImGui::TextUnformatted(asset->GetName().c_str());
-					ImGui::Image(asset->GetTexture2DAsset()->GetTextures().begin()->second, { 128, 128 });
+					ImGui::Image(std::dynamic_pointer_cast<Texture2D>(asset), { 128, 128 });
 				});
 
-				UIElements::Texture2DDragSource(asset->GetTexture2DAsset()->GetTextures().begin()->second, asset->GetName().c_str(), true);
+				UIElements::Texture2DDragSource(std::dynamic_pointer_cast<Texture2D>(asset), asset->GetName().c_str(), true);
 			}
 
 			if (ImGui::IsItemClicked())
 			{
-				if (!asset->IsFolder() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+				if (asset->GetClassName() != AssetFolder::GetStaticClassName() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
 				{
-					if (asset->GetType() == AssetType::Scene)
-						EditorLayer::Get().EditScene(TYPE_PAWN(asset, Ref<SceneAsset>));
+					if (asset->GetClassName() == Scene::GetStaticClassName())
+						EditorLayer::Get().EditScene(std::dynamic_pointer_cast<Scene>(asset));
 				}
 
 				selectedItem = asset;
 			}
 
-			if (asset->IsFolder() && nodeIsOpen)
+			if (asset->GetClassName() == AssetFolder::GetStaticClassName() && nodeIsOpen)
 			{
 				if (!selectedItem)
-					selectedItem = RecursiveDraw(asset);
+					selectedItem = RecursiveDraw(std::dynamic_pointer_cast<AssetFolder>(asset));
 
 				ImGui::TreePop();
 			}
@@ -194,16 +199,15 @@ namespace OverEditor
 
 		Ref<Texture2D> icon = nullptr;
 
-		if (asset->IsFolder())
+		if (asset->GetClassName() == AssetFolder::GetStaticClassName())
 		{
 			icon = EditorLayer::Get().GetIcons()["FolderIcon"];
 		}
-		else if (asset->GetType() == AssetType::Texture2D)
+		else if (asset->GetClassName() == Texture2D::GetStaticClassName())
 		{
-			// TODO: Show all textures
-			icon = asset->GetTexture2DAsset()->GetTextures().begin()->second;
+			icon = std::dynamic_pointer_cast<Texture2D>(asset);
 		}
-		else if (asset->GetType() == AssetType::Scene)
+		else if (asset->GetClassName() == Scene::GetStaticClassName())
 		{
 			icon = EditorLayer::Get().GetIcons()["SceneIcon"];
 		}
@@ -225,13 +229,13 @@ namespace OverEditor
 
 		if (ImGui::IsItemClicked() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
 		{
-			if (asset->IsFolder())
+			if (asset->GetClassName() == AssetFolder::GetStaticClassName())
 			{
 				m_SelectionContext = asset;
 			}
-			else if (asset->GetType() == AssetType::Scene)
+			else if (asset->GetClassName() == Scene::GetStaticClassName())
 			{
-				EditorLayer::Get().EditScene(TYPE_PAWN(asset, Ref<SceneAsset>));
+				EditorLayer::Get().EditScene(std::dynamic_pointer_cast<Scene>(asset));
 			}
 		}
 
@@ -239,9 +243,9 @@ namespace OverEditor
 			ImGui::TextUnformatted(asset->GetName().c_str());
 		});
 
-		if (asset->GetType() == AssetType::Texture2D)
+		if (asset->GetClassName() == Texture2D::GetStaticClassName())
 		{
-			UIElements::Texture2DDragSource(asset->GetTexture2DAsset()->GetTextures().begin()->second, asset->GetName().c_str());
+			UIElements::Texture2DDragSource(std::dynamic_pointer_cast<Texture2D>(asset), asset->GetName().c_str());
 		}
 		
 		//////////////////////////////////////////////////////
@@ -272,9 +276,9 @@ namespace OverEditor
 			|    |     | || = rectSize.y                 __________
 			|   / \    | ||                              |        | => padding.y
 			|__________| \/     \/                       | Player |
-								|| = marginTop           |________| => padding.y
+			                    || = marginTop           |________| => padding.y
 			  |Player|          /\                       ||      ||
-														 \/      \/
+			                                             \/      \/
 			  <------> = textSize.x                  padding.x   padding.x
 			| |
 			<-> = (rectSize.x - textSize.x) / 2

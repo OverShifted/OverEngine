@@ -115,7 +115,7 @@ namespace OverEditor
 
 			UIElements::Texture2DField("Sprite", "##Sprite", sp.Sprite);
 
-			if (sp.Sprite && sp.Sprite->GetType() != TextureType::Placeholder)
+			if (sp.Sprite && !sp.Sprite->IsRefrence())
 			{
 				UIElements::CheckboxFlagsField_U("Flip.x", "##Flip.x",
 					__BASIC_FLAG_ACTION(SpriteRendererComponent, uint8_t, TextureFlip_X, Flip)

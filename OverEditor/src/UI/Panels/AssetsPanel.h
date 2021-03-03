@@ -2,6 +2,9 @@
 
 #include <OverEngine.h>
 #include <OverEngine/ImGui/ImGuiPanel.h>
+#include <OverEngine/Core/AssetManagement/AssetDatabase.h>
+
+#include <variant>
 
 namespace OverEditor
 {
@@ -17,7 +20,7 @@ namespace OverEditor
 		virtual void SetIsOpen(bool isOpen) override { m_IsOpen = isOpen; }
 		virtual bool GetIsOpen() override { return m_IsOpen; }
 	private:
-		Ref<Asset> RecursiveDraw(const Ref<Asset>& resourceToDraw);
+		Ref<Asset> RecursiveDraw(const Ref<AssetFolder>& resourceToDraw);
 		void DrawThumbnail(Ref<Asset> asset, bool last);
 	private:
 		bool m_IsOpen = true;
