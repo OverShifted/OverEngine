@@ -10,6 +10,8 @@
 
 namespace OverEngine
 {
+	class Entity;
+
 	struct Physics2DSettings
 	{
 		Vector2 gravity = Vector2(0.0f, -9.8f);
