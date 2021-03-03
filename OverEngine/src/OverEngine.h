@@ -14,10 +14,8 @@
 #include "OverEngine/ImGui/ImGuiLayer.h"
 
 // ------- Assets --------------------
-#include "OverEngine/Assets/AssetCollection.h"
-#include "OverEngine/Assets/Asset.h"
-#include "OverEngine/Assets/FolderAsset.h"
-#include "OverEngine/Assets/Texture2DAsset.h"
+#include "OverEngine/Core/AssetManagement/Asset.h"
+#include "OverEngine/Core/AssetManagement/AssetDatabase.h"
 // -----------------------------------
 
 // ------- ECS -----------------------
@@ -38,7 +36,6 @@
 #include "OverEngine/Renderer/Shader.h"
 #include "OverEngine/Renderer/Texture.h"
 #include "OverEngine/Renderer/FrameBuffer.h"
-#include "OverEngine/Renderer/TextureManager.h"
 #include "OverEngine/Renderer/Camera.h"
 // -----------------------------------
 

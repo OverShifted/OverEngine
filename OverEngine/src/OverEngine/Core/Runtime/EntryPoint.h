@@ -7,7 +7,7 @@
 
 extern OverEngine::Application* OverEngine::CreateApplication(int argc, char** argv);
 
-int OverMain(int argc, char** argv) // Platform agnostic entry point
+inline int OverMain(int argc, char** argv) // Platform agnostic entry point
 {
 	OE_PROFILE_BEGIN_SESSION("StartUp", "OverEngineProfile-StartUp.json");
 	auto app = OverEngine::CreateApplication(argc, argv);

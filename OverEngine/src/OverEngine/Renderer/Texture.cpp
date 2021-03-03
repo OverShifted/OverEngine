@@ -1,189 +1,120 @@
 #include "pcheader.h"
-#include "Texture.h"
-#include "OverEngine/Assets/Texture2DAsset.h"
 
-#include "OverEngine/Renderer/TextureManager.h"
+#include "OverEngine/Renderer/Texture.h"
+#include "OverEngine/Renderer/RendererAPI.h"
+
+#include "Platform/OpenGL/OpenGLTexture.h"
+
 #include <stb_image.h>
 
 namespace OverEngine
 {
-	Ref<Texture2D> Texture2D::CreateMaster(const String& path)
+	Ref<Texture2D> Texture2D::Create(const String& path)
 	{
-		Ref<Texture2D> texture = CreateRef<Texture2D>(path);
-		TextureManager::AddTexture(texture);
-		return texture;
-	}
-
-	Ref<Texture2D> Texture2D::CreateSubTexture(Ref<Texture2D> masterTexture, Rect rect)
-	{
-		if (masterTexture->GetType() == TextureType::Subtexture)
+		switch (RendererAPI::GetAPI())
 		{
-			OE_CORE_ERROR("Cannot create a subtexture from another subtexture!");
-			return nullptr;
+		case RendererAPI::API::None:    OE_CORE_ASSERT(false, "RendererAPI::None is currently not supported!"); return nullptr;
+		case RendererAPI::API::OpenGL:  return CreateRef<OpenGLTexture2D>(path);
 		}
 
-		return CreateRef<Texture2D>(masterTexture, rect);
+		OE_CORE_ASSERT(false, "Unknown RendererAPI!");
+		return nullptr;
 	}
 
-	Ref<Texture2D> Texture2D::CreatePlaceholder(const uint64_t& assetGuid, const uint64_t& textureGuid)
+	Ref<Texture2D> Texture2D::Create(const uint64_t& guid)
 	{
-		return CreateRef<Texture2D>(assetGuid, textureGuid);
-	}
-
-	Texture2D::Texture2D(const String& path)
-		: m_Type(TextureType::Master), m_Data(MasterTextureData())
-	{
-		int width, height, channels;
-		stbi_set_flip_vertically_on_load(0);
-		stbi_uc* data = stbi_load(path.c_str(), &width, &height, &channels, 0);
-		OE_CORE_ASSERT(data, "Failed to load image! reason: '{}'", stbi_failure_reason());
-
-		__Texture2D_GetMasterTextureData.Width = width;
-		__Texture2D_GetMasterTextureData.Height = height;
-		__Texture2D_GetMasterTextureData.ImageFilePath = path;
-
-		TextureFormat format = TextureFormat::None;
-		if (channels == 3)
+		switch (RendererAPI::GetAPI())
 		{
-			format = TextureFormat::RGB8;
-		}
-		else if (channels == 4)
-		{
-			format = TextureFormat::RGBA8;
-		}
-		OE_CORE_ASSERT(format != TextureFormat::None, "Unsupported image format");
-
-		__Texture2D_GetMasterTextureData.Format = format;
-		__Texture2D_GetMasterTextureData.Filter = TextureFilter::Linear;
-		__Texture2D_GetMasterTextureData.Pixels = data;
-		__Texture2D_GetMasterTextureData.ImageFilePath = path;
-	}
-
-	Texture2D::Texture2D(Ref<Texture2D> masterTexture, Rect rect)
-		: m_Type(TextureType::Subtexture), m_Data(SubTextureData{ masterTexture, rect })
-	{
-	}
-
-	Texture2D::Texture2D(const uint64_t& assetGuid, const uint64_t& textureGuid)
-		: m_Type(TextureType::Placeholder), m_Data(PlaceHolderTextureData{ assetGuid, textureGuid })
-	{
-	}
-
-	Texture2D::~Texture2D()
-	{
-		if (m_Type == TextureType::Master)
-		{
-			TextureManager::RemoveTexture(this);
-			stbi_image_free(__Texture2D_GetMasterTextureData.Pixels);
-		}
-	}
-
-	const String& Texture2D::GetName() const
-	{
-		static String placeholder = "Placeholder Texture";
-
-		Texture2DAsset* asset = nullptr;
-		if (m_Type == TextureType::Master)
-			asset = __Texture2D_GetMasterTextureData.Asset;
-		else if (m_Type == TextureType::Subtexture)
-			asset = __Texture2D_GetParentMasterTextureData.Asset;
-
-		if (asset)
-			return asset->GetName();
-		else if (m_Type == TextureType::Placeholder)
-			return placeholder;
-
-		static String untitled = "Untitled Texture";
-		return untitled;
-	}
-
-	uint32_t Texture2D::GetWidth() const
-	{
-		if (m_Type == TextureType::Master)
-			return __Texture2D_GetMasterTextureData.Width;
-		if (m_Type == TextureType::Subtexture)
-			return __Texture2D_GetSubTextureData.Rect.z;
-		return 0;
-	}
-
-	uint32_t Texture2D::GetHeight() const
-	{
-		if (m_Type == TextureType::Master)
-			return __Texture2D_GetMasterTextureData.Height;
-		if (m_Type == TextureType::Subtexture)
-			return __Texture2D_GetSubTextureData.Rect.w;
-		return 0;
-	}
-
-	Rect Texture2D::GetRect() const
-	{
-		Rect finalRect;
-
-		if (m_Type == TextureType::Master)
-		{
-			const auto& master = __Texture2D_GetMasterTextureData;
-			const auto& boundedGPUTexture = master.MappedTexture;
-			finalRect.x = ((float)master.MappedPos.x / (float)boundedGPUTexture->GetWidth());
-			finalRect.y = ((float)master.MappedPos.y / (float)boundedGPUTexture->GetHeight());
-			finalRect.z = ((float)master.Width       / (float)boundedGPUTexture->GetWidth());
-			finalRect.w = ((float)master.Height      / (float)boundedGPUTexture->GetHeight());
-		}
-		else
-		{
-			const auto& boundedGPUTexture = __Texture2D_GetParentMasterTextureData.MappedTexture;
-
-			Rect rect = __Texture2D_GetSubTextureData.Rect;
-
-			rect.x += __Texture2D_GetParentMasterTextureData.MappedPos.x;
-			rect.y += __Texture2D_GetParentMasterTextureData.MappedPos.y;
-
-			finalRect.x = rect.x / boundedGPUTexture->GetWidth();
-			finalRect.y = rect.y / boundedGPUTexture->GetHeight();
-			finalRect.z = rect.z / boundedGPUTexture->GetWidth();
-			finalRect.w = rect.w / boundedGPUTexture->GetHeight();
+		case RendererAPI::API::None:    OE_CORE_ASSERT(false, "RendererAPI::None is currently not supported!"); return nullptr;
+		case RendererAPI::API::OpenGL:  return CreateRef<OpenGLTexture2D>(guid);
 		}
 
-		return finalRect;
+		OE_CORE_ASSERT(false, "Unknown RendererAPI!");
+		return nullptr;
 	}
 
-	bool Texture2D::Reload(const String& filePath)
+	Ref<Texture2D> SubTexture2D::Create(const Ref<Texture2D>& texture, const Rect& rect)
 	{
-		const char* realPath = filePath.c_str();
-		if (filePath.empty())
-		{
-			const auto& internalImagefilePath = __Texture2D_GetMasterTextureData.ImageFilePath;
+		return CreateRef<SubTexture2D>(texture, rect);
+	}
 
-			if (internalImagefilePath.empty())
-				return false;
+	Ref<Texture2D> SubTexture2D::Create(const uint64_t& guid)
+	{
+		return CreateRef<SubTexture2D>(guid);
+	}
 
-			realPath = internalImagefilePath.c_str();
-		}
+	SubTexture2D::SubTexture2D(const Ref<Texture2D>& texture, const Rect& rect)
+		: m_MasterTexture(texture), m_Rect(rect)
+	{
+		m_Rect /= Rect(
+			texture->GetWidth(), texture->GetHeight(),
+			texture->GetWidth(), texture->GetHeight()
+		);
+	}
 
-		int width, height, channels;
-		stbi_set_flip_vertically_on_load(0);
-		stbi_uc* data = stbi_load(realPath, &width, &height, &channels, 0);
-		OE_CORE_ASSERT(data, "Failed to load image! reason: '{}'", stbi_failure_reason());
+	SubTexture2D::SubTexture2D(const uint64_t& guid)
+		: m_Rect(0, 0, 0, 0)
+	{
+		SetGuid(guid);
+	}
 
-		__Texture2D_GetMasterTextureData.Width = width;
-		__Texture2D_GetMasterTextureData.Height = height;
+	uint32_t SubTexture2D::GetWidth() const
+	{
+		return m_Rect.z;
+	}
 
-		TextureFormat format = TextureFormat::None;
-		if (channels == 3)
-		{
-			format = TextureFormat::RGB8;
-		}
-		else if (channels == 4)
-		{
-			format = TextureFormat::RGBA8;
-		}
-		OE_CORE_ASSERT(format != TextureFormat::None, "Unsupported image format");
+	uint32_t SubTexture2D::GetHeight() const
+	{
+		return m_Rect.w;
+	}
 
-		__Texture2D_GetMasterTextureData.Format = format;
-		__Texture2D_GetMasterTextureData.Filter = TextureFilter::Linear;
-		__Texture2D_GetMasterTextureData.Pixels = data;
+	uint32_t SubTexture2D::GetRendererID() const
+	{
+		return m_MasterTexture->GetRendererID();
+	}
 
-		TextureManager::ReloadTexture(this);
+	void SubTexture2D::Bind(uint32_t slot)
+	{
+		m_MasterTexture->Bind(slot);
+	}
 
-		return true;
+	TextureFilter SubTexture2D::GetFilter() const
+	{
+		return m_MasterTexture->GetFilter();
+	}
+
+	void SubTexture2D::SetFilter(TextureFilter)
+	{
+		OE_CORE_WARN("Cant SubTexture2D::SetFilter");
+	}
+
+	TextureWrap SubTexture2D::GetUWrap() const
+	{
+		return m_MasterTexture->GetUWrap();
+	}
+
+	void SubTexture2D::SetUWrap(TextureWrap)
+	{
+		OE_CORE_WARN("Cant SubTexture2D::SetUWrap");
+	}
+
+	TextureWrap SubTexture2D::GetVWrap() const
+	{
+		return m_MasterTexture->GetVWrap();
+	}
+
+	void SubTexture2D::SetVWrap(TextureWrap)
+	{
+		OE_CORE_WARN("Cant SubTexture2D::SetVWrap");
+	}
+
+	TextureFormat SubTexture2D::GetFormat() const
+	{
+		return m_MasterTexture->GetFormat();
+	}
+
+	TextureType SubTexture2D::GetType() const
+	{
+		return TextureType::SubTexture;
 	}
 }

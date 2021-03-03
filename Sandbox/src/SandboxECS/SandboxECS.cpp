@@ -57,13 +57,13 @@ SandboxECS::SandboxECS()
 	// m_OELogoTexture = Texture2D::CreateMaster("assets/textures/OELogo.png");
 	// m_OELogoTexture->SetFilter(TextureFilter::Linear);
 
-	m_SpriteSheet = Texture2D::CreateMaster("assets/textures/platformPack_tilesheet@2.png");
+	m_SpriteSheet = Texture2D::Create("assets/textures/platformPack_tilesheet@2.png");
 	m_SpriteSheet->SetUWrap(TextureWrap::Repeat);
 	m_SpriteSheet->SetVWrap(TextureWrap::Repeat);
 	m_SpriteSheet->SetFilter(TextureFilter::Nearest);
 
-	m_Sprite = Texture2D::CreateSubTexture(m_SpriteSheet, { 128 * 1, 128 * 5, 128, 128 });
-	m_ObstacleSprite = Texture2D::CreateSubTexture(m_SpriteSheet, { 128 * 0, 128 * 0, 128, 128 });
+	m_Sprite = SubTexture2D::Create(m_SpriteSheet, { 128 * 1, 128 * 5, 128, 128 });
+	m_ObstacleSprite = SubTexture2D::Create(m_SpriteSheet, { 128 * 0, 128 * 0, 128, 128 });
 #pragma endregion
 
 #pragma region ECS
@@ -187,9 +187,10 @@ SandboxECS::SandboxECS()
 
 		virtual void OnUpdate(TimeStep ts) override
 		{
+			static float mult = 10 * ts;
+
 			bool moving = false;
 			Vector2 vel(0.0f);
-			float mult = 10 * ts;
 
 			if (Input::IsKeyPressed(KeyCode::A))
 			{
@@ -215,9 +216,16 @@ SandboxECS::SandboxECS()
 			auto& rb = GetComponent<RigidBody2DComponent>().RigidBody;
 			rb->ApplyLinearImpulseToCenter(vel);
 
-			static ParticleProps2D props = ParticleProps2D();
+			ParticleProps2D props = ParticleProps2D();
 			props.Position = GetComponent<TransformComponent>().GetPosition();
 			props.Position.z = -0.1f;
+
+			props.Position.x += Random::Range(-0.2f, 0.2f);
+			props.Position.y += Random::Range(-0.2f, 0.2f);
+
+			props.BirthSize = Vector2(0.2);
+
+			props.RenderingProps.Texture = GetComponent<SpriteRendererComponent>().Sprite;
 
 			float len = glm::fastLength(rb->GetLinearVelocity());
 			for (int i = 0; i < len; i += 10)
@@ -226,13 +234,13 @@ SandboxECS::SandboxECS()
 
 		virtual void OnCollisionEnter(const SceneCollision2D& collision) override
 		{
-			OE_CORE_INFO("OnCollisionEnter with {}", collision.Other.Entity.GetComponent<NameComponent>().Name);
-			GetComponent<SpriteRendererComponent>().Tint = { 1.0f, 0.2f, 1.0f, 1.0f };
+			// OE_CORE_INFO("OnCollisionEnter with {}", collision.Other.Entity.GetComponent<NameComponent>().Name);
+			// GetComponent<SpriteRendererComponent>().Tint = { 1.0f, 0.2f, 1.0f, 1.0f };
 		}
 
 		virtual void OnCollisionExit(const SceneCollision2D& collision) override
 		{
-			GetComponent<SpriteRendererComponent>().Tint = { 1.0f, 1.0f, 1.0f, 1.0f };
+			// GetComponent<SpriteRendererComponent>().Tint = { 1.0f, 1.0f, 1.0f, 1.0f };
 		}
 
 	private:

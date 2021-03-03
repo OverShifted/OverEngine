@@ -10,8 +10,6 @@ namespace OverEngine
 		: m_NextParticleIndex(poolSize - 1)
 	{
 		m_ParticlePool.resize(poolSize);
-
-		m_Sorosh = Texture2D::CreateMaster("assets/textures/hallow.png");
 	}
 
 	void ParticleSystem2D::Emit(const ParticleProps2D& props)

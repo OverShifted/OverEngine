@@ -4,12 +4,12 @@ from glob import glob
 clean = '--clean' in sys.argv
 fix = '--fix' in sys.argv
 
-def fix_files(files, check_extention=True):
+def fix_files(files, check_extension=True):
 	for file_path in files:
 		if 'vendor' in file_path:
 			continue
 		
-		if not check_extention or file_path.endswith('.cpp') or file_path.endswith('.h') or file_path.endswith('.glsl'):	
+		if not check_extension or file_path.endswith('.cpp') or file_path.endswith('.h') or file_path.endswith('.glsl'):
 			print(f"Fixing {file_path}")
 			rs = open(file_path)
 			good = rs.read()

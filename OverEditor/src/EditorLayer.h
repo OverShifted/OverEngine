@@ -3,8 +3,8 @@
 #include "Behavior/EditorProject.h"
 #include <OverEngine.h>
 
-#include <OverEngine/Assets/Asset.h>
-#include <OverEngine/Assets/AssetCollection.h>
+#include <OverEngine/Core/AssetManagement/Asset.h>
+#include <OverEngine/Core/AssetManagement/AssetDatabase.h>
 #include <OverEngine/Core/FileSystem/FileSystem.h>
 
 #include "Behavior/Action.h"
@@ -32,7 +32,7 @@ namespace OverEditor
 		inline auto& GetIcons()       { return m_Icons; }
 		inline auto& GetActionStack() { return m_ActionStack; }
 
-		void EditScene(const Ref<SceneAsset>& sceneAsset);
+		void EditScene(const Ref<Scene>& scene);
 
 		static EditorLayer& Get() { return *s_Instance; }
 	private:

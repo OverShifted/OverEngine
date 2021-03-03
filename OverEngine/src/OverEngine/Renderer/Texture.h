@@ -1,142 +1,93 @@
 #pragma once
 
 #include "OverEngine/Core/Core.h"
-#include "OverEngine/Renderer/GPUTexture.h"
+#include "OverEngine/Core/AssetManagement/Asset.h"
 #include "OverEngine/Renderer/TextureEnums.h"
 
-#include <variant>
+#include <optional>
 
 namespace OverEngine
 {
-	class Texture
+	class Texture : public Asset
 	{
 	public:
 		virtual ~Texture() = default;
 
 		virtual uint32_t GetWidth() const = 0;
 		virtual uint32_t GetHeight() const = 0;
+		virtual uint32_t GetRendererID() const = 0;
 
+		virtual void Bind(uint32_t slot = 0) = 0;
+
+		// Filter
 		virtual TextureFilter GetFilter() const = 0;
 		virtual void SetFilter(TextureFilter filter) = 0;
 
+		// Wrap
 		virtual TextureWrap GetUWrap() const = 0;
-		virtual TextureWrap GetVWrap() const = 0;
-
 		virtual void SetUWrap(TextureWrap wrap) = 0;
+
+		virtual TextureWrap GetVWrap() const = 0;
 		virtual void SetVWrap(TextureWrap wrap) = 0;
 
+		inline void SetWrap(TextureWrap wrap) { SetUWrap(wrap); SetVWrap(wrap); }
+
+		// Other
 		virtual TextureFormat GetFormat() const = 0;
 		virtual TextureType GetType() const = 0;
-
-		virtual Ref<GPUTexture2D> GetGPUTexture() const = 0;
-		virtual Rect GetRect() const = 0;
 	};
-
-	class Texture2DAsset;
-
-	struct MasterTextureData
-	{
-		TextureFormat Format;
-
-		uint32_t Width;
-		uint32_t Height;
-
-		TextureFilter Filter;
-		Vec2T<TextureWrap> Wrap = { TextureWrap::Repeat, TextureWrap::Repeat };
-
-		uint8_t* Pixels;
-
-		Ref<GPUTexture2D> MappedTexture;
-		Vec2T<uint32_t> MappedPos;
-
-		Texture2DAsset* Asset = nullptr;
-
-		String ImageFilePath;
-	};
-
-	class Texture2D;
-
-	struct SubTextureData
-	{
-		Ref<Texture2D> Parent;
-		glm::uvec4 Rect;
-	};
-
-	struct PlaceHolderTextureData
-	{
-		uint64_t AssetGuid;
-		uint64_t Texture2DGuid;
-	};
-
-	class TextureManager;
-
-	#define __Texture2D_GetMasterTextureData std::get<MasterTextureData>(m_Data)
-	#define __Texture2D_GetSubTextureData std::get<SubTextureData>(m_Data)
-	#define __Texture2D_GetParentMasterTextureData std::get<MasterTextureData>(__Texture2D_GetSubTextureData.Parent->m_Data)
-
-	#define __Texture2D_COMMON_GET(x, nil)  if (m_Type == TextureType::Master)                   \
-												return __Texture2D_GetMasterTextureData.x;       \
-											if (m_Type == TextureType::Subtexture)               \
-												return __Texture2D_GetParentMasterTextureData.x; \
-											return nil;
-	
-	#define __Texture2D_COMMON_ASSERT(what_to_set, set_to_what, msg)             \
-		if (m_Type == TextureType::Master)                                       \
-			__Texture2D_GetMasterTextureData.what_to_set = set_to_what;          \
-		else                                                                     \
-			OE_CORE_ERROR("Cannot set Subtexture's and Placeholder's " msg "!");
 
 	class Texture2D : public Texture
 	{
-		friend class TextureManager;
-		friend class Texture2DAsset;
+		OE_CLASS(Texture2D)
 
 	public:
-		static Ref<Texture2D> CreateMaster(const String& path);
-		static Ref<Texture2D> CreateSubTexture(Ref<Texture2D> masterTexture, Rect rect);
-		static Ref<Texture2D> CreatePlaceholder(const uint64_t& assetGuid, const uint64_t& textureGuid);
+		static Ref<Texture2D> Create(const String& path);
+		static Ref<Texture2D> Create(const uint64_t& guid);
+	};
 
-		Texture2D(const String& path); // CreateMaster
-		Texture2D(Ref<Texture2D> masterTexture, Rect rect); // CreateSubTexture
-		Texture2D(const uint64_t& assetGuid, const uint64_t& textureGuid); // CreatePlaceholder
-		virtual ~Texture2D();
+	class SubTexture2D : public Texture2D
+	{
+		OE_CLASS(SubTexture2D)
 
-		const String& GetName() const;
+	public:
+		static Ref<Texture2D> Create(const Ref<Texture2D>& texture, const Rect& rect);
+		static Ref<Texture2D> Create(const uint64_t& guid);
+
+		SubTexture2D(const Ref<Texture2D>& texture, const Rect& rect);
+		SubTexture2D(const uint64_t& guid);
 
 		virtual uint32_t GetWidth() const override;
 		virtual uint32_t GetHeight() const override;
+		virtual uint32_t GetRendererID() const override;
 
-		virtual TextureFilter GetFilter() const override { __Texture2D_COMMON_GET(Filter, TextureFilter::None); }
-		virtual void SetFilter(TextureFilter filtering) override { __Texture2D_COMMON_ASSERT(Filter, filtering, "Filter"); }
+		virtual void Bind(uint32_t slot = 0) override;
 
-		virtual TextureWrap GetUWrap() const override { __Texture2D_COMMON_GET(Wrap.x, TextureWrap::None); }
-		virtual TextureWrap GetVWrap() const override { __Texture2D_COMMON_GET(Wrap.y, TextureWrap::None); }
+		// Filter
+		virtual TextureFilter GetFilter() const override;
+		virtual void SetFilter(TextureFilter filter) override;
 
-		virtual void SetUWrap(TextureWrap wrap) override { __Texture2D_COMMON_ASSERT(Wrap.x, wrap, "Wrap"); }
-		virtual void SetVWrap(TextureWrap wrap) override { __Texture2D_COMMON_ASSERT(Wrap.y, wrap, "Wrap"); }
+		// Wrap
+		virtual TextureWrap GetUWrap() const override;
+		virtual void SetUWrap(TextureWrap wrap) override;
 
-		virtual TextureFormat GetFormat() const override { __Texture2D_COMMON_GET(Format, TextureFormat::None); }
-		inline virtual TextureType GetType() const override { return m_Type; }
+		virtual TextureWrap GetVWrap() const override;
+		virtual void SetVWrap(TextureWrap wrap) override;
 
-		inline virtual Ref<GPUTexture2D> GetGPUTexture() const override { __Texture2D_COMMON_GET(MappedTexture, nullptr); }
-		virtual Rect GetRect() const override;
+		inline void SetWrap(TextureWrap wrap) { SetUWrap(wrap); SetVWrap(wrap); }
 
-		inline uint8_t* GetPixels() const
-		{
-			if (m_Type == TextureType::Master)
-				return __Texture2D_GetMasterTextureData.Pixels;
+		// Other
+		virtual TextureFormat GetFormat() const override;
+		virtual TextureType GetType() const override;
 
-			OE_CORE_ERROR("SubTextures don't have PixelBuffer!");
-			return nullptr;
-		}
+		const Rect& GetRect() const { return m_Rect; }
+		Ref<Texture2D> GetMasterTexture() const { return m_MasterTexture; }
 
-		bool Reload(const String& filePath = String());
-
-		Texture2DAsset* GetAsset() const { __Texture2D_COMMON_GET(Asset, nullptr); }
-		const auto& GetData() const { return m_Data; }
-
+		// Asset
+		virtual bool IsRefrence() const override { return m_MasterTexture == nullptr; }
 	private:
-		TextureType m_Type;
-		std::variant<MasterTextureData, SubTextureData, PlaceHolderTextureData> m_Data;
+
+		Ref<Texture2D> m_MasterTexture = nullptr;
+		Rect m_Rect;
 	};
 }

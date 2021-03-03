@@ -152,7 +152,7 @@ namespace OverEngine
 		(*path) = path->substr(lastSlash, path->size() - lastSlash);
 	}
 
-	String FileSystem::ExtractFileExtentionFromName(const String& name)
+	String FileSystem::ExtractFileExtensionFromName(const String& name)
 	{
 		auto lastDot = name.rfind('.');
 		if (lastDot == String::npos)
@@ -162,8 +162,8 @@ namespace OverEngine
 		return name.substr(lastDot, name.size() - lastDot);
 	}
 
-	String FileSystem::ExtractFileExtentionFromPath(const String& path)
+	String FileSystem::ExtractFileExtensionFromPath(const String& path)
 	{
-		return ExtractFileExtentionFromName(ExtractFileNameFromPath(path));
+		return ExtractFileExtensionFromName(ExtractFileNameFromPath(path));
 	}
 }

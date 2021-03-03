@@ -124,7 +124,8 @@
 #define BIT(x) (1 << x)
 #define OE_ARRAY_SIZE(a) (sizeof(a) / sizeof(*a))
 #define STD_CONTAINER_FIND(cont, val) (std::find(cont.begin(), cont.end(), val))
-#define STD_CONTAINER_HAS(cont, val) std::find(cont.begin(), cont.end(), val) != cont.end()
+#define STD_CONTAINER_HAS(cont, val) (std::find(cont.begin(), cont.end(), val) != cont.end())
+#define STD_MAP_HAS(cont, val) (cont.find(val) != cont.end())
 
 /// Casts / Converters
 #define IMVEC2_2_VECTOR2(imvec2) (::OverEngine::Vector2(imvec2.x, imvec2.y))
@@ -133,6 +134,7 @@
 /// Other
 #define BIND_FN(fn) [this](auto&&... args) -> decltype(auto) { return this->fn(std::forward<decltype(args)>(args)...); }
 #define STD_FUTURE_IS_DONE(f) (f.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+
 
 namespace OverEngine
 {

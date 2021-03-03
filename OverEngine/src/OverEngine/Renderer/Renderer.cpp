@@ -2,7 +2,6 @@
 #include "Renderer.h"
 
 #include "Renderer2D.h"
-#include "TextureManager.h"
 
 namespace OverEngine
 {
@@ -13,13 +12,11 @@ namespace OverEngine
 	{
 		RenderCommand::Init();
 		Renderer2D::Init();
-		TextureManager::Init();
 	}
 
 	void Renderer::Shutdown()
 	{
 		Renderer2D::Shutdown();
-		TextureManager::Shutdown();
 	}
 
 	void Renderer::OnWindowResize(uint32_t width, uint32_t height)

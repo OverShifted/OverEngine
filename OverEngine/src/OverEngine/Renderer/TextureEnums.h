@@ -6,15 +6,14 @@ namespace OverEngine
 	{
 		None = 0,
 		Master,
-		Subtexture,
-		Placeholder
+		SubTexture
 	};
 
 	enum class TextureFilter : uint8_t
 	{
 		None = 0,
 		Nearest,
-		Linear
+		BiLinear
 	};
 
 	enum class TextureWrap  : uint8_t

@@ -28,7 +28,7 @@ namespace OverEngine
 		static String ExtractFileNameFromPath(const String& path);
 		static void ExtractFileNameFromPath(String* path);
 
-		static String ExtractFileExtentionFromName(const String& name);
-		static String ExtractFileExtentionFromPath(const String& path);
+		static String ExtractFileExtensionFromName(const String& name);
+		static String ExtractFileExtensionFromPath(const String& path);
 	};
 }

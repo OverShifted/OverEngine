@@ -1,6 +1,6 @@
 #pragma once
 
-#include <OverEngine/Assets/SceneAsset.h>
+#include <OverEngine/Scene/Scene.h>
 
 #include <entt.hpp>
 #include <experimental/vector>
@@ -13,9 +13,9 @@ namespace OverEditor
 	{
 		SceneEditor() = default;
 
-		// Primary scene asset which is open in the editor.
+		// Primary scene which is open in the editor.
 		// Can be nullptr.
-		Ref<SceneAsset> PrimaryScene = nullptr;
+		Ref<Scene> PrimaryScene = nullptr;
 
 		// The scene that is running
 		Ref<Scene> SecondaryScene = nullptr;
@@ -34,17 +34,17 @@ namespace OverEditor
 
 		Ref<Scene> GetActiveScene()
 		{
-			return RuntimeFlags & RuntimeFlags_Simulating ? SecondaryScene : PrimaryScene->GetScene();
+			return RuntimeFlags & RuntimeFlags_Simulating ? SecondaryScene : PrimaryScene;
 		}
 
 		bool AnySceneOpen()
 		{
-			return (bool)PrimaryScene;
+			return PrimaryScene != nullptr;
 		}
 
 		void BeginSimulation()
 		{
-			SecondaryScene = CreateRef<Scene>(*PrimaryScene->GetScene());
+			SecondaryScene = CreateRef<Scene>(*PrimaryScene);
 			SecondaryScene->InitializePhysics();
 		}
 
@@ -53,7 +53,7 @@ namespace OverEditor
 			SecondaryScene = nullptr;
 
 			std::experimental::erase_if(Selection, [this](const entt::entity& entity) {
-				return !PrimaryScene->GetScene()->Exists(entity);
+				return !PrimaryScene->Exists(entity);
 			});
 		}
 	};
