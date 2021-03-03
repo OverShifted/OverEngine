@@ -11,7 +11,6 @@
 #include "Behavior/SceneEditor.h"
 #include "UI/Panels/ViewportPanel.h"
 #include "UI/Panels/SceneHierarchyPanel.h"
-#include "UI/Panels/ConsolePanel.h"
 #include "UI/Panels/AssetsPanel.h"
 
 namespace OverEditor
@@ -52,7 +51,6 @@ namespace OverEditor
 		// Panels
 		ViewportPanel m_ViewportPanel;
 		SceneHierarchyPanel m_SceneHierarchyPanel;
-		ConsolePanel m_ConsolePanel;
 		AssetsPanel m_AssetsPanel;
 
 		bool m_IsProjectManagerOpen = true;

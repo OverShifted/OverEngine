@@ -66,26 +66,4 @@ namespace OverEngine
 
 		friend class RigidBody2D;
 	};
-
-	class BoxCollider2D : public Collider2D
-	{
-	public:
-		BoxCollider2D() = default;
-
-		const Vector2& GetSize() const { return m_Size; }
-		void SetSize(const Vector2& size) { m_Size = size; }
-	private:
-		Vector2 m_Size;
-	};
-
-	class CircleCollider2D : public Collider2D
-	{
-	public:
-		CircleCollider2D() = default;
-
-		float GetRadius() const { return m_Radius; }
-		void SetRadius(float radius) { m_Radius = radius; }
-	private:
-		float m_Radius;
-	};
 }

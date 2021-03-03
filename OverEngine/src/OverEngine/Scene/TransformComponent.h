@@ -12,7 +12,6 @@ namespace OverEngine
 	class TransformComponent : public Component
 	{
 	public:
-		TransformComponent() = default;
 		TransformComponent(const TransformComponent&) = default;
 		TransformComponent(const Entity& entity, const Entity& parent = Entity())
 			: Component(entity)

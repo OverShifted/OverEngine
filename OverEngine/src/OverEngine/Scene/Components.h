@@ -53,7 +53,6 @@ namespace OverEngine
 	{
 		String Name = String();
 
-		NameComponent() = default;
 		NameComponent(const NameComponent&) = default;
 		NameComponent(const Entity& entity, const String& name)
 			: Component(entity), Name(name) {}
@@ -65,7 +64,6 @@ namespace OverEngine
 	{
 		uint64_t ID = Random::UInt64();
 
-		IDComponent() = default;
 		IDComponent(const IDComponent&) = default;
 		IDComponent(const Entity& entity, const uint64_t& id)
 			: Component(entity), ID(id) {}
@@ -77,7 +75,6 @@ namespace OverEngine
 	{
 		bool IsActive;
 
-		ActivationComponent() = default;
 		ActivationComponent(const ActivationComponent&) = default;
 		ActivationComponent(const Entity& entity, bool isActive)
 			: Component(entity), IsActive(isActive) {}
@@ -94,7 +91,6 @@ namespace OverEngine
 		SceneCamera Camera;
 		bool FixedAspectRatio = true;
 
-		CameraComponent() = default;
 		CameraComponent(const CameraComponent&) = default;
 
 		CameraComponent(const Entity& entity, const SceneCamera& camera)
@@ -122,7 +118,6 @@ namespace OverEngine
 		TextureFilter Filter = TextureFilter::None;
 
 	public:
-		SpriteRendererComponent() = default;
 		SpriteRendererComponent(const SpriteRendererComponent&) = default;
 
 		SpriteRendererComponent(const Entity& entity, Ref<Texture2D> sprite = nullptr)
@@ -148,7 +143,6 @@ namespace OverEngine
 		// Used for runtime
 		Ref<RigidBody2D> RigidBody;
 
-		RigidBody2DComponent() = default;
 		RigidBody2DComponent(const RigidBody2DComponent&) = default;
 
 		RigidBody2DComponent(const Entity& entity, const RigidBody2DProps& props = RigidBody2DProps())
@@ -175,7 +169,6 @@ namespace OverEngine
 
 		Vector<ColliderData> Colliders;
 
-		Colliders2DComponent() = default;
 		Colliders2DComponent(const Colliders2DComponent&) = default;
 
 		Colliders2DComponent(const Entity& entity)
@@ -207,7 +200,6 @@ namespace OverEngine
 		bool Runtime = false;
 		UnorderedMap<size_t, _Script> Scripts;
 
-		NativeScriptsComponent() = default;
 
 		// Don't copy 'Scripts' to other instance when 'Runtime' is true; since it will lead to double free on entt::registry::destroy
 		NativeScriptsComponent(const NativeScriptsComponent& other)
@@ -301,7 +293,6 @@ namespace OverEngine
 		// name => source
 		UnorderedMap<String, String> Scripts;
 
-		LuaScriptsComponent() = default;
 		LuaScriptsComponent(const LuaScriptsComponent&) = default;
 
 		LuaScriptsComponent(const Entity& entity)

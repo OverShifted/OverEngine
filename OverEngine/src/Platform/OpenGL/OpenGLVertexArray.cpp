@@ -20,6 +20,7 @@ namespace OverEngine
 		case ShaderDataType::Int3:     return GL_INT;
 		case ShaderDataType::Int4:     return GL_INT;
 		case ShaderDataType::Bool:     return GL_BOOL;
+		default:;
 		}
 
 		OE_CORE_ASSERT(false, "Unknown ShaderDataType!");

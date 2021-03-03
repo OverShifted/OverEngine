@@ -22,6 +22,7 @@ namespace OverEngine
 		case ShaderDataType::Int3:     return 4 * 3;
 		case ShaderDataType::Int4:     return 4 * 4;
 		case ShaderDataType::Bool:     return 1;
+		default:;
 		}
 
 		OE_CORE_ASSERT(false, "Unknown ShaderDataType!");
@@ -58,6 +59,7 @@ namespace OverEngine
 			case ShaderDataType::Int3:    return 3;
 			case ShaderDataType::Int4:    return 4;
 			case ShaderDataType::Bool:    return 1;
+			default:;
 			}
 
 			OE_CORE_ASSERT(false, "Unknown ShaderDataType!");

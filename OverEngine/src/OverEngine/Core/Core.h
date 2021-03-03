@@ -117,9 +117,6 @@
 	 ImGuiTreeNodeFlags_SpanAvailWidth |        \
 	 ImGuiTreeNodeFlags_SpanFullWidth)
 
-/// Template Constants
-#define NULL_REF(T) (*(T*)nullptr)
-
 /// Operators
 #define BIT(x) (1 << x)
 #define OE_ARRAY_SIZE(a) (sizeof(a) / sizeof(*a))

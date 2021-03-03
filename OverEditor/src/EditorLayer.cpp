@@ -1,7 +1,5 @@
 #include "EditorLayer.h"
 
-#include "UI/EditorConsoleSink.h"
-
 #include <OverEngine/Core/FileSystem/FileSystem.h>
 #include <OverEngine/Scene/SceneSerializer.h>
 #include <OverEngine/Core/Extensions.h>
@@ -26,11 +24,6 @@ namespace OverEditor
 	{
 		OE_PROFILE_FUNCTION();
 
-		// auto editorConsoleSink = std::make_shared<EditorConsoleSink_mt>(&m_ConsolePanel);
-		// editorConsoleSink->set_pattern("%v");
-		// Log::GetCoreLogger()->sinks().push_back(editorConsoleSink);
-		// Log::GetClientLogger()->sinks().push_back(editorConsoleSink);
-
 		m_SceneContext = CreateRef<SceneEditor>();
 		m_SceneContext->PrimaryScene = nullptr;
 		m_ViewportPanel.SetContext(m_SceneContext);
@@ -48,17 +41,7 @@ namespace OverEditor
 		m_ViewportPanel.OnRender();
 
 		if (m_EditingProject)
-		{
-			/*std::lock_guard<std::mutex> lock(m_EditingProject->GetAssetLoadCommandBufferMutex());
-
-			auto& cmdBuffer = m_EditingProject->GetAssetLoadCommandBuffer();
-			for (const auto& path : cmdBuffer)
-				AssetManager::ImportAndLoad(path, m_EditingProject->GetAssetsDirectoryPath(), &m_EditingProject->GetAssets());
-
-			cmdBuffer.clear();*/
-
 			m_EditingProject->OnUpdate(deltaTime);
-		}
 	}
 
 	void EditorLayer::OnImGuiRender()
@@ -151,8 +134,6 @@ namespace OverEditor
 
 		OnProjectManagerGUI();
 
-		//m_ConsolePanel.OnImGuiRender();
-
 		if (m_EditingProject)
 		{
 			m_ViewportPanel.OnImGuiRender();
@@ -243,9 +224,10 @@ namespace OverEditor
 
 				if (ImGui::Button("Open Project"))
 				{
-					std::stringstream extension;
-					extension << "*." << Extensions::ProjectFileExtension;
-					const char* filters[] = { extension.str().c_str() };
+					std::stringstream extensionSS;
+					extensionSS << "*." << Extensions::ProjectFileExtension;
+					String extension = extensionSS.str();
+					const char* filters[] = { extension.c_str() };
 					if (char* filePath = const_cast<char*>(tinyfd_openFileDialog("Open Project", "", 1, filters, "OverEngine Project", 0)))
 					{
 						FileSystem::FixPath(filePath);

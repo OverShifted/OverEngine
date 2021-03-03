@@ -31,8 +31,8 @@ namespace OverEngine
 		virtual void SetClipboardText(const char* text) override;
 		virtual const char* GetClipboardText() override;
 
-		inline virtual void* GetNativeWindow() const { return m_Window; }
-		inline virtual RendererContext& GetRendererContext() const { return *m_Context; }
+		inline virtual void* GetNativeWindow() const override { return m_Window; }
+		inline virtual RendererContext& GetRendererContext() const override { return *m_Context; }
 	private:
 		virtual void Init(const WindowProps& props);
 		virtual void Shutdown();

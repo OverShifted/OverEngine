@@ -39,7 +39,7 @@ namespace OverEngine
 		virtual void BufferSubData(const uint32_t* indices, uint32_t count, uint32_t offset = 0) const override;
 		virtual void AllocateStorage(uint32_t count) const override;
 
-		virtual uint32_t GetCount() const { return m_Count; }
+		virtual uint32_t GetCount() const override { return m_Count; }
 	private:
 		uint32_t m_RendererID = 0;
 		mutable uint32_t m_Count;

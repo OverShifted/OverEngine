@@ -62,15 +62,5 @@ namespace OverEngine
 			elem.EnumName = enumName;
 			Elements.push_back(elem);
 		}
-
-		const SerializableElement& operator[] (const char* name) const
-		{
-			for (const auto& element : Elements)
-				if (element.Name == name)
-					return element;
-
-			OE_CORE_ASSERT(false, "Cannot find corresponding element");
-			return NULL_REF(SerializableElement);
-		}
 	};
 }
