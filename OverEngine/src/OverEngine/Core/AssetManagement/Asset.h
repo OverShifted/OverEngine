@@ -15,8 +15,8 @@ namespace OverEngine
 
 		AssetPath(const String& path)
 		{
-			Absolute = path[0] == '/';
-			StringUtils::Split(path, "/",  PathNodes);
+			Absolute = path[0] == '/' || path[0] == '\\';
+			StringUtils::Split(path, "/\\",  PathNodes);
 		}
 
 		operator String() const
@@ -43,6 +43,7 @@ namespace OverEngine
 		Asset() = default;
 
 	public:
+		virtual void Acquire(Ref<Asset> other) {}
 		virtual ~Asset() = default;
 
 		virtual bool IsRefrence() const = 0;

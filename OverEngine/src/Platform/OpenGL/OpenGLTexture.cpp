@@ -102,9 +102,24 @@ namespace OverEngine
 		SetGuid(guid);
 	}
 
+	void OpenGLTexture2D::Acquire(Ref<Asset> other)
+	{
+		if (auto otherGLTexture = std::dynamic_pointer_cast<OpenGLTexture2D>(other))
+		{
+			m_RendererID = otherGLTexture->m_RendererID;
+
+			m_Width  = otherGLTexture->m_Width;
+			m_Height = otherGLTexture->m_Height;
+			m_Format = otherGLTexture->m_Format;
+			m_Filter = otherGLTexture->m_Filter;
+			m_Wrap   = otherGLTexture->m_Wrap;
+		}
+	}
+
 	OpenGLTexture2D::~OpenGLTexture2D()
 	{
-		glDeleteTextures(1, &m_RendererID);
+		if (m_RendererID != 0)
+			glDeleteTextures(1, &m_RendererID);
 	}
 
 	uint32_t OpenGLTexture2D::GetWidth() const

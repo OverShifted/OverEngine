@@ -7,8 +7,8 @@
 #include <string>
 #include <thread>
 
-namespace OverEngine {
-
+namespace OverEngine
+{
 	using FloatingPointMicroseconds = std::chrono::duration<double, std::micro>;
 
 	struct ProfileResult

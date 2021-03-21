@@ -4,7 +4,8 @@
 #include "Scene.h"
 
 #include "OverEngine/Core/Core.h"
-#include "OverEngine/Core/Serialization/Serializer.h"
+#include "OverEngine/Core/Runtime/Serialization/Serializer.h"
+#include "OverEngine/Core/Runtime/Reflection/Reflection.h"
 #include "OverEngine/Core/Math/Math.h"
 #include "OverEngine/Core/Random.h"
 
@@ -58,6 +59,7 @@ namespace OverEngine
 			: Component(entity), Name(name) {}
 
 		COMPONENT_TYPE(NameComponent)
+		OE_REFLECT_STRUCT()
 	};
 
 	struct IDComponent : public Component
@@ -89,7 +91,7 @@ namespace OverEngine
 	struct CameraComponent : public Component
 	{
 		SceneCamera Camera;
-		bool FixedAspectRatio = true;
+		bool FixedAspectRatio = false;
 
 		CameraComponent(const CameraComponent&) = default;
 
@@ -98,8 +100,6 @@ namespace OverEngine
 
 		CameraComponent(const Entity& entity)
 			: Component(entity) {}
-
-		static SerializationContext* Reflect();
 
 		COMPONENT_TYPE(CameraComponent)
 	};
@@ -113,9 +113,9 @@ namespace OverEngine
 		Vector2 Tiling = Vector2(1.0f);
 		Vector2 Offset = Vector2(0.0f);
 		TextureFlip Flip = 0;
-		
-		Vec2T<TextureWrap> Wrap{ TextureWrap::None, TextureWrap::None };
-		TextureFilter Filter = TextureFilter::None;
+
+		// Useful for SubTextures
+		bool ForceTile = false;
 
 	public:
 		SpriteRendererComponent(const SpriteRendererComponent&) = default;
@@ -126,9 +126,8 @@ namespace OverEngine
 		SpriteRendererComponent(const Entity& entity, Ref<Texture2D> sprite, const Color& tint)
 			: Component(entity), Sprite(sprite), Tint(tint) {}
 
-		static SerializationContext* Reflect();
-
 		COMPONENT_TYPE(SpriteRendererComponent)
+		OE_REFLECT_STRUCT()
 	};
 
 	////////////////////////////////////////////////////////
@@ -153,9 +152,8 @@ namespace OverEngine
 			AttachedEntity.GetScene()->GetPhysicsWorld2D().DestroyRigidBody(RigidBody);
 		}
 
-		static SerializationContext* Reflect();
-
 		COMPONENT_TYPE(RigidBody2DComponent)
+		OE_REFLECT_STRUCT()
 	};
 
 	// Store's all colliders attached to an Entity

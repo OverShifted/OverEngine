@@ -32,26 +32,6 @@ namespace OverEngine
 										0.0f, _s.y, 0.0f, 0.0f, \
 										0.0f, 0.0f, _s.z, 0.0f, \
 										0.0f, 0.0f, 0.0f, 1.0f)
-		
-		struct Angle
-		{
-			Angle() = default;
-			Angle(float value, bool inRadians = true)
-				: Radians(inRadians ? value : glm::radians(value)) {}
-
-			inline float GetRadians() const { return Radians; }
-			inline float GetDegrees() const { return glm::degrees(Radians); }
-
-			inline void SetRadians(float angle) { Radians = angle; }
-			inline void SetDegrees(float angle) { Radians = glm::radians(angle); }
-		private:
-			float Radians = 0;
-		};
-
-		enum class Direction : uint8_t
-		{
-			None, Up, Down, Right, Left
-		};
 
 		enum class Axis : uint8_t
 		{

@@ -4,10 +4,12 @@ namespace OverEngine
 {
 	class Window;
 
-	class RendererContext
+	class GraphicsContext
 	{
 	public:
-		virtual ~RendererContext() = default;
+		static Scope<GraphicsContext> Create(Window* window);
+
+		virtual ~GraphicsContext() = default;
 
 		virtual void Init() = 0;
 		virtual void SwapBuffers() = 0;
@@ -17,7 +19,5 @@ namespace OverEngine
 		virtual const char* GetInfoVersion() = 0;
 		virtual const char* GetInfoVendor() = 0;
 		virtual const char* GetInfoRenderer() = 0;
-
-		static Scope<RendererContext> Create(Window* window);
 	};
 }

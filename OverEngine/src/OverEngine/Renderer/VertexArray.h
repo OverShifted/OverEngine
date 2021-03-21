@@ -9,6 +9,8 @@ namespace OverEngine
 	class VertexArray
 	{
 	public:
+		static Ref<VertexArray> Create();
+
 		virtual ~VertexArray() {}
 
 		virtual void Bind() const = 0;
@@ -19,7 +21,5 @@ namespace OverEngine
 
 		virtual const Vector<Ref<VertexBuffer>>& GetVertexBuffers() const = 0;
 		virtual const Ref<IndexBuffer>& GetIndexBuffer() const = 0;
-
-		static Ref<VertexArray> Create();
 	};
 }

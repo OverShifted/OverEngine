@@ -110,15 +110,15 @@ SandboxLayer::SandboxLayer()
 void SandboxLayer::OnAttach()
 {
 	std::stringstream ss = std::stringstream();
-	ss << "Vendor: " << Application::Get().GetMainWindow().GetRendererContext()->GetInfoVendor();
+	ss << "Vendor: " << Application::Get().GetMainWindow().GetGraphicsContext()->GetInfoVendor();
 	vendorInfo = ss.str();
 
 	ss = std::stringstream();
-	ss << "Renderer: " << Application::Get().GetMainWindow().GetRendererContext()->GetInfoRenderer();
+	ss << "Renderer: " << Application::Get().GetMainWindow().GetGraphicsContext()->GetInfoRenderer();
 	rendererInfo = ss.str();
 
 	ss = std::stringstream();
-	ss << "Version: " << Application::Get().GetMainWindow().GetRendererContext()->GetInfoVersion();
+	ss << "Version: " << Application::Get().GetMainWindow().GetGraphicsContext()->GetInfoVersion();
 	versionInfo = ss.str();
 }
 

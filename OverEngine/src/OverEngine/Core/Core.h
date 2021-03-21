@@ -126,7 +126,6 @@
 
 /// Casts / Converters
 #define IMVEC2_2_VECTOR2(imvec2) (::OverEngine::Vector2(imvec2.x, imvec2.y))
-#define TYPE_PAWN(var, T) (*((T*)&var))
 
 /// Other
 #define BIND_FN(fn) [this](auto&&... args) -> decltype(auto) { return this->fn(std::forward<decltype(args)>(args)...); }
@@ -184,7 +183,6 @@ namespace OverEngine
 	using String = std::string;
 
 	template<typename T> using Vector = std::vector<T>;
-	template<typename T> using RefVec = Ref<Vector<T>>;
 
 	template<typename T, typename U> using UnorderedMap = std::unordered_map<T, U>;
 	template<typename T, typename U> using Map = std::map<T, U>;

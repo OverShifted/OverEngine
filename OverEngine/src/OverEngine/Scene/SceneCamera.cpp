@@ -3,39 +3,28 @@
 
 namespace OverEngine
 {
-	SerializationContext* SceneCamera::Reflect()
-	{
-		static bool initialized = false;
-		static SerializationContext ctx;
+	OE_REFLECT_ENUM_CLASS_BEGIN(SceneCamera::ProjectionType)
+	OE_REFLECT_ENUM_CLASS_VALUE(None, 0)
+	OE_REFLECT_ENUM_CLASS_VALUE(Orthographic, 1)
+	OE_REFLECT_ENUM_CLASS_VALUE(Perspective, 2)
+	OE_REFLECT_ENUM_CLASS_END()
 
-		if (!initialized)
-		{
-			initialized = true;
+	OE_REFLECT_STRUCT_BEGIN(SceneCamera)
+	OE_REFLECT_STRUCT_MEMBER(m_ProjectionType)
 
-			if (!Serializer::GlobalEnumExists("SceneCamera::ProjectionType"))
-			{
-				Serializer::DefineGlobalEnum("SceneCamera::ProjectionType", {
-					{ 0, "Orthographic" },
-					{ 1, "Perspective" }
-				});
-			}
+	OE_REFLECT_STRUCT_MEMBER(m_PerspectiveFOV)
+	OE_REFLECT_STRUCT_MEMBER(m_PerspectiveNear)
+	OE_REFLECT_STRUCT_MEMBER(m_PerspectiveFar)
 
-			ctx.AddEnumField(SerializableType::IntEnum, "SceneCamera::ProjectionType", &SceneCamera::m_ProjectionType, "ProjectionType");
+	OE_REFLECT_STRUCT_MEMBER(m_OrthographicSize)
+	OE_REFLECT_STRUCT_MEMBER(m_OrthographicNear)
+	OE_REFLECT_STRUCT_MEMBER(m_OrthographicFar)
 
-			ctx.AddField(SerializableType::Float, &SceneCamera::m_PerspectiveFOV, "PerspectiveFOV");
-			ctx.AddField(SerializableType::Float, &SceneCamera::m_PerspectiveNear, "PerspectiveNear");
-			ctx.AddField(SerializableType::Float, &SceneCamera::m_PerspectiveFar, "PerspectiveFar");
+	OE_REFLECT_STRUCT_MEMBER(m_AspectRatio)
 
-			ctx.AddField(SerializableType::Float, &SceneCamera::m_OrthographicSize, "OrthographicSize");
-			ctx.AddField(SerializableType::Float, &SceneCamera::m_OrthographicNear, "OrthographicNear");
-			ctx.AddField(SerializableType::Float, &SceneCamera::m_OrthographicFar, "OrthographicFar");
-
-			ctx.AddField(SerializableType::Int8, &SceneCamera::m_ClearFlags, "ClearFlags");
-			ctx.AddField(SerializableType::Float4, &SceneCamera::m_ClearColor, "ClearColor");
-		}
-
-		return &ctx;
-	}
+	OE_REFLECT_STRUCT_MEMBER(m_ClearFlags)
+	OE_REFLECT_STRUCT_MEMBER(m_ClearColor)
+	OE_REFLECT_STRUCT_END()
 
 	SceneCamera::SceneCamera()
 	{

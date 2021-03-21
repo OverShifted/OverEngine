@@ -1,7 +1,7 @@
 #include "pcheader.h"
 #include "SceneSerializer.h"
 
-#include "OverEngine/Core/Serialization/Serializer.h"
+#include "OverEngine/Core/Runtime/Serialization/Serializer.h"
 #include "OverEngine/Core/AssetManagement/Asset.h"
 #include "OverEngine/Core/AssetManagement/AssetDatabase.h"
 
@@ -11,7 +11,7 @@
 
 #include <fstream>
 
-#include <OverEngine/Core/Serialization/YamlConverters.h>
+#include "OverEngine/Core/Runtime/Serialization/YamlConverters.h"
 #include <yaml-cpp/yaml.h>
 
 namespace OverEngine
@@ -23,34 +23,41 @@ namespace OverEngine
 
 	static void SerializeEntity(YAML::Emitter& out, Entity entity)
 	{
-		out << YAML::BeginMap; // Entity
+		out << YAML::BeginMap;
+
+		// Primary components:
+
+		// UUID
 		out << YAML::Key << "Entity" << YAML::Value << YAML::Hex << entity.GetComponent<IDComponent>().ID;
 
-		// TODO: Order matters
-
+		// NameComponent
 		if (entity.HasComponent<NameComponent>())
 		{
-			out << YAML::Key << "NameComponent";
-			out << YAML::BeginMap; // NameComponent
+			out << YAML::Key << "NameComponent" << YAML::BeginMap; // NameComponent
 
-			auto& tag = entity.GetComponent<NameComponent>().Name;
-			out << YAML::Key << "Name" << YAML::Value << tag;
+			out << YAML::Key << "Name" << YAML::Value << entity.GetComponent<NameComponent>().Name;
 
 			out << YAML::EndMap; // NameComponent
 		}
 
+		// TransformComponent
 		if (entity.HasComponent<TransformComponent>())
 		{
 			out << YAML::Key << "TransformComponent" << YAML::BeginMap; // TransformComponent
 
 			auto& tc = entity.GetComponent<TransformComponent>();
 
+			out << YAML::Key << "Parent" << YAML::Value;
 			if (auto parent = tc.GetParent())
-				out << YAML::Key << "Parent" << YAML::Value << YAML::Hex << parent.GetComponent<IDComponent>().ID;
+			{
+				out << YAML::Hex << parent.GetComponent<IDComponent>().ID;
+				out << YAML::Key << "SiblingIndex" << YAML::Value << tc.GetSiblingIndex();
+			}
 			else
-				out << YAML::Key << "Parent" << YAML::Value << YAML::Hex << YAML::Null;
+			{
+				out << YAML::Null;
+			}
 
-			out << YAML::Key << "SiblingIndex" << YAML::Value << tc.GetSiblingIndex();
 
 			out << YAML::Key << "Position" << YAML::Value << tc.GetLocalPosition();
 			out << YAML::Key << "Rotation" << YAML::Value << tc.GetLocalEulerAngles();
@@ -59,106 +66,101 @@ namespace OverEngine
 			out << YAML::EndMap; // TransformComponent
 		}
 
-		if (entity.HasComponent<CameraComponent>())
+		// Other Components
+		for (auto typeID : entity.GetComponentsTypeIDList())
 		{
-			out << YAML::Key << "CameraComponent";
-			out << YAML::BeginMap; // CameraComponent
-
-			auto& cc = entity.GetComponent<CameraComponent>();
-			out << YAML::Key << "Enabled" << YAML::Value << cc.Enabled;
-
-			out << YAML::Key << "Camera" << YAML::Value << YAML::BeginMap; // Camera
-			Serializer::SerializeToYaml(*SceneCamera::Reflect(), &cc.Camera, out);
-			out << YAML::EndMap; // Camera
-
-			//out << YAML::Key << "Primary" << YAML::Value << cc.Primary;
-			out << YAML::Key << "FixedAspectRatio" << YAML::Value << cc.FixedAspectRatio; // TODO: Fix
-
-			out << YAML::EndMap; // CameraComponent
-		}
-
-		if (entity.HasComponent<SpriteRendererComponent>())
-		{
-			out << YAML::Key << "SpriteRendererComponent" << YAML::BeginMap; // SpriteRendererComponent
-
-			auto& sp = entity.GetComponent<SpriteRendererComponent>();
-			out << YAML::Key << "Enabled" << YAML::Value << sp.Enabled;
-
-			out << YAML::Key << "Sprite" << YAML::Value;
-			if (sp.Sprite)
+			if (typeID == GetComponentTypeID<CameraComponent>())
 			{
-				out << YAML::Flow << YAML::BeginMap;
-				out << YAML::Key << "Asset" << YAML::Value << YAML::Hex << sp.Sprite->GetGuid();
-				out << YAML::EndMap;
-			}
-			else
-			{
-				out << YAML::Null;
+				out << YAML::Key << "CameraComponent";
+				out << YAML::BeginMap; // CameraComponent
+
+				auto& cc = entity.GetComponent<CameraComponent>();
+				out << YAML::Key << "Enabled" << YAML::Value << cc.Enabled;
+
+				out << YAML::Key << "Camera" << YAML::Value << YAML::BeginMap; // Camera
+				Serializer::SerializeToYaml(&cc.Camera, out, false);
+				out << YAML::EndMap; // Camera
+
+				out << YAML::Key << "FixedAspectRatio" << YAML::Value << cc.FixedAspectRatio;
+
+				out << YAML::EndMap; // CameraComponent
 			}
 
-			Serializer::SerializeToYaml(*SpriteRendererComponent::Reflect(), &sp, out);
-
-			out << YAML::EndMap; // SpriteRendererComponent
-		}
-
-		if (entity.HasComponent<RigidBody2DComponent>())
-		{
-			out << YAML::Key << "RigidBody2DComponent" << YAML::BeginMap; // RigidBody2DComponent
-
-			auto& rbc = entity.GetComponent<RigidBody2DComponent>();
-			out << YAML::Key << "Enabled" << YAML::Value << rbc.Enabled;
-
-			Serializer::SerializeToYaml(*RigidBody2DComponent::Reflect(), &rbc, out);
-
-			out << YAML::EndMap; // RigidBody2DComponent
-		}
-
-		if (entity.HasComponent<Colliders2DComponent>())
-		{
-			out << YAML::Key << "Colliders2DComponent" << YAML::BeginMap; // Colliders2DComponent
-
-			auto& c2c = entity.GetComponent<Colliders2DComponent>();
-			out << YAML::Key << "Enabled" << YAML::Value << c2c.Enabled;
-
-			out << YAML::Key << "Colliders" << YAML::Value << YAML::BeginSeq;
-			for (const auto& collider : c2c.Colliders)
+			else if (typeID == GetComponentTypeID<SpriteRendererComponent>())
 			{
-				const auto& init = collider.Initializer;
+				out << YAML::Key << "SpriteRendererComponent" << YAML::BeginMap; // SpriteRendererComponent
 
-				out << YAML::BeginMap;
+				auto& sp = entity.GetComponent<SpriteRendererComponent>();
+				out << YAML::Key << "Enabled" << YAML::Value << sp.Enabled;
 
-				out << YAML::Key << "Offset" << YAML::Value << init.Offset;
-				out << YAML::Key << "Rotation" << YAML::Value << init.Rotation;
-
-				out << YAML::Key << "Shape" << YAML::Value << YAML::BeginMap;
+				out << YAML::Key << "Sprite" << YAML::Value;
+				if (sp.Sprite)
 				{
-					if (!Serializer::GlobalEnumExists("Collider2DType"))
-					{
-						Serializer::DefineGlobalEnum("Collider2DType", {
-							{ 0, "Box" },
-							{ 1, "Circle" }
-						});
-					}
-
-					out << YAML::Key << "Type" << YAML::Value << Serializer::GetGlobalEnum("Collider2DType")[(int)init.Shape.Type];
-					out << YAML::Key << "BoxSize" << YAML::Value << init.Shape.BoxSize;
-					out << YAML::Key << "CircleRadius" << YAML::Value << init.Shape.CircleRadius;
+					out << YAML::Flow << YAML::BeginMap;
+					out << YAML::Key << "Asset" << YAML::Value << YAML::Hex << sp.Sprite->GetGuid();
+					out << YAML::EndMap;
 				}
-				out << YAML::EndMap;
+				else
+				{
+					out << YAML::Null;
+				}
 
-				out << YAML::Key << "IsTrigger" << YAML::Value << init.IsTrigger;
+				Serializer::SerializeToYaml(&sp, out, false);
 
-				out << YAML::Key << "Friction" << YAML::Value << init.Friction;
-				out << YAML::Key << "Density" << YAML::Value << init.Density;
-
-				out << YAML::Key << "Bounciness" << YAML::Value << init.Bounciness;
-				out << YAML::Key << "BouncinessThreshold" << YAML::Value << init.BouncinessThreshold;
-
-				out << YAML::EndMap;
+				out << YAML::EndMap; // SpriteRendererComponent
 			}
-			out << YAML::EndSeq;
 
-			out << YAML::EndMap; // Colliders2DComponent
+			else if (typeID == GetComponentTypeID<RigidBody2DComponent>())
+			{
+				out << YAML::Key << "RigidBody2DComponent" << YAML::BeginMap; // RigidBody2DComponent
+
+				auto& rbc = entity.GetComponent<RigidBody2DComponent>();
+				out << YAML::Key << "Enabled" << YAML::Value << rbc.Enabled;
+
+				Serializer::SerializeToYaml(&rbc.Initializer, out, false);
+
+				out << YAML::EndMap; // RigidBody2DComponent
+			}
+
+			else if (typeID == GetComponentTypeID<Colliders2DComponent>())
+			{
+				out << YAML::Key << "Colliders2DComponent" << YAML::BeginMap; // Colliders2DComponent
+
+				auto& c2c = entity.GetComponent<Colliders2DComponent>();
+				out << YAML::Key << "Enabled" << YAML::Value << c2c.Enabled;
+
+				out << YAML::Key << "Colliders" << YAML::Value << YAML::BeginSeq;
+				for (const auto& collider : c2c.Colliders)
+				{
+					const auto& init = collider.Initializer;
+
+					out << YAML::BeginMap;
+
+					out << YAML::Key << "Offset" << YAML::Value << init.Offset;
+					out << YAML::Key << "Rotation" << YAML::Value << init.Rotation;
+
+					out << YAML::Key << "Shape" << YAML::Value << YAML::BeginMap;
+					{
+						out << YAML::Key << "Type" << YAML::Value << Reflection::EnumClassResolver::GetNameByValue(init.Shape.Type);
+						out << YAML::Key << "BoxSize" << YAML::Value << init.Shape.BoxSize;
+						out << YAML::Key << "CircleRadius" << YAML::Value << init.Shape.CircleRadius;
+					}
+					out << YAML::EndMap;
+
+					out << YAML::Key << "IsTrigger" << YAML::Value << init.IsTrigger;
+
+					out << YAML::Key << "Friction" << YAML::Value << init.Friction;
+					out << YAML::Key << "Density" << YAML::Value << init.Density;
+
+					out << YAML::Key << "Bounciness" << YAML::Value << init.Bounciness;
+					out << YAML::Key << "BouncinessThreshold" << YAML::Value << init.BouncinessThreshold;
+
+					out << YAML::EndMap;
+				}
+				out << YAML::EndSeq;
+
+				out << YAML::EndMap; // Colliders2DComponent
+			}
 		}
 
 		out << YAML::EndMap; // Entity
@@ -240,18 +242,10 @@ namespace OverEngine
 				{
 					auto& cc = deserializedEntity.AddComponent<CameraComponent>();
 
-					if (!Serializer::GlobalEnumExists("SceneCamera::ProjectionType"))
-					{
-						Serializer::DefineGlobalEnum("SceneCamera::ProjectionType", {
-							{ 0, "Orthographic" },
-							{ 1, "Perspective" }
-						});
-					}
-
 					cc.FixedAspectRatio = cameraComponent["FixedAspectRatio"].as<bool>();
 
 					auto cameraProps = cameraComponent["Camera"];
-					cc.Camera.SetProjectionType((SceneCamera::ProjectionType)Serializer::GetGlobalEnumValue("SceneCamera::ProjectionType", cameraProps["ProjectionType"].as<String>()));
+					cc.Camera.SetProjectionType(Reflection::EnumClassResolver::GetValueByName<SceneCamera::ProjectionType>(cameraProps["ProjectionType"].as<String>()).value());
 
 					cc.Camera.SetPerspectiveVerticalFOV(cameraProps["PerspectiveFOV"].as<float>());
 					cc.Camera.SetPerspectiveNearClip(cameraProps["PerspectiveNear"].as<float>());
@@ -269,25 +263,6 @@ namespace OverEngine
 				{
 					auto& sp = deserializedEntity.AddComponent<SpriteRendererComponent>();
 
-					if (!Serializer::GlobalEnumExists("TextureWrap"))
-					{
-						Serializer::DefineGlobalEnum("TextureWrap", {
-							{ 0, "None" },
-							{ 1, "Repeat" },
-							{ 2, "Clamp" },
-							{ 3, "Mirror" },
-						});
-					}
-
-					if (!Serializer::GlobalEnumExists("TextureFilter"))
-					{
-						Serializer::DefineGlobalEnum("TextureFilter", {
-							{ 0, "None" },
-							{ 1, "Nearest" },
-							{ 2, "Linear" }
-						});
-					}
-
 					if (!spriteRendererComponent["Sprite"].IsNull())
 					{
 						uint32_t refID = spriteRendererComponent["Sprite"]["Reference"].as<uint32_t>();
@@ -295,9 +270,7 @@ namespace OverEngine
 
 						String typeName = asset["Type"].as<String>();
 						if (typeName == Texture2D::GetStaticClassName())
-						{
 							sp.Sprite = AssetDatabase::RegisterAndGet<Texture2D>(asset["Guid"].as<uint64_t>());
-						}
 					}
 
 					sp.Tint = spriteRendererComponent["Tint"].as<Color>();
@@ -307,26 +280,13 @@ namespace OverEngine
 						sp.Flip |= TextureFlip_X;
 					if (spriteRendererComponent["Flip.y"].as<bool>())
 						sp.Flip |= TextureFlip_Y;
-
-					sp.Wrap.x = (TextureWrap)Serializer::GetGlobalEnumValue("TextureWrap", spriteRendererComponent["Wrap.x"].as<String>());
-					sp.Wrap.y = (TextureWrap)Serializer::GetGlobalEnumValue("TextureWrap", spriteRendererComponent["Wrap.y"].as<String>());
-					sp.Filter = (TextureFilter)Serializer::GetGlobalEnumValue("TextureFilter", spriteRendererComponent["Filter"].as<String>());
 				}
 
 				if (auto rigidBody2DComponent = entity["RigidBody2DComponent"])
 				{
 					auto& rbc = deserializedEntity.AddComponent<RigidBody2DComponent>();
 
-					if (!Serializer::GlobalEnumExists("RigidBody2DType"))
-					{
-						Serializer::DefineGlobalEnum("RigidBody2DType", {
-							{ 0, "Static" },
-							{ 1, "Kinematic" },
-							{ 2, "Dynamic" }
-						});
-					}
-
-					rbc.Initializer.Type = (RigidBody2DType)Serializer::GetGlobalEnumValue("RigidBody2DType", rigidBody2DComponent["Type"].as<String>());
+					rbc.Initializer.Type = Reflection::EnumClassResolver::GetValueByName<RigidBody2DType>(rigidBody2DComponent["Type"].as<String>()).value();
 					rbc.Initializer.LinearVelocity  = rigidBody2DComponent["LinearVelocity"].as<Vector2>();
 					rbc.Initializer.AngularVelocity = rigidBody2DComponent["AngularVelocity"].as<float>();
 					rbc.Initializer.LinearDamping   = rigidBody2DComponent["LinearDamping"].as<float>();
@@ -349,15 +309,7 @@ namespace OverEngine
 						props.Offset = collider["Offset"].as<Vector2>();
 						props.Rotation = collider["Rotation"].as<float>();
 
-						if (!Serializer::GlobalEnumExists("Collider2DType"))
-						{
-							Serializer::DefineGlobalEnum("Collider2DType", {
-								{ 0, "Box" },
-								{ 1, "Circle" }
-							});
-						}
-
-						props.Shape.Type = (Collider2DType)Serializer::GetGlobalEnumValue("Collider2DType", collider["Shape"]["Type"].as<String>());
+						props.Shape.Type = Reflection::EnumClassResolver::GetValueByName<Collider2DType>(collider["Shape"]["Type"].as<String>()).value();
 						props.Shape.BoxSize = collider["Shape"]["BoxSize"].as<Vector2>();
 						props.Shape.CircleRadius = collider["Shape"]["CircleRadius"].as<float>();
 

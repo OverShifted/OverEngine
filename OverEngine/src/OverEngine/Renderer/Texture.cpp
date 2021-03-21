@@ -58,14 +58,22 @@ namespace OverEngine
 		SetGuid(guid);
 	}
 
+	void SubTexture2D::Acquire(Ref<Asset> other)
+	{
+		if (auto otherSubTexture = std::dynamic_pointer_cast<SubTexture2D>(other))
+		{
+			m_MasterTexture = otherSubTexture->m_MasterTexture;
+		}
+	}
+
 	uint32_t SubTexture2D::GetWidth() const
 	{
-		return m_Rect.z;
+		return static_cast<uint32_t>(m_Rect.z);
 	}
 
 	uint32_t SubTexture2D::GetHeight() const
 	{
-		return m_Rect.w;
+		return static_cast<uint32_t>(m_Rect.w);
 	}
 
 	uint32_t SubTexture2D::GetRendererID() const

@@ -1,2 +1,1 @@
-## The "OverPlayerExec" project
-compiles as executable and contains our actual "OverApplication".
+Sample `Application` built using OverEngine for testing engine features.

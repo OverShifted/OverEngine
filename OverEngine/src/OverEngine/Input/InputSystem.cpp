@@ -185,6 +185,5 @@ namespace OverEngine
 		m_InputActionMaps.push_back(inputActionMap);
 	}
 
-	Vector<Ref<OverEngine::InputActionMap>> InputSystem::m_InputActionMaps;
-
+	Vector<Ref<InputActionMap>> InputSystem::m_InputActionMaps;
 }

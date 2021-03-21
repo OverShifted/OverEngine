@@ -151,9 +151,9 @@ namespace OverEditor
 
 			bool fDown = Input::IsKeyPressed(KeyCode::F);
 
-			if (m_Context->Selection.size() == 1)
+			if (m_Context->Selection)
 			{
-				auto& entityTransform = Entity{ m_Context->Selection[0], m_Context->GetActiveScene().get() }.GetComponent<TransformComponent>();
+				auto& entityTransform = m_Context->Selection->GetComponent<TransformComponent>();
 
 				// Gizmo
 				DrawGizmo(entityTransform, hovered);

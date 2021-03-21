@@ -3,10 +3,10 @@
 #include "OverEngine/Core/Core.h"
 #include "OverEngine/Events/Event.h"
 
-#include "OverEngine/Renderer/RendererContext.h"
+#include "OverEngine/Renderer/GraphicsContext.h"
 
-namespace OverEngine {
-
+namespace OverEngine
+{
 	struct WindowProps
 	{
 		String Title;
@@ -29,6 +29,8 @@ namespace OverEngine {
 	class Window
 	{
 	public:
+		static Scope<Window> Create(const WindowProps& props = WindowProps());
+
 		using EventCallbackFn = std::function<void(Event&)>;
 
 		virtual ~Window() = default;
@@ -55,8 +57,6 @@ namespace OverEngine {
 
 		// Internal stuff
 		virtual void* GetNativeWindow() const = 0;
-		virtual RendererContext& GetRendererContext() const = 0;
-
-		static Scope<Window> Create(const WindowProps& props = WindowProps());
+		virtual GraphicsContext& GetGraphicsContext() const = 0;
 	};
 }

@@ -31,7 +31,7 @@ namespace ImGui
 
 		if (textureType == TextureType::Master)
 		{
-			ImGui::Image(reinterpret_cast<void*>(texture->GetRendererID()), size, { 0, 0 }, { 1, 1 }, tint_col, border_col);
+			ImGui::Image(reinterpret_cast<void*>((ptrdiff_t)texture->GetRendererID()), size, { 0, 0 }, { 1, 1 }, tint_col, border_col);
 		}
 		else if (textureType == TextureType::SubTexture)
 		{
@@ -40,7 +40,7 @@ namespace ImGui
 				Rect rect = subTexture->GetRect();
 
 				ImGui::Image(
-					reinterpret_cast<void*>(texture->GetRendererID()), size,
+					reinterpret_cast<void*>((ptrdiff_t)texture->GetRendererID()), size,
 					{ rect.x, rect.y }, { rect.z + rect.x, rect.w + rect.y },
 					tint_col, border_col
 				);
@@ -54,7 +54,7 @@ namespace ImGui
 
 		if (textureType == TextureType::Master)
 		{
-			return ImGui::ImageButton(reinterpret_cast<void*>(texture->GetRendererID()), size, { 0, 0 }, { 1, 1 }, frame_padding, bg_col, tint_col);
+			return ImGui::ImageButton(reinterpret_cast<void*>((ptrdiff_t)texture->GetRendererID()), size, { 0, 0 }, { 1, 1 }, frame_padding, bg_col, tint_col);
 		}
 		else if (textureType == TextureType::SubTexture)
 		{
@@ -63,7 +63,7 @@ namespace ImGui
 				Rect rect = subTexture->GetRect();
 
 				return ImGui::ImageButton(
-					reinterpret_cast<void*>(texture->GetRendererID()), size,
+					reinterpret_cast<void*>((ptrdiff_t)texture->GetRendererID()), size,
 					{ rect.x, rect.y }, { rect.z + rect.x, rect.w + rect.y },
 					frame_padding, bg_col, tint_col
 				);

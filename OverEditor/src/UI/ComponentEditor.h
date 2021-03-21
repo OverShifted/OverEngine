@@ -131,35 +131,9 @@ namespace OverEditor
 					__BASIC_ACTION_VAL(SpriteRendererComponent, Offset), 0.02f
 				);
 
-				UIElements::EndFieldGroup();
-
-				ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-				bool open = ImGui::TreeNodeEx("Advance Options##SpriteRendererComponentEditor",
-					ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_AllowItemOverlap
+				UIElements::CheckboxField_U("ForceTile", "##ForceTile", &sp.ForceTile,
+					__BASIC_ACTION_VAL(SpriteRendererComponent, ForceTile)
 				);
-
-				UIElements::BeginFieldGroup();
-
-				if (open)
-				{
-					static UIElements::EnumValues filterValues = {
-						{ 0, "None (Use default)" }, { 1, "Nearest" }, { 2, "Linear" }
-					};
-					UIElements::BasicEnum("Filter", "##Filter", filterValues, (int8_t*)&sp.Filter);
-
-					static UIElements::EnumValues wrapValues = {
-						{ 0, "None (Use default)" }, { 1, "Repeat" },
-						{ 2, "Clamp" }, { 3, "Mirror" }
-					};
-					UIElements::BasicEnum_U("Wrap.x", "##Wrap.x", wrapValues, (int8_t*)&sp.Wrap.x,
-						__BASIC_ENUM_ACTION_VAL(SpriteRendererComponent, TextureWrap, Wrap.x)
-					);
-					UIElements::BasicEnum_U("Wrap.y", "##Wrap.y", wrapValues, (int8_t*)&sp.Wrap.y,
-						__BASIC_ENUM_ACTION_VAL(SpriteRendererComponent, TextureWrap, Wrap.y)
-					);
-
-					ImGui::TreePop();
-				}
 			}
 
 			UIElements::EndFieldGroup();

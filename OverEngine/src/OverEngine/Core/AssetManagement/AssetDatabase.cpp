@@ -86,7 +86,7 @@ namespace OverEngine
 						OE_THROW("Unknown asset type");
 					}
 				}
-				catch (const std::exception& e)
+				catch (const std::exception&)
 				{
 					OE_CORE_ERROR(fmt::format("Bad metadata {}", stringPath));
 				}
@@ -164,9 +164,13 @@ namespace OverEngine
 			i--;
 		}
 
-		s_Registry[asset->GetGuid()] = asset;
-		asset->m_Path = path;
+		auto it = s_Registry.find(asset->GetGuid());
+		if (it != s_Registry.end())
+			it->second->Acquire(asset);
+		else
+			s_Registry[asset->GetGuid()] = asset;
 
+		asset->m_Path = path;
 		return true;
 	}
 

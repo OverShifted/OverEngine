@@ -1,5 +1,5 @@
 #include "pcheader.h"
-#include "RendererContext.h"
+#include "GraphicsContext.h"
 
 #include "RendererAPI.h"
 
@@ -8,7 +8,7 @@
 
 namespace OverEngine
 {
-	Scope<RendererContext> RendererContext::Create(Window* window)
+	Scope<GraphicsContext> GraphicsContext::Create(Window* window)
 	{
 		switch (RendererAPI::GetAPI())
 		{

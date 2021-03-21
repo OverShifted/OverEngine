@@ -105,6 +105,9 @@ namespace OverEngine
 	class VertexBuffer
 	{
 	public:
+		static Ref<VertexBuffer> Create();
+		static Ref<VertexBuffer> Create(const void* vertices, uint32_t size, bool staticDraw = true);
+
 		virtual ~VertexBuffer() = default;
 
 		virtual void Bind() const = 0;
@@ -116,14 +119,14 @@ namespace OverEngine
 
 		virtual const BufferLayout& GetLayout() const = 0;
 		virtual void SetLayout(const BufferLayout& layout) = 0;
-
-		static Ref<VertexBuffer> Create();
-		static Ref<VertexBuffer> Create(const void* vertices, uint32_t size, bool staticDraw = true);
 	};
 
 	class IndexBuffer
 	{
 	public:
+		static Ref<IndexBuffer> Create();
+		static Ref<IndexBuffer> Create(const uint32_t* indices, uint32_t count, bool staticDraw = true);
+
 		virtual ~IndexBuffer() = default;
 
 		virtual void Bind() const = 0;
@@ -134,8 +137,5 @@ namespace OverEngine
 		virtual void AllocateStorage(uint32_t count) const = 0;
 
 		virtual uint32_t GetCount() const = 0;
-
-		static Ref<IndexBuffer> Create();
-		static Ref<IndexBuffer> Create(const uint32_t* indices, uint32_t count, bool staticDraw = true);
 	};
 }

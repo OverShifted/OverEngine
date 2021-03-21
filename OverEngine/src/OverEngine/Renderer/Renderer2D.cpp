@@ -9,24 +9,19 @@ namespace OverEngine
 
 	struct Vertex
 	{
-		Vector3 a_Position0   = Vector3(0.0f);
-		Vector3 a_Position1   = Vector3(0.0f);
-		Vector3 a_Position2   = Vector3(0.0f);
-		Vector3 a_Position3   = Vector3(0.0f);
+		Vector3 a_Position0 = Vector3(0.0f);
+		Vector3 a_Position1 = Vector3(0.0f);
+		Vector3 a_Position2 = Vector3(0.0f);
+		Vector3 a_Position3 = Vector3(0.0f);
 
-		Color   a_Color       = Color(1.0f);
-
-		Vector2    a_TexTiling   = Vector2(1.0f);
-		Vector2    a_TexOffset   = Vector2(0.0f);
-		int        a_TexFlip     = 0;
-		int        a_TexSlot     = -1;
-		int        a_TexFilter   = 0;
-		glm::ivec2 a_TexWrap = glm::ivec2(0);
-		Vector2    a_TexSize     = Vector2(0.0f);
-		Rect       a_TexRect     = Rect(0.0f);
+		Color   a_Color     = Color(1.0f);
+		int     a_TexSlot   = -1;
+		Vector4 a_TexCoord  = Vector4(0.0f);
+		Vector4 a_TexRegion = Vector4(0.0f);
+		int     a_TexRepeat = 0;
 	};
 
-	// Limits
+	// Hard-coded Limits
 	static constexpr uint32_t MaxTextureCount = 32;
 	static const uint32_t MaxQuadCount = 1000000;
 	
@@ -38,7 +33,6 @@ namespace OverEngine
 		Vertex* QuadBufferBasePtr = nullptr;
 		Vertex* QuadBufferPtr = nullptr;
 
-		Vector<float> QuadsZIndices;
 		uint32_t OpaqueInsertIndex = 0;
 
 		uint32_t QuadCount = 0;
@@ -68,15 +62,10 @@ namespace OverEngine
 			{ ShaderDataType::Float3, "a_Position3" },
 
 			{ ShaderDataType::Float4, "a_Color" },
-
-			{ ShaderDataType::Float2, "a_TexTiling" },
-			{ ShaderDataType::Float2, "a_TexOffset" },
-			{ ShaderDataType::Int, "a_TexFlip" },
 			{ ShaderDataType::Int, "a_TexSlot" },
-			{ ShaderDataType::Int, "a_TexFilter" },
-			{ ShaderDataType::Int2, "a_TexWrap" },
-			{ ShaderDataType::Float2, "a_TexSize" },
-			{ ShaderDataType::Float4, "a_TexRect" },
+			{ ShaderDataType::Float4, "a_TexCoord" },
+			{ ShaderDataType::Float4, "a_TexRegion" },
+			{ ShaderDataType::Int, "a_TexRepeat" }
 		});
 		s_Data->QuadVA->AddVertexBuffer(s_Data->QuadVB);
 
@@ -95,7 +84,6 @@ namespace OverEngine
 
 		s_Data->QuadBufferBasePtr = new Vertex[MaxQuadCount];
 		s_Data->QuadBufferPtr = s_Data->QuadBufferBasePtr;
-		s_Data->QuadsZIndices.reserve(MaxQuadCount);
 
 		s_Data->Shader = Shader::Create("assets/shaders/BatchRenderer2D.glsl");
 		{
@@ -125,7 +113,6 @@ namespace OverEngine
 	void Renderer2D::Reset()
 	{
 		s_Data->QuadBufferPtr = s_Data->QuadBufferBasePtr;
-		s_Data->QuadsZIndices.clear();
 		s_Data->OpaqueInsertIndex = 0;
 		s_Data->QuadCount = 0;
 		s_Data->TextureCount = 0;
@@ -148,7 +135,6 @@ namespace OverEngine
 	void Renderer2D::StartBatch()
 	{
 		s_Data->QuadBufferPtr = s_Data->QuadBufferBasePtr;
-		s_Data->QuadsZIndices.clear();
 		s_Data->OpaqueInsertIndex = 0;
 		s_Data->QuadCount = 0;
 		s_Data->TextureCount = 0;
@@ -203,13 +189,11 @@ namespace OverEngine
 
 	void Renderer2D::DrawQuad(const Mat4x4& transform, const Color& color)
 	{
-		if (color.a  == 0)
+		if (color.a == 0)
 			return;
 
 		if (s_Data->QuadCount + 1 >= MaxQuadCount)
-		{
 			NextBatch();
-		}
 
 		auto mat = s_Data->ViewProjectionMatrix * transform;
 
@@ -247,40 +231,35 @@ namespace OverEngine
 
 	void Renderer2D::DrawQuad(const Mat4x4& transform, const TexturedQuadProps& props)
 	{
-		if (!props.Texture)
+		if (!props.Sprite)
 			return;
 
 		if (props.Tint.a == 0)
 			return;
 
 		if (s_Data->QuadCount + 1 >= MaxQuadCount)
-		{
 			NextBatch();
-		}
 
-		int8_t textureSlot = -1;
 		{
-			Ref<Texture2D> gpuTex = props.Texture;
-			if (props.Texture->GetType() == TextureType::SubTexture)
-				gpuTex = std::dynamic_pointer_cast<SubTexture2D>(props.Texture)->GetMasterTexture();
+			Ref<Texture2D> gpuTex = (props.Sprite->GetType() == TextureType::SubTexture) ? std::dynamic_pointer_cast<SubTexture2D>(props.Sprite)->GetMasterTexture() : props.Sprite;
 
 			auto end = s_Data->TextureBindList.begin() + s_Data->TextureCount;
 			auto it = std::find(s_Data->TextureBindList.begin(), end, gpuTex);
 			if (it == end)
 			{
 				uint8_t slot = s_Data->TextureCount;
-				if (slot + 1 > RenderCommand::GetMaxTextureSlotCount())
+				if (slot + 1u > RenderCommand::GetMaxTextureSlotCount())
 				{
 					NextBatch();
 					slot = 0;
 				}
 				s_Data->TextureBindList[slot] = gpuTex;
 				s_Data->TextureCount++;
-				textureSlot = slot;
+				s_Data->QuadBufferPtr->a_TexSlot = slot;
 			}
 			else
 			{
-				textureSlot = it - s_Data->TextureBindList.begin();
+				s_Data->QuadBufferPtr->a_TexSlot = static_cast<int>(it - s_Data->TextureBindList.begin());
 			}
 		}
 
@@ -292,35 +271,33 @@ namespace OverEngine
 		s_Data->QuadBufferPtr->a_Position3 = Vector3(mat * Vector4( 0.5,  0.5, 0.0, 1.0));
 
 		s_Data->QuadBufferPtr->a_Color = props.Tint;
+		s_Data->QuadBufferPtr->a_TexCoord = (props.Sprite->GetType() == TextureType::Master) ? Vector4(0, 0, 1, 1) : std::dynamic_pointer_cast<SubTexture2D>(props.Sprite)->GetRect();
+		s_Data->QuadBufferPtr->a_TexRepeat = props.ForceTile;
 
-		s_Data->QuadBufferPtr->a_TexTiling = props.Tiling;
-		s_Data->QuadBufferPtr->a_TexOffset = props.Offset;
-		s_Data->QuadBufferPtr->a_TexFlip = props.Flip;
-		s_Data->QuadBufferPtr->a_TexSlot = textureSlot;
+		if (props.ForceTile)
+		{
+			s_Data->QuadBufferPtr->a_TexRegion = s_Data->QuadBufferPtr->a_TexCoord;
+
+			s_Data->QuadBufferPtr->a_TexRegion.x += (props.Flip & TextureFlip_X) * s_Data->QuadBufferPtr->a_TexRegion.z;
+			s_Data->QuadBufferPtr->a_TexRegion.z *= -1 + (int)(!(props.Flip & TextureFlip_X)) * 2;
+
+			s_Data->QuadBufferPtr->a_TexRegion.y += (props.Flip & TextureFlip_Y) * s_Data->QuadBufferPtr->a_TexRegion.w;
+			s_Data->QuadBufferPtr->a_TexRegion.w *= -1 + (int)(!(props.Flip & TextureFlip_Y)) * 2;
+		}
 		
-		// a_TexFilter
-		if (props.Filter != TextureFilter::None)
-			s_Data->QuadBufferPtr->a_TexFilter = (int)props.Filter;
-		else
-			s_Data->QuadBufferPtr->a_TexFilter = (int)props.Texture->GetFilter();
+		s_Data->QuadBufferPtr->a_TexCoord.x *= props.Tiling.x;
+		s_Data->QuadBufferPtr->a_TexCoord.y *= props.Tiling.y;
+		s_Data->QuadBufferPtr->a_TexCoord.z *= props.Tiling.x;
+		s_Data->QuadBufferPtr->a_TexCoord.w *= props.Tiling.y;
 
-		// a_TexUWrap & a_TexVWrap
-		if (props.Wrap.x != TextureWrap::None)
-			s_Data->QuadBufferPtr->a_TexWrap.x = (int)props.Wrap.x;
-		else
-			s_Data->QuadBufferPtr->a_TexWrap.x = (int)props.Texture->GetUWrap();
+		s_Data->QuadBufferPtr->a_TexCoord.x += props.Offset.x;
+		s_Data->QuadBufferPtr->a_TexCoord.y += props.Offset.y;
 
-		if (props.Wrap.y != TextureWrap::None)
-			s_Data->QuadBufferPtr->a_TexWrap.y = (int)props.Wrap.y;
-		else
-			s_Data->QuadBufferPtr->a_TexWrap.y = (int)props.Texture->GetVWrap();
+		s_Data->QuadBufferPtr->a_TexCoord.x += (props.Flip & TextureFlip_X) * s_Data->QuadBufferPtr->a_TexCoord.z;
+		s_Data->QuadBufferPtr->a_TexCoord.z *= -1 + (int)(!(props.Flip & TextureFlip_X)) * 2;
 
-		s_Data->QuadBufferPtr->a_TexSize = { props.Texture->GetWidth(), props.Texture->GetHeight() };
-
-		if (props.Texture->GetType() == TextureType::Master)
-			s_Data->QuadBufferPtr->a_TexRect = { 0, 0, 1, 1 };
-		else
-			s_Data->QuadBufferPtr->a_TexRect = std::dynamic_pointer_cast<SubTexture2D>(props.Texture)->GetRect();
+		s_Data->QuadBufferPtr->a_TexCoord.y += (props.Flip & TextureFlip_X) * s_Data->QuadBufferPtr->a_TexCoord.w;
+		s_Data->QuadBufferPtr->a_TexCoord.w *= -1 + (int)(!(props.Flip & TextureFlip_Y)) * 2;
 
 		s_Data->QuadBufferPtr++;
 		s_Data->QuadCount++;

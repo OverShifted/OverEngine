@@ -2,17 +2,21 @@
 
 #include "OverEngine/Renderer/Camera.h"
 
-#include "OverEngine/Core/Serialization/Serializer.h"
+#include "OverEngine/Core/Runtime/Reflection/Reflection.h"
 
 namespace OverEngine
 {
 	class SceneCamera : public Camera
 	{
 	public:
-		enum class ProjectionType { Orthographic, Perspective };
-	public:
-		static SerializationContext* Reflect();
+		enum class ProjectionType : uint8_t
+		{
+			None = 0,
+			Orthographic,
+			Perspective
+		};
 
+	public:
 		SceneCamera();
 		virtual ~SceneCamera() = default;
 
@@ -47,6 +51,8 @@ namespace OverEngine
 		inline ClearFlags& GetClearFlags() { return m_ClearFlags; }
 		inline ClearFlags GetClearFlags() const { return m_ClearFlags; }
 		inline void SetClearFlags(ClearFlags flags) { m_ClearFlags = flags; }
+
+		OE_REFLECT_STRUCT()
 	protected:
 		void RecalculateProjection();
 	protected:

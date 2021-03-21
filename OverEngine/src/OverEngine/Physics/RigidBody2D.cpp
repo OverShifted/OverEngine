@@ -11,6 +11,26 @@
 
 namespace OverEngine
 {
+	OE_REFLECT_ENUM_CLASS_BEGIN(RigidBody2DType)
+	OE_REFLECT_ENUM_CLASS_VALUE(None, 0)
+	OE_REFLECT_ENUM_CLASS_VALUE(Static, 1)
+	OE_REFLECT_ENUM_CLASS_VALUE(Kinematic, 2)
+	OE_REFLECT_ENUM_CLASS_VALUE(Dynamic, 3)
+	OE_REFLECT_ENUM_CLASS_END()
+
+	OE_REFLECT_STRUCT_BEGIN(RigidBody2DProps)
+	OE_REFLECT_STRUCT_MEMBER(Type)
+	OE_REFLECT_STRUCT_MEMBER(LinearVelocity)
+	OE_REFLECT_STRUCT_MEMBER(AngularVelocity)
+	OE_REFLECT_STRUCT_MEMBER(LinearDamping)
+	OE_REFLECT_STRUCT_MEMBER(AngularDamping)
+	OE_REFLECT_STRUCT_MEMBER(AllowSleep)
+	OE_REFLECT_STRUCT_MEMBER(Awake)
+	OE_REFLECT_STRUCT_MEMBER(FixedRotation)
+	OE_REFLECT_STRUCT_MEMBER(GravityScale)
+	OE_REFLECT_STRUCT_MEMBER(Bullet)
+	OE_REFLECT_STRUCT_END()
+
 	RigidBody2D::RigidBody2D(b2Body* bodyHandle)
 		: m_BodyHandle(bodyHandle)
 	{
@@ -29,12 +49,12 @@ namespace OverEngine
 
 	RigidBody2DType RigidBody2D::GetType()
 	{
-		return (RigidBody2DType)m_BodyHandle->GetType();
+		return (RigidBody2DType)((int)m_BodyHandle->GetType() + 1);
 	}
 
 	void RigidBody2D::SetType(const RigidBody2DType& type)
 	{
-		m_BodyHandle->SetType((b2BodyType)type);
+		m_BodyHandle->SetType((b2BodyType)((int)type - 1));
 	}
 
 	Vector2 RigidBody2D::GetPosition()

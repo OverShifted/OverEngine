@@ -1,7 +1,7 @@
 #pragma once
 
 #include "OverEngine/Core/Window.h"
-#include "OverEngine/Renderer/RendererContext.h"
+#include "OverEngine/Renderer/GraphicsContext.h"
 
 #include <GLFW/glfw3.h>
 
@@ -32,7 +32,7 @@ namespace OverEngine
 		virtual const char* GetClipboardText() override;
 
 		inline virtual void* GetNativeWindow() const override { return m_Window; }
-		inline virtual RendererContext& GetRendererContext() const override { return *m_Context; }
+		inline virtual GraphicsContext& GetGraphicsContext() const override { return *m_Context; }
 	private:
 		virtual void Init(const WindowProps& props);
 		virtual void Shutdown();
@@ -40,7 +40,7 @@ namespace OverEngine
 		static uint32_t s_WindowCount;
 	private:
 		GLFWwindow* m_Window;
-		Scope<RendererContext> m_Context;
+		Scope<GraphicsContext> m_Context;
 
 		struct WindowData
 		{

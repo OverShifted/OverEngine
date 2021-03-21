@@ -49,20 +49,12 @@ SandboxECS::SandboxECS()
 #pragma endregion
 
 #pragma region Textures
-	// m_CheckerBoardTexture = Texture2D::CreateMaster("assets/textures/Checkerboard.png");
-	// m_CheckerBoardTexture->SetUWrap(TextureWrap::Repeat);
-	// m_CheckerBoardTexture->SetVWrap(TextureWrap::Repeat);
-	// m_CheckerBoardTexture->SetFilter(TextureFilter::Nearest);
-
-	// m_OELogoTexture = Texture2D::CreateMaster("assets/textures/OELogo.png");
-	// m_OELogoTexture->SetFilter(TextureFilter::Linear);
-
 	m_SpriteSheet = Texture2D::Create("assets/textures/platformPack_tilesheet@2.png");
 	m_SpriteSheet->SetUWrap(TextureWrap::Repeat);
 	m_SpriteSheet->SetVWrap(TextureWrap::Repeat);
 	m_SpriteSheet->SetFilter(TextureFilter::Nearest);
 
-	m_Sprite = SubTexture2D::Create(m_SpriteSheet, { 128 * 1, 128 * 5, 128, 128 });
+	m_Sprite = SubTexture2D::Create(m_SpriteSheet, { 128 * 10, 128 * 0, 128, 128 });
 	m_ObstacleSprite = SubTexture2D::Create(m_SpriteSheet, { 128 * 0, 128 * 0, 128, 128 });
 #pragma endregion
 
@@ -73,92 +65,97 @@ SandboxECS::SandboxECS()
 	// Player //////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////
 
-	m_Player = m_Scene->CreateEntity("Player");
+	{
+		m_Player = m_Scene->CreateEntity("Player");
 
-	// SpriteRenderer
-	m_Player.AddComponent<SpriteRendererComponent>(m_Sprite);
+		// SpriteRenderer
+		m_Player.AddComponent<SpriteRendererComponent>(m_Sprite);
 
-	// RigidBody2D
-	RigidBody2DProps props;
-	props.Type = RigidBody2DType::Dynamic;
-	m_Player.AddComponent<RigidBody2DComponent>(props);
+		// RigidBody2D
+		RigidBody2DProps props;
+		props.Type = RigidBody2DType::Dynamic;
+		m_Player.AddComponent<RigidBody2DComponent>(props);
 
-	// Collider2D
-	auto& playerColliderList = m_Player.AddComponent<Colliders2DComponent>();
-	Collider2DProps cprops;
-	cprops.Shape.Type = Collider2DType::Circle;
-	cprops.Shape.CircleRadius = 0.5f;
-	cprops.Shape.BoxSize = { 1.0f, 1.0f };
-	cprops.Bounciness = 0.0f;
-	cprops.Friction = 100.0f;
-	cprops.Density = 1.0f;
-	playerColliderList.Colliders.push_back({ cprops, nullptr });
+		// Collider2D
+		auto& playerColliderList = m_Player.AddComponent<Colliders2DComponent>();
+		Collider2DProps cprops;
+		cprops.Shape.Type = Collider2DType::Circle;
+		cprops.Shape.CircleRadius = 0.5f;
+		cprops.Shape.BoxSize = { 1.0f, 1.0f };
+		cprops.Bounciness = 0.0f;
+		cprops.Friction = 100.0f;
+		cprops.Density = 1.0f;
+		playerColliderList.Colliders.push_back({ cprops, nullptr });
 
-	m_Player.AddComponent<LuaScriptsComponent>().Scripts["player"] = FileSystem::ReadFile("assets/scripts/player.lua");
+		m_Player.AddComponent<LuaScriptsComponent>().Scripts["player"] = FileSystem::ReadFile("assets/scripts/player.lua");
+	}
 
 	////////////////////////////////////////////////////////////////
 	// Obstacle ////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////
 
-	Entity obstacle = m_Scene->CreateEntity("Obstacle");
+	{
+		Entity obstacle = m_Scene->CreateEntity("Obstacle");
 
-	// SpriteRenderer
-	auto& spriteRenderer = obstacle.AddComponent<SpriteRendererComponent>(m_ObstacleSprite);
-	spriteRenderer.Tiling.x = 4.0f;
-	spriteRenderer.Wrap.x = TextureWrap::Repeat;
-	spriteRenderer.Wrap.y = TextureWrap::Repeat;
+		// SpriteRenderer
+		auto& spriteRenderer = obstacle.AddComponent<SpriteRendererComponent>(m_ObstacleSprite);
+		spriteRenderer.Tiling.x = 4.0f;
+		spriteRenderer.ForceTile = true;
 
-	// RigidBody2D
-	RigidBody2DProps obstacleBodyProps;
-	obstacleBodyProps.Type = RigidBody2DType::Static;
-	obstacle.AddComponent<RigidBody2DComponent>(obstacleBodyProps);
+		// RigidBody2D
+		RigidBody2DProps obstacleBodyProps;
+		obstacleBodyProps.Type = RigidBody2DType::Static;
+		obstacle.AddComponent<RigidBody2DComponent>(obstacleBodyProps);
 
-	auto& obstacleTransform = obstacle.GetComponent<TransformComponent>();
-	obstacleTransform.SetLocalPosition({ 0.0f, -2.0f, 0.0f });
-	obstacleTransform.SetLocalScale({ 4.0f, 1.0f, 1.0f });
-	obstacleTransform.SetLocalEulerAngles({ 0.0f, 0.0f, 45.0f });
+		auto& obstacleTransform = obstacle.GetComponent<TransformComponent>();
+		obstacleTransform.SetLocalPosition({ 0.0f, -2.0f, 0.0f });
+		obstacleTransform.SetLocalScale({ 4.0f, 1.0f, 1.0f });
+		obstacleTransform.SetLocalEulerAngles({ 0.0f, 0.0f, 45.0f });
 
-	// Collider2D
-	auto& colliderList = obstacle.AddComponent<Colliders2DComponent>();
-	Collider2DProps obscprops;
-	obscprops.Shape.Type = Collider2DType::Box;
-	obscprops.Shape.BoxSize = { 4.0f, 1.0f };
-	obscprops.Bounciness = 0.3f;
-	obscprops.Friction = 1.0f;
-	obscprops.Density = 200.0f;
-	colliderList.Colliders.push_back({ obscprops, nullptr });
+		// Collider2D
+		auto& colliderList = obstacle.AddComponent<Colliders2DComponent>();
+		Collider2DProps obsticleColliderProps;
+		obsticleColliderProps.Shape.Type = Collider2DType::Box;
+		obsticleColliderProps.Shape.BoxSize = { 4.0f, 1.0f };
+		obsticleColliderProps.Bounciness = 0.3f;
+		obsticleColliderProps.Friction = 1.0f;
+		obsticleColliderProps.Density = 200.0f;
+		colliderList.Colliders.push_back({ obsticleColliderProps, nullptr });
+	}
 
 	////////////////////////////////////////////////////////////////
 	// Obstacle2 ///////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////
 
-	Entity obstacle2 = m_Scene->CreateEntity("Obstacle2");
+	{
+		Entity obstacle = m_Scene->CreateEntity("Obstacle2");
 
-	// SpriteRenderer
-	auto& spriteRenderer2 = obstacle2.AddComponent<SpriteRendererComponent>(m_ObstacleSprite);
-	spriteRenderer2.Tiling.x = 4000.0f;
-	spriteRenderer2.Wrap.x = TextureWrap::Repeat;
-	spriteRenderer2.Wrap.y = TextureWrap::Repeat;
+		// SpriteRenderer
+		auto& spriteRenderer = obstacle.AddComponent<SpriteRendererComponent>(m_ObstacleSprite);
+		spriteRenderer.Tiling.x = 4000.0f;
+		spriteRenderer.Tiling.y = 1.0f;
+		spriteRenderer.ForceTile = true;
 
-	// RigidBody2D
-	RigidBody2DProps obstacle2BodyProps;
-	obstacle2BodyProps.Type = RigidBody2DType::Static;
-	obstacle2.AddComponent<RigidBody2DComponent>(obstacle2BodyProps);
+		// RigidBody2D
+		RigidBody2DProps obstacleBodyProps;
+		obstacleBodyProps.Type = RigidBody2DType::Static;
+		obstacle.AddComponent<RigidBody2DComponent>(obstacleBodyProps);
 
 
-	auto& obstacle2Transform = obstacle2.GetComponent<TransformComponent>();
-	obstacle2Transform.SetLocalScale({ 4000.0f, 1.0f, 1.0f });
-	obstacle2Transform.SetLocalPosition({ 0.0f, -8.0f, 0.0f });
+		auto& obstacleTransform = obstacle.GetComponent<TransformComponent>();
+		obstacleTransform.SetLocalScale({ 4000.0f, 1.0f, 1.0f });
+		obstacleTransform.SetLocalPosition({ 0.0f, -8.0f, 0.0f });
 
-	// Collider2D
-	auto& colliderList2 = obstacle2.AddComponent<Colliders2DComponent>();
-	Collider2DProps obs2cprops;
-	obs2cprops.Shape.Type = Collider2DType::Box;
-	obs2cprops.Shape.BoxSize = { 4000.0f, 1.0f };
-	obs2cprops.Bounciness = 0.3f;
-	obs2cprops.Friction = 1.0f;
-	obs2cprops.Density = 200.0f;
-	colliderList2.Colliders.push_back({ obs2cprops, nullptr });
+		// Collider2D
+		auto& colliderList2 = obstacle.AddComponent<Colliders2DComponent>();
+		Collider2DProps obsticleColliderProps;
+		obsticleColliderProps.Shape.Type = Collider2DType::Box;
+		obsticleColliderProps.Shape.BoxSize = { 4000.0f, 1.0f };
+		obsticleColliderProps.Bounciness = 0.3f;
+		obsticleColliderProps.Friction = 1.0f;
+		obsticleColliderProps.Density = 200.0f;
+		colliderList2.Colliders.push_back({ obsticleColliderProps, nullptr });
+	}
 
 	////////////////////////////////////////////////////////////////
 	// Main Camera /////////////////////////////////////////////////
@@ -216,26 +213,36 @@ SandboxECS::SandboxECS()
 			auto& rb = GetComponent<RigidBody2DComponent>().RigidBody;
 			rb->ApplyLinearImpulseToCenter(vel);
 
-			ParticleProps2D props = ParticleProps2D();
-			props.Position = GetComponent<TransformComponent>().GetPosition();
-			props.Position.z = -0.1f;
+			m_ParticleProps.Position = GetComponent<TransformComponent>().GetPosition();
+			m_ParticleProps.Position.z = -0.2f;
 
-			props.Position.x += Random::Range(-0.2f, 0.2f);
-			props.Position.y += Random::Range(-0.2f, 0.2f);
+			m_ParticleProps.Position.x += Random::Range(-0.2f, 0.2f);
+			m_ParticleProps.Position.y += Random::Range(-0.2f, 0.2f);
 
-			props.BirthSize = Vector2(0.2);
+			m_ParticleProps.BirthSize = Vector2(0.2f);
 
-			props.RenderingProps.Texture = GetComponent<SpriteRendererComponent>().Sprite;
+			m_ParticleProps.RenderingProps.Sprite = GetComponent<SpriteRendererComponent>().Sprite;
+			m_ParticleProps.RenderingProps.BirthColor = Color(0.8f, 0.8f, 0.8f, 1.0f);
 
 			float len = glm::fastLength(rb->GetLinearVelocity());
-			for (int i = 0; i < len; i += 10)
-				m_ParticleSystem->Emit(props);
+			// OE_CORE_INFO(len);
+			for (int i = 0; i < len * ts; i += 1)
+			{
+				m_ParticleSystem->Emit(m_ParticleProps);
+			}
 		}
 
 		virtual void OnCollisionEnter(const SceneCollision2D& collision) override
 		{
 			// OE_CORE_INFO("OnCollisionEnter with {}", collision.Other.Entity.GetComponent<NameComponent>().Name);
 			// GetComponent<SpriteRendererComponent>().Tint = { 1.0f, 0.2f, 1.0f, 1.0f };
+			// GetComponent<NameComponent>()._Reflection.dump(&GetComponent<NameComponent>(), 1);
+			// SpriteRendererComponent::_Reflection.Dump(&GetComponent<SpriteRendererComponent>(), 1);
+			// YAML::Emitter e;
+
+			// RigidBody2DComponent::_Reflection.Serialize(&GetComponent<RigidBody2DComponent>(), e);
+
+			// OE_CORE_INFO(e.c_str());
 		}
 
 		virtual void OnCollisionExit(const SceneCollision2D& collision) override
@@ -245,9 +252,33 @@ SandboxECS::SandboxECS()
 
 	private:
 		ParticleSystem2D* m_ParticleSystem;
+
+		Particle2DProps m_ParticleProps = Particle2DProps();
+	};
+
+	class CamerController : public ScriptableEntity
+	{
+	public:
+
+		CamerController(const Entity& player)
+			: m_PlayerEntity(player)
+		{
+		}
+
+		virtual void OnLateUpdate(TimeStep ts) override
+		{
+			auto& tc = GetComponent<TransformComponent>();
+			const Vector3& playerPosition = m_PlayerEntity.GetComponent<TransformComponent>().GetLocalPosition();
+			const Vector3& currentPosition = tc.GetLocalPosition();
+			tc.SetPosition(glm::mix(currentPosition, playerPosition, 10.0f * ts));
+		}
+
+	private:
+		Entity m_PlayerEntity;
 	};
 
 	m_Player.AddComponent<NativeScriptsComponent>().AddScript<Player>(&m_ParticleSystem);
+	m_MainCamera.AddComponent<NativeScriptsComponent>().AddScript<CamerController>(m_Player);
 
 	m_Scene->OnScenePlay();
 	ImGui::GetStyle().Alpha = 0.8f;
@@ -291,11 +322,11 @@ void SandboxECS::OnUpdate(TimeStep deltaTime)
 
 	Window& win = Application::Get().GetWindow();
 	m_Scene->SetViewportSize(win.GetWidth(), win.GetHeight());
-	m_Scene->OnUpdate(deltaTime);
 
-	//for (int i = 0; i < emitPerFrame; i++)
-	//	m_ParticleSystem.Emit({});
+	for (int i = 0; i < emitPerFrame; i++)
+		m_ParticleSystem.Emit({});
 	m_ParticleSystem.UpdateAndRender(deltaTime, glm::inverse(m_MainCameraTransform->GetLocalToWorld()), *m_MainCameraCameraHandle);
+	m_Scene->OnUpdate(deltaTime);
 }
 
 void SandboxECS::OnImGuiRender()

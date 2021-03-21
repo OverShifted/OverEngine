@@ -43,10 +43,10 @@ namespace OverEngine
 		void ReShape(Vector2 size);
 		void ReShape(float radius);
 
-		inline const Vector2& GetOffset() { return m_Transform.Offset; }
+		inline const Vector2& GetOffset() { return m_Offset; }
 		void SetOffset(const Vector2& offset);
 
-		inline float GetRotation() { return m_Transform.Rotation; }
+		inline float GetRotation() { return m_Rotation; }
 		void SetRotation(float rotation);
 
 		const Vector2& GetSizeHint() const { return m_SizeHint; }
@@ -55,14 +55,13 @@ namespace OverEngine
 		RigidBody2D* m_Body;
 		b2Fixture* m_FixtureHandle;
 
-		struct {
-			Vector2 Offset;
-			float Rotation;
-		} m_Transform;
+		Vector2 m_Offset;
+		float m_Rotation;
 
 		// if CircleCollider -> { r, <useless> }
 		// if BoxCollider -> size of box
 		Vector2 m_SizeHint;
+
 
 		friend class RigidBody2D;
 	};

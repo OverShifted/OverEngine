@@ -13,7 +13,7 @@
 
 #include "OverEngine/Core/Random.h"
 
-#include "OverEngine/Core/Serialization/YamlConverters.h"
+#include "OverEngine/Core/Runtime/Serialization/YamlConverters.h"
 #include <yaml-cpp/yaml.h>
 #include <fstream>
 
@@ -27,7 +27,6 @@ namespace OverEngine
 	template<typename T>
 	void CopyComponents_fn(entt::registry& src, entt::registry& dst, Scene* dstScene)
 	{
-		// Copy
 		auto view = src.view<T>();
 		dst.insert<T>(view.data(), view.data() + view.size(), view.raw(), view.raw() + view.size());
 
@@ -98,10 +97,6 @@ namespace OverEngine
 		if (!m_PhysicsWorld2D)
 			return;
 
-		/////////////////////////////////////////////////////
-		// Physics & Transform //////////////////////////////
-		/////////////////////////////////////////////////////
-
 		// Update Physics
 		m_PhysicsWorld2D->OnUpdate(deltaTime, 8, 3);
 
@@ -145,6 +140,14 @@ namespace OverEngine
 			for (auto& script : nsc.Scripts)
 			{
 				script.second.Instance->OnUpdate(deltaTime);
+			}
+		});
+
+		m_Registry.view<NativeScriptsComponent>().each([&deltaTime](auto entity, auto& nsc)
+		{
+			for (auto& script : nsc.Scripts)
+			{
+				script.second.Instance->OnLateUpdate(deltaTime);
 			}
 		});
 
@@ -260,13 +263,12 @@ namespace OverEngine
 				if (sprite.Sprite && !sprite.Sprite->IsRefrence())
 				{
 					TexturedQuadProps props;
-					props.Tint    = sprite.Tint;
-					props.Texture = sprite.Sprite;
-					props.Tiling  = sprite.Tiling;
-					props.Offset  = sprite.Offset;
-					props.Flip    = sprite.Flip;
-					props.Wrap    = sprite.Wrap;
-					props.Filter  = sprite.Filter;
+					props.Tint      = sprite.Tint;
+					props.Sprite    = sprite.Sprite;
+					props.Tiling    = sprite.Tiling;
+					props.Offset    = sprite.Offset;
+					props.Flip      = sprite.Flip;
+					props.ForceTile = sprite.ForceTile;
 
 					Renderer2D::DrawQuad(sptransform, props);
 				}
@@ -311,11 +313,6 @@ namespace OverEngine
 			if (cc.FixedAspectRatio)
 				cc.Camera.SetViewportSize(width, height);
 		});
-	}
-
-	uint32_t Scene::GetEntityCount() const
-	{
-		return (uint32_t)m_Registry.size<IDComponent>();
 	}
 
 	void Scene::OnCollisionEnter(const Collision2D& collision)

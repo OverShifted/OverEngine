@@ -7,6 +7,10 @@ namespace OverEngine
 	class Shader
 	{
 	public:
+		static Ref<Shader> Create(const String& filePath);
+		static Ref<Shader> Create(const String& name, const String& vertexSrc, const String& fragmentSrc);
+		static Ref<Shader> Create(const String& name, const char* vertexSrc, const char* fragmentSrc);
+
 		virtual ~Shader() = default;
 
 		virtual void Bind() const = 0;
@@ -28,10 +32,6 @@ namespace OverEngine
 		virtual bool Reload(const String& filePath = String()) = 0;
 		virtual bool Reload(const String& vertexSrc, const String& fragmentSrc) = 0;
 		virtual bool Reload(const char* vertexSrc, const char* fragmentSrc) = 0;
-
-		static Ref<Shader> Create(const String& filePath);
-		static Ref<Shader> Create(const String& name, const String& vertexSrc, const String& fragmentSrc);
-		static Ref<Shader> Create(const String& name, const char* vertexSrc, const char* fragmentSrc);
 	};
 
 	class ShaderLibrary

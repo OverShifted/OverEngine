@@ -2,9 +2,17 @@
 
 #include "Collider2D.h"
 
+#include "OverEngine/Core/Runtime/Reflection/Reflection.h"
+
 namespace OverEngine
 {
-	enum class RigidBody2DType : uint8_t { Static = 0, Kinematic, Dynamic };
+	enum class RigidBody2DType : uint8_t
+	{
+		None = 0,
+		Static,
+		Kinematic,
+		Dynamic
+	};
 
 	struct RigidBody2DProps
 	{
@@ -28,6 +36,8 @@ namespace OverEngine
 		bool Bullet = false;
 
 		void* UserPointer;
+
+		OE_REFLECT_STRUCT()
 	};
 
 	class PhysicsWorld2D;
@@ -64,8 +74,13 @@ namespace OverEngine
 
 		void* UserData = nullptr;
 	private:
+
+		// Online state = Connected to 
+
 		b2Body* m_BodyHandle;
 		Vector<Ref<Collider2D>> m_Colliders;
+
+		RigidBody2DProps m_OfflineProps;
 
 		friend class PhysicsWorld2D;
 		friend class Collider2D;

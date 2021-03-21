@@ -104,6 +104,7 @@ namespace OverEditor
 			static DockingLayout dl;
 			static bool layoutLoaded = false;
 
+#if 0
 			ImGui::Dummy({ -1, 5 });
 
 			ImGui::Dummy({ 5, 1 });
@@ -126,6 +127,15 @@ namespace OverEditor
 			}
 
 			ImGui::Spacing();
+#else
+			if (!layoutLoaded)
+			{
+				layoutLoaded = true;
+
+				dl.Load("Layout.yaml");
+				dl.Apply(dockspace_id);
+			}
+#endif
 
 			ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);
 		}
@@ -188,7 +198,7 @@ namespace OverEditor
 	void EditorLayer::EditScene(const Ref<Scene>& scene)
 	{
 		m_SceneContext->PrimaryScene = scene;
-		m_SceneContext->Selection.clear();
+		m_SceneContext->Selection.reset();
 
 		char buf[128];
 		sprintf_s(buf, OE_ARRAY_SIZE(buf), "OverEditor - %s - %s", m_EditingProject->GetName().c_str(), scene->GetName().c_str());

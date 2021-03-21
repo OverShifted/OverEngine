@@ -12,7 +12,7 @@ namespace OverEngine
 		m_ParticlePool.resize(poolSize);
 	}
 
-	void ParticleSystem2D::Emit(const ParticleProps2D& props)
+	void ParticleSystem2D::Emit(const Particle2DProps& props)
 	{
 		Particle& particle = m_ParticlePool[m_NextParticleIndex];
 
@@ -75,16 +75,14 @@ namespace OverEngine
 			Vector3 position = particle.Position;
 			position.z += depth;
 
-			if (particle.RenderingProps.Texture)
+			if (particle.RenderingProps.Sprite)
 			{
 				TexturedQuadProps props;
 				props.Tint = color;
-				props.Texture = particle.RenderingProps.Texture;
+				props.Sprite = particle.RenderingProps.Sprite;
 				props.Tiling = particle.RenderingProps.Tiling;
 				props.Offset = particle.RenderingProps.Offset;
 				props.Flip = particle.RenderingProps.Flip;
-				props.Wrap = particle.RenderingProps.Wrap;
-				props.Filter = particle.RenderingProps.Filter;
 
 				Renderer2D::DrawQuad(position, particle.Rotation, size, props);
 			}

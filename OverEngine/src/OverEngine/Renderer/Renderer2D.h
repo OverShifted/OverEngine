@@ -11,14 +11,14 @@ namespace OverEngine
 	struct TexturedQuadProps
 	{
 		Color Tint = Color(1.0f);
-		Ref<Texture2D> Texture;
+		Ref<Texture2D> Sprite;
 
 		Vector2 Tiling = Vector2(1.0f);
 		Vector2 Offset = Vector2(0.0f);
 		TextureFlip Flip = 0;
 
-		Vec2T<TextureWrap> Wrap{ TextureWrap::None, TextureWrap::None };
-		TextureFilter Filter = TextureFilter::None;
+		// Useful for SubTextures
+		bool ForceTile = false;
 	};
 
 	class Renderer2D

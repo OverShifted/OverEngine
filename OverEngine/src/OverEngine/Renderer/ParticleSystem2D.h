@@ -9,22 +9,19 @@
 
 namespace OverEngine
 {
-	struct ParticleRenderingProps2D
+	struct Particle2DRenderingProps
 	{
 		Color BirthColor = Color(1.0f);
 		Color DeathColor = Color(0.0f);
 
-		Ref<Texture2D> Texture;
+		Ref<Texture2D> Sprite;
 
 		Vector2 Tiling = Vector2(1.0f);
 		Vector2 Offset = Vector2(0.0f);
 		TextureFlip Flip = 0;
-
-		Vec2T<TextureWrap> Wrap{ TextureWrap::None, TextureWrap::None };
-		TextureFilter Filter = TextureFilter::None;
 	};
 
-	struct ParticleProps2D
+	struct Particle2DProps
 	{
 		// Transform
 		Vector3 Position               = Vector3(0.0f); // Vector3 support's depth
@@ -42,7 +39,7 @@ namespace OverEngine
 		float LifeTime = 1.0f;
 
 		// Rendering
-		ParticleRenderingProps2D RenderingProps;
+		Particle2DRenderingProps RenderingProps;
 	};
 
 	class ParticleSystem2D
@@ -51,7 +48,7 @@ namespace OverEngine
 		ParticleSystem2D(uint32_t poolSize = 100000);
 
 		// Emit a single particle
-		void Emit(const ParticleProps2D& props);
+		void Emit(const Particle2DProps& props);
 
 		void UpdateAndRender(TimeStep deltaTime, const Mat4x4& viewMatrix, const Camera& camera, bool useDepthTesting = true);
 
@@ -70,7 +67,7 @@ namespace OverEngine
 
 			float LifeTime, LifeLeft;
 
-			ParticleRenderingProps2D RenderingProps;
+			Particle2DRenderingProps RenderingProps;
 
 			bool Active;
 		};

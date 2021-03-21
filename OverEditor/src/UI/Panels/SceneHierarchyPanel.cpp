@@ -44,53 +44,23 @@ namespace OverEditor
 			Entity clickedEntity = RecursiveDraw();
 
 			if (clickedEntity)
-			{
-				if (ImGui::GetIO().KeyCtrl)
-				{
-					auto it = STD_CONTAINER_FIND(m_Context->Selection, clickedEntity);
-					if (it != m_Context->Selection.end())
-						m_Context->Selection.erase(it);
-					else
-						m_Context->Selection.push_back(clickedEntity);
-				}
-				else
-				{
-					m_Context->Selection.clear();
-					m_Context->Selection.push_back(clickedEntity);
-				}
-			}
-
-			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 5.0f, 5.0f });
-			if (ImGui::BeginPopupContextWindow("_SCENE_HIERARCHY_CONTEXTMENU"))
-			{
-				if (ImGui::MenuItem("Create Empty Entity"))
-				{
-					Entity createdEntity = m_Context->GetActiveScene()->CreateEntity();
-					m_Context->Selection.clear();
-					m_Context->Selection.push_back(createdEntity);
-				}
-
-				ImGui::EndPopup();
-			}
-			ImGui::PopStyleVar();
+				m_Context->Selection = clickedEntity;
 
 			ImGui::BeginChild("Blank Space");
-			if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && ImGui::IsWindowHovered())
-				m_Context->Selection.clear();
-
-			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 5.0f, 5.0f });
-			if (ImGui::BeginPopupContextWindow("_SCENE_HIERARCHY_CONTEXTMENU"))
 			{
-				if (ImGui::MenuItem("Create Empty Entity"))
-				{
-					Entity createdEntity = m_Context->GetActiveScene()->CreateEntity();
-					m_Context->Selection.clear();
-					m_Context->Selection.push_back(createdEntity);
-				}
+				if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && ImGui::IsWindowHovered())
+					m_Context->Selection.reset();
 
-				ImGui::EndPopup();
+				ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 5.0f, 5.0f });
+				if (ImGui::BeginPopupContextWindow("_SCENE_HIERARCHY_CONTEXTMENU"))
+				{
+					if (ImGui::MenuItem("Create Empty Entity"))
+						m_Context->Selection = m_Context->GetActiveScene()->CreateEntity();
+
+					ImGui::EndPopup();
+				}
+				ImGui::PopStyleVar();
 			}
-			ImGui::PopStyleVar();
 			ImGui::EndChild();
 
 			if (ImGui::BeginDragDropTarget())
@@ -108,34 +78,23 @@ namespace OverEditor
 		else
 		{
 			ImGui::Begin("Scene Hierarchy");
-
-			const char* text = "Please open a scene to start editing!";
-
-			ImVec2 textSize = ImGui::CalcTextSize(text);
-			ImVec2 windowSize = ImGui::GetContentRegionAvail();
-			ImGui::TextUnformatted(text);
-
+			ImGui::TextUnformatted("Please open a scene to start editing!");
 			ImGui::End();
 		}
 
 		ImGui::Begin("Inspector");
 
-		if (m_Context->Selection.size() == 1)
+		if (m_Context->Selection)
 		{
-			Entity selectedEntity{ m_Context->Selection[0], m_Context->GetActiveScene().get() };
+			Entity selectedEntity{ *m_Context->Selection, m_Context->GetActiveScene().get() };
 
 			{
 				fmt::basic_memory_buffer<char, 100> buffer;
-
-				auto end = fmt::format_to(buffer, "INSPECTOR_ENTITY_EDITOR{}", selectedEntity.GetRuntimeID());
-				*end = '\0';
-				
+				*fmt::format_to(buffer, "INSPECTOR_ENTITY_EDITOR{}", selectedEntity.GetRuntimeID()) = '\0';
 				ImGui::PushID(buffer.data());
 
 				buffer.clear();
-				end = fmt::format_to(buffer, "0x{0:x}", selectedEntity.GetComponent<IDComponent>().ID);
-				*end = '\0';
-
+				*fmt::format_to(buffer, "0x{0:x}", selectedEntity.GetComponent<IDComponent>().ID) = '\0';
 				ImGui::InputText(buffer.data(), &selectedEntity.GetComponent<NameComponent>().Name);
 			}
 
@@ -173,12 +132,8 @@ namespace OverEditor
 			if (wannaDestroy)
 			{
 				selectedEntity.Destroy();
-				m_Context->Selection.clear();
+				m_Context->Selection.reset();
 			}
-		}
-		else if (m_Context->Selection.size() > 1)
-		{
-			ImGui::TextUnformatted("Cannot edit multiple entities at the same time!");
 		}
 		else
 		{
@@ -193,24 +148,15 @@ namespace OverEditor
 		Entity selectedEntity;
 
 		Ref<Scene> activeScene = m_Context->GetActiveScene();
-		Vector<entt::entity>* entityList;
+		auto entityList = parentEntity ? (&parentEntity.GetComponent<TransformComponent>().GetChildrenHandles()) : (&activeScene->GetRootHandles());
 
-		if (parentEntity)
-		{
-			entityList = &parentEntity.GetComponent<TransformComponent>().GetChildrenHandles();
-		}
-		else
-		{
-			entityList = &activeScene->GetRootHandles();
-		}
-
-		for (auto entityHandle : *(entityList))
+		for (auto entityHandle : *entityList)
 		{
 			Entity entity{ entityHandle, activeScene.get() };
 
 			ImGuiTreeNodeFlags nodeFlags = OE_IMGUI_BASE_TREE_VIEW_FLAGS | ImGuiTreeNodeFlags_AllowItemOverlap;
 
-			if (STD_CONTAINER_FIND(m_Context->Selection, entity) != m_Context->Selection.end())
+			if (m_Context->Selection == entity)
 				nodeFlags |= ImGuiTreeNodeFlags_Selected;
 
 			auto& tc = entity.GetComponent<TransformComponent>();
@@ -247,7 +193,7 @@ namespace OverEditor
 				selectedEntity = entity;
 
 			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, { 0.0f, 0.0f });
-			ImGui::InvisibleButton("_ENTITY_ORDER_SETER", { -1, 5 });
+			ImGui::InvisibleButton("ENTITY_REORDER", { -1, 5 });
 			ImGui::PopStyleVar();
 
 			if (ImGui::BeginDragDropTarget())
@@ -264,10 +210,13 @@ namespace OverEditor
 							otherTc.SetParent(entity);
 							otherTc.SetSiblingIndex(0);
 						}
-						else if (entity != tc.GetParent())
+						else if (other != tc.GetParent())
 						{
+							uint32_t si = tc.GetSiblingIndex();
+							if (otherTc.GetSiblingIndex() > si)
+								si++;
 							otherTc.SetParent(tc.GetParent());
-							otherTc.SetSiblingIndex(tc.GetSiblingIndex() + 1);
+							otherTc.SetSiblingIndex(si);
 						}
 					}
 				}

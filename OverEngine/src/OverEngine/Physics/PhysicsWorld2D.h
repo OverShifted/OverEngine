@@ -30,7 +30,7 @@ namespace OverEngine
 	private:
 		b2World m_WorldHandle;
 
-		// Where all _Ref<RigidBody2D>_s are pointing to
+		// Where all 'Ref<RigidBody2D>'s are pointing to
 		// When a body is destroyed, b2Body* in the
 		// RigidBody2D is nullified and reference is removed from this Vector
 		Vector<Ref<RigidBody2D>> m_Bodies;

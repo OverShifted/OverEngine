@@ -3,7 +3,6 @@
 #include <OverEngine/Scene/Scene.h>
 
 #include <entt.hpp>
-#include <experimental/vector>
 
 namespace OverEditor
 {
@@ -20,7 +19,7 @@ namespace OverEditor
 		// The scene that is running
 		Ref<Scene> SecondaryScene = nullptr;
 
-		Vector<entt::entity> Selection;
+		std::optional<Entity> Selection;
 
 		enum RuntimeFlags_ : uint8_t
 		{
@@ -52,9 +51,8 @@ namespace OverEditor
 		{
 			SecondaryScene = nullptr;
 
-			std::experimental::erase_if(Selection, [this](const entt::entity& entity) {
-				return !PrimaryScene->Exists(entity);
-			});
+			if (!PrimaryScene->Exists(static_cast<entt::entity>(Selection->GetRuntimeID())))
+				Selection.reset();
 		}
 	};
 }

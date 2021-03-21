@@ -15,7 +15,7 @@ namespace OverEngine
 	{
 		b2BodyDef def;
 
-		def.type = (b2BodyType)props.Type;
+		def.type = (b2BodyType)((int)props.Type - 1);
 
 		def.position.Set(props.Position.x, props.Position.y);
 		def.angle = props.Rotation;

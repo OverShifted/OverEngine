@@ -56,6 +56,7 @@ namespace OverEngine
 
 		SubTexture2D(const Ref<Texture2D>& texture, const Rect& rect);
 		SubTexture2D(const uint64_t& guid);
+		virtual void Acquire(Ref<Asset> other) override;
 
 		virtual uint32_t GetWidth() const override;
 		virtual uint32_t GetHeight() const override;

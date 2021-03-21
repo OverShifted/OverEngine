@@ -87,3 +87,10 @@ ninja
 ## IDE / Build tool - platform - compiler support
 * Visual Studio 2019 - Windows - MSVC
 * CMake (with make or ninja) - Linux - GCC / G++
+
+## How to contribute
+1. Create a fork using the button in the top right corner
+2. Clone your fork on your computer
+3. Apply your modifications on your local clone. You can search the codebase for `TODO:`s and `FIXME:`s to find "help-wanted" parts. You can also try to fix bugs that you've found.
+4. Commit and push your changes to your own fork
+5. Apply a pull request to `OverShifted/OverEngine` and wait for your request to be accepted (or rejected)

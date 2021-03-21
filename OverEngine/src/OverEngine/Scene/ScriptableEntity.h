@@ -39,6 +39,7 @@ namespace OverEngine
 		virtual void OnCreate() {}
 		virtual void OnDestroy() {}
 		virtual void OnUpdate(TimeStep ts) {}
+		virtual void OnLateUpdate(TimeStep ts) {}
 
 		virtual void OnCollisionEnter(const SceneCollision2D& collision) {}
 		virtual void OnCollisionExit(const SceneCollision2D& collision) {}

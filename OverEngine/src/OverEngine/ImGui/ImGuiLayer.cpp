@@ -25,18 +25,17 @@ namespace OverEngine
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;  // Enable Gamepad Controls
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;     // Enable Docking
-		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;   // Enable Multi-Viewport / Platform Windows
-		io.ConfigWindowsMoveFromTitleBarOnly = true;
+		// io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;   // Enable Multi-Viewport / Platform Windows
+		// io.ConfigWindowsMoveFromTitleBarOnly = true;
 		//io.ConfigViewportsNoTaskBarIcon = true;
 		//io.ConfigViewportsNoDecoration = false;
 
-		// Setup Dear ImGui style
 		SetStyle();
 
 		// When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular ones.
-		ImGuiStyle& style = ImGui::GetStyle();
 		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 		{
+			ImGuiStyle& style = ImGui::GetStyle();
 			style.WindowRounding = 0.0f;
 			style.Colors[ImGuiCol_WindowBg].w = 1.0f;
 		}
@@ -83,7 +82,7 @@ namespace OverEngine
 		{
 			ImGui::UpdatePlatformWindows();
 			ImGui::RenderPlatformWindowsDefault();
-			mainWindow.GetRendererContext().Current();
+			mainWindow.GetGraphicsContext().Current();
 		}
 	}
 
@@ -124,7 +123,11 @@ namespace OverEngine
 		colors[ImGuiCol_TitleBgCollapsed] = ImVec4{ 0.15f, 0.1505f, 0.151f, 1.0f };
 
 		// Rounding
-		style.GrabRounding = 2.3f;
-		style.FrameRounding = 2.3f;
+		style.WindowPadding = ImVec2(8.0f, 8.0f);
+		style.FramePadding = ImVec2(8.0f, 5.0f);
+		style.WindowRounding = 4.0f;
+		style.ChildRounding = 4.0f;
+		style.FrameRounding = 4.0f;
+		style.GrabRounding = 4.0f;
 	}
 }

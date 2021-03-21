@@ -15,6 +15,8 @@ namespace OverEngine
 	class FrameBuffer
 	{
 	public:
+		static Ref<FrameBuffer> Create(const FrameBufferProps& props);
+
 		virtual ~FrameBuffer() = default;
 
 		virtual void Bind() = 0;
@@ -25,7 +27,5 @@ namespace OverEngine
 		virtual uint32_t GetColorAttachmentRendererID() const = 0;
 
 		virtual const FrameBufferProps& GetProps() const = 0;
-
-		static Ref<FrameBuffer> Create(const FrameBufferProps& props);
 	};
 }

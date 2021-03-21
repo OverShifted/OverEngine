@@ -1,12 +1,12 @@
 #pragma once
 
-#include "OverEngine/Renderer/RendererContext.h"
+#include "OverEngine/Renderer/GraphicsContext.h"
 
 struct GLFWwindow;
 
 namespace OverEngine
 {
-	class OpenGLContext : public RendererContext
+	class OpenGLContext : public GraphicsContext
 	{
 	public:
 		OpenGLContext(Window* window);

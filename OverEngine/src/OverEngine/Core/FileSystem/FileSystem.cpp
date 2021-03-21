@@ -51,36 +51,6 @@ namespace OverEngine
 		return "";
 	}
 
-	bool FileSystem::FileExists(const String& path)
-	{
-		return std::filesystem::exists(path);
-	}
-
-	bool FileSystem::FileExists(const std::filesystem::path& path)
-	{
-		return std::filesystem::exists(path);
-	}
-
-	bool FileSystem::IsFile(const String& path)
-	{
-		return !IsDirectory(path);
-	}
-
-	bool FileSystem::IsFile(const std::filesystem::path& path)
-	{
-		return !IsDirectory(path);
-	}
-
-	bool FileSystem::IsDirectory(const String& path)
-	{
-		return std::filesystem::is_directory(path);
-	}
-
-	bool FileSystem::IsDirectory(const std::filesystem::path& path)
-	{
-		return std::filesystem::is_directory(path);
-	}
-
 	String FileSystem::FixPath(String path)
 	{
 		size_t backSlash = path.find_first_of('\\');
@@ -136,34 +106,5 @@ namespace OverEngine
 		for (uint32_t i = 0; path[i] != '\0'; i++)
 			if (path[i] == '\\')
 				path[i] = '/';
-	}
-
-	String FileSystem::ExtractFileNameFromPath(const String& path)
-	{
-		auto lastSlash = path.find_last_of("/\\");
-		lastSlash = lastSlash == String::npos ? 0 : lastSlash + 1;
-		return path.substr(lastSlash, path.size() - lastSlash);
-	}
-
-	void FileSystem::ExtractFileNameFromPath(String* path)
-	{
-		auto lastSlash = path->find_last_of("/\\");
-		lastSlash = lastSlash == String::npos ? 0 : lastSlash + 1;
-		(*path) = path->substr(lastSlash, path->size() - lastSlash);
-	}
-
-	String FileSystem::ExtractFileExtensionFromName(const String& name)
-	{
-		auto lastDot = name.rfind('.');
-		if (lastDot == String::npos)
-			return "";
-
-		lastDot = lastDot == String::npos ? 0 : lastDot + 1;
-		return name.substr(lastDot, name.size() - lastDot);
-	}
-
-	String FileSystem::ExtractFileExtensionFromPath(const String& path)
-	{
-		return ExtractFileExtensionFromName(ExtractFileNameFromPath(path));
 	}
 }

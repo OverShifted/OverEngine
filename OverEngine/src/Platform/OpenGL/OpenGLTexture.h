@@ -10,6 +10,8 @@ namespace OverEngine
 	public:
 		OpenGLTexture2D(const String& path);
 		OpenGLTexture2D(const uint64_t& guid);
+		virtual void Acquire(Ref<Asset> other) override;
+
 		virtual ~OpenGLTexture2D();
 
 		virtual uint32_t GetWidth() const override;
