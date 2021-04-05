@@ -6,6 +6,8 @@
 #include "OverEngine/Core/Runtime/Serialization/YamlConverters.h"
 #include <yaml-cpp/yaml.h>
 
+#include <optional>
+
 // Based on: https://github.com/preshing/FlexibleReflection
 
 namespace OverEngine::Reflection
