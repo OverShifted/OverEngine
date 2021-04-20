@@ -45,6 +45,7 @@ namespace OverEditor
 		{
 			SecondaryScene = CreateRef<Scene>(*PrimaryScene);
 			SecondaryScene->InitializePhysics();
+			Selection = Entity{ static_cast<entt::entity>(Selection->GetRuntimeID()), SecondaryScene.get() };
 		}
 
 		void EndSimulation()
@@ -53,6 +54,8 @@ namespace OverEditor
 
 			if (!PrimaryScene->Exists(static_cast<entt::entity>(Selection->GetRuntimeID())))
 				Selection.reset();
+			else
+			    Selection = Entity{ static_cast<entt::entity>(Selection->GetRuntimeID()), PrimaryScene.get() };
 		}
 	};
 }

@@ -200,19 +200,19 @@ namespace OverEngine
 		m_Registry.view<RigidBody2DComponent>().each([this](entt::entity entity, auto& rbc)
 		{
 			auto& tc = m_Registry.get<TransformComponent>(entity);
-			rbc.RigidBody = m_PhysicsWorld2D->CreateRigidBody(rbc.Initializer);
-			rbc.RigidBody->UserData = (void*)entity;
 			rbc.RigidBody->SetPosition(tc.GetPosition());
 			rbc.RigidBody->SetRotation(tc.GetEulerAngles().z);
+			rbc.RigidBody->UserData = (void*)entity;
+			rbc.RigidBody->Deploy(m_PhysicsWorld2D);
 		});
 
-		// Construct self-attached Colliders
+		// Construct Colliders
 		m_Registry.view<Colliders2DComponent>().each([this](entt::entity entity, auto& pcc)
 		{
 			Ref<RigidBody2D> rb = FindAttachedBody({ entity, this });
 			for (auto& collider : pcc.Colliders)
 			{
-				collider.Collider = rb->CreateCollider(collider.Initializer);
+				collider->Deploy(rb.get());
 			}
 		});
 	}
@@ -310,7 +310,7 @@ namespace OverEngine
 
 		m_Registry.view<CameraComponent>().each([&width, &height](CameraComponent& cc)
 		{
-			if (cc.FixedAspectRatio)
+			if (!cc.FixedAspectRatio)
 				cc.Camera.SetViewportSize(width, height);
 		});
 	}

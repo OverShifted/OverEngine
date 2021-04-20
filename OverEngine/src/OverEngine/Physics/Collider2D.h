@@ -1,68 +1,133 @@
 #pragma once
 
+#include "OverEngine/Core/Runtime/Reflection/Reflection.h"
+
 #include <box2d/b2_fixture.h>
+#include <box2d/b2_polygon_shape.h>
+#include <box2d/b2_circle_shape.h>
 
 namespace OverEngine
 {
-	enum class Collider2DType
+	enum class CollisionShape2DType
 	{
-		Box = 0, Circle
+		None = 0,
+		Box,
+		Circle
+	};
+
+	class CollisionShape2D
+	{
+	public:
+		virtual CollisionShape2DType GetType() const = 0;
+		virtual b2Shape* GetBox2DShape(const Vector2& offset) = 0;
+	};
+
+	class BoxCollisionShape2D : public CollisionShape2D
+	{
+	public:
+		static Ref<BoxCollisionShape2D> Create(Vector2 size, float rotation = 0.0f);
+		BoxCollisionShape2D(Vector2 size, float rotation);
+
+		virtual CollisionShape2DType GetType() const override { return CollisionShape2DType::Box; }
+		virtual b2Shape* GetBox2DShape(const Vector2& offset) override { Invalidate(offset); return &m_Shape; }
+
+		const Vector2& GetSize() const { return m_Size; }
+		void SetSize(const Vector2& size) { m_Size = size; }
+
+		float GetRotation() const { return m_Rotation; }
+		void SetRotation(float rotation) { m_Rotation = rotation; }
+	
+	private:
+		void Invalidate(const Vector2& offset);
+		b2PolygonShape m_Shape;
+
+		Vector2 m_Size;
+		float m_Rotation;
+
+		OE_REFLECT_STRUCT()
+	};
+
+	class CircleCollisionShape2D : public CollisionShape2D
+	{
+	public:
+		static Ref<CircleCollisionShape2D> Create(float radius);
+		CircleCollisionShape2D(float radius);
+
+		virtual CollisionShape2DType GetType() const override { return CollisionShape2DType::Circle; }
+		virtual b2Shape* GetBox2DShape(const Vector2& offset) override { Invalidate(offset); return &m_Shape; }
+
+		float GetRadius() const { return m_Radius; }
+		void SetRadius(float radius) { m_Radius = radius; }
+	
+	private:
+		void Invalidate(const Vector2& offset);
+		b2CircleShape m_Shape;
+
+		float m_Radius;
+
+		OE_REFLECT_STRUCT()
 	};
 
 	struct Collider2DProps
 	{
+		// Shape
 		Vector2 Offset{ 0.0f, 0.0f };
-		float Rotation = 0.0f;
+		Ref<CollisionShape2D> Shape = nullptr;
 
-		struct
-		{
-			Collider2DType Type = Collider2DType::Box;
-			
-			Vector2 BoxSize{ 1.0f, 1.0f };
-			float CircleRadius = 0.5f;
-		} Shape;
-
-		bool IsTrigger = false;
-
+		// Surface Properties
 		float Friction = 0.2f;
-		float Density = 1.0f;
-
 		float Bounciness = 0.0f;
 		float BouncinessThreshold = 1.0f;
+
+		// Other Properties
+		float Density = 1.0f;
+		bool IsTrigger = false;
 	};
 
 	class RigidBody2D;
 
-	class Collider2D
+	class Collider2D : public std::enable_shared_from_this<Collider2D>
 	{
 	public:
-		Collider2D(RigidBody2D* body, b2Fixture* fixture, Collider2DType type, Vector2 offset, float rotation, Vector2 sizeHint);
+		// Creates an un-deployed collider
+		static Ref<Collider2D> Create(const Collider2DProps& props);
 
-		RigidBody2D* GetAttachedBody() const { return m_Body; }
+		Collider2D(const Collider2DProps& props);
+		~Collider2D();
 
-		void ReShape(Vector2 size);
-		void ReShape(float radius);
+		// Creates a Box2D fixture
+		void Deploy(RigidBody2D* rigidBody);
+		void UnDeploy();
 
-		inline const Vector2& GetOffset() { return m_Offset; }
-		void SetOffset(const Vector2& offset);
+		const Collider2DProps& GetProps() const { return m_Props; }
 
-		inline float GetRotation() { return m_Rotation; }
-		void SetRotation(float rotation);
+		RigidBody2D* GetAttachedBody() const { return m_BodyHandle; }
 
-		const Vector2& GetSizeHint() const { return m_SizeHint; }
-	protected:
-		Collider2DType m_Type;
-		RigidBody2D* m_Body;
-		b2Fixture* m_FixtureHandle;
+		inline const Vector2& GetOffset() const { return m_Props.Offset; }
+		void SetOffset(const Vector2& offset) { m_Props.Offset = offset; Invalidate(); }
 
-		Vector2 m_Offset;
-		float m_Rotation;
+		inline float GetFriction() const { return m_Props.Friction; }
+		inline void SetFriction(float friction) { m_Props.Friction = friction; Invalidate(); }
 
-		// if CircleCollider -> { r, <useless> }
-		// if BoxCollider -> size of box
-		Vector2 m_SizeHint;
+		inline float GetDensity() const { return m_Props.Density; }
+		inline void SetDensity(float density) { m_Props.Density = density; Invalidate(); }
 
+		inline float GetBounciness() const{ return m_Props.Bounciness;}
+		inline void SetBounciness(float bounciness) { m_Props.Bounciness = bounciness; Invalidate(); }
 
-		friend class RigidBody2D;
+		inline float GetBouncinessThreshold() const { return m_Props.BouncinessThreshold; }
+		inline void SetBouncinessThreshold(float bouncinessThreshold) { m_Props.BouncinessThreshold = bouncinessThreshold; Invalidate(); }
+
+		inline bool GetIsTrigger() const{ return m_Props.IsTrigger;}
+		inline void SetIsTrigger(bool isTrigger) { m_Props.IsTrigger = isTrigger; Invalidate(); }
+
+	private:
+		void Invalidate();
+
+	private:
+		Collider2DProps m_Props;
+
+		b2Fixture* m_FixtureHandle = nullptr;
+		RigidBody2D* m_BodyHandle = nullptr;
 	};
 }

@@ -57,7 +57,7 @@ namespace OverEngine
 		inline const Vector<entt::entity>& GetRootHandles() const { return m_RootHandles; }
 		inline Vector<entt::entity>& GetRootHandles() { return m_RootHandles; }
 
-		inline uint32_t GetEntityCount() const { return m_Registry.alive(); }
+		inline uint32_t GetEntityCount() const { return (uint32_t)m_Registry.alive(); }
 
 		inline bool Exists(const entt::entity& entity) { return m_Registry.valid(entity); }
 		

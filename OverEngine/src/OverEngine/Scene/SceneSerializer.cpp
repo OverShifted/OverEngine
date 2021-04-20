@@ -117,7 +117,7 @@ namespace OverEngine
 				auto& rbc = entity.GetComponent<RigidBody2DComponent>();
 				out << YAML::Key << "Enabled" << YAML::Value << rbc.Enabled;
 
-				Serializer::SerializeToYaml(&rbc.Initializer, out, false);
+				Serializer::SerializeToYaml(&rbc.RigidBody->GetProps(), out, false);
 
 				out << YAML::EndMap; // RigidBody2DComponent
 			}
@@ -132,18 +132,23 @@ namespace OverEngine
 				out << YAML::Key << "Colliders" << YAML::Value << YAML::BeginSeq;
 				for (const auto& collider : c2c.Colliders)
 				{
-					const auto& init = collider.Initializer;
+					const auto& init = collider->GetProps();
 
 					out << YAML::BeginMap;
 
 					out << YAML::Key << "Offset" << YAML::Value << init.Offset;
-					out << YAML::Key << "Rotation" << YAML::Value << init.Rotation;
 
 					out << YAML::Key << "Shape" << YAML::Value << YAML::BeginMap;
 					{
-						out << YAML::Key << "Type" << YAML::Value << Reflection::EnumClassResolver::GetNameByValue(init.Shape.Type);
-						out << YAML::Key << "BoxSize" << YAML::Value << init.Shape.BoxSize;
-						out << YAML::Key << "CircleRadius" << YAML::Value << init.Shape.CircleRadius;
+						out << YAML::Key << "Type" << YAML::Value << Reflection::EnumClassResolver::GetNameByValue(init.Shape->GetType());
+						if (auto boxShape = std::dynamic_pointer_cast<BoxCollisionShape2D>(init.Shape))
+						{
+							Serializer::SerializeToYaml(boxShape.get(), out, false);
+						}
+						else if (auto circleShape = std::dynamic_pointer_cast<CircleCollisionShape2D>(init.Shape))
+						{
+							Serializer::SerializeToYaml(circleShape.get(), out, false);
+						}
 					}
 					out << YAML::EndMap;
 
@@ -286,16 +291,18 @@ namespace OverEngine
 				{
 					auto& rbc = deserializedEntity.AddComponent<RigidBody2DComponent>();
 
-					rbc.Initializer.Type = Reflection::EnumClassResolver::GetValueByName<RigidBody2DType>(rigidBody2DComponent["Type"].as<String>()).value();
-					rbc.Initializer.LinearVelocity  = rigidBody2DComponent["LinearVelocity"].as<Vector2>();
-					rbc.Initializer.AngularVelocity = rigidBody2DComponent["AngularVelocity"].as<float>();
-					rbc.Initializer.LinearDamping   = rigidBody2DComponent["LinearDamping"].as<float>();
-					rbc.Initializer.AngularDamping  = rigidBody2DComponent["AngularDamping"].as<float>();
-					rbc.Initializer.AllowSleep      = rigidBody2DComponent["AllowSleep"].as<bool>();
-					rbc.Initializer.Awake           = rigidBody2DComponent["Awake"].as<bool>();
-					rbc.Initializer.FixedRotation   = rigidBody2DComponent["FixedRotation"].as<bool>();
-					rbc.Initializer.GravityScale    = rigidBody2DComponent["GravityScale"].as<float>();
-					rbc.Initializer.Bullet          = rigidBody2DComponent["Bullet"].as<bool>();
+					RigidBody2DProps props;
+					props.Type = Reflection::EnumClassResolver::GetValueByName<RigidBody2DType>(rigidBody2DComponent["Type"].as<String>()).value();
+					props.InitialLinearVelocity  = rigidBody2DComponent["LinearVelocity"].as<Vector2>();
+					props.InitialAngularVelocity = rigidBody2DComponent["AngularVelocity"].as<float>();
+					props.LinearDamping          = rigidBody2DComponent["LinearDamping"].as<float>();
+					props.AngularDamping         = rigidBody2DComponent["AngularDamping"].as<float>();
+					props.AllowSleep             = rigidBody2DComponent["AllowSleep"].as<bool>();
+					props.IsInitiallyAwake       = rigidBody2DComponent["Awake"].as<bool>();
+					props.FixedRotation          = rigidBody2DComponent["FixedRotation"].as<bool>();
+					props.GravityScale           = rigidBody2DComponent["GravityScale"].as<float>();
+					props.Bullet                 = rigidBody2DComponent["Bullet"].as<bool>();
+					rbc.RigidBody = RigidBody2D::Create(props);
 				}
 
 				if (auto colliders2DComponent = entity["Colliders2DComponent"])
@@ -307,20 +314,35 @@ namespace OverEngine
 						Collider2DProps props;
 
 						props.Offset = collider["Offset"].as<Vector2>();
-						props.Rotation = collider["Rotation"].as<float>();
 
-						props.Shape.Type = Reflection::EnumClassResolver::GetValueByName<Collider2DType>(collider["Shape"]["Type"].as<String>()).value();
-						props.Shape.BoxSize = collider["Shape"]["BoxSize"].as<Vector2>();
-						props.Shape.CircleRadius = collider["Shape"]["CircleRadius"].as<float>();
+						// Shape
+						auto shapeType = Reflection::EnumClassResolver::GetValueByName<CollisionShape2DType>(collider["Shape"]["Type"].as<String>()).value();
 
-						props.IsTrigger = collider["IsTrigger"].as<bool>();
+						Ref<CollisionShape2D> shape;
+						switch (shapeType)
+						{
+						case CollisionShape2DType::Box:
+							shape = BoxCollisionShape2D::Create(collider["Shape"]["Size"].as<Vector2>(), collider["Shape"]["Rotation"].as<float>());
+							break;
 
-						props.Friction = collider["Friction"].as<float>();
-						props.Density = collider["Density"].as<float>();
-						props.Bounciness = collider["Bounciness"].as<float>();
+						case CollisionShape2DType::Circle:
+							shape = CircleCollisionShape2D::Create(collider["Shape"]["Radius"].as<float>());
+							break;
+
+						default:
+							break;
+						}
+
+						props.Shape = shape;
+
+						props.Friction            = collider["Friction"].as<float>();
+						props.Bounciness          = collider["Bounciness"].as<float>();
 						props.BouncinessThreshold = collider["BouncinessThreshold"].as<float>();
 
-						c2c.Colliders.push_back({ props, nullptr });
+						props.Density             = collider["Density"].as<float>();
+						props.IsTrigger           = collider["IsTrigger"].as<bool>();
+
+						c2c.Colliders.push_back(Collider2D::Create(props));
 					}
 				}
 			}

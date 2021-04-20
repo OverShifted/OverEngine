@@ -136,20 +136,24 @@ namespace OverEngine
 
 	struct RigidBody2DComponent : public Component
 	{
-		// Used as pre-runtime storage
-		RigidBody2DProps Initializer;
+		Ref<RigidBody2D> RigidBody = nullptr;
 
-		// Used for runtime
-		Ref<RigidBody2D> RigidBody;
-
-		RigidBody2DComponent(const RigidBody2DComponent&) = default;
+		RigidBody2DComponent(const RigidBody2DComponent& other)
+		    : Component(other.AttachedEntity)
+        {
+		    RigidBody = RigidBody2D::Create(other.RigidBody->GetProps());
+        }
 
 		RigidBody2DComponent(const Entity& entity, const RigidBody2DProps& props = RigidBody2DProps())
-			: Component(entity), Initializer(props) {}
+			: Component(entity)
+		{
+			RigidBody = RigidBody2D::Create(props);
+		}
 
 		~RigidBody2DComponent()
 		{
-			AttachedEntity.GetScene()->GetPhysicsWorld2D().DestroyRigidBody(RigidBody);
+			if (RigidBody && RigidBody->IsDeployed())
+				RigidBody->UnDeploy();
 		}
 
 		COMPONENT_TYPE(RigidBody2DComponent)
@@ -159,15 +163,16 @@ namespace OverEngine
 	// Store's all colliders attached to an Entity
 	struct Colliders2DComponent : public Component
 	{
-		struct ColliderData
-		{
-			Collider2DProps Initializer;
-			Ref<Collider2D> Collider;
-		};
+		Vector<Ref<Collider2D>> Colliders;
 
-		Vector<ColliderData> Colliders;
-
-		Colliders2DComponent(const Colliders2DComponent&) = default;
+		Colliders2DComponent(const Colliders2DComponent& other)
+		    : Component(other.AttachedEntity)
+        {
+		    for (const auto& collider : other.Colliders)
+            {
+		        Colliders.push_back(Collider2D::Create(collider->GetProps()));
+            }
+        }
 
 		Colliders2DComponent(const Entity& entity)
 			: Component(entity) {}
@@ -181,14 +186,14 @@ namespace OverEngine
 
 	struct NativeScriptsComponent : public Component
 	{
-		struct _Script
+		struct ScriptData
 		{
 			ScriptableEntity* Instance = nullptr;
 
 			std::function<ScriptableEntity*()> InstantiateScript;
-			void (*DestroyScript)(_Script*);
+			void (*DestroyScript)(ScriptData*);
 
-			~_Script()
+			~ScriptData()
 			{
 				if (Instance)
 					DestroyScript(this);
@@ -196,7 +201,7 @@ namespace OverEngine
 		};
 
 		bool Runtime = false;
-		UnorderedMap<size_t, _Script> Scripts;
+		UnorderedMap<size_t, ScriptData> Scripts;
 
 
 		// Don't copy 'Scripts' to other instance when 'Runtime' is true; since it will lead to double free on entt::registry::destroy
@@ -221,7 +226,7 @@ namespace OverEngine
 				return;
 			}
 
-			Scripts[hash] = _Script{
+			Scripts[hash] = ScriptData{
 				nullptr,
 
 				// TODO: Use C++20 features here https://stackoverflow.com/a/49902823/11814750
@@ -232,7 +237,7 @@ namespace OverEngine
 					}, std::move(args));
 				},
 
-				[](_Script* s) { delete s->Instance; s->Instance = nullptr; }
+				[](ScriptData* s) { delete s->Instance; s->Instance = nullptr; }
 			};
 
 			if (Runtime)

@@ -186,11 +186,10 @@ namespace OverEditor
 
 		if (m_EditingProject)
 		{
-			dispatcher.Dispatch<WindowFocusEvent>([this](WindowFocusEvent& event) -> bool {
-
+			dispatcher.Dispatch<WindowFocusEvent>([](WindowFocusEvent& event) -> bool
+			{
 				AssetDatabase::Refresh();
 				return false;
-
 			});
 		}
 	}

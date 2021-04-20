@@ -11,49 +11,6 @@ namespace OverEngine
 		m_WorldHandle.SetContactListener(static_cast<b2ContactListener*>(&m_CollisionListener));
 	}
 
-	Ref<RigidBody2D> PhysicsWorld2D::CreateRigidBody(const RigidBody2DProps& props)
-	{
-		b2BodyDef def;
-
-		def.type = (b2BodyType)((int)props.Type - 1);
-
-		def.position.Set(props.Position.x, props.Position.y);
-		def.angle = props.Rotation;
-
-		def.linearVelocity.Set(props.LinearVelocity.x, props.LinearVelocity.y);
-		def.angularVelocity = props.AngularVelocity;
-
-		def.linearDamping = props.LinearDamping;
-		def.angularVelocity = props.AngularDamping;
-
-		def.allowSleep = props.AllowSleep;
-		def.awake = props.Awake;
-		def.enabled = props.Enabled;
-
-		def.fixedRotation = props.FixedRotation;
-		def.gravityScale = props.GravityScale;
-		def.bullet = props.Bullet;
-
-		auto body = CreateRef<RigidBody2D>(m_WorldHandle.CreateBody(&def));
-		m_Bodies.push_back(body);
-		return body;
-	}
-
-	void PhysicsWorld2D::DestroyRigidBody(const Ref<RigidBody2D>& rigidBody)
-	{
-		if (!rigidBody || !rigidBody->m_BodyHandle)
-			return;
-
-		auto it = STD_CONTAINER_FIND(m_Bodies, rigidBody);
-
-		if (it == m_Bodies.end())
-			return;
-
-		m_WorldHandle.DestroyBody(rigidBody->m_BodyHandle);
-		rigidBody->m_BodyHandle = nullptr;
-		m_Bodies.erase(it);
-	}
-
 	Vector2 PhysicsWorld2D::GetGravity() const
 	{
 		return { m_WorldHandle.GetGravity().x, m_WorldHandle.GetGravity().y };
@@ -84,38 +41,41 @@ namespace OverEngine
 		m_CollisionListener.OnCollisionExit = callback;
 	}
 
-	void PhysicsWorld2D::CollisionListener::BeginContact(b2Contact* contact)
-	{
-		Collider2D* colliderA_ptr = (Collider2D*)(contact->GetFixtureA()->GetUserData().pointer);
-		Collider2D* colliderB_ptr = (Collider2D*)(contact->GetFixtureB()->GetUserData().pointer);
+    PhysicsWorld2D::~PhysicsWorld2D()
+    {
+        for (const auto& body : m_Bodies)
+        {
+            body->m_WorldHandle = nullptr;
+            body->m_BodyHandle = nullptr;
+        }
+    }
 
-		if (!colliderA_ptr || !colliderB_ptr)
+    void PhysicsWorld2D::CollisionListener::BeginContact(b2Contact* contact)
+	{
+		Collider2D* colliderA_ptr = reinterpret_cast<Collider2D*>(contact->GetFixtureA()->GetUserData().pointer);
+		Collider2D* colliderB_ptr = reinterpret_cast<Collider2D*>(contact->GetFixtureB()->GetUserData().pointer);
+
+		if (!(colliderA_ptr && colliderB_ptr))
 			return;
 		
-		auto colliderA = colliderA_ptr->GetAttachedBody()->FindCollider(colliderA_ptr);
-		auto colliderB = colliderB_ptr->GetAttachedBody()->FindCollider(colliderB_ptr);
-
 		Collision2D collision;
-		collision.ColliderA = colliderA;
-		collision.ColliderB = colliderB;
+		collision.ColliderA = colliderA_ptr->shared_from_this();
+		collision.ColliderB = colliderB_ptr->shared_from_this();
 
 		OnCollisionEnter(collision, UserData);
 	}
 
 	void PhysicsWorld2D::CollisionListener::EndContact(b2Contact* contact)
 	{
-		Collider2D* colliderA_ptr = (Collider2D*)(contact->GetFixtureA()->GetUserData().pointer);
-		Collider2D* colliderB_ptr = (Collider2D*)(contact->GetFixtureB()->GetUserData().pointer);
+		Collider2D* colliderA_ptr = reinterpret_cast<Collider2D*>(contact->GetFixtureA()->GetUserData().pointer);
+		Collider2D* colliderB_ptr = reinterpret_cast<Collider2D*>(contact->GetFixtureB()->GetUserData().pointer);
 
-		if (!colliderA_ptr || !colliderB_ptr)
+		if (!(colliderA_ptr && colliderB_ptr))
 			return;
 		
-		auto colliderA = colliderA_ptr->GetAttachedBody()->FindCollider(colliderA_ptr);
-		auto colliderB = colliderB_ptr->GetAttachedBody()->FindCollider(colliderB_ptr);
-
 		Collision2D collision;
-		collision.ColliderA = colliderA;
-		collision.ColliderB = colliderB;
+		collision.ColliderA = colliderA_ptr->shared_from_this();
+		collision.ColliderB = colliderB_ptr->shared_from_this();
 
 		OnCollisionExit(collision, UserData);
 	}

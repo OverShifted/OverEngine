@@ -125,9 +125,6 @@ namespace OverEngine
 				AssetFolder::AssetMappingKey k;
 				k.Name = pathNode;
 
-				if (asset->GetClassName() == AssetFolder::GetStaticClassName())
-					k.Type = AssetFolder::AssetMappingKey::AssetMappingKeyType_Folder;
-
 				k.Type = AssetFolder::AssetMappingKey::AssetMappingKeyType_Folder;
 				if (STD_MAP_HAS(currentNode->GetAssets(), k))
 					return false;

@@ -293,7 +293,7 @@ namespace OverEditor
 	void ViewportPanel::DrawGizmo(TransformComponent& entityTransform, bool hovered)
 	{
 		float arrowScale = 0.3f;
-		const auto& cameraOrthoSize = m_Camera.GetOrthographicSize();
+		const auto& cameraOrthographicSize = m_Camera.GetOrthographicSize();
 
 		// Render Gizmo
 		if (m_Tool == ViewportTool::Translate2D)
@@ -305,7 +305,7 @@ namespace OverEditor
 			s_Data->GizmoVA->Bind();
 
 			Transform gizmoTransform;
-			gizmoTransform.SetScale({ arrowScale * cameraOrthoSize, arrowScale / 6 * cameraOrthoSize, 1.0f * cameraOrthoSize });
+			gizmoTransform.SetScale({ arrowScale * cameraOrthographicSize, arrowScale / 6 * cameraOrthographicSize, 1.0f * cameraOrthographicSize });
 			float offset = gizmoTransform.GetScale().x / 2.0f;
 
 			static auto highlightAxis = [this](Axis axis) -> bool
@@ -364,14 +364,14 @@ namespace OverEditor
 					m_HoveredTranslateAxis = Axis::None;
 					if (distanceToXHandle < distanceToYHandle)
 					{
-						if (distanceToXHandle <= arrowScale / 10.0f * cameraOrthoSize &&
-							xAxisRay.T > 0.0f && xAxisRay.T < arrowScale * cameraOrthoSize)
+						if (distanceToXHandle <= arrowScale / 10.0f * cameraOrthographicSize &&
+							xAxisRay.T > 0.0f && xAxisRay.T < arrowScale * cameraOrthographicSize)
 							m_HoveredTranslateAxis = Axis::X;
 					}
 					else
 					{
-						if (distanceToYHandle <= arrowScale / 10.0f * cameraOrthoSize &&
-							yAxisRay.T > 0.0f && yAxisRay.T < arrowScale * cameraOrthoSize)
+						if (distanceToYHandle <= arrowScale / 10.0f * cameraOrthographicSize &&
+							yAxisRay.T > 0.0f && yAxisRay.T < arrowScale * cameraOrthographicSize)
 							m_HoveredTranslateAxis = Axis::Y;
 					}
 
@@ -411,9 +411,9 @@ namespace OverEditor
 	{
 		s_Data->GridShader->Bind();
 		const auto& cameraPos = m_CameraTransform.GetPosition();
-		const auto& cameraOrthoSize = m_Camera.GetOrthographicSize();
+		const auto& cameraOrthographicSize = m_Camera.GetOrthographicSize();
 		s_Data->GridShader->UploadUniformFloat2("u_CameraPos", { cameraPos.x, cameraPos.y });
-		s_Data->GridShader->UploadUniformFloat2("u_WorldSpaceSize", Vector2{ m_PanelSize.x / m_PanelSize.y, 1 } * cameraOrthoSize / 2.0f);
+		s_Data->GridShader->UploadUniformFloat2("u_WorldSpaceSize", Vector2{ m_PanelSize.x / m_PanelSize.y, 1 } * cameraOrthographicSize / 2.0f);
 		s_Data->GridShader->UploadUniformFloat("u_GridZoom", gridZoom);
 		s_Data->GridShader->UploadUniformFloat("u_LineKernel", gridKernel);
 		s_Data->GridVA->Bind();

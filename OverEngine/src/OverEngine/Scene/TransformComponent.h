@@ -26,7 +26,7 @@ namespace OverEngine
 		}
 
 		inline const Mat4x4& GetLocalToWorld() const { return m_LocalToWorld; }
-		inline operator const Mat4x4& () const { return GetLocalToWorld(); }
+		inline operator const Mat4x4&() const { return GetLocalToWorld(); }
 
 		// Position
 		Vector3 GetPosition() const;

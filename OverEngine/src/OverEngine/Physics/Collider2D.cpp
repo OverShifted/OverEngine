@@ -9,81 +9,106 @@
 
 namespace OverEngine
 {
-	OE_REFLECT_ENUM_CLASS_BEGIN(Collider2DType)
-	OE_REFLECT_ENUM_CLASS_VALUE(Box, 0)
-	OE_REFLECT_ENUM_CLASS_VALUE(Circle, 1)
+	OE_REFLECT_ENUM_CLASS_BEGIN(CollisionShape2DType)
+	OE_REFLECT_ENUM_CLASS_VALUE(None, 0)
+	OE_REFLECT_ENUM_CLASS_VALUE(Box, 1)
+	OE_REFLECT_ENUM_CLASS_VALUE(Circle, 2)
 	OE_REFLECT_ENUM_CLASS_END()
 
-	Collider2D::Collider2D(RigidBody2D* body, b2Fixture* fixture, Collider2DType type, Vector2 offset, float rotation, Vector2 sizeHint)
-		: m_Type(type), m_Body(body), m_FixtureHandle(fixture), m_Offset(offset), m_Rotation(rotation), m_SizeHint(sizeHint)
+	OE_REFLECT_STRUCT_BEGIN(BoxCollisionShape2D)
+	OE_REFLECT_STRUCT_MEMBER(m_Size)
+	OE_REFLECT_STRUCT_MEMBER(m_Rotation)
+	OE_REFLECT_STRUCT_END()
+
+	OE_REFLECT_STRUCT_BEGIN(CircleCollisionShape2D)
+	OE_REFLECT_STRUCT_MEMBER(m_Radius)
+	OE_REFLECT_STRUCT_END()
+
+	Ref<BoxCollisionShape2D> BoxCollisionShape2D::Create(Vector2 size, float rotation)
 	{
-		m_FixtureHandle->GetUserData().pointer = (uintptr_t)this;
+		return CreateRef<BoxCollisionShape2D>(size, rotation);
 	}
 
-	void Collider2D::ReShape(float radius)
+	BoxCollisionShape2D::BoxCollisionShape2D(Vector2 size, float rotation)
+		: m_Size(size), m_Rotation(rotation)
 	{
-		OE_CORE_ASSERT(m_Type == Collider2DType::Circle, "Collider2D::ReShape(float radius) is only possible on CircleColliders");
+	}
 
-		m_SizeHint.x = radius;
+	void BoxCollisionShape2D::Invalidate(const Vector2& offset)
+	{
+		m_Shape.SetAsBox(
+			m_Size.x / 2.0f,
+			m_Size.y / 2.0f,
+			b2Vec2(offset.x, offset.y),
+			m_Rotation
+		);
+	}
+
+	Ref<CircleCollisionShape2D> CircleCollisionShape2D::Create(float radius)
+	{
+		return CreateRef<CircleCollisionShape2D>(radius);
+	}
+
+	CircleCollisionShape2D::CircleCollisionShape2D(float radius)
+		: m_Radius(radius)
+	{
+	}
+
+	void CircleCollisionShape2D::Invalidate(const Vector2& offset)
+	{
+		m_Shape.m_p.Set(offset.x, offset.y);
+		m_Shape.m_radius = m_Radius;
+	}
+
+	Ref<Collider2D> Collider2D::Create(const Collider2DProps& props)
+	{
+		return CreateRef<Collider2D>(props);
+	}
+
+	Collider2D::Collider2D(const Collider2DProps& props)
+		: m_Props(props)
+	{
+	}
+
+	Collider2D::~Collider2D()
+	{
+		if (m_FixtureHandle && m_BodyHandle && m_BodyHandle->m_BodyHandle)
+			UnDeploy();
+	}
+
+	void Collider2D::Deploy(RigidBody2D* rigidBody)
+	{
+		rigidBody->m_Colliders.push_back(shared_from_this());
+		m_BodyHandle = rigidBody;
+		Invalidate();
+	}
+
+	void Collider2D::UnDeploy()
+	{
+		m_BodyHandle->m_Colliders.erase(STD_CONTAINER_FIND(m_BodyHandle->m_Colliders, shared_from_this()));
+		m_BodyHandle->m_BodyHandle->DestroyFixture(m_FixtureHandle);
+
+		m_FixtureHandle = nullptr;
+		m_BodyHandle = nullptr;
+	}
+
+	void Collider2D::Invalidate()
+	{
+		OE_CORE_ASSERT(m_BodyHandle && m_BodyHandle->m_BodyHandle, "Cannot (re)build a collider without a body or with an undeployed one.")
+		OE_CORE_ASSERT(m_Props.Shape, "Cannot (re)build a collider with empty shape!");
+
+		if (m_FixtureHandle)
+			m_BodyHandle->m_BodyHandle->DestroyFixture(m_FixtureHandle);
 
 		b2FixtureDef def;
 
-		b2CircleShape shape;
-		shape.m_radius = radius;
-		shape.m_p.Set(m_Offset.x, m_Offset.y);
+		def.shape                = m_Props.Shape->GetBox2DShape(m_Props.Offset);
+		def.friction             = m_Props.Friction;
+		def.restitution          = m_Props.Bounciness;
+		def.restitutionThreshold = m_Props.BouncinessThreshold;
+		def.density              = m_Props.Density;
+		def.isSensor             = m_Props.IsTrigger;
 
-		def.shape                = reinterpret_cast<b2Shape*>(&shape);
-		def.friction             = m_FixtureHandle->GetFriction();
-		def.restitution          = m_FixtureHandle->GetRestitution();
-		def.restitutionThreshold = m_FixtureHandle->GetRestitutionThreshold();
-		def.density              = m_FixtureHandle->GetDensity();
-		def.isSensor             = m_FixtureHandle->IsSensor();
-		def.filter               = m_FixtureHandle->GetFilterData();
-
-		m_Body->m_BodyHandle->DestroyFixture(m_FixtureHandle);
-		m_FixtureHandle = m_Body->m_BodyHandle->CreateFixture(&def);
-	}
-
-	void Collider2D::ReShape(Vector2 size)
-	{
-		OE_CORE_ASSERT(m_Type == Collider2DType::Box, "Collider2D::ReShape(Vector2 size) is only possible on BoxColliders");
-
-		m_SizeHint = size;
-
-		b2FixtureDef def;
-
-		b2PolygonShape shape;
-		shape.SetAsBox(size.x / 2.0f, size.y / 2.0f, { m_Offset.x, m_Offset.y }, m_Rotation);
-
-		def.shape                = (b2Shape*)&shape;
-		def.friction             = m_FixtureHandle->GetFriction();
-		def.restitution          = m_FixtureHandle->GetRestitution();
-		def.restitutionThreshold = m_FixtureHandle->GetRestitutionThreshold();
-		def.density              = m_FixtureHandle->GetDensity();
-		def.isSensor             = m_FixtureHandle->IsSensor();
-		def.filter               = m_FixtureHandle->GetFilterData();
-
-		m_Body->m_BodyHandle->DestroyFixture(m_FixtureHandle);
-		m_FixtureHandle = m_Body->m_BodyHandle->CreateFixture(&def);
-	}
-
-	void Collider2D::SetOffset(const Vector2& offset)
-	{
-		m_Offset = offset;
-		
-		if (m_Type == Collider2DType::Box)
-			ReShape(m_SizeHint);
-		else if (m_Type == Collider2DType::Circle)
-			ReShape(m_SizeHint.x);
-	}
-
-	void Collider2D::SetRotation(float rotation)
-	{
-		m_Rotation = rotation;
-
-		if (m_Type == Collider2DType::Box)
-			ReShape(m_SizeHint);
-		else if (m_Type == Collider2DType::Circle)
-			ReShape(m_SizeHint.x);
+		m_FixtureHandle = m_BodyHandle->m_BodyHandle->CreateFixture(&def);
 	}
 }

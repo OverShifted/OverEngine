@@ -48,7 +48,7 @@ namespace OverEngine::Reflection
 
 	#define OE_REFLECT_ENUM_CLASS_BEGIN(type)                                                                     \
 		namespace {                                                                                               \
-			char _ = [] () -> char {                                                                              \
+			static char _ = [] () -> char {                                                                       \
 				using T = type;                                                                                   \
 				static auto desc = ::OverEngine::Reflection::TypeDescriptor_EnumClass<std::underlying_type_t<T>>( \
 					#type, sizeof(type),                                                                          \

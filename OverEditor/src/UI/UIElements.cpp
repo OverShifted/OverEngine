@@ -114,28 +114,30 @@ namespace OverEditor
 		ImGui::PopStyleVar();
 	}
 
-	bool UIElements::CheckboxField_U(const char* fieldName, const char* fieldID, bool* value, const BoolEditAction::GetterFn& getter, const BoolEditAction::SetterFn& setter)
+	bool UIElements::CheckboxField_U(const char* fieldName, const char* fieldID, const BoolEditAction::GetterFn& getter, const BoolEditAction::SetterFn& setter)
 	{
-		bool changed = CheckboxField(fieldName, fieldID, value);
+	    bool value = getter();
+		bool changed = CheckboxField(fieldName, fieldID, &value);
 		if (changed)
-			EditorLayer::Get().GetActionStack().Do(CreateRef<BoolEditAction>(getter, setter), false);
+			EditorLayer::Get().GetActionStack().Do(CreateRef<BoolEditAction>(getter, setter));
 
 		return changed;
 	}
 
-	bool UIElements::DragFloatField_U(const char* fieldName, const char* fieldID, float* value, const FloatEditAction::GetterFn& getter, const FloatEditAction::SetterFn& setter, float speed, float min, float max, const char* format)
+	bool UIElements::DragFloatField_U(const char* fieldName, const char* fieldID, const FloatEditAction::GetterFn& getter, const FloatEditAction::SetterFn& setter, float speed, float min, float max, const char* format)
 	{
 		static float delta = 0.0f;
 
 		// Backup value's value
-		float v = *value;
-		float valueToChange = v;
+		float firstValue = getter();
+		float lastValue = firstValue;
 
 		bool changed = false;
-		if (UIElements::DragFloatField(fieldName, fieldID, &valueToChange, speed, min, max, format))
+		if (UIElements::DragFloatField(fieldName, fieldID, &lastValue, speed, min, max, format))
 		{
-			delta += valueToChange - v;
-			changed = true;
+			delta += lastValue - firstValue;
+            setter(lastValue);
+            changed = true;
 		}
 
 		if (ImGui::IsItemDeactivatedAfterEdit())
@@ -144,27 +146,23 @@ namespace OverEditor
 			delta = 0.0f;
 		}
 
-		if (changed)
-		{
-			*value = valueToChange;
-		}
-
 		return changed;
 	}
 
-	bool UIElements::DragFloat2Field_U(const char* fieldName, const char* fieldID, float value[2], const Vector2EditAction::GetterFn& getter, const Vector2EditAction::SetterFn& setter, float speed, float min, float max, const char* format)
+	bool UIElements::DragFloat2Field_U(const char* fieldName, const char* fieldID, const Vector2EditAction::GetterFn& getter, const Vector2EditAction::SetterFn& setter, float speed, float min, float max, const char* format)
 	{
 		static Vector2 delta(0.0f);
 
 		// Backup value's value
-		Vector2 v{ value[0], value[1], };
-		Vector2 valueToChange = v;
+		Vector2 firstValue = getter();
+		Vector2 lastValue = firstValue;
 
 		bool changed = false;
-		if (UIElements::DragFloat2Field(fieldName, fieldID, glm::value_ptr(valueToChange), speed, min, max, format))
+		if (UIElements::DragFloat2Field(fieldName, fieldID, glm::value_ptr(lastValue), speed, min, max, format))
 		{
-			delta += valueToChange - v;
-			changed = true;
+			delta += lastValue - firstValue;
+            setter(lastValue);
+            changed = true;
 		}
 
 		if (ImGui::IsItemDeactivatedAfterEdit())
@@ -173,58 +171,47 @@ namespace OverEditor
 			delta = Vector2(0.0f);
 		}
 
-		if (changed)
-		{
-			value[0] = valueToChange[0];
-			value[1] = valueToChange[1];
-		}
-
 		return changed;
 	}
 
-	bool UIElements::DragFloat3Field_U(const char* fieldName, const char* fieldID, float value[3], const Vector3EditAction::GetterFn& getter, const Vector3EditAction::SetterFn& setter, float speed, float min, float max, const char* format)
+	bool UIElements::DragFloat3Field_U(const char* fieldName, const char* fieldID, const Vector3EditAction::GetterFn& getter, const Vector3EditAction::SetterFn& setter, float speed, float min, float max, const char* format)
 	{
-		static Vector3 delta(0.0f);
+        static Vector3 delta(0.0f);
 
-		// Backup value's value
-		Vector3 v{ value[0], value[1], value[2] };
-		Vector3 valueToChange = v;
+        // Backup value's value
+        Vector3 firstValue = getter();
+        Vector3 lastValue = firstValue;
 
-		bool changed = false;
-		if (UIElements::DragFloat3Field(fieldName, fieldID, glm::value_ptr(valueToChange), speed, min, max, format))
-		{
-			delta += valueToChange - v;
-			changed = true;
-		}
+        bool changed = false;
+        if (UIElements::DragFloat3Field(fieldName, fieldID, glm::value_ptr(lastValue), speed, min, max, format))
+        {
+            delta += lastValue - firstValue;
+            setter(lastValue);
+            changed = true;
+        }
 
-		if (ImGui::IsItemDeactivatedAfterEdit())
-		{
-			EditorLayer::Get().GetActionStack().Do(CreateRef<Vector3EditAction>(delta, getter, setter), false);
-			delta = Vector3(0.0f);
-		}
+        if (ImGui::IsItemDeactivatedAfterEdit())
+        {
+            EditorLayer::Get().GetActionStack().Do(CreateRef<Vector3EditAction>(delta, getter, setter), false);
+            delta = Vector3(0.0f);
+        }
 
-		if (changed)
-		{
-			value[0] = valueToChange[0];
-			value[1] = valueToChange[1];
-			value[2] = valueToChange[2];
-		}
-
-		return changed;
+        return changed;
 	}
 
-	bool UIElements::Color4Field_U(const char* fieldName, const char* fieldID, float value[4], const Vector4EditAction::GetterFn& getter, const Vector4EditAction::SetterFn& setter)
+	bool UIElements::Color4Field_U(const char* fieldName, const char* fieldID, const Vector4EditAction::GetterFn& getter, const Vector4EditAction::SetterFn& setter)
 	{
 		static Vector4 delta(0.0f);
 
 		// Backup value's value
-		Vector4 v{ value[0], value[1], value[2], value[3] };
-		Vector4 valueToChange = v;
+		Vector4 firstValue = getter();
+		Vector4 lastValue = firstValue;
 
 		bool changed = false;
-		if (UIElements::Color4Field(fieldName, fieldID, glm::value_ptr(valueToChange)))
+		if (UIElements::Color4Field(fieldName, fieldID, glm::value_ptr(lastValue)))
 		{
-			delta += valueToChange - v;
+			delta += lastValue - firstValue;
+			setter(lastValue);
 			changed = true;
 		}
 
@@ -234,14 +221,17 @@ namespace OverEditor
 			delta = Vector4(0.0f);
 		}
 
-		if (changed)
-		{
-			value[0] = valueToChange[0];
-			value[1] = valueToChange[1];
-			value[2] = valueToChange[2];
-			value[3] = valueToChange[3];
-		}
-
 		return changed;
 	}
+
+    bool UIElements::BasicEnum_U(const char* fieldName, const char* fieldID, EnumValues& values, const IntEditAction::GetterFn& getter, const IntEditAction::SetterFn& setter, const ImGuiSelectableFlags& flags)
+    {
+        int firstValue = getter();
+        int lastValue = getter();
+        bool changed = BasicEnum(fieldName, fieldID, values, &lastValue, flags);
+        if (changed)
+            EditorLayer::Get().GetActionStack().Do(CreateRef<IntEditAction>(lastValue - firstValue, getter, setter));
+
+        return changed;
+    }
 }

@@ -72,20 +72,22 @@ SandboxECS::SandboxECS()
 		m_Player.AddComponent<SpriteRendererComponent>(m_Sprite);
 
 		// RigidBody2D
-		RigidBody2DProps props;
-		props.Type = RigidBody2DType::Dynamic;
-		m_Player.AddComponent<RigidBody2DComponent>(props);
+		{
+			RigidBody2DProps props;
+			props.Type = RigidBody2DType::Dynamic;
+			m_Player.AddComponent<RigidBody2DComponent>(props);
+		}
 
 		// Collider2D
-		auto& playerColliderList = m_Player.AddComponent<Colliders2DComponent>();
-		Collider2DProps cprops;
-		cprops.Shape.Type = Collider2DType::Circle;
-		cprops.Shape.CircleRadius = 0.5f;
-		cprops.Shape.BoxSize = { 1.0f, 1.0f };
-		cprops.Bounciness = 0.0f;
-		cprops.Friction = 100.0f;
-		cprops.Density = 1.0f;
-		playerColliderList.Colliders.push_back({ cprops, nullptr });
+		{
+			auto& playerColliderList = m_Player.AddComponent<Colliders2DComponent>();
+			Collider2DProps props;
+			props.Shape = CircleCollisionShape2D::Create(0.5f);
+			props.Bounciness = 0.0f;
+			props.Friction = 100.0f;
+			props.Density = 1.0f;
+			playerColliderList.Colliders.push_back(Collider2D::Create(props));
+		}
 
 		m_Player.AddComponent<LuaScriptsComponent>().Scripts["player"] = FileSystem::ReadFile("assets/scripts/player.lua");
 	}
@@ -102,25 +104,28 @@ SandboxECS::SandboxECS()
 		spriteRenderer.Tiling.x = 4.0f;
 		spriteRenderer.ForceTile = true;
 
-		// RigidBody2D
-		RigidBody2DProps obstacleBodyProps;
-		obstacleBodyProps.Type = RigidBody2DType::Static;
-		obstacle.AddComponent<RigidBody2DComponent>(obstacleBodyProps);
-
 		auto& obstacleTransform = obstacle.GetComponent<TransformComponent>();
 		obstacleTransform.SetLocalPosition({ 0.0f, -2.0f, 0.0f });
 		obstacleTransform.SetLocalScale({ 4.0f, 1.0f, 1.0f });
 		obstacleTransform.SetLocalEulerAngles({ 0.0f, 0.0f, 45.0f });
 
+		// RigidBody2D
+		{
+			RigidBody2DProps props;
+			props.Type = RigidBody2DType::Static;
+			obstacle.AddComponent<RigidBody2DComponent>(props);
+		}
+
 		// Collider2D
-		auto& colliderList = obstacle.AddComponent<Colliders2DComponent>();
-		Collider2DProps obsticleColliderProps;
-		obsticleColliderProps.Shape.Type = Collider2DType::Box;
-		obsticleColliderProps.Shape.BoxSize = { 4.0f, 1.0f };
-		obsticleColliderProps.Bounciness = 0.3f;
-		obsticleColliderProps.Friction = 1.0f;
-		obsticleColliderProps.Density = 200.0f;
-		colliderList.Colliders.push_back({ obsticleColliderProps, nullptr });
+		{
+			auto& colliderList = obstacle.AddComponent<Colliders2DComponent>();
+			Collider2DProps props;
+			props.Shape = BoxCollisionShape2D::Create({ 4.0f, 1.0f });
+			props.Bounciness = 0.3f;
+			props.Friction = 1.0f;
+			props.Density = 200.0f;
+			colliderList.Colliders.push_back(Collider2D::Create(props));
+		}
 	}
 
 	////////////////////////////////////////////////////////////////
@@ -136,25 +141,27 @@ SandboxECS::SandboxECS()
 		spriteRenderer.Tiling.y = 1.0f;
 		spriteRenderer.ForceTile = true;
 
-		// RigidBody2D
-		RigidBody2DProps obstacleBodyProps;
-		obstacleBodyProps.Type = RigidBody2DType::Static;
-		obstacle.AddComponent<RigidBody2DComponent>(obstacleBodyProps);
-
-
 		auto& obstacleTransform = obstacle.GetComponent<TransformComponent>();
 		obstacleTransform.SetLocalScale({ 4000.0f, 1.0f, 1.0f });
 		obstacleTransform.SetLocalPosition({ 0.0f, -8.0f, 0.0f });
 
+		// RigidBody2D
+		{
+			RigidBody2DProps obstacleBodyProps;
+			obstacleBodyProps.Type = RigidBody2DType::Static;
+			obstacle.AddComponent<RigidBody2DComponent>(obstacleBodyProps);
+		}
+
 		// Collider2D
-		auto& colliderList2 = obstacle.AddComponent<Colliders2DComponent>();
-		Collider2DProps obsticleColliderProps;
-		obsticleColliderProps.Shape.Type = Collider2DType::Box;
-		obsticleColliderProps.Shape.BoxSize = { 4000.0f, 1.0f };
-		obsticleColliderProps.Bounciness = 0.3f;
-		obsticleColliderProps.Friction = 1.0f;
-		obsticleColliderProps.Density = 200.0f;
-		colliderList2.Colliders.push_back({ obsticleColliderProps, nullptr });
+		{
+			auto& colliderList = obstacle.AddComponent<Colliders2DComponent>();
+			Collider2DProps props;
+			props.Shape = BoxCollisionShape2D::Create({ 4000.0f, 1.0f });
+			props.Bounciness = 0.3f;
+			props.Friction = 1.0f;
+			props.Density = 200.0f;
+			colliderList.Colliders.push_back(Collider2D::Create(props));
+		}
 	}
 
 	////////////////////////////////////////////////////////////////
@@ -163,7 +170,6 @@ SandboxECS::SandboxECS()
 
 	m_MainCamera = m_Scene->CreateEntity("MainCamera");
 	auto& app = Application::Get();
-	float aspectRatio = (float)app.GetWindow().GetWidth() / (float)app.GetWindow().GetHeight();
 	m_MainCameraCameraHandle = &m_MainCamera.AddComponent<CameraComponent>().Camera;
 	m_MainCameraCameraHandle->SetOrthographic(10.0f, -1.0f, 1.0f);
 	m_MainCameraTransform = &m_MainCamera.GetComponent<TransformComponent>();
@@ -323,10 +329,10 @@ void SandboxECS::OnUpdate(TimeStep deltaTime)
 	Window& win = Application::Get().GetWindow();
 	m_Scene->SetViewportSize(win.GetWidth(), win.GetHeight());
 
-	for (int i = 0; i < emitPerFrame; i++)
-		m_ParticleSystem.Emit({});
-	m_ParticleSystem.UpdateAndRender(deltaTime, glm::inverse(m_MainCameraTransform->GetLocalToWorld()), *m_MainCameraCameraHandle);
+//	for (int i = 0; i < emitPerFrame; i++)
+//		m_ParticleSystem.Emit({});
 	m_Scene->OnUpdate(deltaTime);
+    m_ParticleSystem.UpdateAndRender(deltaTime, glm::inverse(m_MainCameraTransform->GetLocalToWorld()), *m_MainCameraCameraHandle);
 }
 
 void SandboxECS::OnImGuiRender()

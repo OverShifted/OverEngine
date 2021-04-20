@@ -15,9 +15,7 @@ namespace OverEngine
 	{
 	public:
 		PhysicsWorld2D(Vector2 gravity);
-
-		Ref<RigidBody2D> CreateRigidBody(const RigidBody2DProps& props = RigidBody2DProps());
-		void DestroyRigidBody(const Ref<RigidBody2D>& rigidBody);
+		~PhysicsWorld2D();
 
 		Vector2 GetGravity() const;
 		void SetGravity(const Vector2& gravity);
@@ -47,5 +45,7 @@ namespace OverEngine
 		};
 
 		CollisionListener m_CollisionListener;
+
+		friend class RigidBody2D;
 	};
 }

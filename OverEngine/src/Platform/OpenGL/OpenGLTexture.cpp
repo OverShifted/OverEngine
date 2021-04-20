@@ -107,12 +107,13 @@ namespace OverEngine
 		if (auto otherGLTexture = std::dynamic_pointer_cast<OpenGLTexture2D>(other))
 		{
 			m_RendererID = otherGLTexture->m_RendererID;
+			m_Width      = otherGLTexture->m_Width;
+			m_Height     = otherGLTexture->m_Height;
+			m_Format     = otherGLTexture->m_Format;
+			m_Filter     = otherGLTexture->m_Filter;
+			m_Wrap       = otherGLTexture->m_Wrap;
 
-			m_Width  = otherGLTexture->m_Width;
-			m_Height = otherGLTexture->m_Height;
-			m_Format = otherGLTexture->m_Format;
-			m_Filter = otherGLTexture->m_Filter;
-			m_Wrap   = otherGLTexture->m_Wrap;
+			otherGLTexture->m_RendererID = 0;
 		}
 	}
 

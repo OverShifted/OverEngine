@@ -16,11 +16,11 @@ add_subdirectory(OverEngine/vendor/glad)
 add_subdirectory(OverEngine/vendor/imgui)
 add_subdirectory(OverEngine/vendor/lua-overengine)
 option(BOX2D_BUILD_TESTBED "Build the Box2D testbed" OFF)
+option(BOX2D_BUILD_UNIT_TESTS "Build the Box2D unit tests" OFF)
 add_subdirectory(OverEngine/vendor/box2d)
 add_subdirectory(OverEngine/vendor/yaml-cpp)
 
 # OverEngine
-option(OE_ENABLE_UNITY_BUILD "Enables unity build for OverEngine target" OFF)
 add_subdirectory(OverEngine)
 add_subdirectory(OverEditor)
 add_subdirectory(Sandbox)

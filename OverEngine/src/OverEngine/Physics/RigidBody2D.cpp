@@ -20,88 +20,200 @@ namespace OverEngine
 
 	OE_REFLECT_STRUCT_BEGIN(RigidBody2DProps)
 	OE_REFLECT_STRUCT_MEMBER(Type)
-	OE_REFLECT_STRUCT_MEMBER(LinearVelocity)
-	OE_REFLECT_STRUCT_MEMBER(AngularVelocity)
+	OE_REFLECT_STRUCT_MEMBER(InitialLinearVelocity)
+	OE_REFLECT_STRUCT_MEMBER(InitialLinearVelocity)
 	OE_REFLECT_STRUCT_MEMBER(LinearDamping)
 	OE_REFLECT_STRUCT_MEMBER(AngularDamping)
 	OE_REFLECT_STRUCT_MEMBER(AllowSleep)
-	OE_REFLECT_STRUCT_MEMBER(Awake)
+	OE_REFLECT_STRUCT_MEMBER(IsInitiallyAwake)
 	OE_REFLECT_STRUCT_MEMBER(FixedRotation)
 	OE_REFLECT_STRUCT_MEMBER(GravityScale)
 	OE_REFLECT_STRUCT_MEMBER(Bullet)
 	OE_REFLECT_STRUCT_END()
 
-	RigidBody2D::RigidBody2D(b2Body* bodyHandle)
-		: m_BodyHandle(bodyHandle)
+	Ref<RigidBody2D> RigidBody2D::Create(const RigidBody2DProps& props)
 	{
-		m_BodyHandle->GetUserData().pointer = (uintptr_t)this;
+		return CreateRef<RigidBody2D>(props);
+	}
+
+	RigidBody2D::RigidBody2D(const RigidBody2DProps& props)
+		: m_Props(props)
+	{
+	}
+
+	RigidBody2D::~RigidBody2D()
+	{
+		if (m_BodyHandle && m_WorldHandle)
+			UnDeploy(true);
+	}
+
+	void RigidBody2D::Deploy(PhysicsWorld2D* world)
+	{
+		b2BodyDef def;
+
+		def.type = (b2BodyType)((int)m_Props.Type - 1);
+
+		def.position.Set(m_Props.InitialPosition.x, m_Props.InitialPosition.y);
+		def.angle = m_Props.InitialRotation;
+
+		def.linearVelocity.Set(m_Props.InitialLinearVelocity.x, m_Props.InitialLinearVelocity.y);
+		def.angularVelocity = m_Props.InitialAngularVelocity;
+
+		def.linearDamping = m_Props.LinearDamping;
+		def.angularVelocity = m_Props.AngularDamping;
+
+		def.allowSleep = m_Props.AllowSleep;
+		def.awake = m_Props.IsInitiallyAwake;
+		def.enabled = m_Props.Enabled;
+
+		def.fixedRotation = m_Props.FixedRotation;
+		def.gravityScale = m_Props.GravityScale;
+		def.bullet = m_Props.Bullet;
+
+		world->m_Bodies.push_back(shared_from_this());
+		m_WorldHandle = world;
+		m_BodyHandle = world->m_WorldHandle.CreateBody(&def);
+	}
+
+	void RigidBody2D::UnDeploy(bool onDestruct)
+	{
+	    if (!onDestruct)
+		    m_WorldHandle->m_Bodies.erase(STD_CONTAINER_FIND(m_WorldHandle->m_Bodies, shared_from_this()));
+
+		m_WorldHandle->m_WorldHandle.DestroyBody(m_BodyHandle);
+
+		m_BodyHandle = nullptr;
+		m_WorldHandle = nullptr;
 	}
 
 	bool RigidBody2D::IsEnabled() const
 	{
-		return m_BodyHandle->IsEnabled();
+		return m_Props.Enabled;
 	}
 
 	void RigidBody2D::SetEnabled(bool enabled)
 	{
-		m_BodyHandle->SetEnabled(enabled);
+		m_Props.Enabled = enabled;
+
+		if (m_BodyHandle)
+			m_BodyHandle->SetEnabled(enabled);
 	}
 
 	RigidBody2DType RigidBody2D::GetType()
 	{
-		return (RigidBody2DType)((int)m_BodyHandle->GetType() + 1);
+		return m_Props.Type;
 	}
 
 	void RigidBody2D::SetType(const RigidBody2DType& type)
 	{
-		m_BodyHandle->SetType((b2BodyType)((int)type - 1));
+		m_Props.Type = type;
+
+		if (m_BodyHandle)
+			m_BodyHandle->SetType((b2BodyType)((int)type - 1));
 	}
 
-	Vector2 RigidBody2D::GetPosition()
+	Vector2 RigidBody2D::GetPosition() const
 	{
-		const auto& pos = m_BodyHandle->GetPosition();
-		return { pos.x, pos.y };
+		if (IsDeployed())
+		{
+			const b2Vec2& pos = m_BodyHandle->GetPosition();
+			return { pos.x, pos.y };
+		}
+
+		return m_Props.InitialPosition;
 	}
 
 	void RigidBody2D::SetPosition(const Vector2& position)
 	{
-		m_BodyHandle->SetTransform(
-			{ position.x, position.y },
-			m_BodyHandle->GetAngle()
-		);
+		if (IsDeployed())
+		{
+			m_BodyHandle->SetTransform(
+				{ position.x, position.y },
+				m_BodyHandle->GetAngle()
+			);
+			return;
+		}
+
+		m_Props.InitialPosition = position;
 	}
 
-	float RigidBody2D::GetRotation()
+	float RigidBody2D::GetRotation() const
 	{
-		return m_BodyHandle->GetAngle();
+		if (IsDeployed())
+			return m_BodyHandle->GetAngle();
+
+		return m_Props.InitialRotation;
 	}
-	
+
 	void RigidBody2D::SetRotation(float rotation)
 	{
-		m_BodyHandle->SetTransform(
-			m_BodyHandle->GetPosition(),
-			rotation
-		);
+		if (IsDeployed())
+		{
+			m_BodyHandle->SetTransform(
+				m_BodyHandle->GetPosition(),
+				rotation
+			);
+			return;
+		}
+
+		m_Props.InitialRotation = rotation;
 	}
 
-	Vector2 RigidBody2D::GetLinearVelocity()
+	Vector2 RigidBody2D::GetLinearVelocity() const
 	{
-		return { m_BodyHandle->GetLinearVelocity().x, m_BodyHandle->GetLinearVelocity().y };
+		if (IsDeployed())
+			return { m_BodyHandle->GetLinearVelocity().x, m_BodyHandle->GetLinearVelocity().y };
+
+		return m_Props.InitialLinearVelocity;
 	}
 
 	void RigidBody2D::SetLinearVelocity(const Vector2& velocity)
 	{
-		m_BodyHandle->SetLinearVelocity({ velocity.x, velocity.y });
+		if (IsDeployed())
+		{
+			m_BodyHandle->SetLinearVelocity({ velocity.x, velocity.y });
+			return;
+		}
+
+		m_Props.InitialLinearVelocity = velocity;
 	}
 
-	float RigidBody2D::GetAngularVelocity()
+	float RigidBody2D::GetAngularVelocity() const
 	{
-		return m_BodyHandle->GetAngularVelocity();
+		if (IsDeployed())
+			return m_BodyHandle->GetAngularVelocity();
+
+		return m_Props.InitialAngularVelocity;
 	}
 
 	void RigidBody2D::SetAngularVelocity(float velocity)
 	{
-		m_BodyHandle->SetAngularVelocity(velocity);
+		if (IsDeployed())
+		{
+			m_BodyHandle->SetAngularVelocity(velocity);
+			return;
+		}
+
+		m_Props.InitialAngularVelocity = velocity;
+	}
+
+	bool RigidBody2D::IsAwake() const
+	{
+		if (IsDeployed())
+			return m_BodyHandle->IsAwake();
+
+		return m_Props.IsInitiallyAwake;
+	}
+
+	void RigidBody2D::SetIsAwake(bool isAwake)
+	{
+		if (IsDeployed())
+		{
+			m_BodyHandle->SetAwake(isAwake);
+			return;
+		}
+
+		m_Props.IsInitiallyAwake = isAwake;
 	}
 
 	void RigidBody2D::ApplyLinearImpulse(const Vector2& impulse, const Vector2& point, bool wake)
@@ -112,68 +224,5 @@ namespace OverEngine
 	void RigidBody2D::ApplyLinearImpulseToCenter(const Vector2& impulse, bool wake)
 	{
 		m_BodyHandle->ApplyLinearImpulseToCenter({ impulse.x, impulse.y }, wake);
-	}
-
-	Ref<Collider2D> RigidBody2D::CreateCollider(const Collider2DProps& props)
-	{
-		struct
-		{
-			b2PolygonShape polygonShape;
-			b2CircleShape circleShape;
-		} shapes;
-
-		b2FixtureDef def;
-		Vector2 sizeHint(0.0f);
-
-		if (props.Shape.Type == Collider2DType::Box)
-		{
-			shapes.polygonShape = b2PolygonShape();
-			shapes.polygonShape.SetAsBox(
-				props.Shape.BoxSize.x / 2.0f, props.Shape.BoxSize.y / 2.0f,
-				{ 0.0f, 0.0f }, 0.0f
-			);
-
-			def.shape = &shapes.polygonShape;
-			sizeHint = props.Shape.BoxSize;
-		}
-		else if (props.Shape.Type == Collider2DType::Circle)
-		{
-			shapes.circleShape = b2CircleShape();
-			shapes.circleShape.m_radius = props.Shape.CircleRadius;
-
-			def.shape = &shapes.circleShape;
-			sizeHint.x = props.Shape.CircleRadius;
-		}
-
-		def.isSensor = props.IsTrigger;
-		def.friction = props.Friction;
-		def.density = props.Density;
-		def.restitution = props.Bounciness;
-		def.restitutionThreshold = props.BouncinessThreshold;
-
-		b2Fixture* fixture = m_BodyHandle->CreateFixture(&def);
-
-		auto collider = CreateRef<Collider2D>(this, fixture, props.Shape.Type, props.Offset, props.Rotation, sizeHint);
-		m_Colliders.push_back(collider);
-		return collider;
-	}
-
-	void RigidBody2D::DestroyCollider(const Ref<Collider2D>& collider)
-	{
-		m_BodyHandle->DestroyFixture(collider->m_FixtureHandle);
-		collider->m_FixtureHandle = nullptr;
-	}
-
-	Ref<Collider2D> RigidBody2D::FindCollider(Collider2D* collider)
-	{
-		auto it = std::find_if(m_Colliders.begin(), m_Colliders.end(), [&collider](const auto& ref)
-		{
-			return ref.get() == collider;
-		});
-
-		if (it == m_Colliders.end())
-			return nullptr;
-
-		return *(it);
 	}
 }
