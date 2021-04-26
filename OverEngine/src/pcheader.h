@@ -3,6 +3,8 @@
 #include "OverEngine/Core/Core.h"
 
 #ifdef OE_PLATFORM_WINDOWS
+	#include <Windows.h>
+
 	#ifndef NOMINMAX
 		// See github.com/skypjack/entt/wiki/Frequently-Asked-c4003-the-min-the-max-and-the-macro
 		#define NOMINMAX
@@ -33,6 +35,3 @@
 
 #include "OverEngine/Debug/Instrumentor.h"
 
-#ifdef OE_PLATFORM_WINDOWS
-#include <Windows.h>
-#endif // OE_PLATFORM_WINDOWS

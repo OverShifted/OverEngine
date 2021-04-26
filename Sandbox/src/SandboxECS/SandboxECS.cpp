@@ -262,11 +262,11 @@ SandboxECS::SandboxECS()
 		Particle2DProps m_ParticleProps = Particle2DProps();
 	};
 
-	class CamerController : public ScriptableEntity
+	class CameraController : public ScriptableEntity
 	{
 	public:
 
-		CamerController(const Entity& player)
+        CameraController(const Entity& player)
 			: m_PlayerEntity(player)
 		{
 		}
@@ -284,7 +284,7 @@ SandboxECS::SandboxECS()
 	};
 
 	m_Player.AddComponent<NativeScriptsComponent>().AddScript<Player>(&m_ParticleSystem);
-	m_MainCamera.AddComponent<NativeScriptsComponent>().AddScript<CamerController>(m_Player);
+	m_MainCamera.AddComponent<NativeScriptsComponent>().AddScript<CameraController>(m_Player);
 
 	m_Scene->OnScenePlay();
 	ImGui::GetStyle().Alpha = 0.8f;
