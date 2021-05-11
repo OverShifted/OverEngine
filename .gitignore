@@ -3,7 +3,7 @@
 .vscode/
 .atom/
 .idea/
-cmake-build-debug/
+cmake-build-*/
 *.swp
 CMakeLists.txt.user
 
