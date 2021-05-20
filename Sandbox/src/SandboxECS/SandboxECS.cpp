@@ -139,7 +139,7 @@ SandboxECS::SandboxECS()
 	auto& camTransform = m_MainCamera.GetComponent<TransformComponent>();
 	camTransform.SetLocalPosition({ 0.0f, -1.0f, 0.0f });
 
-	#pragma endregion
+#pragma endregion
 
 	class Player : public ScriptableEntity
 	{
@@ -154,29 +154,15 @@ SandboxECS::SandboxECS()
 		{
 			static float mult = 10 * ts;
 
-			bool moving = false;
 			Vector2 vel(0.0f);
-
 			if (Input::IsKeyPressed(KeyCode::A))
-			{
 				vel.x -= mult;
-				moving = true;
-			}
 			if (Input::IsKeyPressed(KeyCode::D))
-			{
 				vel.x += mult;
-				moving = true;
-			}
 			if (Input::IsKeyPressed(KeyCode::W))
-			{
 				vel.y += mult;
-				moving = true;
-			}
 			if (Input::IsKeyPressed(KeyCode::S))
-			{
 				vel.y -= mult;
-				moving = true;
-			}
 
 			auto& rb = GetComponent<RigidBody2DComponent>().RigidBody;
 			rb->ApplyLinearImpulseToCenter(vel);
@@ -193,29 +179,9 @@ SandboxECS::SandboxECS()
 			m_ParticleProps.RenderingProps.BirthColor = Color(0.8f, 0.8f, 0.8f, 1.0f);
 
 			float len = glm::fastLength(rb->GetLinearVelocity());
-			// OE_CORE_INFO(len);
+
 			for (int i = 0; i < len * ts; i += 1)
-			{
 				m_ParticleSystem->Emit(m_ParticleProps);
-			}
-		}
-
-		virtual void OnCollisionEnter(const SceneCollision2D& collision) override
-		{
-			// OE_CORE_INFO("OnCollisionEnter with {}", collision.Other.Entity.GetComponent<NameComponent>().Name);
-			// GetComponent<SpriteRendererComponent>().Tint = { 1.0f, 0.2f, 1.0f, 1.0f };
-			// GetComponent<NameComponent>()._Reflection.dump(&GetComponent<NameComponent>(), 1);
-			// SpriteRendererComponent::_Reflection.Dump(&GetComponent<SpriteRendererComponent>(), 1);
-			// YAML::Emitter e;
-
-			// RigidBody2DComponent::_Reflection.Serialize(&GetComponent<RigidBody2DComponent>(), e);
-
-			// OE_CORE_INFO(e.c_str());
-		}
-
-		virtual void OnCollisionExit(const SceneCollision2D& collision) override
-		{
-			// GetComponent<SpriteRendererComponent>().Tint = { 1.0f, 1.0f, 1.0f, 1.0f };
 		}
 
 	private:
@@ -252,12 +218,7 @@ SandboxECS::SandboxECS()
 	ImGui::GetStyle().Alpha = 0.8f;
 }
 
-static Vector<float> s_FPSSamples(200);
-static int maxFPS = 0;
-static bool VSync = true;
-static char fpsText[32];
-
-static int emitPerFrame = 1;
+static int s_MaxFPS = 0;
 
 void SandboxECS::OnUpdate(TimeStep deltaTime)
 {
@@ -272,20 +233,6 @@ void SandboxECS::OnUpdate(TimeStep deltaTime)
 		cameraRotationDirection += 1.0f;
 
 	camTransform.SetEulerAngles({ 0.0f, 0.0f, camTransform.GetEulerAngles().z + cameraRotationDirection * deltaTime * 80.0f });
-
-	for (uint32_t i = 0; i < (uint32_t)((int)s_FPSSamples.size() - 1); i++)
-	{
-		s_FPSSamples[i] = s_FPSSamples[i + 1u];
-	}
-
-	s_FPSSamples[(int)s_FPSSamples.size() - 1] = 1 / deltaTime;
-	if (s_FPSSamples[(int)s_FPSSamples.size() - 1] > 10000)
-		s_FPSSamples[(int)s_FPSSamples.size() - 1] = 0;
-
-	if ((int)s_FPSSamples[(int)s_FPSSamples.size() - 1] > maxFPS)
-		maxFPS = (int)s_FPSSamples[(int)s_FPSSamples.size() - 1];
-
-	sprintf_s(fpsText, 32, "%i", (int)s_FPSSamples[(int)s_FPSSamples.size() - 1]);
 
 	Window& win = Application::Get().GetWindow();
 	m_Scene->SetViewportSize(win.GetWidth(), win.GetHeight());
@@ -307,71 +254,15 @@ void SandboxECS::OnImGuiRender()
 		camTransform.SetPosition(pos);
 	ImGui::End();
 
-	#if 0
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
-
-	ImGui::Begin("Texture Debugger1");
-
-	uint32_t cellSize = 8;
-	for (int x = 0; x < ImGui::GetContentRegionAvail().x / cellSize + 1; x++)
-	{
-		for (int y = 0; y < ImGui::GetContentRegionAvail().y / cellSize + 1; y++)
-		{
-			float colorTint = (x % 2 == 0 && y % 2 != 0) || (x % 2 != 0 && y % 2 == 0) ? 0.8f : 1.0f;
-			ImGui::GetWindowDrawList()->AddRectFilled(
-				ImVec2({ ImGui::GetCursorScreenPos().x + x * cellSize, ImGui::GetCursorScreenPos().y + y * cellSize }),
-				ImVec2({ ImGui::GetCursorScreenPos().x + (x + 1) * cellSize, ImGui::GetCursorScreenPos().y + (y + 1) * cellSize }),
-				ImGui::ColorConvertFloat4ToU32(ImVec4(colorTint, colorTint, colorTint, 1.0f))
-			);
-
-		}
-	}
-
-	ImGui::Image((void*)1, ImGui::GetContentRegionAvail());
-	ImGui::End();
-
-	ImGui::Begin("Texture Debugger2");
-
-	for (int x = 0; x < ImGui::GetContentRegionAvail().x / cellSize + 1; x++)
-	{
-		for (int y = 0; y < ImGui::GetContentRegionAvail().y / cellSize + 1; y++)
-		{
-			float colorTint = (x % 2 == 0 && y % 2 != 0) || (x % 2 != 0 && y % 2 == 0) ? 0.8f : 1.0f;
-			ImGui::GetWindowDrawList()->AddRectFilled(
-				ImVec2({ ImGui::GetCursorScreenPos().x + x * cellSize, ImGui::GetCursorScreenPos().y + y * cellSize }),
-				ImVec2({ ImGui::GetCursorScreenPos().x + (x + 1) * cellSize, ImGui::GetCursorScreenPos().y + (y + 1) * cellSize }),
-				ImGui::ColorConvertFloat4ToU32(ImVec4(colorTint, colorTint, colorTint, 1.0f))
-			);
-
-		}
-	}
-
-	ImGui::Image((void*)2, ImGui::GetContentRegionAvail());
-	ImGui::End();
-
-	ImGui::PopStyleVar();
-	#endif
-
 	ImGui::Begin("Renderer2D Statistics");
 
-	ImGui::PushItemWidth(-1);
-	ImGui::PlotLines("##FPS", s_FPSSamples.data(), (int)s_FPSSamples.size(), 0, fpsText, FLT_MAX, FLT_MAX, ImVec2{ 0, 80 });
-
-	ImGui::Text("DrawCalls : %i   ", Renderer2D::GetStatistics().DrawCalls); ImGui::SameLine();
-	ImGui::Text("QuadCount : %i   ", Renderer2D::GetStatistics().QuadCount); ImGui::SameLine();
-	ImGui::Text("IndexCount : %i   ", Renderer2D::GetStatistics().GetIndexCount()); ImGui::SameLine();
-	ImGui::Text("VertexCount : %i   ", Renderer2D::GetStatistics().GetVertexCount()); ImGui::SameLine();
-	ImGui::Text("MaxFPS : %i   ", maxFPS); ImGui::SameLine();
+	ImGui::Text("FPS : %i   ", (int)(1.0f / Time::GetDeltaTime())); ImGui::SameLine();
+	ImGui::Text("MaxFPS : %i   ", s_MaxFPS);
 
 	if (ImGui::Button("Reload Renderer2D Shader"))
 		Renderer2D::GetShader()->Reload();
 
 	ImGui::SameLine();
-
-	if (ImGui::Checkbox("V-Sync", &VSync))
-		Application::Get().GetWindow().SetVSync(VSync);
-
-	ImGui::DragInt("Emit Per Frame", &emitPerFrame);
 
 	ImGui::End();
 }
