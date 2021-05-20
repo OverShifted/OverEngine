@@ -25,6 +25,7 @@ namespace OverEngine
 
 		void SetBlockEvents(bool block) { m_BlockEvents = block; }
 		bool GetBlockEvents() { return m_BlockEvents; }
+
 	private:
 		bool m_BlockEvents = true;
 	};

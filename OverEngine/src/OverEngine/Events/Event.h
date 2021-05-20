@@ -15,7 +15,6 @@ namespace OverEngine
 	{
 		None = 0,
 		WindowClose, WindowResize, WindowFocus, WindowLostFocus, WindowMoved,
-		AppTick, AppUpdate, AppRender,
 		KeyPressed, KeyReleased, KeyTyped,
 		MouseButtonPressed, MouseButtonReleased, MouseMoved, MouseScrolled
 	};
@@ -30,8 +29,8 @@ namespace OverEngine
 		EventCategoryMouseButton    = BIT(4)
 	};
 
-	#define EVENT_CLASS_TYPE(type) static EventType GetStaticType() { return EventType::type; }\
-								   virtual EventType GetEventType() const override { return GetStaticType(); }\
+	#define EVENT_CLASS_TYPE(type) static EventType GetStaticType() { return EventType::type; }                 \
+								   virtual EventType GetEventType() const override { return GetStaticType(); }  \
 								   virtual const char* GetName() const override { return #type; }
 
 	#define EVENT_CLASS_CATEGORY(category) virtual int GetCategoryFlags() const override { return category; }
@@ -69,6 +68,7 @@ namespace OverEngine
 			}
 			return false;
 		}
+
 	private:
 		Event& m_Event;
 	};
@@ -78,4 +78,3 @@ namespace OverEngine
 		return os << e.ToString();
 	}
 }
-

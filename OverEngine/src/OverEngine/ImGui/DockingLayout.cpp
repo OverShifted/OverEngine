@@ -187,7 +187,7 @@ namespace OverEngine
 
 		if (!node->Tabs.empty())
 		{
-			out << YAML::Key << "Tabs" << YAML::Value << node->Tabs;
+			out << YAML::Key << "Tabs" << YAML::Value << YAML::Flow << node->Tabs;
 			out << YAML::Key << "SelectedTab" << YAML::Value << YAML::Hex << node->SelectedTab;
 		}
 

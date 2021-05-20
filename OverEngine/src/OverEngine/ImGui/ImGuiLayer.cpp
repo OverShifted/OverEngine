@@ -27,8 +27,8 @@ namespace OverEngine
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;     // Enable Docking
 		// io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;   // Enable Multi-Viewport / Platform Windows
 		// io.ConfigWindowsMoveFromTitleBarOnly = true;
-		//io.ConfigViewportsNoTaskBarIcon = true;
-		//io.ConfigViewportsNoDecoration = false;
+		// io.ConfigViewportsNoTaskBarIcon = true;
+		// io.ConfigViewportsNoDecoration = false;
 
 		SetStyle();
 

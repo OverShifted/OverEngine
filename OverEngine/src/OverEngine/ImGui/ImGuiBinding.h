@@ -27,6 +27,7 @@ namespace OverEngine
 		{
 			s_RenderFunction(drawData);
 		}
+
 	private:
 		static void(*s_RendererShutdownFunction)();
 		static void(*s_PlatformShutdownFunction)();

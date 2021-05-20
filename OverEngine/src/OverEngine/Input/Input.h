@@ -8,8 +8,6 @@ namespace OverEngine
 {
 	class Input
 	{
-	protected:
-		Input() = delete;
 	public:
 		static bool IsKeyPressed(KeyCode keycode);
 		static bool IsMouseButtonPressed(KeyCode button);

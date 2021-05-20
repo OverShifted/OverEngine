@@ -16,14 +16,8 @@ public:
 	void OnEvent(Event& event) override;
 
 	bool OnMouseScrolledEvent(MouseScrolledEvent& event);
+	bool OnKeyPressedEvent(KeyPressedEvent& event);
 private:
-
-	float m_CameraSpeed = 1.0f;
-	float m_CameraRotationDirection = 0.0f;
-	Vector2 m_CameraMovementDirection;
-
-	Ref<Texture2D> m_CheckerBoardTexture;
-	Ref<Texture2D> m_OELogoTexture;
 
 	Ref<Texture2D> m_SpriteSheet;
 	Ref<Texture2D> m_Sprite;
@@ -32,8 +26,6 @@ private:
 	Ref<Scene> m_Scene;
 	Entity m_Player;
 	Entity m_MainCamera;
-	TransformComponent* m_MainCameraTransform;
-	SceneCamera* m_MainCameraCameraHandle;
 
 	ParticleSystem2D m_ParticleSystem;
 };

@@ -4,7 +4,6 @@
 #include "OverEngine/Core/Log.h"
 #include "OverEngine/Core/Random.h"
 #include "OverEngine/Core/AssetManagement/AssetDatabase.h"
-#include "OverEngine/Input/InputSystem.h"
 
 #include "OverEngine/ImGui/ImGuiLayer.h"
 
@@ -100,7 +99,6 @@ namespace OverEngine
 			}
 			
 			m_Window->OnUpdate();
-			InputSystem::OnUpdate();
 			Time::RecalculateDeltaTime();
 		}
 	}

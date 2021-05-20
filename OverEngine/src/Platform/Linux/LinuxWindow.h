@@ -44,7 +44,7 @@ namespace OverEngine
 
 		struct WindowData
 		{
-			std::string Title;
+			String Title;
 			unsigned int Width, Height;
 			bool VSync;
 

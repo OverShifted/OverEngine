@@ -7,46 +7,9 @@
 using namespace OverEngine;
 
 SandboxECS::SandboxECS()
-	: Layer("SandboxECS"), m_CameraMovementDirection(0.0f)
+	: Layer("SandboxECS")
 {
 	OE_PROFILE_FUNCTION();
-
-#pragma region Input
-	auto actionMap = InputActionMap::Create();
-
-	InputAction CameraMovement(InputActionType::Button, {
-		/*{
-			{KeyCode::A}, {KeyCode::D},
-			{KeyCode::S}, {KeyCode::W}
-		},*/
-		{
-			{KeyCode::Left}, {KeyCode::Right},
-			{KeyCode::Down}, {KeyCode::Up}
-		}
-	});
-	CameraMovement.AddCallBack([&](const auto& info) {
-		m_CameraMovementDirection = { info.x, info.y };
-	});
-	actionMap->AddAction(CameraMovement);
-
-	InputAction CameraRotation(InputActionType::Button, {
-		{ {KeyCode::Q}, {KeyCode::E} }
-	});
-	CameraRotation.AddCallBack([&](const auto& info) {
-		m_CameraRotationDirection = -info.x;
-	});
-	actionMap->AddAction(CameraRotation);
-
-	InputAction EscapeKeyAction(InputActionType::Button, {
-		{ {KeyCode::Escape, true, false} }
-	});
-	EscapeKeyAction.AddCallBack([&](const auto& info) {
-		m_MainCameraTransform->SetPosition({ 0.0f, 0.0f, 0.0f });
-		m_MainCameraTransform->SetEulerAngles({ 0.0f, 0.0f, 0.0f });
-		m_MainCameraCameraHandle->SetOrthographicSize(10.0f);
-	});
-	actionMap->AddAction(EscapeKeyAction);
-#pragma endregion
 
 #pragma region Textures
 	m_SpriteSheet = Texture2D::Create("assets/textures/platformPack_tilesheet@2.png");
@@ -169,13 +132,12 @@ SandboxECS::SandboxECS()
 	////////////////////////////////////////////////////////////////
 
 	m_MainCamera = m_Scene->CreateEntity("MainCamera");
-	auto& app = Application::Get();
-	m_MainCameraCameraHandle = &m_MainCamera.AddComponent<CameraComponent>().Camera;
-	m_MainCameraCameraHandle->SetOrthographic(10.0f, -1.0f, 1.0f);
-	m_MainCameraTransform = &m_MainCamera.GetComponent<TransformComponent>();
 
-	m_MainCameraTransform->SetLocalPosition({ 0.0f, -1.0f, 0.0f });
-	m_MainCameraCameraHandle->SetOrthographicSize(25);
+	auto& cam = m_MainCamera.AddComponent<CameraComponent>().Camera;
+	cam.SetOrthographic(25.0f, -1.0f, 1.0f);
+
+	auto& camTransform = m_MainCamera.GetComponent<TransformComponent>();
+	camTransform.SetLocalPosition({ 0.0f, -1.0f, 0.0f });
 
 	#pragma endregion
 
@@ -266,7 +228,7 @@ SandboxECS::SandboxECS()
 	{
 	public:
 
-        CameraController(const Entity& player)
+		CameraController(const Entity& player)
 			: m_PlayerEntity(player)
 		{
 		}
@@ -301,16 +263,15 @@ void SandboxECS::OnUpdate(TimeStep deltaTime)
 {
 	OE_PROFILE_FUNCTION();
 
-	m_MainCameraCameraHandle = &m_MainCamera.GetComponent<CameraComponent>().Camera;
-	m_MainCameraTransform = &m_MainCamera.GetComponent<TransformComponent>();
+	auto& camTransform = m_MainCamera.GetComponent<TransformComponent>();
 
-	// Update
-	Vector3 offset(m_CameraMovementDirection, 0.0f);
-	offset = offset * (m_CameraSpeed * deltaTime * m_MainCameraCameraHandle->GetOrthographicSize());
-	Mat4x4 rotationMatrix = glm::rotate(IDENTITY_MAT4X4, glm::radians(m_MainCameraTransform->GetEulerAngles().z), { 0, 0, 1 });
-	m_MainCameraTransform->SetPosition(Vector4(m_MainCameraTransform->GetPosition(), 0.0f) + (rotationMatrix * Vector4(offset, 1.0f)));
+	float cameraRotationDirection = 0.0f;
+	if (Input::IsKeyPressed(KeyCode::Q))
+		cameraRotationDirection -= 1.0f;
+	if (Input::IsKeyPressed(KeyCode::Q))
+		cameraRotationDirection += 1.0f;
 
-	m_MainCameraTransform->SetEulerAngles({ 0.0f, 0.0f, m_MainCameraTransform->GetEulerAngles().z + m_CameraRotationDirection * deltaTime * 80.0f });
+	camTransform.SetEulerAngles({ 0.0f, 0.0f, camTransform.GetEulerAngles().z + cameraRotationDirection * deltaTime * 80.0f });
 
 	for (uint32_t i = 0; i < (uint32_t)((int)s_FPSSamples.size() - 1); i++)
 	{
@@ -329,21 +290,21 @@ void SandboxECS::OnUpdate(TimeStep deltaTime)
 	Window& win = Application::Get().GetWindow();
 	m_Scene->SetViewportSize(win.GetWidth(), win.GetHeight());
 
-//	for (int i = 0; i < emitPerFrame; i++)
-//		m_ParticleSystem.Emit({});
 	m_Scene->OnUpdate(deltaTime);
-    m_ParticleSystem.UpdateAndRender(deltaTime, glm::inverse(m_MainCameraTransform->GetLocalToWorld()), *m_MainCameraCameraHandle);
+	m_ParticleSystem.UpdateAndRender(deltaTime, glm::inverse(camTransform.GetLocalToWorld()), m_MainCamera.GetComponent<CameraComponent>().Camera);
 }
 
 void SandboxECS::OnImGuiRender()
 {
 	OE_PROFILE_FUNCTION();
 
+	auto& camTransform = m_MainCamera.GetComponent<TransformComponent>();
+
 	ImGui::Begin("Camera");
-	Vector3 pos = m_MainCameraTransform->GetPosition();
+	Vector3 pos = camTransform.GetPosition();
 	ImGui::PushItemWidth(-1);
-	if (ImGui::DragFloat3("##CameraPosition", glm::value_ptr(pos), m_MainCameraCameraHandle->GetOrthographicSize() / 20))
-		m_MainCameraTransform->SetPosition(pos);
+	if (ImGui::DragFloat3("##CameraPosition", glm::value_ptr(pos), m_MainCamera.GetComponent<CameraComponent>().Camera.GetOrthographicSize() / 20))
+		camTransform.SetPosition(pos);
 	ImGui::End();
 
 	#if 0
@@ -421,14 +382,33 @@ void SandboxECS::OnEvent(Event& event)
 
 	EventDispatcher dispatcher(event);
 	dispatcher.Dispatch<MouseScrolledEvent>(BIND_FN(SandboxECS::OnMouseScrolledEvent));
+	dispatcher.Dispatch<KeyPressedEvent>(BIND_FN(SandboxECS::OnKeyPressedEvent));
 }
 
 bool SandboxECS::OnMouseScrolledEvent(MouseScrolledEvent& event)
 {
 	OE_PROFILE_FUNCTION();
 
-	float newSize = m_MainCameraCameraHandle->GetOrthographicSize() - (float)event.GetYOffset() / 4.0f;
+	auto& cam = m_MainCamera.GetComponent<CameraComponent>().Camera;
+
+	float newSize = cam.GetOrthographicSize() - (float)event.GetYOffset() / 4.0f;
 	if (newSize > 0)
-		m_MainCameraCameraHandle->SetOrthographicSize(newSize);
+		cam.SetOrthographicSize(newSize);
+
+	return false;
+}
+
+bool SandboxECS::OnKeyPressedEvent(KeyPressedEvent& event)
+{
+	if (event.GetKeyCode() == KeyCode::Escape)
+	{
+		auto& cam = m_MainCamera.GetComponent<CameraComponent>().Camera;
+		auto& camTransform = m_MainCamera.GetComponent<TransformComponent>();
+
+		camTransform.SetPosition({ 0.0f, 0.0f, 0.0f });
+		camTransform.SetEulerAngles({ 0.0f, 0.0f, 0.0f });
+		cam.SetOrthographicSize(10.0f);
+	}
+
 	return false;
 }

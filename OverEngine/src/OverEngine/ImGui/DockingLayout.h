@@ -4,15 +4,6 @@
 
 namespace OverEngine
 {
-	struct GuiWindowData
-	{
-		String Name;        // Full window name might include `##`
-		ImGuiID ID;         // Window ID
-
-		Vector2 Position;   // Position of window in pixels relative to top left corner of screen
-		Vector2 Size;       // Size of window in pixels
-	};
-
 	struct DockNode
 	{
 		DockNode() = default;
@@ -53,8 +44,10 @@ namespace OverEngine
 		// Get/Put data from/in yaml file(s)
 		void Load(const String& filepath);
 		void Save(const String& filepath);
+
 	private:
 		Ref<DockNode> GetNode(const ImGuiID& id);
+
 	private:
 		Ref<DockNode> m_RootNode;
 		Map<ImGuiID, Ref<DockNode>> m_Nodes;

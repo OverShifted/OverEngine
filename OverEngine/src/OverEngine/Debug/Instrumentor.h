@@ -13,7 +13,7 @@ namespace OverEngine
 
 	struct ProfileResult
 	{
-		std::string Name;
+		String Name;
 
 		FloatingPointMicroseconds Start;
 		std::chrono::microseconds ElapsedTime;
@@ -22,7 +22,7 @@ namespace OverEngine
 
 	struct InstrumentationSession
 	{
-		std::string Name;
+		String Name;
 	};
 
 	class Instrumentor
@@ -37,34 +37,33 @@ namespace OverEngine
 		{
 		}
 
-		void BeginSession(const std::string& name, const std::string& filepath = "results.json")
+		void BeginSession(const String& name, const String& filepath = "results.json")
 		{
 			std::lock_guard lock(m_Mutex);
+			
 			if (m_CurrentSession)
 			{
 				// If there is already a current session, then close it before beginning new one.
 				// Subsequent profiling output meant for the original session will end up in the
 				// newly opened session instead.  That's better than having badly formatted
 				// profiling output.
+
 				if (Log::GetCoreLogger()) // Edge case: BeginSession() might be before Log::Init()
 				{
-					OE_CORE_ERROR("Instrumentor::BeginSession('{0}') when session '{1}' already open.", name, m_CurrentSession->Name);
+					OE_CORE_ERROR("Instrumentor::BeginSession('{0}') when session '{1}' is already open.", name, m_CurrentSession->Name);
 				}
 				InternalEndSession();
 			}
-			m_OutputStream.open(filepath);
 
+			m_OutputStream.open(filepath);
 			if (m_OutputStream.is_open())
 			{
-				m_CurrentSession = new InstrumentationSession({name});
+				m_CurrentSession = new InstrumentationSession({ name });
 				WriteHeader();
 			}
-			else
+			else if (Log::GetCoreLogger()) // Edge case: BeginSession() might be before Log::Init()
 			{
-				if (Log::GetCoreLogger()) // Edge case: BeginSession() might be before Log::Init()
-				{
-					OE_CORE_ERROR("Instrumentor could not open results file '{0}'.", filepath);
-				}
+				OE_CORE_ERROR("Instrumentor could not open results file '{0}'.", filepath);
 			}
 		}
 
@@ -129,7 +128,6 @@ namespace OverEngine
 				m_CurrentSession = nullptr;
 			}
 		}
-
 	};
 
 	class InstrumentationTimer
@@ -157,14 +155,15 @@ namespace OverEngine
 
 			m_Stopped = true;
 		}
+
 	private:
 		const char* m_Name;
 		std::chrono::time_point<std::chrono::steady_clock> m_StartTimepoint;
 		bool m_Stopped;
 	};
 
-	namespace InstrumentorUtils {
-
+	namespace InstrumentorUtils
+	{
 		template <size_t N>
 		struct ChangeResult
 		{
@@ -203,9 +202,7 @@ namespace OverEngine
 	// Resolve which function signature macro will be used. Note that this only
 	// is resolved when the (pre)compiler starts, so the syntax highlighting
 	// could mark the wrong one in your editor!
-	#if defined(__GNUC__) || (defined(__MWERKS__) && (__MWERKS__ >= 0x3000)) || (defined(__ICC) && (__ICC >= 600)) || defined(__ghs__)
-		#define OE_FUNC_SIG __PRETTY_FUNCTION__
-	#elif defined(__DMC__) && (__DMC__ >= 0x810)
+	#if defined(__GNUC__) || (defined(__MWERKS__) && (__MWERKS__ >= 0x3000)) || (defined(__ICC) && (__ICC >= 600)) || defined(__ghs__) || (defined(__DMC__) && (__DMC__ >= 0x810))
 		#define OE_FUNC_SIG __PRETTY_FUNCTION__
 	#elif (defined(__FUNCSIG__) || (_MSC_VER))
 		#define OE_FUNC_SIG __FUNCSIG__
@@ -213,9 +210,7 @@ namespace OverEngine
 		#define OE_FUNC_SIG __FUNCTION__
 	#elif defined(__BORLANDC__) && (__BORLANDC__ >= 0x550)
 		#define OE_FUNC_SIG __FUNC__
-	#elif defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901)
-		#define OE_FUNC_SIG __func__
-	#elif defined(__cplusplus) && (__cplusplus >= 201103)
+	#elif (defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901)) || (defined(__cplusplus) && (__cplusplus >= 201103))
 		#define OE_FUNC_SIG __func__
 	#else
 		#define OE_FUNC_SIG "OE_FUNC_SIG unknown!"
@@ -223,8 +218,7 @@ namespace OverEngine
 
 	#define OE_PROFILE_BEGIN_SESSION(name, filepath) ::OverEngine::Instrumentor::Get().BeginSession(name, filepath)
 	#define OE_PROFILE_END_SESSION() ::OverEngine::Instrumentor::Get().EndSession()
-	#define OE_PROFILE_SCOPE(name) constexpr auto fixedName = ::OverEngine::InstrumentorUtils::CleanupOutputString(name, "__cdecl ");\
-									::OverEngine::InstrumentationTimer timer##__LINE__(fixedName.Data)
+	#define OE_PROFILE_SCOPE(name) ::OverEngine::InstrumentationTimer timer##__LINE__(::OverEngine::InstrumentorUtils::CleanupOutputString(name, "__cdecl ").Data)
 	#define OE_PROFILE_FUNCTION() OE_PROFILE_SCOPE(OE_FUNC_SIG)
 #else
 	#define OE_PROFILE_BEGIN_SESSION(name, filepath)
