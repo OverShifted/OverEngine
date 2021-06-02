@@ -2,8 +2,6 @@
 
 #include "Collider2D.h"
 
-#include "OverEngine/Core/Runtime/Reflection/Reflection.h"
-
 namespace OverEngine
 {
 	enum class RigidBody2DType : uint8_t
@@ -18,16 +16,19 @@ namespace OverEngine
 	{
 		RigidBody2DType Type = RigidBody2DType::Static;
 
-		// Dynamics
-		Vector2 InitialPosition = Vector2(0.0f, 0.0f);
-		float InitialRotation = 0.0f;
+		// If you've used `GetProps` method on `RigidBody2D`; then contents of the `Dynamics` struct is storing the initial value. Not the real-time one
+		struct {
+			Vector2 Position = Vector2(0.0f, 0.0f);
+			float Rotation = 0.0f;
 
-		Vector2 InitialLinearVelocity = Vector2(0.0f, 0.0f);
-		float InitialAngularVelocity = 0.0f;
+			Vector2 LinearVelocity = Vector2(0.0f, 0.0f);
+			float AngularVelocity = 0.0f;
 
-		bool IsInitiallyAwake = true;
+			bool IsAwake = true;
+		} Dynamics;
 
-		// Box2d wont touch these
+		Entity AttachedEntity = Entity();
+
 		float LinearDamping = 0.0f;
 		float AngularDamping = 0.0f;
 
@@ -37,8 +38,6 @@ namespace OverEngine
 		bool FixedRotation = false;
 		float GravityScale = 1.0f;
 		bool Bullet = false;
-
-		OE_REFLECT_STRUCT()
 	};
 
 	class PhysicsWorld2D;
@@ -60,9 +59,10 @@ namespace OverEngine
 		bool IsEnabled() const;
 		void SetEnabled(bool enabled);
 
-		RigidBody2DType GetType();
+		RigidBody2DType GetType() const;
 		void SetType(const RigidBody2DType& type);
 
+		RigidBody2DProps& GetProps() { return m_Props; }
 		const RigidBody2DProps& GetProps() const { return m_Props; }
 
 		Vector2 GetPosition() const;
@@ -78,15 +78,12 @@ namespace OverEngine
 		void SetAngularVelocity(float velocity);
 
 		bool IsAwake() const;
-		void SetIsAwake(bool isAwake);
+		void SetAwake(bool isAwake);
 
 		void ApplyLinearImpulse(const Vector2& impulse, const Vector2& point, bool wake = true);
 		void ApplyLinearImpulseToCenter(const Vector2& impulse, bool wake = true);
 
-		void* UserData;
-
 	private:
-
 		RigidBody2DProps m_Props;
 
 		b2Body* m_BodyHandle = nullptr;

@@ -21,8 +21,8 @@ namespace OverEditor
 		virtual void OnImGuiRender() override;
 		void OnRender();
 
-		virtual void SetIsOpen(bool isOpen) override { m_IsOpen = isOpen; }
-		virtual bool GetIsOpen() override { return m_IsOpen; }
+		virtual void SetOpen(bool isOpen) override { m_IsOpen = isOpen; }
+		virtual bool IsOpen() override { return m_IsOpen; }
 
 		void SetContext(const Ref<SceneEditor> context);
 		Ref<SceneEditor>& GetContext() { return m_Context; }

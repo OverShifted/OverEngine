@@ -3,29 +3,6 @@
 
 namespace OverEngine
 {
-	OE_REFLECT_ENUM_CLASS_BEGIN(SceneCamera::ProjectionType)
-	OE_REFLECT_ENUM_CLASS_VALUE(None, 0)
-	OE_REFLECT_ENUM_CLASS_VALUE(Orthographic, 1)
-	OE_REFLECT_ENUM_CLASS_VALUE(Perspective, 2)
-	OE_REFLECT_ENUM_CLASS_END()
-
-	OE_REFLECT_STRUCT_BEGIN(SceneCamera)
-	OE_REFLECT_STRUCT_MEMBER(m_ProjectionType)
-
-	OE_REFLECT_STRUCT_MEMBER(m_PerspectiveFOV)
-	OE_REFLECT_STRUCT_MEMBER(m_PerspectiveNear)
-	OE_REFLECT_STRUCT_MEMBER(m_PerspectiveFar)
-
-	OE_REFLECT_STRUCT_MEMBER(m_OrthographicSize)
-	OE_REFLECT_STRUCT_MEMBER(m_OrthographicNear)
-	OE_REFLECT_STRUCT_MEMBER(m_OrthographicFar)
-
-	OE_REFLECT_STRUCT_MEMBER(m_AspectRatio)
-
-	OE_REFLECT_STRUCT_MEMBER(m_ClearFlags)
-	OE_REFLECT_STRUCT_MEMBER(m_ClearColor)
-	OE_REFLECT_STRUCT_END()
-
 	SceneCamera::SceneCamera()
 	{
 		RecalculateProjection();
@@ -35,8 +12,8 @@ namespace OverEngine
 	{
 		m_ProjectionType = ProjectionType::Orthographic;
 		m_OrthographicSize = size;
-		m_OrthographicNear = nearClip;
-		m_OrthographicFar = farClip;
+		m_OrthographicNearClip = nearClip;
+		m_OrthographicFarClip = farClip;
 		RecalculateProjection();
 	}
 
@@ -44,8 +21,8 @@ namespace OverEngine
 	{
 		m_ProjectionType = ProjectionType::Perspective;
 		m_PerspectiveFOV = verticalFOV;
-		m_PerspectiveNear = nearClip;
-		m_PerspectiveFar = farClip;
+		m_PerspectiveNearClip = nearClip;
+		m_PerspectiveFarClip = farClip;
 		RecalculateProjection();
 	}
 
@@ -59,7 +36,7 @@ namespace OverEngine
 	{
 		if (m_ProjectionType == ProjectionType::Perspective)
 		{
-			m_Projection = glm::perspective(m_PerspectiveFOV, m_AspectRatio, m_PerspectiveNear, m_PerspectiveFar);
+			m_Projection = glm::perspective(m_PerspectiveFOV, m_AspectRatio, m_PerspectiveNearClip, m_PerspectiveFarClip);
 		}
 		else
 		{
@@ -69,7 +46,7 @@ namespace OverEngine
 			float orthoTop = m_OrthographicSize * 0.5f;
 
 			m_Projection = glm::ortho(orthoLeft, orthoRight,
-				orthoBottom, orthoTop, m_OrthographicNear, m_OrthographicFar);
+				orthoBottom, orthoTop, m_OrthographicNearClip, m_OrthographicFarClip);
 		}
 	}
 }

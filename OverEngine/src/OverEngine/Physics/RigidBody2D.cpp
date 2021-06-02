@@ -11,26 +11,6 @@
 
 namespace OverEngine
 {
-	OE_REFLECT_ENUM_CLASS_BEGIN(RigidBody2DType)
-	OE_REFLECT_ENUM_CLASS_VALUE(None, 0)
-	OE_REFLECT_ENUM_CLASS_VALUE(Static, 1)
-	OE_REFLECT_ENUM_CLASS_VALUE(Kinematic, 2)
-	OE_REFLECT_ENUM_CLASS_VALUE(Dynamic, 3)
-	OE_REFLECT_ENUM_CLASS_END()
-
-	OE_REFLECT_STRUCT_BEGIN(RigidBody2DProps)
-	OE_REFLECT_STRUCT_MEMBER(Type)
-	OE_REFLECT_STRUCT_MEMBER(InitialLinearVelocity)
-	OE_REFLECT_STRUCT_MEMBER(InitialLinearVelocity)
-	OE_REFLECT_STRUCT_MEMBER(LinearDamping)
-	OE_REFLECT_STRUCT_MEMBER(AngularDamping)
-	OE_REFLECT_STRUCT_MEMBER(AllowSleep)
-	OE_REFLECT_STRUCT_MEMBER(IsInitiallyAwake)
-	OE_REFLECT_STRUCT_MEMBER(FixedRotation)
-	OE_REFLECT_STRUCT_MEMBER(GravityScale)
-	OE_REFLECT_STRUCT_MEMBER(Bullet)
-	OE_REFLECT_STRUCT_END()
-
 	Ref<RigidBody2D> RigidBody2D::Create(const RigidBody2DProps& props)
 	{
 		return CreateRef<RigidBody2D>(props);
@@ -53,17 +33,17 @@ namespace OverEngine
 
 		def.type = (b2BodyType)((int)m_Props.Type - 1);
 
-		def.position.Set(m_Props.InitialPosition.x, m_Props.InitialPosition.y);
-		def.angle = m_Props.InitialRotation;
+		def.position.Set(m_Props.Dynamics.Position.x, m_Props.Dynamics.Position.y);
+		def.angle = m_Props.Dynamics.Rotation;
 
-		def.linearVelocity.Set(m_Props.InitialLinearVelocity.x, m_Props.InitialLinearVelocity.y);
-		def.angularVelocity = m_Props.InitialAngularVelocity;
+		def.linearVelocity.Set(m_Props.Dynamics.LinearVelocity.x, m_Props.Dynamics.LinearVelocity.y);
+		def.angularVelocity = m_Props.Dynamics.AngularVelocity;
 
 		def.linearDamping = m_Props.LinearDamping;
 		def.angularVelocity = m_Props.AngularDamping;
 
 		def.allowSleep = m_Props.AllowSleep;
-		def.awake = m_Props.IsInitiallyAwake;
+		def.awake = m_Props.Dynamics.IsAwake;
 		def.enabled = m_Props.Enabled;
 
 		def.fixedRotation = m_Props.FixedRotation;
@@ -99,7 +79,7 @@ namespace OverEngine
 			m_BodyHandle->SetEnabled(enabled);
 	}
 
-	RigidBody2DType RigidBody2D::GetType()
+	RigidBody2DType RigidBody2D::GetType() const
 	{
 		return m_Props.Type;
 	}
@@ -120,7 +100,7 @@ namespace OverEngine
 			return { pos.x, pos.y };
 		}
 
-		return m_Props.InitialPosition;
+		return m_Props.Dynamics.Position;
 	}
 
 	void RigidBody2D::SetPosition(const Vector2& position)
@@ -134,7 +114,7 @@ namespace OverEngine
 			return;
 		}
 
-		m_Props.InitialPosition = position;
+		m_Props.Dynamics.Position = position;
 	}
 
 	float RigidBody2D::GetRotation() const
@@ -142,7 +122,7 @@ namespace OverEngine
 		if (IsDeployed())
 			return m_BodyHandle->GetAngle();
 
-		return m_Props.InitialRotation;
+		return m_Props.Dynamics.Rotation;
 	}
 
 	void RigidBody2D::SetRotation(float rotation)
@@ -156,7 +136,7 @@ namespace OverEngine
 			return;
 		}
 
-		m_Props.InitialRotation = rotation;
+		m_Props.Dynamics.Rotation = rotation;
 	}
 
 	Vector2 RigidBody2D::GetLinearVelocity() const
@@ -164,7 +144,7 @@ namespace OverEngine
 		if (IsDeployed())
 			return { m_BodyHandle->GetLinearVelocity().x, m_BodyHandle->GetLinearVelocity().y };
 
-		return m_Props.InitialLinearVelocity;
+		return m_Props.Dynamics.LinearVelocity;
 	}
 
 	void RigidBody2D::SetLinearVelocity(const Vector2& velocity)
@@ -175,7 +155,7 @@ namespace OverEngine
 			return;
 		}
 
-		m_Props.InitialLinearVelocity = velocity;
+		m_Props.Dynamics.LinearVelocity = velocity;
 	}
 
 	float RigidBody2D::GetAngularVelocity() const
@@ -183,7 +163,7 @@ namespace OverEngine
 		if (IsDeployed())
 			return m_BodyHandle->GetAngularVelocity();
 
-		return m_Props.InitialAngularVelocity;
+		return m_Props.Dynamics.AngularVelocity;
 	}
 
 	void RigidBody2D::SetAngularVelocity(float velocity)
@@ -194,7 +174,7 @@ namespace OverEngine
 			return;
 		}
 
-		m_Props.InitialAngularVelocity = velocity;
+		m_Props.Dynamics.AngularVelocity = velocity;
 	}
 
 	bool RigidBody2D::IsAwake() const
@@ -202,10 +182,10 @@ namespace OverEngine
 		if (IsDeployed())
 			return m_BodyHandle->IsAwake();
 
-		return m_Props.IsInitiallyAwake;
+		return m_Props.Dynamics.IsAwake;
 	}
 
-	void RigidBody2D::SetIsAwake(bool isAwake)
+	void RigidBody2D::SetAwake(bool isAwake)
 	{
 		if (IsDeployed())
 		{
@@ -213,7 +193,7 @@ namespace OverEngine
 			return;
 		}
 
-		m_Props.IsInitiallyAwake = isAwake;
+		m_Props.Dynamics.IsAwake = isAwake;
 	}
 
 	void RigidBody2D::ApplyLinearImpulse(const Vector2& impulse, const Vector2& point, bool wake)

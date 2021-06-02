@@ -3,7 +3,6 @@
 #include "OverEngine/Core/Time/TimeStep.h"
 #include "OverEngine/Core/Random.h"
 #include "OverEngine/Physics/PhysicsWorld2D.h"
-#include "OverEngine/Scripting/LuaScriptingEngine.h"
 #include "OverEngine/Core/AssetManagement/Asset.h"
 
 #include <entt.hpp>
@@ -61,12 +60,12 @@ namespace OverEngine
 
 		inline bool Exists(const entt::entity& entity) { return m_Registry.valid(entity); }
 		
+		void HandleCollision(const Collision2D& collision, bool enter);
 		void OnCollisionEnter(const Collision2D& collision);
 		void OnCollisionExit(const Collision2D& collision);
 	private:
 		entt::registry m_Registry;
 		PhysicsWorld2D* m_PhysicsWorld2D = nullptr;
-		LuaScriptingEngine* m_LuaEngine = nullptr;
 
 		uint32_t m_ViewportWidth = 0, m_ViewportHeight = 0; // TODO: set viewport size for new camera components
 

@@ -175,7 +175,7 @@ namespace OverEngine
 		}
 	}
 
-	uint32_t TransformComponent::GetSiblingIndex()
+	uint32_t TransformComponent::GetSiblingIndex() const
 	{
 		if (m_Parent == entt::null)
 		{

@@ -2,28 +2,11 @@
 #include "Collider2D.h"
 #include "RigidBody2D.h"
 
-#include "OverEngine/Core/Runtime/Reflection/Reflection.h"
-
 #include <box2d/b2_polygon_shape.h>
 #include <box2d/b2_circle_shape.h>
 
 namespace OverEngine
 {
-	OE_REFLECT_ENUM_CLASS_BEGIN(CollisionShape2DType)
-	OE_REFLECT_ENUM_CLASS_VALUE(None, 0)
-	OE_REFLECT_ENUM_CLASS_VALUE(Box, 1)
-	OE_REFLECT_ENUM_CLASS_VALUE(Circle, 2)
-	OE_REFLECT_ENUM_CLASS_END()
-
-	OE_REFLECT_STRUCT_BEGIN(BoxCollisionShape2D)
-	OE_REFLECT_STRUCT_MEMBER(m_Size)
-	OE_REFLECT_STRUCT_MEMBER(m_Rotation)
-	OE_REFLECT_STRUCT_END()
-
-	OE_REFLECT_STRUCT_BEGIN(CircleCollisionShape2D)
-	OE_REFLECT_STRUCT_MEMBER(m_Radius)
-	OE_REFLECT_STRUCT_END()
-
 	Ref<BoxCollisionShape2D> BoxCollisionShape2D::Create(Vector2 size, float rotation)
 	{
 		return CreateRef<BoxCollisionShape2D>(size, rotation);

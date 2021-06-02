@@ -1,7 +1,6 @@
 #pragma once
 
 #include <OverEngine.h>
-#include <sol/sol.hpp>
 
 using namespace OverEngine;
 
@@ -10,7 +9,7 @@ class SandboxECS : public Layer
 public:
 	SandboxECS();
 
-	void OnUpdate(TimeStep DeltaTime) override;
+	void OnUpdate(TimeStep deltaTime) override;
 	void OnImGuiRender() override;
 	void OnEvent(Event& event) override;
 

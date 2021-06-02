@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Entity.h"
-#include "SceneCollision2D.h"
 
+#include "OverEngine/Physics/Collision2D.h"
 #include "OverEngine/Core/Time/TimeStep.h"
 
 namespace OverEngine
@@ -41,8 +41,9 @@ namespace OverEngine
 		virtual void OnUpdate(TimeStep ts) {}
 		virtual void OnLateUpdate(TimeStep ts) {}
 
-		virtual void OnCollisionEnter(const SceneCollision2D& collision) {}
-		virtual void OnCollisionExit(const SceneCollision2D& collision) {}
+		virtual void OnCollisionEnter(const Collision2D& collision) {}
+		virtual void OnCollisionExit(const Collision2D& collision) {}
+
 	protected:
 		Entity AttachedEntity;
 		friend class Scene;

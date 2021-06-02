@@ -36,6 +36,7 @@ namespace OverEngine
 		class CollisionListener : public b2ContactListener
 		{
 		public:
+			void HandleContact(b2Contact* contact, void (*callback)(const Collision2D&, void*));
 			virtual void BeginContact(b2Contact* contact) override;
 			virtual void EndContact(b2Contact* contact) override;
 

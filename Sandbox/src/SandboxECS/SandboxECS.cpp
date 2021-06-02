@@ -1,7 +1,5 @@
 #include "SandboxECS.h"
 
-#include <OverEngine/Scripting/ScriptingEngine.h>
-#include <OverEngine/Core/FileSystem/FileSystem.h>
 #include <imgui.h>
 
 using namespace OverEngine;
@@ -51,8 +49,6 @@ SandboxECS::SandboxECS()
 			props.Density = 1.0f;
 			playerColliderList.Colliders.push_back(Collider2D::Create(props));
 		}
-
-		m_Player.AddComponent<LuaScriptsComponent>().Scripts["player"] = FileSystem::ReadFile("assets/scripts/player.lua");
 	}
 
 	////////////////////////////////////////////////////////////////
@@ -152,17 +148,17 @@ SandboxECS::SandboxECS()
 
 		virtual void OnUpdate(TimeStep ts) override
 		{
-			static float mult = 10 * ts;
-
 			Vector2 vel(0.0f);
 			if (Input::IsKeyPressed(KeyCode::A))
-				vel.x -= mult;
+				vel.x -= 1.0f;
 			if (Input::IsKeyPressed(KeyCode::D))
-				vel.x += mult;
+				vel.x += 1.0f;
 			if (Input::IsKeyPressed(KeyCode::W))
-				vel.y += mult;
+				vel.y += 1.0f;
 			if (Input::IsKeyPressed(KeyCode::S))
-				vel.y -= mult;
+				vel.y -= 1.0f;
+
+			vel *= 20 * ts;
 
 			auto& rb = GetComponent<RigidBody2DComponent>().RigidBody;
 			rb->ApplyLinearImpulseToCenter(vel);
@@ -178,10 +174,7 @@ SandboxECS::SandboxECS()
 			m_ParticleProps.RenderingProps.Sprite = GetComponent<SpriteRendererComponent>().Sprite;
 			m_ParticleProps.RenderingProps.BirthColor = Color(0.8f, 0.8f, 0.8f, 1.0f);
 
-			float len = glm::fastLength(rb->GetLinearVelocity());
-
-			for (int i = 0; i < len * ts; i += 1)
-				m_ParticleSystem->Emit(m_ParticleProps);
+			OE_SIMPLE_FOR_LOOP(2) m_ParticleSystem->Emit(m_ParticleProps);
 		}
 
 	private:

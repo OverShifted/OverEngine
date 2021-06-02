@@ -73,24 +73,24 @@ Sandbox2D::Sandbox2D()
 
 static Vector<float> s_FPSSamples(200);
 
-void Sandbox2D::OnUpdate(TimeStep DeltaTime)
+void Sandbox2D::OnUpdate(TimeStep deltaTime)
 {
 	OE_PROFILE_FUNCTION();
 
 	// Update
 	Vector3 offset(m_CameraMovementDirection, 0.0f);
-	offset = offset * (m_CameraSpeed * DeltaTime * m_Camera.GetOrthographicSize());
+	offset = offset * (m_CameraSpeed * deltaTime * m_Camera.GetOrthographicSize());
 	Mat4x4 rotationMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(m_Camera.GetRotation().z), Vector3(0, 0, 1));
 	m_Camera.SetPosition(Vector4(m_Camera.GetPosition(), 1.0f) + (rotationMatrix * Vector4(offset, 1.0f)));
 
-	m_Camera.SetRotation({ 0.0f, 0.0f, m_Camera.GetRotation().z + m_CameraRotationDirection * DeltaTime * 80.0f });
+	m_Camera.SetRotation({ 0.0f, 0.0f, m_Camera.GetRotation().z + m_CameraRotationDirection * deltaTime * 80.0f });
 
 	for (uint32_t i = 0; i < (uint32_t)((int)s_FPSSamples.size() - 1); i++)
 	{
 		s_FPSSamples[i] = s_FPSSamples[i + 1];
 	}
 
-	s_FPSSamples[(int)s_FPSSamples.size() - 1] = 1 / Time::GetDeltaTime();
+	s_FPSSamples[(int)s_FPSSamples.size() - 1] = 1 / deltaTime;
 	if (s_FPSSamples[(int)s_FPSSamples.size() - 1] > 10000)
 		s_FPSSamples[(int)s_FPSSamples.size() - 1] = 0;
 

@@ -4,8 +4,6 @@
 #include "Scene.h"
 
 #include "OverEngine/Core/Core.h"
-#include "OverEngine/Core/Runtime/Serialization/Serializer.h"
-#include "OverEngine/Core/Runtime/Reflection/Reflection.h"
 #include "OverEngine/Core/Math/Math.h"
 #include "OverEngine/Core/Random.h"
 
@@ -59,7 +57,6 @@ namespace OverEngine
 			: Component(entity), Name(name) {}
 
 		COMPONENT_TYPE(NameComponent)
-		OE_REFLECT_STRUCT()
 	};
 
 	struct IDComponent : public Component
@@ -106,9 +103,9 @@ namespace OverEngine
 
 	struct SpriteRendererComponent : public Component
 	{
-		Ref<Texture2D> Sprite;
-
 		Color Tint = Color(1.0f);
+
+		Ref<Texture2D> Sprite;
 
 		Vector2 Tiling = Vector2(1.0f);
 		Vector2 Offset = Vector2(0.0f);
@@ -127,7 +124,6 @@ namespace OverEngine
 			: Component(entity), Sprite(sprite), Tint(tint) {}
 
 		COMPONENT_TYPE(SpriteRendererComponent)
-		OE_REFLECT_STRUCT()
 	};
 
 	////////////////////////////////////////////////////////
@@ -157,7 +153,6 @@ namespace OverEngine
 		}
 
 		COMPONENT_TYPE(RigidBody2DComponent)
-		OE_REFLECT_STRUCT()
 	};
 
 	// Store's all colliders attached to an Entity

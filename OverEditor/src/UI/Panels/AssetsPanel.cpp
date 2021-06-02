@@ -82,6 +82,7 @@ namespace OverEditor
 
 		if (!m_OneColumnView)
 		{
+			ImGui::SetColumnWidth(0, 250.0f);
 			ImGui::NextColumn();
 
 			ImGui::PushItemWidth(-1);
@@ -97,16 +98,17 @@ namespace OverEditor
 			{
 				if (ImGui::ArrowButton("AssetThumbnailUpFolderButton", ImGuiDir_Up))
 				{
-					AssetPath parentPath = m_SelectionContext->GetPath();
-					if (!parentPath.PathNodes.empty())
-						parentPath.PathNodes.pop_back();
+					String parentPath = m_SelectionContext->GetPath();
+					parentPath = parentPath.substr(0, parentPath.find_last_of('/'));
+					if (parentPath.empty())
+						parentPath = "/";
 
 					if (auto parent = AssetDatabase::GetAssetByPath(parentPath))
 						m_SelectionContext = parent;
 				}
 
 				ImGui::SameLine();
-				ImGui::TextUnformatted(m_SelectionContext->GetName().c_str());
+				ImGui::TextUnformatted(m_SelectionContext->GetPath().c_str());
 			}
 
 			ImGui::BeginChild("##ThumbnailView", { 0, 0 }, false, ImGuiWindowFlags_AlwaysUseWindowPadding);

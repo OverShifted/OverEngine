@@ -50,33 +50,28 @@ namespace OverEngine
         }
     }
 
-    void PhysicsWorld2D::CollisionListener::BeginContact(b2Contact* contact)
+	void PhysicsWorld2D::CollisionListener::HandleContact(b2Contact* contact, void (*callback)(const Collision2D&, void*))
 	{
 		Collider2D* colliderA_ptr = reinterpret_cast<Collider2D*>(contact->GetFixtureA()->GetUserData().pointer);
 		Collider2D* colliderB_ptr = reinterpret_cast<Collider2D*>(contact->GetFixtureB()->GetUserData().pointer);
 
 		if (!(colliderA_ptr && colliderB_ptr))
 			return;
-		
+
 		Collision2D collision;
 		collision.ColliderA = colliderA_ptr->shared_from_this();
 		collision.ColliderB = colliderB_ptr->shared_from_this();
 
-		OnCollisionEnter(collision, UserData);
+		callback(collision, UserData);
+	}
+
+    void PhysicsWorld2D::CollisionListener::BeginContact(b2Contact* contact)
+	{
+		HandleContact(contact, OnCollisionEnter);
 	}
 
 	void PhysicsWorld2D::CollisionListener::EndContact(b2Contact* contact)
 	{
-		Collider2D* colliderA_ptr = reinterpret_cast<Collider2D*>(contact->GetFixtureA()->GetUserData().pointer);
-		Collider2D* colliderB_ptr = reinterpret_cast<Collider2D*>(contact->GetFixtureB()->GetUserData().pointer);
-
-		if (!(colliderA_ptr && colliderB_ptr))
-			return;
-		
-		Collision2D collision;
-		collision.ColliderA = colliderA_ptr->shared_from_this();
-		collision.ColliderB = colliderB_ptr->shared_from_this();
-
-		OnCollisionExit(collision, UserData);
+		HandleContact(contact, OnCollisionExit);
 	}
 }

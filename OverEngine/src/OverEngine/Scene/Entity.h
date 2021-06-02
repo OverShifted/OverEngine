@@ -7,9 +7,6 @@
 namespace OverEngine
 {
 	template<typename T>
-	struct ComponentRef;
-
-	template<typename T>
 	entt::id_type GetComponentTypeID()
 	{
 		return entt::type_info<T>::id();
@@ -34,26 +31,11 @@ namespace OverEngine
 			return GetSceneRegistry().emplace<T>(m_EntityHandle, *this, std::forward<Args>(args)...);
 		}
 
-		template<typename T, typename... Args>
-		T& AddComponentDontPassEntity(Args&&... args) const
-		{
-			OE_CORE_ASSERT(!HasComponent<T>(), "Entity already has component!");
-			PushIDToSceneComponentList(entt::type_info<T>::id());
-			return GetSceneRegistry().emplace<T>(m_EntityHandle, std::forward<Args>(args)...);
-		}
-
 		template<typename T>
 		T& GetComponent() const
 		{
 			OE_CORE_ASSERT(HasComponent<T>(), "Entity does not have component!");
 			return GetSceneRegistry().get<T>(m_EntityHandle);
-		}
-
-		template<typename T>
-		ComponentRef<T> GetComponentRef() const
-		{
-			OE_CORE_ASSERT(HasComponent<T>(), "Entity does not have component!");
-			return ComponentRef<T>(*this);
 		}
 
 		template<typename T>
@@ -98,16 +80,5 @@ namespace OverEngine
 
 		entt::entity m_EntityHandle{ entt::null };
 		Scene* m_Scene;
-	};
-
-	template<typename T>
-	struct ComponentRef
-	{
-		ComponentRef(Entity entity) : AttachedEntity(entity) {}
-		Entity AttachedEntity;
-
-		operator T& () { return AttachedEntity.GetComponent<T>(); }
-		T* operator ->() { return &AttachedEntity.GetComponent<T>(); }
-		T& operator *() { return AttachedEntity.GetComponent<T>(); }
 	};
 }

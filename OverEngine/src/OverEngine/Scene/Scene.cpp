@@ -4,12 +4,9 @@
 #include "Entity.h"
 #include "Components.h"
 #include "TransformComponent.h"
-#include "SceneCollision2D.h"
 
 #include "OverEngine/Renderer/Renderer2D.h"
 #include "OverEngine/Physics/PhysicsWorld2D.h"
-
-#include "OverEngine/Scripting/ScriptingEngine.h"
 
 #include "OverEngine/Core/Random.h"
 
@@ -62,7 +59,6 @@ namespace OverEngine
 		});
 
 		if (m_PhysicsWorld2D) delete m_PhysicsWorld2D;
-		if (m_LuaEngine) delete m_LuaEngine;
 	}
 
 	Entity Scene::CreateEntity(const String& name, uint64_t uuid)
@@ -150,14 +146,6 @@ namespace OverEngine
 				script.second.Instance->OnLateUpdate(deltaTime);
 			}
 		});
-
-		m_Registry.view<LuaScriptsComponent>().each([this, &deltaTime](auto entity, auto& nsc)
-		{
-			for (auto& script : nsc.Scripts)
-			{
-				m_LuaEngine->GetSolState()[script.first]["update"](deltaTime.GetSeconds());
-			}
-		});
 	}
 
 	void Scene::OnScenePlay()
@@ -202,7 +190,7 @@ namespace OverEngine
 			auto& tc = m_Registry.get<TransformComponent>(entity);
 			rbc.RigidBody->SetPosition(tc.GetPosition());
 			rbc.RigidBody->SetRotation(tc.GetEulerAngles().z);
-			rbc.RigidBody->UserData = (void*)entity;
+			rbc.RigidBody->GetProps().AttachedEntity = Entity{ entity, this };
 			rbc.RigidBody->Deploy(m_PhysicsWorld2D);
 		});
 
@@ -210,8 +198,12 @@ namespace OverEngine
 		m_Registry.view<Colliders2DComponent>().each([this](entt::entity entity, auto& pcc)
 		{
 			Ref<RigidBody2D> rb = FindAttachedBody({ entity, this });
+
+			OE_CORE_ASSERT(rb, "Cannot find any attached RigidBody");
+
 			for (auto& collider : pcc.Colliders)
 			{
+				collider->GetProps().AttachedEntity = Entity{ entity, this };
 				collider->Deploy(rb.get());
 			}
 		});
@@ -229,23 +221,6 @@ namespace OverEngine
 				script.second.Instance = script.second.InstantiateScript();
 				script.second.Instance->AttachedEntity = Entity{ entity, this };
 				script.second.Instance->OnCreate();
-			}
-		});
-
-		// Initialize lua scripts
-		m_Registry.view<LuaScriptsComponent>().each([this](auto entity, auto& lsc)
-		{
-			// Dont create lua VM if we dont have any lua scripts
-			if (!m_LuaEngine)
-			{
-				m_LuaEngine = new LuaScriptingEngine();
-				ScriptingEngine::LoadApi(m_LuaEngine->GetSolState());
-			}
-
-			for (auto& script : lsc.Scripts)
-			{
-				m_LuaEngine->GetSolState().do_string(script.second);
-				m_LuaEngine->GetSolState()[script.first]["entity"] = Entity{ entity, this };
 			}
 		});
 	}
@@ -315,93 +290,58 @@ namespace OverEngine
 		});
 	}
 
-	void Scene::OnCollisionEnter(const Collision2D& collision)
+	void Scene::HandleCollision(const Collision2D& collision, bool enter)
 	{
-		Entity entityA{ (entt::entity)(uintptr_t)collision.ColliderA->GetAttachedBody()->UserData, this };
-		Entity entityB{ (entt::entity)(uintptr_t)collision.ColliderB->GetAttachedBody()->UserData, this };
+		Entity entityA = collision.ColliderA->GetProps().AttachedEntity;
+		Entity entityB = collision.ColliderB->GetProps().AttachedEntity;
 
 		if (!Exists(entityA) || !Exists(entityB))
 			return;
 
 		if (entityA.HasComponent<NativeScriptsComponent>())
 		{
-			SceneCollision2D sceneCollision;
-			sceneCollision.This.Entity = entityA;
-			sceneCollision.This.RigidBody = entityA.GetComponent<RigidBody2DComponent>().RigidBody;
-			sceneCollision.This.Collider = collision.ColliderA;
-
-			sceneCollision.Other.Entity = entityB;
-			sceneCollision.Other.RigidBody = entityB.GetComponent<RigidBody2DComponent>().RigidBody;
-			sceneCollision.Other.Collider = collision.ColliderB;
-
 			auto& nsc = entityA.GetComponent<NativeScriptsComponent>();
-			for (auto& script : nsc.Scripts)
+
+			if (enter)
 			{
-				script.second.Instance->OnCollisionEnter(sceneCollision);
+				for (auto& script : nsc.Scripts)
+					script.second.Instance->OnCollisionEnter(collision);
+			}
+			else
+			{
+				for (auto& script : nsc.Scripts)
+					script.second.Instance->OnCollisionExit(collision);
 			}
 		}
 
 		if (entityB.HasComponent<NativeScriptsComponent>())
 		{
-			SceneCollision2D sceneCollision;
-			sceneCollision.This.Entity = entityB;
-			sceneCollision.This.RigidBody = entityB.GetComponent<RigidBody2DComponent>().RigidBody;
-			sceneCollision.This.Collider = collision.ColliderB;
-
-			sceneCollision.Other.Entity = entityA;
-			sceneCollision.Other.RigidBody = entityA.GetComponent<RigidBody2DComponent>().RigidBody;
-			sceneCollision.Other.Collider = collision.ColliderA;
+			Collision2D bCollision;
+			bCollision.ColliderA = collision.ColliderB;
+			bCollision.ColliderB = collision.ColliderA;
 
 			auto& nsc = entityB.GetComponent<NativeScriptsComponent>();
-			for (auto& script : nsc.Scripts)
+			
+			if (enter)
 			{
-				script.second.Instance->OnCollisionEnter(sceneCollision);
+				for (auto& script : nsc.Scripts)
+					script.second.Instance->OnCollisionEnter(bCollision);
+			}
+			else
+			{
+				for (auto& script : nsc.Scripts)
+					script.second.Instance->OnCollisionExit(bCollision);
 			}
 		}
 	}
 
+	void Scene::OnCollisionEnter(const Collision2D& collision)
+	{
+		HandleCollision(collision, true);
+	}
+
 	void Scene::OnCollisionExit(const Collision2D& collision)
 	{
-		Entity entityA{ (entt::entity)(uintptr_t)collision.ColliderA->GetAttachedBody()->UserData, this };
-		Entity entityB{ (entt::entity)(uintptr_t)collision.ColliderB->GetAttachedBody()->UserData, this };
-
-		if (!Exists(entityA) || !Exists(entityB))
-			return;
-
-		if (entityA.HasComponent<NativeScriptsComponent>())
-		{
-			SceneCollision2D sceneCollision;
-			sceneCollision.This.Entity = entityA;
-			sceneCollision.This.RigidBody = entityA.GetComponent<RigidBody2DComponent>().RigidBody;
-			sceneCollision.This.Collider = collision.ColliderA;
-
-			sceneCollision.Other.Entity = entityB;
-			sceneCollision.Other.RigidBody = entityB.GetComponent<RigidBody2DComponent>().RigidBody;
-			sceneCollision.Other.Collider = collision.ColliderB;
-
-			auto& nsc = entityA.GetComponent<NativeScriptsComponent>();
-			for (auto& script : nsc.Scripts)
-			{
-				script.second.Instance->OnCollisionExit(sceneCollision);
-			}
-		}
-
-		if (entityB.HasComponent<NativeScriptsComponent>())
-		{
-			SceneCollision2D sceneCollision;
-			sceneCollision.This.Entity = entityB;
-			sceneCollision.This.RigidBody = entityB.GetComponent<RigidBody2DComponent>().RigidBody;
-			sceneCollision.This.Collider = collision.ColliderB;
-
-			sceneCollision.Other.Entity = entityA;
-			sceneCollision.Other.RigidBody = entityA.GetComponent<RigidBody2DComponent>().RigidBody;
-			sceneCollision.Other.Collider = collision.ColliderA;
-
-			auto& nsc = entityB.GetComponent<NativeScriptsComponent>();
-			for (auto& script : nsc.Scripts)
-			{
-				script.second.Instance->OnCollisionExit(sceneCollision);
-			}
-		}
+		HandleCollision(collision, false);
 	}
 }

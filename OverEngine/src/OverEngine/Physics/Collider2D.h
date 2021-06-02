@@ -1,6 +1,7 @@
 #pragma once
 
-#include "OverEngine/Core/Runtime/Reflection/Reflection.h"
+#include "OverEngine/Core/Core.h"
+#include "OverEngine/Scene/Entity.h"
 
 #include <box2d/b2_fixture.h>
 #include <box2d/b2_polygon_shape.h>
@@ -43,8 +44,6 @@ namespace OverEngine
 
 		Vector2 m_Size;
 		float m_Rotation;
-
-		OE_REFLECT_STRUCT()
 	};
 
 	class CircleCollisionShape2D : public CollisionShape2D
@@ -64,12 +63,12 @@ namespace OverEngine
 		b2CircleShape m_Shape;
 
 		float m_Radius;
-
-		OE_REFLECT_STRUCT()
 	};
 
 	struct Collider2DProps
 	{
+		Entity AttachedEntity = Entity();
+
 		// Shape
 		Vector2 Offset{ 0.0f, 0.0f };
 		Ref<CollisionShape2D> Shape = nullptr;
@@ -99,6 +98,7 @@ namespace OverEngine
 		void Deploy(RigidBody2D* rigidBody);
 		void UnDeploy();
 
+		Collider2DProps& GetProps() { return m_Props; }
 		const Collider2DProps& GetProps() const { return m_Props; }
 
 		RigidBody2D* GetAttachedBody() const { return m_BodyHandle; }
@@ -112,14 +112,14 @@ namespace OverEngine
 		inline float GetDensity() const { return m_Props.Density; }
 		inline void SetDensity(float density) { m_Props.Density = density; Invalidate(); }
 
-		inline float GetBounciness() const{ return m_Props.Bounciness;}
+		inline float GetBounciness() const{ return m_Props.Bounciness; }
 		inline void SetBounciness(float bounciness) { m_Props.Bounciness = bounciness; Invalidate(); }
 
 		inline float GetBouncinessThreshold() const { return m_Props.BouncinessThreshold; }
 		inline void SetBouncinessThreshold(float bouncinessThreshold) { m_Props.BouncinessThreshold = bouncinessThreshold; Invalidate(); }
 
-		inline bool GetIsTrigger() const{ return m_Props.IsTrigger;}
-		inline void SetIsTrigger(bool isTrigger) { m_Props.IsTrigger = isTrigger; Invalidate(); }
+		inline bool IsTrigger() const{ return m_Props.IsTrigger; }
+		inline void SetTrigger(bool isTrigger) { m_Props.IsTrigger = isTrigger; Invalidate(); }
 
 	private:
 		void Invalidate();

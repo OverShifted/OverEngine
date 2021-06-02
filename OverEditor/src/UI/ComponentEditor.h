@@ -43,7 +43,7 @@
 namespace OverEditor
 {
 	// Base
-	template <class T>
+	template<typename T>
 	void ComponentEditor(Entity entity, uint32_t typeID)
 	{
 		if (UIElements::BeginComponentEditor<T>(entity, entity.GetComponent<T>().GetName(), typeID))
@@ -51,7 +51,7 @@ namespace OverEditor
 	}
 
 	// Overloads
-	template <>
+	template<>
 	void ComponentEditor<TransformComponent>(Entity entity, uint32_t typeID)
 	{
 		if (UIElements::BeginComponentEditor<TransformComponent>(entity, "Transform", typeID))
@@ -88,7 +88,7 @@ namespace OverEditor
 		}
 	}
 
-	template <>
+	template<>
 	void ComponentEditor<SpriteRendererComponent>(Entity entity, uint32_t typeID)
 	{
 		if (UIElements::BeginComponentEditor<SpriteRendererComponent>(entity, "SpriteRenderer", typeID))
@@ -128,7 +128,7 @@ namespace OverEditor
 		}
 	}
 
-	template <>
+	template<>
 	void ComponentEditor<CameraComponent>(Entity entity, uint32_t typeID)
 	{
         if (UIElements::BeginComponentEditor<CameraComponent>(entity, "Camera", typeID))
@@ -165,7 +165,7 @@ namespace OverEditor
 		}
 	}
 
-	template <>
+	template<>
 	void ComponentEditor<RigidBody2DComponent>(Entity entity, uint32_t typeID)
 	{
 
@@ -202,7 +202,7 @@ namespace OverEditor
 		}
 	}
 
-	template <>
+	template<>
 	void ComponentEditor<Colliders2DComponent>(Entity entity, uint32_t typeID)
 	{
 		if (UIElements::BeginComponentEditor<Colliders2DComponent>(entity, "Colliders2D", typeID))

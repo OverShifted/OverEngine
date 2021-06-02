@@ -40,7 +40,6 @@ namespace OverEngine
 				{
 					YAML::Node metaData = YAML::LoadFile(stringPath);
 					String typeStr = metaData["Type"].as<String>();
-					uint64_t guid = metaData["Guid"].as<uint64_t>();
 
 					Ref<Asset> asset = nullptr;
 
@@ -77,9 +76,9 @@ namespace OverEngine
 
 					if (asset)
 					{
-						asset->m_Guid = guid;
-						String pathToPut = stringPath.substr(correctedAssetDirectoryPath.size(), stringPath.size() - correctedAssetDirectoryPath.size() - 1 - strlen(Extensions::AssetMetadataFileExtension));
-						Put(AssetPath(pathToPut), asset);
+						asset->m_Name = metaData["Name"].as<String>();
+						asset->m_Guid = metaData["Guid"].as<uint64_t>();
+						CreateAsset(metaData["Path"].as<String>(), asset);
 					}
 					else
 					{
@@ -106,41 +105,30 @@ namespace OverEngine
 	{
 	}
 
-	bool AssetDatabase::Put(const AssetPath& path, const Ref<Asset>& asset)
+	bool AssetDatabase::CreateAsset(const String& path, const Ref<Asset>& asset)
 	{
-		if (!path.Absolute)
+		if (path[0] != '/')
 			return false;
 
 		Ref<AssetFolder> currentNode = s_Root;
-		AssetPath currentPath;
-		currentPath.Absolute = true;
+		String currentPath;
 
-		std::size_t i = path.PathNodes.size();
-		for (const String& pathNode : path.PathNodes)
+		Vector<String> pathNodes;
+		StringUtils::Split(path, "/", pathNodes);
+
+		uint32_t i = (uint32_t)pathNodes.size();
+		for (const String& pathNode : pathNodes)
 		{
-			currentPath.PathNodes.push_back(pathNode);
+			currentPath += "/";
+			currentPath += pathNode;
 
 			if (i == 1)
 			{
-				AssetFolder::AssetMappingKey k;
-				k.Name = pathNode;
-
-				k.Type = AssetFolder::AssetMappingKey::AssetMappingKeyType_Folder;
-				if (STD_MAP_HAS(currentNode->GetAssets(), k))
-					return false;
-
-				k.Type = AssetFolder::AssetMappingKey::AssetMappingKeyType_NonFolder;
-				if (STD_MAP_HAS(currentNode->GetAssets(), k))
-					return false;
-
-				if (asset->GetClassName() == AssetFolder::GetStaticClassName())
-					k.Type = AssetFolder::AssetMappingKey::AssetMappingKeyType_Folder;
-
-				currentNode->GetAssets()[k] = asset;
+				(*currentNode)[pathNode] = asset;
 			}
-			else if (auto child = (*currentNode)[pathNode])
+			else if (STD_MAP_HAS(currentNode->GetAssets(), pathNode))
 			{
-				currentNode = std::dynamic_pointer_cast<AssetFolder>(child);
+				currentNode = std::dynamic_pointer_cast<AssetFolder>((*currentNode)[pathNode]);
 
 				if (!currentNode)
 					return false;
@@ -149,12 +137,9 @@ namespace OverEngine
 			{
 				auto newFolder = CreateRef<AssetFolder>();
 				newFolder->m_Path = currentPath;
+				newFolder->m_Name = pathNode;
 
-				AssetFolder::AssetMappingKey k;
-				k.Name = pathNode;
-				k.Type = AssetFolder::AssetMappingKey::AssetMappingKeyType_Folder;
-
-				currentNode->GetAssets()[k] = newFolder;
+				(*currentNode)[pathNode] = newFolder;
 				currentNode = newFolder;
 			}
 
@@ -171,29 +156,22 @@ namespace OverEngine
 		return true;
 	}
 
-	Ref<Asset> AssetDatabase::GetAssetByPath(const AssetPath& path)
+	Ref<Asset> AssetDatabase::GetAssetByPath(const String& path)
 	{
-		if (!path.Absolute)
+		if (path[0] != '/')
 			return nullptr;
 
 		Ref<AssetFolder> currentNode = s_Root;
 
-		std::size_t i = path.PathNodes.size();
-		for (const String& pathNode : path.PathNodes)
+		Vector<String> pathNodes;
+		StringUtils::Split(path, "/", pathNodes);
+
+		uint32_t i = (uint32_t)pathNodes.size();
+		for (const String& pathNode : pathNodes)
 		{
 			if (i == 1)
 			{
-				AssetFolder::AssetMappingKey k;
-				k.Name = pathNode;
-				k.Type = AssetFolder::AssetMappingKey::AssetMappingKeyType_NonFolder;
-
-				auto it = currentNode->GetAssets().find(k);
-
-				if (it == currentNode->GetAssets().end())
-				{
-					k.Type = AssetFolder::AssetMappingKey::AssetMappingKeyType_Folder;
-					it = currentNode->GetAssets().find(k);
-				}
+				auto it = currentNode->GetAssets().find(pathNode);
 
 				if (it == currentNode->GetAssets().end())
 					return nullptr;
@@ -202,13 +180,12 @@ namespace OverEngine
 			}
 			else
 			{
-				AssetFolder::AssetMappingKey k;
-				k.Name = pathNode;
-				k.Type = AssetFolder::AssetMappingKey::AssetMappingKeyType_Folder;
-
-				if (auto it = currentNode->GetAssets().find(k); it != currentNode->GetAssets().end())
+				if (auto it = currentNode->GetAssets().find(pathNode); it != currentNode->GetAssets().end())
 					currentNode = std::dynamic_pointer_cast<AssetFolder>(it->second);
 				else
+					return nullptr;
+
+				if (!currentNode)
 					return nullptr;
 			}
 

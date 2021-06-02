@@ -130,6 +130,7 @@
 /// Other
 #define BIND_FN(fn) [this](auto&&... args) -> decltype(auto) { return this->fn(std::forward<decltype(args)>(args)...); }
 #define STD_FUTURE_IS_DONE(f) (f.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+#define OE_SIMPLE_FOR_LOOP(n) for (uint32_t i##__LINE__ = 0; i##__LINE__ < n; i##__LINE__ += 1)
 
 
 namespace OverEngine

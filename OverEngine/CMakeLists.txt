@@ -58,11 +58,8 @@ target_include_directories(OverEngine PUBLIC
 	"vendor"
 	"vendor/spdlog/include"
 	"vendor/imgui"
-	"vendor/lua-overengine/lua/src"
-	"vendor/lua-overengine/sol/include"
 	"vendor/glm"
 	"vendor/stb"
-	"vendor/lua/src"
 	"vendor/entt/include"
 	"vendor/box2d/include"
 	"vendor/json/include"
@@ -87,4 +84,4 @@ target_compile_definitions(
 )
 
 target_link_libraries(OverEngine PRIVATE glfw glad)
-target_link_libraries(OverEngine PUBLIC imgui lua-overengine box2d yaml-cpp)
+target_link_libraries(OverEngine PUBLIC imgui box2d yaml-cpp)

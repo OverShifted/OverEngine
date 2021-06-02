@@ -9,7 +9,7 @@ public:
 	SandboxLayer();
 
 	void OnAttach() override;
-	void OnUpdate(OverEngine::TimeStep DeltaTime) override;
+	void OnUpdate(OverEngine::TimeStep deltaTime) override;
 	void OnImGuiRender() override;
 	void OnEvent(OverEngine::Event& event) override;
 

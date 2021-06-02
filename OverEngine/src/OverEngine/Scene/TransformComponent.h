@@ -64,7 +64,7 @@ namespace OverEngine
 		Entity GetParent() const;
 		void SetParent(Entity parent);
 
-		uint32_t GetSiblingIndex();
+		uint32_t GetSiblingIndex() const;
 		void SetSiblingIndex(uint32_t index);
 
 		Vector<entt::entity>& GetChildrenHandles() { return m_Children; }

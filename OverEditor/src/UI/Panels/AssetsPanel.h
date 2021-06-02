@@ -17,8 +17,8 @@ namespace OverEditor
 
 		virtual void OnImGuiRender() override;
 
-		virtual void SetIsOpen(bool isOpen) override { m_IsOpen = isOpen; }
-		virtual bool GetIsOpen() override { return m_IsOpen; }
+		virtual void SetOpen(bool isOpen) override { m_IsOpen = isOpen; }
+		virtual bool IsOpen() override { return m_IsOpen; }
 	private:
 		Ref<Asset> RecursiveDraw(const Ref<AssetFolder>& resourceToDraw);
 		void DrawThumbnail(Ref<Asset> asset, bool last);

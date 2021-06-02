@@ -3,6 +3,8 @@
 #include <OverEngine/Core/Extensions.h>
 #include <OverEngine/Core/FileSystem/FileSystem.h>
 
+#include <yaml-cpp/yaml.h>
+
 namespace OverEditor
 {
 	Ref<EditorProject> NewProject(const String& name, const String& directoryPath)

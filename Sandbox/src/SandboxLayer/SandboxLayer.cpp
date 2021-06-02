@@ -122,15 +122,15 @@ void SandboxLayer::OnAttach()
 	versionInfo = ss.str();
 }
 
-void SandboxLayer::OnUpdate(TimeStep DeltaTime)
+void SandboxLayer::OnUpdate(TimeStep deltaTime)
 {
 	// Update
 	Vector3 offset(m_CameraMovementDirection, 0.0f);
-	offset = offset * (m_CameraSpeed * DeltaTime * m_Camera.GetOrthographicSize());
+	offset = offset * (m_CameraSpeed * deltaTime * m_Camera.GetOrthographicSize());
 	Mat4x4 rotationMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(m_Camera.GetRotation().z), Vector3(0, 0, 1));
 	m_Camera.SetPosition(Vector4(m_Camera.GetPosition(), 1.0f) + (rotationMatrix * Vector4(offset, 1.0f)));
 
-	m_Camera.SetRotation({ 0.0f, 0.0f, m_Camera.GetRotation().z + m_CameraRotationDirection * DeltaTime * 80.0f });
+	m_Camera.SetRotation({ 0.0f, 0.0f, m_Camera.GetRotation().z + m_CameraRotationDirection * deltaTime * 80.0f });
 
 	// Render
 	RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });
