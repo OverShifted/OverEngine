@@ -40,7 +40,7 @@ namespace OverEngine
 		def.angularVelocity = m_Props.Dynamics.AngularVelocity;
 
 		def.linearDamping = m_Props.LinearDamping;
-		def.angularVelocity = m_Props.AngularDamping;
+		def.angularDamping = m_Props.AngularDamping;
 
 		def.allowSleep = m_Props.AllowSleep;
 		def.awake = m_Props.Dynamics.IsAwake;

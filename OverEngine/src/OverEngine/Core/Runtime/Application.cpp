@@ -38,7 +38,7 @@ namespace OverEngine
 		#elif defined(_MSC_VER)
 			OE_CORE_INFO("OverEngine v0.0 [MSC {}] [{}]", _MSC_VER, buildType);
 		#else
-			OE_CORE_INFO("OverEngine v0.0 [UNKNOWN COMPILER]");
+			OE_CORE_INFO("OverEngine v0.0 [UNKNOWN COMPILER] [{}]", buildType);
 		#endif
 
 		// To initialize the Renderer a Window should exist.
