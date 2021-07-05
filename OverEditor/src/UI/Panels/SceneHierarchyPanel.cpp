@@ -93,12 +93,12 @@ namespace OverEditor
 				*fmt::format_to(buffer, "INSPECTOR_ENTITY_EDITOR{}", selectedEntity.GetRuntimeID()) = '\0';
 				ImGui::PushID(buffer.data());
 
-                buffer.clear();
-                *fmt::format_to(buffer, "0x{0:x}", selectedEntity.GetComponent<IDComponent>().ID) = '\0';
-                ImGui::InputText(buffer.data(), &selectedEntity.GetComponent<NameComponent>().Name);
+				buffer.clear();
+				*fmt::format_to(buffer, "0x{0:x}", selectedEntity.GetComponent<IDComponent>().ID) = '\0';
+				ImGui::InputText(buffer.data(), &selectedEntity.GetComponent<NameComponent>().Name);
 			}
 			
-            ImGui::Text("RuntimeID: %i", selectedEntity.GetRuntimeID());
+			ImGui::Text("RuntimeID: %i", selectedEntity.GetRuntimeID());
 
 			bool wannaDestroy = false;
 			if (ImGui::Button("Destroy Entity"))
@@ -115,7 +115,8 @@ namespace OverEditor
 				CheckComponentEditor<Colliders2DComponent>(componentTypeID, selectedEntity);
 			}
 
-			if (ImGui::Button("Add Component##Button", ImVec2(-1.0f, 40.0f)))
+//			if (ImGui::Button("Add Component##Button", ImVec2(-1.0f, 40.0f)))
+			if (ImGui::Button("Add Component##Button"))
 				ImGui::OpenPopup("Add Component##Popup");
 
 			if (ImGui::BeginPopup("Add Component##Popup"))

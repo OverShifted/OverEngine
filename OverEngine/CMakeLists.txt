@@ -5,7 +5,7 @@ set(OE_CROSS_PLATFORM_FILES
 	"src/OverEngine.h"
 	"src/pcheader.cpp"
 	"src/pcheader.h"
-	
+
 	${overengine_source_files}
 	${overengine_header_files}
 
@@ -85,3 +85,4 @@ target_compile_definitions(
 
 target_link_libraries(OverEngine PRIVATE glfw glad)
 target_link_libraries(OverEngine PUBLIC imgui box2d yaml-cpp)
+

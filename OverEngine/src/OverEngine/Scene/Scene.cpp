@@ -96,7 +96,7 @@ namespace OverEngine
 		// Update Physics
 		m_PhysicsWorld2D->OnUpdate(deltaTime, 8, 3);
 
-		m_Registry.view<RigidBody2DComponent, TransformComponent>().each([](auto& rbc, auto& tc)
+		m_Registry.group<RigidBody2DComponent>(entt::get<TransformComponent>).each([](auto& rbc, auto& tc)
 		{
 			if (rbc.RigidBody)
 			{
@@ -233,9 +233,9 @@ namespace OverEngine
 			auto& sprite = spritesGroup.get<SpriteRendererComponent>(sp);
 			if (sprite.Enabled)
 			{
-				auto& sptransform = spritesGroup.get<TransformComponent>(sp);
+				auto& transform = spritesGroup.get<TransformComponent>(sp);
 
-				if (sprite.Sprite && !sprite.Sprite->IsRefrence())
+				if (sprite.Sprite && !sprite.Sprite->IsReference())
 				{
 					TexturedQuadProps props;
 					props.Tint      = sprite.Tint;
@@ -245,11 +245,11 @@ namespace OverEngine
 					props.Flip      = sprite.Flip;
 					props.ForceTile = sprite.ForceTile;
 
-					Renderer2D::DrawQuad(sptransform, props);
+					Renderer2D::DrawQuad(transform.GetLocalToWorld(), props);
 				}
 				else
 				{
-					Renderer2D::DrawQuad(sptransform, sprite.Tint);
+					Renderer2D::DrawQuad(transform.GetLocalToWorld(), sprite.Tint);
 				}
 			}
 		}
@@ -259,7 +259,7 @@ namespace OverEngine
 	{
 		bool anyCamera = false;
 		
-		m_Registry.group<TransformComponent>(entt::get<CameraComponent>).each([&anyCamera, this](auto entity, auto& tc, auto& cc)
+		m_Registry.group<CameraComponent>(entt::get<TransformComponent>).each([&anyCamera, this](auto entity, auto& cc, auto& tc)
 		{
 			if (cc.Enabled && tc.Enabled)
 			{

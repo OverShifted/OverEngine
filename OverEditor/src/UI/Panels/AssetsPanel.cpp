@@ -80,9 +80,16 @@ namespace OverEditor
 		// Thumbnails ////////////////////////////////////////
 		//////////////////////////////////////////////////////
 
+		static bool firstCall = true;
+
 		if (!m_OneColumnView)
 		{
-			ImGui::SetColumnWidth(0, 250.0f);
+			if (firstCall)
+			{
+				ImGui::SetColumnWidth(0, 250.0f);
+				firstCall = false;
+			}
+
 			ImGui::NextColumn();
 
 			ImGui::PushItemWidth(-1);

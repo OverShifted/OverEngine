@@ -15,19 +15,18 @@ namespace OverEngine
 	{
 		if (m_Parent != entt::null)
 		{
-			auto mvm = ENTITY_HANDLE_TRANSFORM(m_Parent).GetLocalToWorld();
+			auto parentTransform = ENTITY_HANDLE_TRANSFORM(m_Parent).GetLocalToWorld();
 
-			for (uint8_t i = 0; i < 3; i++)
-			{
-				if (mvm[i][i] == 0.0f)
-					mvm[i][i] = 1.0;
-			}
+			parentTransform[0][0] = parentTransform[0][0] == 0.0f ? 1.0f : parentTransform[0][0];
+			parentTransform[0][0] = parentTransform[0][0] == 0.0f ? 1.0f : parentTransform[0][0];
+			parentTransform[0][0] = parentTransform[0][0] == 0.0f ? 1.0f : parentTransform[0][0];
 
-			mvm = glm::inverse(mvm);
-			SetLocalPosition(Vector3(mvm * Vector4(position, 1.0f)));
+			SetLocalPosition(Vector3(glm::inverse(parentTransform) * Vector4(position, 1.0f)));
 		}
 		else
+		{
 			SetLocalPosition(position);
+		}
 	}
 
 	Vector3 TransformComponent::GetLocalPosition() const

@@ -22,7 +22,7 @@ namespace OverEngine
 		virtual void Acquire(Ref<Asset> other) {}
 		virtual ~Asset() = default;
 
-		virtual bool IsRefrence() const = 0;
+		virtual bool IsReference() const = 0;
 
 		const String& GetName() const { return m_Name; }
 		inline const String& GetPath() const { return m_Path; }
@@ -52,7 +52,7 @@ namespace OverEngine
 		inline const auto& GetAssets() const { return m_Assets; }
 		inline auto& GetAssets() { return m_Assets; }
 
-		virtual bool IsRefrence() const override { return false; }
+		virtual bool IsReference() const override { return false; }
 
 	private:
 		Map<String, Ref<Asset>> m_Assets;

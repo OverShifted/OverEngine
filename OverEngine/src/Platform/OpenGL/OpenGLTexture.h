@@ -36,7 +36,7 @@ namespace OverEngine
 		virtual TextureType GetType() const override;
 
 		// Asset
-		virtual bool IsRefrence() const override { return m_RendererID == 0; }
+		virtual bool IsReference() const override { return m_RendererID == 0; }
 	private:
 
 		uint32_t m_RendererID = 0;

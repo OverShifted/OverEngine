@@ -32,7 +32,7 @@ namespace OverEngine
 		Scene(Scene& other);
 		~Scene();
 
-		inline virtual bool IsRefrence() const override { return false; }
+		inline virtual bool IsReference() const override { return false; }
 
 		Entity CreateEntity(const String& name = String(), uint64_t uuid = Random::UInt64());
 		Entity CreateEntity(Entity& parent, const String& name = String(), uint64_t uuid = Random::UInt64());
@@ -67,7 +67,8 @@ namespace OverEngine
 		entt::registry m_Registry;
 		PhysicsWorld2D* m_PhysicsWorld2D = nullptr;
 
-		uint32_t m_ViewportWidth = 0, m_ViewportHeight = 0; // TODO: set viewport size for new camera components
+		// To set viewport size for new camera components
+		uint32_t m_ViewportWidth = 0, m_ViewportHeight = 0;
 
 		/**
 		 * To hold entities with entt::null parent.

@@ -15,10 +15,10 @@ namespace OverEngine
 		static void Refresh();
 
 		inline static Ref<AssetFolder> GetRoot() { return s_Root; }
-		static void CreateFolder(const String& parentFolderPath, const String& newFolderName, bool createMissingParents = true) { OE_CORE_ASSERT(false, "Not Implemented"); }
+		static bool CreateFolder(const String& parentFolderPath, const String& newFolderName, bool createMissingParents = true) { OE_CORE_ASSERT(false, "Not Implemented"); return false; }
 		static bool CreateAsset(const String& path, const Ref<Asset>& asset);
 
-		static bool Delete(const String& path) { OE_CORE_ASSERT(false, "Not Implemented"); }
+		static bool Delete(const String& path) { OE_CORE_ASSERT(false, "Not Implemented"); return false; }
 
 		static Ref<Asset> GetAssetByPath(const String& path);
 

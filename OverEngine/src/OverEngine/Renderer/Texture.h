@@ -85,7 +85,7 @@ namespace OverEngine
 		Ref<Texture2D> GetMasterTexture() const { return m_MasterTexture; }
 
 		// Asset
-		virtual bool IsRefrence() const override { return m_MasterTexture == nullptr; }
+		virtual bool IsReference() const override { return m_MasterTexture == nullptr; }
 	private:
 
 		Ref<Texture2D> m_MasterTexture = nullptr;
