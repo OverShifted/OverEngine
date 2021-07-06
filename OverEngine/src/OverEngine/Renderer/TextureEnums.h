@@ -16,7 +16,7 @@ namespace OverEngine
 		BiLinear
 	};
 
-	enum class TextureWrap  : uint8_t
+	enum class TextureWrap : uint8_t
 	{
 		None = 0,
 		Repeat,

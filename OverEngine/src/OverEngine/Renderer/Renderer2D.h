@@ -15,7 +15,7 @@ namespace OverEngine
 
 		Vector2 Tiling = Vector2(1.0f);
 		Vector2 Offset = Vector2(0.0f);
-		TextureFlip Flip = 0;
+		TextureFlip Flip = TextureFlip_None;
 
 		// Useful for SubTextures
 		bool ForceTile = false;

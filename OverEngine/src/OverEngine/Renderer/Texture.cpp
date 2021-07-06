@@ -93,7 +93,7 @@ namespace OverEngine
 
 	void SubTexture2D::SetFilter(TextureFilter)
 	{
-		OE_CORE_WARN("Cant SubTexture2D::SetFilter");
+		OE_CORE_WARN("Can't SubTexture2D::SetFilter");
 	}
 
 	TextureWrap SubTexture2D::GetUWrap() const
@@ -103,7 +103,7 @@ namespace OverEngine
 
 	void SubTexture2D::SetUWrap(TextureWrap)
 	{
-		OE_CORE_WARN("Cant SubTexture2D::SetUWrap");
+		OE_CORE_WARN("Can't SubTexture2D::SetUWrap");
 	}
 
 	TextureWrap SubTexture2D::GetVWrap() const
@@ -113,7 +113,7 @@ namespace OverEngine
 
 	void SubTexture2D::SetVWrap(TextureWrap)
 	{
-		OE_CORE_WARN("Cant SubTexture2D::SetVWrap");
+		OE_CORE_WARN("Can't SubTexture2D::SetVWrap");
 	}
 
 	TextureFormat SubTexture2D::GetFormat() const

@@ -76,26 +76,26 @@
 #endif // OE_DEBUG
 
 #ifdef OE_ENABLE_ASSERTS
-	#define _OE_ASSERT_TXT "========== Assertion Failed =========="
+	#define OE_ASSERT_TXT "========== Assertion Failed =========="
 
-	#define OE_ASSERT(x, ...)                               \
-	{                                                       \
-		if(!(x))                                            \
-		{                                                   \
-			OE_ERROR(_OE_ASSERT_TXT);                       \
-			OE_ERROR(__VA_ARGS__);                          \
-			OE_ERROR(_OE_ASSERT_TXT); OE_DEBUGBREAK;        \
-		}                                                   \
+	#define OE_ASSERT(x, ...)                             \
+	{                                                     \
+		if(!(x))                                          \
+		{                                                 \
+			OE_ERROR(OE_ASSERT_TXT);                      \
+			OE_ERROR(__VA_ARGS__);                        \
+			OE_ERROR(OE_ASSERT_TXT); OE_DEBUGBREAK;       \
+		}                                                 \
 	}
 
-	#define OE_CORE_ASSERT(x, ...)                          \
-	{                                                       \
-		if(!(x))                                            \
-		{                                                   \
-			OE_CORE_ERROR(_OE_ASSERT_TXT);                  \
-			OE_CORE_ERROR(__VA_ARGS__);                     \
-			OE_CORE_ERROR(_OE_ASSERT_TXT); OE_DEBUGBREAK;   \
-		}                                                   \
+	#define OE_CORE_ASSERT(x, ...)                        \
+	{                                                     \
+		if(!(x))                                          \
+		{                                                 \
+			OE_CORE_ERROR(OE_ASSERT_TXT);                 \
+			OE_CORE_ERROR(__VA_ARGS__);                   \
+			OE_CORE_ERROR(OE_ASSERT_TXT); OE_DEBUGBREAK;  \
+		}                                                 \
 	}
 #else
 	#define OE_ASSERT(x, ...)        { if (!(x)) OE_THROW(__VA_ARGS__); }

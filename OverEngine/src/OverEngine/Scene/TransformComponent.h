@@ -70,8 +70,8 @@ namespace OverEngine
 		const Vector<entt::entity>& GetChildrenHandles() const { return m_Children; }
 
 		/**
-		 * Func should be void(*func)(Entity);
-		 * Using template allow func to be a capturing lambda
+		 * Func should be void(Entity)
+		 * Using template allows func to be a capturing lambda
 		 */
 
 		template <typename Func>
@@ -109,6 +109,7 @@ namespace OverEngine
 
 		void Invalidate();
 		void Change();
+
 	private:
 		friend class Scene;
 
