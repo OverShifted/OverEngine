@@ -23,19 +23,12 @@ project "OverEngine"
 		"vendor/stb/stb_image.h",
 		"vendor/stb/stb_image.cpp",
 
-		"vendor/stb/stb_rectpack.h",
-		"vendor/stb/stb_rectpack.cpp",
-
 		"vendor/stb/stb_sprintf.h",
 		"vendor/stb/stb_sprintf.cpp",
 
 		-- tinyfiledialogs
 		"vendor/tinyfiledialogs/tinyfiledialogs.h",
 		"vendor/tinyfiledialogs/tinyfiledialogsBuild.cpp",
-		
-		-- md5
-		"vendor/utils/hashing/md5/md5.h",
-		"vendor/utils/hashing/md5/md5.cpp",
 
 		-- Resources
 		"res/**.h",

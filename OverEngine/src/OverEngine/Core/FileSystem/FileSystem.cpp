@@ -1,8 +1,6 @@
 #include "pcheader.h"
 #include "FileSystem.h"
 
-#include <utils/hashing/md5/md5.h>
-
 #include <fstream>
 #include <filesystem>
 
@@ -27,28 +25,6 @@ namespace OverEngine
 		}
 
 		return result;
-	}
-
-	String FileSystem::HashFile(const String& path)
-	{
-		if (auto in = std::ifstream(path, std::ios::binary))
-		{
-			in.seekg(0, std::ios::end);
-			size_t size = in.tellg();
-			char* result = new char[size];
-
-			in.seekg(0, std::ios::beg);
-			in.read(result, size);
-			in.close();
-
-			MD5 hash;
-			hash.update(result, (MD5::size_type)size);
-			hash.finalize();
-			return hash.hexdigest();
-		}
-
-		OE_CORE_ASSERT("Could not open file '{}'", path);
-		return "";
 	}
 
 	String FileSystem::FixPath(String path)

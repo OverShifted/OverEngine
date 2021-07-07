@@ -12,17 +12,11 @@ set(OE_CROSS_PLATFORM_FILES
 	"vendor/stb/stb_image.h"
 	"vendor/stb/stb_image.cpp"
 
-	"vendor/stb/stb_rectpack.h"
-	"vendor/stb/stb_rectpack.cpp"
-
 	"vendor/stb/stb_sprintf.h"
 	"vendor/stb/stb_sprintf.cpp"
 
 	"vendor/tinyfiledialogs/tinyfiledialogs.h"
 	"vendor/tinyfiledialogs/tinyfiledialogsBuild.cpp"
-
-	"vendor/utils/hashing/md5/md5.h"
-	"vendor/utils/hashing/md5/md5.cpp"
 )
 
 file(GLOB_RECURSE opengl_platform_source_files "src/Platform/OpenGL/*.cpp")

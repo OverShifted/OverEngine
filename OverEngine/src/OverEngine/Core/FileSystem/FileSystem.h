@@ -10,7 +10,6 @@ namespace OverEngine
 	{
 	public:
 		static String ReadFile(const String& path);
-		static String HashFile(const String& path);
 
 		static String FixPath(String path);
 		static void FixPath(String* path_ptr);
