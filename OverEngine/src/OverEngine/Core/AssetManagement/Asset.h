@@ -10,11 +10,7 @@ namespace OverEngine
 
 	class Asset : public Object
 	{
-		OE_CLASS(Asset)
-		
-	public:
-		static Ref<Asset> Load(const String& path);
-
+		OE_CLASS(Asset, Object)
 	protected:
 		Asset() = default;
 
@@ -42,7 +38,7 @@ namespace OverEngine
 
 	class AssetFolder : public Asset
 	{
-		OE_CLASS(AssetFolder)
+		OE_CLASS_NO_REFLECT(AssetFolder, Asset)
 
 	public:
 		AssetFolder() = default;

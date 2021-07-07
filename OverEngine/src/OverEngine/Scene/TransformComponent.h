@@ -11,8 +11,11 @@ namespace OverEngine
 
 	class TransformComponent : public Component
 	{
+		OE_CLASS(TransformComponent, Component)
+
 	public:
 		TransformComponent(const TransformComponent&) = default;
+
 		TransformComponent(const Entity& entity, const Entity& parent = Entity())
 			: Component(entity)
 		{
@@ -98,7 +101,6 @@ namespace OverEngine
 			return !(*this == other);
 		}
 
-		COMPONENT_TYPE(TransformComponent)
 	private:
 		enum ChangedFlags_ : ChangedFlags
 		{

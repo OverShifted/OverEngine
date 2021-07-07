@@ -1,7 +1,10 @@
+#include "pcheader.h"
 #include "Action.h"
 
-namespace OverEditor
+namespace OverEngine
 {
+	ActionStack* ActionStack::s_ActiveInstance = nullptr;
+
 	void ActionStack::Reset()
 	{
 		m_UndoStack.clear();

@@ -1,14 +1,12 @@
 #pragma once
 
-#include "UIElements.h"
-#include "EditorLayer.h"
-
+#include <OverEngine/ImGui/UIElements.h>
 #include <OverEngine/Scene/Components.h>
+#include <OverEngine/Core/Runtime/Reflection/TypeInfo.h>
 #include <imgui/imgui.h>
 
-
 #define ECS_ACTION_FUNCS(T, setter, getter)       \
-	[entity]() {                                  \
+	[entity]() -> Variant {                       \
 		return entity.GetComponent<T>().getter(); \
 	},                                            \
 	[entity](const auto& v) {                     \
@@ -28,7 +26,7 @@
 		return (int)entity.GetComponent<T>().getter();  \
 	},                                                  \
 	[entity](const auto& v) {                           \
-		entity.GetComponent<T>().setter((EnumT)v);      \
+		entity.GetComponent<T>().setter((EnumT)std::any_cast<int>(v)); \
 	}
 
 #define ECS_FLAG_ACTION_VALUE(T, flag, reference_getter)                   \
@@ -46,88 +44,23 @@ namespace OverEditor
 	template<typename T>
 	void ComponentEditor(Entity entity, uint32_t typeID)
 	{
+		UIElements::BeginFieldGroup();
+
+		const auto& props = dynamic_cast<ObjectTypeInfo*>(TypeResolver<T>::Get())->PropertiesOrder;
+		for (const auto& prop : props)
+		{
+			prop->Type->DrawInspectorGUI(prop->InspectorName.c_str(), [entity]() { return (void*)&entity.GetComponent<T>(); }, prop->Getter, prop->Setter, prop->Hint);
+		}
+
+		UIElements::EndFieldGroup();
+
+#if 0
 		if (UIElements::BeginComponentEditor<T>(entity, entity.GetComponent<T>().GetName(), typeID))
 			ImGui::TextUnformatted("No Overloaded function for this component found!");
+#endif
 	}
 
 	// Overloads
-	template<>
-	void ComponentEditor<TransformComponent>(Entity entity, uint32_t typeID)
-	{
-		if (UIElements::BeginComponentEditor<TransformComponent>(entity, "Transform", typeID))
-		{
-			UIElements::BeginFieldGroup();
-
-			UIElements::DragFloat3Field_U("Position", "##Position",
-			    ECS_ACTION_FUNCS(TransformComponent, SetLocalPosition, GetLocalPosition)
-			    , 0.2f
-            );
-
-			UIElements::DragFloat3Field_U("Rotation", "##Rotation",
-				ECS_ACTION_FUNCS(TransformComponent, SetLocalEulerAngles, GetLocalEulerAngles)
-				, 0.2f
-            );
-
-			UIElements::DragFloat3Field_U("Scale", "##Scale",
-				ECS_ACTION_FUNCS(TransformComponent, SetLocalScale, GetLocalScale)
-				, 0.2f
-            );
-
-			UIElements::EndFieldGroup();
-
-			#if 0
-			ImGui::Text("%i", transform.GetChangedFlags());
-
-			ImGui::PushItemWidth(-1);
-			ImGui::InputFloat4("", (float*)&tc.GetLocalToWorld()[0].x, "%.3f", ImGuiInputTextFlags_ReadOnly);
-			ImGui::InputFloat4("", (float*)&tc.GetLocalToWorld()[1].x, "%.3f", ImGuiInputTextFlags_ReadOnly);
-			ImGui::InputFloat4("", (float*)&tc.GetLocalToWorld()[2].x, "%.3f", ImGuiInputTextFlags_ReadOnly);
-			ImGui::InputFloat4("", (float*)&tc.GetLocalToWorld()[3].x, "%.3f", ImGuiInputTextFlags_ReadOnly);
-			ImGui::PopItemWidth();
-			#endif
-		}
-	}
-
-	template<>
-	void ComponentEditor<SpriteRendererComponent>(Entity entity, uint32_t typeID)
-	{
-		if (UIElements::BeginComponentEditor<SpriteRendererComponent>(entity, "SpriteRenderer", typeID))
-		{
-			UIElements::BeginFieldGroup();
-
-			auto& sp = entity.GetComponent<SpriteRendererComponent>();
-
-			UIElements::Color4Field_U("Tint", "##Tint",
-				ECS_ACTION_VALUE(SpriteRendererComponent, Tint)
-			);
-
-			UIElements::Texture2DField("Sprite", "##Sprite", sp.Sprite);
-
-			if (sp.Sprite && !sp.Sprite->IsRefrence())
-			{
-				UIElements::CheckboxField_U("Flip.x", "##Flip.x",
-					ECS_FLAG_ACTION_VALUE(SpriteRendererComponent, TextureFlip_X, Flip)
-				);
-				UIElements::CheckboxField_U("Flip.y", "##Flip.y",
-					ECS_FLAG_ACTION_VALUE(SpriteRendererComponent, TextureFlip_Y, Flip)
-				);
-
-				UIElements::DragFloat2Field_U("Tiling", "##Tiling",
-					ECS_ACTION_VALUE(SpriteRendererComponent, Tiling), 0.02f
-				);
-				UIElements::DragFloat2Field_U("Offset", "##Offset",
-					ECS_ACTION_VALUE(SpriteRendererComponent, Offset), 0.02f
-				);
-
-				UIElements::CheckboxField_U("ForceTile", "##ForceTile",
-					ECS_ACTION_VALUE(SpriteRendererComponent, ForceTile)
-				);
-			}
-
-			UIElements::EndFieldGroup();
-		}
-	}
-
 	template<>
 	void ComponentEditor<CameraComponent>(Entity entity, uint32_t typeID)
 	{
@@ -135,29 +68,29 @@ namespace OverEditor
 		{
             UIElements::BeginFieldGroup();
 
-            UIElements::Color4Field_U("Clear Color", "##Clear Color",
+            UIElements::Color4Field_U("Clear Color",
                 ECS_ACTION_FUNCS(CameraComponent, Camera.SetClearColor, Camera.GetClearColor)
             );
 
             // TODO: Perspective Camera
-            UIElements::DragFloatField_U("Orthographic Size", "##Orthographic Size",
+            UIElements::DragFloatField_U("Orthographic Size",
 				ECS_ACTION_FUNCS(CameraComponent, Camera.SetOrthographicSize, Camera.GetOrthographicSize),
 				0.5f, 0.0001f, FLT_MAX
 			);
 
-            UIElements::DragFloatField_U("OrthographicNearClip", "##OrthographicNearClip",
+            UIElements::DragFloatField_U("Orthographic NearClip",
 				ECS_ACTION_FUNCS(CameraComponent, Camera.SetOrthographicNearClip, Camera.GetOrthographicNearClip), 0.5f
 			);
 
-            UIElements::DragFloatField_U("OrthographicFarClip", "##OrthographicFarClip",
+            UIElements::DragFloatField_U("Orthographic FarClip",
 				ECS_ACTION_FUNCS(CameraComponent, Camera.SetOrthographicFarClip, Camera.GetOrthographicFarClip), 0.5f
 			);
 
-			UIElements::CheckboxField_U("Is Clearing Color", "##Is Clearing Color",
+			UIElements::CheckboxField_U("Is Clearing Color",
 				ECS_FLAG_ACTION_VALUE(CameraComponent, ClearFlags_ClearColor, Camera.GetClearFlags())
 			);
 
-			UIElements::CheckboxField_U("Is Clearing Depth", "##Is Clearing Depth",
+			UIElements::CheckboxField_U("Is Clearing Depth",
 				ECS_FLAG_ACTION_VALUE(CameraComponent, ClearFlags_ClearDepth, Camera.GetClearFlags())
 			);
 
@@ -177,10 +110,10 @@ namespace OverEditor
 				{ 1, "Static" }, { 2, "Kinematic" }, { 3,"Dynamic" }
 			};
 
-            UIElements::BasicEnum_U("Type", "##Type", typeValues, ECS_ENUM_ACTION_FUNCS(RigidBody2DComponent, RigidBody2DType, RigidBody->SetType, RigidBody->GetType));
+//            UIElements::BasicEnum_U("Type", typeValues, false, ECS_ENUM_ACTION_FUNCS(RigidBody2DComponent, RigidBody2DType, RigidBody->SetType, RigidBody->GetType));
 
-            UIElements::DragFloat2Field_U("LinearVelocity", "##LinearVelocity", ECS_ACTION_FUNCS(RigidBody2DComponent, RigidBody->SetLinearVelocity, RigidBody->GetLinearVelocity));
-            UIElements::DragFloatField_U("AngularVelocity", "##AngularVelocity", ECS_ACTION_FUNCS(RigidBody2DComponent, RigidBody->SetAngularVelocity, RigidBody->GetAngularVelocity));
+            UIElements::DragFloat2Field_U("LinearVelocity", ECS_ACTION_FUNCS(RigidBody2DComponent, RigidBody->SetLinearVelocity, RigidBody->GetLinearVelocity));
+            UIElements::DragFloatField_U("AngularVelocity", ECS_ACTION_FUNCS(RigidBody2DComponent, RigidBody->SetAngularVelocity, RigidBody->GetAngularVelocity));
 
 //			UIElements::DragFloatField_U("LinearDamping", "##LinearDamping", ECS_ACTION_FUNCS(RigidBody2DComponent, RigidBody.Linea));
 //			UIElements::DragFloatField("AngularDamping", "##AngularDamping", &rbc.Initializer.AngularDamping);

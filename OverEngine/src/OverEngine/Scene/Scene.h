@@ -25,7 +25,7 @@ namespace OverEngine
 
 	class Scene : public Asset
 	{
-		OE_CLASS(Scene)
+		OE_CLASS_NO_REFLECT(Scene, Asset)
 
 	public:
 		Scene(const SceneSettings& settings = SceneSettings());

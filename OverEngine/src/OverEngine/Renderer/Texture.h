@@ -10,6 +10,8 @@ namespace OverEngine
 {
 	class Texture : public Asset
 	{
+		OE_CLASS_NO_REFLECT(Texture, Asset)
+
 	public:
 		virtual ~Texture() = default;
 
@@ -39,7 +41,7 @@ namespace OverEngine
 
 	class Texture2D : public Texture
 	{
-		OE_CLASS(Texture2D)
+		OE_CLASS_NO_REFLECT(Texture2D, Texture)
 
 	public:
 		static Ref<Texture2D> Create(const String& path);
@@ -48,7 +50,7 @@ namespace OverEngine
 
 	class SubTexture2D : public Texture2D
 	{
-		OE_CLASS(SubTexture2D)
+		OE_CLASS_NO_REFLECT(SubTexture2D, Texture2D)
 
 	public:
 		static Ref<Texture2D> Create(const Ref<Texture2D>& texture, const Rect& rect);

@@ -4,6 +4,7 @@
 #include "Scene.h"
 
 #include "OverEngine/Core/Core.h"
+#include "OverEngine/Core/Object.h"
 #include "OverEngine/Core/Math/Math.h"
 #include "OverEngine/Core/Random.h"
 
@@ -17,76 +18,51 @@
 
 namespace OverEngine
 {
-	class Scene;
-
-	enum class ComponentType
+	struct Component : public Object
 	{
-		NameComponent, IDComponent, ActivationComponent, TransformComponent,
-		CameraComponent, SpriteRendererComponent,
-		RigidBody2DComponent, Colliders2DComponent,
-		NativeScriptsComponent, LuaScriptsComponent
-	};
-
-	#define COMPONENT_TYPE(type) static ComponentType GetStaticType() { return ComponentType::type; }\
-								 virtual ComponentType GetComponentType() const override { return GetStaticType(); }\
-								 virtual const char* GetName() const override { return #type; }\
-								 static const char* GetStaticName() { return #type; }
-
-	struct Component
-	{
-		Component(const Entity& attachedEntity, bool enabled = true)
-			: AttachedEntity(attachedEntity), Enabled(enabled) {}
+		OE_CLASS_NO_REFLECT_PUBLIC(Component, Object)
 
 		Entity AttachedEntity;
 		bool Enabled = true;
 
-		virtual ComponentType GetComponentType() const = 0;
-		virtual const char* GetName() const = 0;
+		Component(const Entity& attachedEntity, bool enabled = true)
+			: AttachedEntity(attachedEntity), Enabled(enabled) {}
 	};
 
 	////////////////////////////////////////////////////////
-	// Common Components ///////////////////////////////////
+	/// Common Components //////////////////////////////////
 	////////////////////////////////////////////////////////
 
 	struct NameComponent : public Component
 	{
-		String Name = String();
+		OE_CLASS_NO_REFLECT_PUBLIC(NameComponent, Component)
+
+		String Name;
 
 		NameComponent(const NameComponent&) = default;
 		NameComponent(const Entity& entity, const String& name)
 			: Component(entity), Name(name) {}
-
-		COMPONENT_TYPE(NameComponent)
 	};
 
 	struct IDComponent : public Component
 	{
+		OE_CLASS_NO_REFLECT_PUBLIC(IDComponent, Component)
+
 		uint64_t ID = Random::UInt64();
 
 		IDComponent(const IDComponent&) = default;
 		IDComponent(const Entity& entity, const uint64_t& id)
 			: Component(entity), ID(id) {}
-
-		COMPONENT_TYPE(IDComponent)
-	};
-
-	struct ActivationComponent : public Component
-	{
-		bool IsActive;
-
-		ActivationComponent(const ActivationComponent&) = default;
-		ActivationComponent(const Entity& entity, bool isActive)
-			: Component(entity), IsActive(isActive) {}
-
-		COMPONENT_TYPE(ActivationComponent)
 	};
 
 	////////////////////////////////////////////////////////
-	// Renderer Components /////////////////////////////////
+	/// Renderer Components ////////////////////////////////
 	////////////////////////////////////////////////////////
 
 	struct CameraComponent : public Component
 	{
+		OE_CLASS_NO_REFLECT_PUBLIC(CameraComponent, Component)
+
 		SceneCamera Camera;
 		bool FixedAspectRatio = false;
 
@@ -97,24 +73,23 @@ namespace OverEngine
 
 		CameraComponent(const Entity& entity)
 			: Component(entity) {}
-
-		COMPONENT_TYPE(CameraComponent)
 	};
 
 	struct SpriteRendererComponent : public Component
 	{
+		OE_CLASS_PUBLIC(SpriteRendererComponent, Component)
+
 		Color Tint = Color(1.0f);
 
 		Ref<Texture2D> Sprite;
 
 		Vector2 Tiling = Vector2(1.0f);
 		Vector2 Offset = Vector2(0.0f);
-		TextureFlip Flip = 0;
+		TextureFlip Flip = TextureFlip_None;
 
 		// Useful for SubTextures
 		bool ForceTile = false;
 
-	public:
 		SpriteRendererComponent(const SpriteRendererComponent&) = default;
 
 		SpriteRendererComponent(const Entity& entity, Ref<Texture2D> sprite = nullptr)
@@ -122,42 +97,36 @@ namespace OverEngine
 
 		SpriteRendererComponent(const Entity& entity, Ref<Texture2D> sprite, const Color& tint)
 			: Component(entity), Sprite(sprite), Tint(tint) {}
-
-		COMPONENT_TYPE(SpriteRendererComponent)
 	};
 
 	////////////////////////////////////////////////////////
-	// Physics Components //////////////////////////////////
+	/// Physics Components /////////////////////////////////
 	////////////////////////////////////////////////////////
 
 	struct RigidBody2DComponent : public Component
 	{
+		OE_CLASS_NO_REFLECT_PUBLIC(RigidBody2DComponent, Component)
+
 		Ref<RigidBody2D> RigidBody = nullptr;
 
 		RigidBody2DComponent(const RigidBody2DComponent& other)
-		    : Component(other.AttachedEntity)
-        {
-		    RigidBody = RigidBody2D::Create(other.RigidBody->GetProps());
-        }
+		    : Component(other.AttachedEntity), RigidBody(RigidBody2D::Create(other.RigidBody->GetProps())) {}
 
 		RigidBody2DComponent(const Entity& entity, const RigidBody2DProps& props = RigidBody2DProps())
-			: Component(entity)
-		{
-			RigidBody = RigidBody2D::Create(props);
-		}
+			: Component(entity), RigidBody(RigidBody2D::Create(props)) {}
 
 		~RigidBody2DComponent()
 		{
 			if (RigidBody && RigidBody->IsDeployed())
 				RigidBody->UnDeploy();
 		}
-
-		COMPONENT_TYPE(RigidBody2DComponent)
 	};
 
 	// Store's all colliders attached to an Entity
 	struct Colliders2DComponent : public Component
 	{
+		OE_CLASS_NO_REFLECT_PUBLIC(Colliders2DComponent, Component)
+
 		Vector<Ref<Collider2D>> Colliders;
 
 		Colliders2DComponent(const Colliders2DComponent& other)
@@ -171,16 +140,16 @@ namespace OverEngine
 
 		Colliders2DComponent(const Entity& entity)
 			: Component(entity) {}
-
-		COMPONENT_TYPE(Colliders2DComponent)
 	};
 
 	////////////////////////////////////////////////////////
-	// Script Components ///////////////////////////////////
+	/// Script Components //////////////////////////////////
 	////////////////////////////////////////////////////////
 
 	struct NativeScriptsComponent : public Component
 	{
+		OE_CLASS_NO_REFLECT_PUBLIC(NativeScriptsComponent, Component)
+
 		struct ScriptData
 		{
 			ScriptableEntity* Instance = nullptr;
@@ -197,7 +166,6 @@ namespace OverEngine
 
 		bool Runtime = false;
 		UnorderedMap<size_t, ScriptData> Scripts;
-
 
 		// Don't copy 'Scripts' to other instance when 'Runtime' is true; since it will lead to double free on entt::registry::destroy
 		NativeScriptsComponent(const NativeScriptsComponent& other)
@@ -217,7 +185,7 @@ namespace OverEngine
 
 			if (HasScript(hash))
 			{
-				OE_CORE_ASSERT(false, "Script is already attached to Entity!");
+				OE_CORE_ASSERT(false, "Script of `typeid().hash_code() = {}` is already attached to Entity {0:x} (named `{}`)!", hash, AttachedEntity.GetComponent<IDComponent>().ID, AttachedEntity.GetComponent<NameComponent>().Name);
 				return;
 			}
 
@@ -237,65 +205,21 @@ namespace OverEngine
 
 			if (Runtime)
 			{
-				auto& script = Scripts[hash];
+				auto& script = Scripts.at(hash);
 				script.Instance = script.InstantiateScript();
 			}
 		}
 
 		template<typename T>
-		T& GetScript()
-		{
-			return *((T*)Scripts[typeid(T).hash_code()].Instance);
-		}
+		inline T& GetScript() { return *((T*)Scripts[typeid(T).hash_code()].Instance); }
 
 		template<typename T>
-		bool HasScript()
-		{
-			return HasScript(typeid(T).hash_code());
-		}
-
-		bool HasScript(size_t hash)
-		{
-			return Scripts.count(hash);
-		}
+		inline bool HasScript() { return HasScript(typeid(T).hash_code()); }
 
 		template<typename T>
-		void RemoveScript()
-		{
-			RemoveScript(typeid(T).hash_code());
-		}
+		inline void RemoveScript() { RemoveScript(typeid(T).hash_code()); }
 
-		void RemoveScript(size_t hash)
-		{
-			if (!HasScript(hash))
-			{
-				OE_CORE_ASSERT(false, "Script is not attached to Entity!");
-				return;
-			}
-
-			if (Runtime)
-			{
-				auto& script = Scripts[hash];
-				script.DestroyScript(&script);
-			}
-
-			Scripts.erase(hash);
-		}
-
-		COMPONENT_TYPE(NativeScriptsComponent)
-	};
-
-	struct LuaScriptsComponent : public Component
-	{
-		// TODO: Store compiled bytecode instead of raw string
-		// name => source
-		UnorderedMap<String, String> Scripts;
-
-		LuaScriptsComponent(const LuaScriptsComponent&) = default;
-
-		LuaScriptsComponent(const Entity& entity)
-			: Component(entity) {}
-
-		COMPONENT_TYPE(LuaScriptsComponent)
+		inline bool HasScript(size_t hash) const { return Scripts.count(hash); }
+		void RemoveScript(size_t hash);
 	};
 }

@@ -5,6 +5,20 @@
 
 namespace OverEngine
 {
+	ObjectTypeInfo* Asset::Reflect()
+	{
+		static ObjectTypeInfo* typeInfo = nullptr;
+
+		if (!typeInfo)
+		{
+			typeInfo = new ObjectTypeInfo(GetStaticClassName(), sizeof(Asset), dynamic_cast<ObjectTypeInfo*>(TypeResolver<Object>::Get()));
+
+			ADD_GET_SET_PROPERTY_READ_ONLY(Asset, Name, GetName)
+		}
+
+		return typeInfo;
+	}
+
 	void Asset::SetGuid(const uint64_t& guid)
 	{
 		Ref<Asset> me = AssetDatabase::s_Registry[m_Guid];

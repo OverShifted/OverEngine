@@ -194,4 +194,28 @@ namespace OverEngine
 		union { T x, u, s; };
 		union { T y, v, t; };
 	};
+
+	using Oracle = std::function<void*()>;
+
+	template<typename T>
+	struct PointerToMemberDecomposer {};
+
+	template<typename T, typename P>
+	struct PointerToMemberDecomposer<P T::*>
+	{
+		using ClassType = T;
+		using MemberType = P;
+	};
+
+	template<typename T, typename Enable = void>
+	struct EnumType
+	{
+		using Type = T;
+	};
+
+	template<typename T>
+	struct EnumType<T, std::enable_if_t<std::is_enum_v<T>>>
+	{
+		using Type = std::underlying_type_t<T>;
+	};
 }
