@@ -34,7 +34,7 @@ namespace OverEngine
 		m_NextParticleIndex = ++m_NextParticleIndex % (uint32_t)m_ParticlePool.size();
 	}
 
-	void ParticleSystem2D:: UpdateAndRender(TimeStep deltaTime, const Mat4x4& viewMatrix, const Camera& camera, bool useDepthTesting)
+	void ParticleSystem2D::UpdateAndRender(TimeStep deltaTime, const Mat4x4& viewMatrix, const Camera& camera, bool useDepthTesting)
 	{
 		bool depthTestWasEnabled = RenderCommand::IsDepthTestingEnabled();
 		bool badDepthTestingState = useDepthTesting != depthTestWasEnabled;

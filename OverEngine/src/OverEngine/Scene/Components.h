@@ -110,7 +110,21 @@ namespace OverEngine
 		Ref<RigidBody2D> RigidBody = nullptr;
 
 		RigidBody2DComponent(const RigidBody2DComponent& other)
-		    : Component(other.AttachedEntity), RigidBody(RigidBody2D::Create(other.RigidBody->GetProps())) {}
+			: Component(other.AttachedEntity), RigidBody(other.RigidBody) {}
+
+		RigidBody2DComponent(RigidBody2DComponent&& other)
+			: Component(other.AttachedEntity)
+		{
+			if (other.RigidBody && !other.RigidBody->IsDeployed())
+				RigidBody = other.RigidBody;
+		}
+
+		void operator=(RigidBody2DComponent&& other)
+		{
+			AttachedEntity = other.AttachedEntity;
+			if (other.RigidBody && !other.RigidBody->IsDeployed())
+				RigidBody = other.RigidBody;
+		}
 
 		RigidBody2DComponent(const Entity& entity, const RigidBody2DProps& props = RigidBody2DProps())
 			: Component(entity), RigidBody(RigidBody2D::Create(props)) {}
@@ -130,13 +144,13 @@ namespace OverEngine
 		Vector<Ref<Collider2D>> Colliders;
 
 		Colliders2DComponent(const Colliders2DComponent& other)
-		    : Component(other.AttachedEntity)
-        {
-		    for (const auto& collider : other.Colliders)
-            {
-		        Colliders.push_back(Collider2D::Create(collider->GetProps()));
-            }
-        }
+			: Component(other.AttachedEntity)
+		{
+			for (const auto& collider : other.Colliders)
+			{
+				Colliders.push_back(Collider2D::Create(collider->GetProps()));
+			}
+		}
 
 		Colliders2DComponent(const Entity& entity)
 			: Component(entity) {}
@@ -167,7 +181,7 @@ namespace OverEngine
 		bool Runtime = false;
 		UnorderedMap<size_t, ScriptData> Scripts;
 
-		// Don't copy 'Scripts' to other instance when 'Runtime' is true; since it will lead to double free on entt::registry::destroy
+		// Don't copy 'Scripts' to other instance when `Runtime` is true; since it will lead to double free on entt::registry::destroy
 		NativeScriptsComponent(const NativeScriptsComponent& other)
 			: Component(other.AttachedEntity)
 		{

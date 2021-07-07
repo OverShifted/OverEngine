@@ -29,7 +29,7 @@ namespace OverEngine
 
 		static void Reset();
 
-		static void BeginScene(const Mat4x4& viewMatrix, const Camera& camera);
+		static void BeginScene(const Mat4x4& viewMatrix, const Camera& camera, bool depthSorting = true);
 		static void EndScene();
 
 		static void StartBatch();

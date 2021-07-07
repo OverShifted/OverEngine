@@ -43,6 +43,7 @@ namespace OverEngine
 		std::array<Ref<Texture2D>, MaxTextureCount> TextureBindList;
 
 		Mat4x4 ViewProjectionMatrix;
+		bool DepthSorting;
 	};
 
 	static Renderer2DData* s_Data;
@@ -120,9 +121,11 @@ namespace OverEngine
 		s_Statistics.Reset();
 	}
 
-	void Renderer2D::BeginScene(const Mat4x4& viewMatrix, const Camera& camera)
+	void Renderer2D::BeginScene(const Mat4x4& viewMatrix, const Camera& camera, bool depthSorting)
 	{
 		s_Data->ViewProjectionMatrix = camera.GetProjection() * viewMatrix;
+		s_Data->DepthSorting = depthSorting;
+
 		Reset();
 		StartBatch();
 	}
@@ -152,10 +155,13 @@ namespace OverEngine
 		if (s_Data->QuadCount == 0)
 			return;
 
-		std::sort(s_Data->QuadBufferBasePtr, s_Data->QuadBufferBasePtr + s_Data->QuadCount + 1, [](const Vertex& a, const Vertex& b)
+		if (s_Data->DepthSorting)
 		{
-			return a.a_Position0.z > b.a_Position0.z;
-		});
+			std::sort(s_Data->QuadBufferBasePtr, s_Data->QuadBufferBasePtr + s_Data->QuadCount, [](const Vertex& a, const Vertex& b)
+			{
+				return a.a_Position0.z > b.a_Position0.z;
+			});
+		}
 
 		// Upload Data
 		s_Data->QuadVB->BufferSubData((void*)s_Data->QuadBufferBasePtr, s_Data->QuadCount * sizeof(Vertex));

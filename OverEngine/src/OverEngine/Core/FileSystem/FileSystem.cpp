@@ -52,9 +52,9 @@ namespace OverEngine
 		return path;
 	}
 
-	void FileSystem::FixPath(String* path_ptr)
+	void FileSystem::FixPath(String* pathPtr)
 	{
-		String& path = *path_ptr;
+		String& path = *pathPtr;
 
 		size_t backSlash = path.find_first_of('\\');
 		size_t nextCharPos = backSlash + 1;
