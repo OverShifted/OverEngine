@@ -23,7 +23,7 @@ namespace OverEngine
 
 	// Hard-coded Limits
 	static constexpr uint32_t MaxTextureCount = 32;
-	static const uint32_t MaxQuadCount = 1000000;
+	static constexpr uint32_t MaxQuadCount = 1000000;
 	
 	struct Renderer2DData
 	{
@@ -151,6 +151,11 @@ namespace OverEngine
 		// Nothing to draw
 		if (s_Data->QuadCount == 0)
 			return;
+
+		std::sort(s_Data->QuadBufferBasePtr, s_Data->QuadBufferBasePtr + s_Data->QuadCount + 1, [](const Vertex& a, const Vertex& b)
+		{
+			return a.a_Position0.z > b.a_Position0.z;
+		});
 
 		// Upload Data
 		s_Data->QuadVB->BufferSubData((void*)s_Data->QuadBufferBasePtr, s_Data->QuadCount * sizeof(Vertex));
