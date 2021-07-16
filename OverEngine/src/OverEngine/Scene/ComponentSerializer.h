@@ -202,6 +202,8 @@ namespace OverEngine
 			out << YAML::Key << "Colliders" << YAML::Value << YAML::BeginSeq; // Colliders
 			for (const auto& collider : c2c.Colliders)
 			{
+				#if 0
+
 				const auto& props = collider->GetProps();
 
 				out << YAML::BeginMap;
@@ -230,6 +232,8 @@ namespace OverEngine
 				out << YAML::Key << "BouncinessThreshold" << YAML::Value << props.BouncinessThreshold;
 
 				out << YAML::EndMap;
+
+				#endif
 			}
 			out << YAML::EndSeq; // Colliders
 
@@ -238,6 +242,7 @@ namespace OverEngine
 
 		static bool Deserialize(YAML::Node data, Colliders2DComponent* object)
 		{
+			#if 0
 			Colliders2DComponent& c2c = *object;
 
 			for (auto collider : data["Colliders"])
@@ -275,6 +280,8 @@ namespace OverEngine
 
 				c2c.Colliders.push_back(Collider2D::Create(props));
 			}
+
+			#endif
 
 			return true;
 		}

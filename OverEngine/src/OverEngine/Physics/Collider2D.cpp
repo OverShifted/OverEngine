@@ -2,29 +2,43 @@
 #include "Collider2D.h"
 #include "RigidBody2D.h"
 
+#include "OverEngine/Scene/TransformComponent.h"
+
 #include <box2d/b2_polygon_shape.h>
 #include <box2d/b2_circle_shape.h>
 
 namespace OverEngine
 {
-	Ref<BoxCollisionShape2D> BoxCollisionShape2D::Create(Vector2 size, float rotation)
+	Ref<BoxCollisionShape2D> BoxCollisionShape2D::Create(const Vector2& size, const Vector2& offset, float rotation)
 	{
-		return CreateRef<BoxCollisionShape2D>(size, rotation);
+		return CreateRef<BoxCollisionShape2D>(size, offset, rotation);
 	}
 
-	BoxCollisionShape2D::BoxCollisionShape2D(Vector2 size, float rotation)
+	BoxCollisionShape2D::BoxCollisionShape2D(const Vector2& size, const Vector2& offset, float rotation)
 		: m_Size(size), m_Rotation(rotation)
 	{
 	}
 
-	void BoxCollisionShape2D::Invalidate(const Vector2& offset)
+	void BoxCollisionShape2D::Invalidate(const Mat4x4& transform)
 	{
 		m_Shape.SetAsBox(
 			m_Size.x / 2.0f,
 			m_Size.y / 2.0f,
-			b2Vec2(offset.x, offset.y),
+			{ m_Offset.x, m_Offset.y },
 			m_Rotation
 		);
+
+		std::array<b2Vec2, b2_maxPolygonVertices> transformedVertices;
+
+		for (int i = 0; i < m_Shape.m_count; i++)
+		{
+			Vector4 vertex = { m_Shape.m_vertices[i].x, m_Shape.m_vertices[i].y, 0.0f, 0.0f };
+			vertex = vertex * transform;
+
+			transformedVertices[i] = b2Vec2(vertex.x, vertex.y);
+		}
+
+		m_Shape.Set(transformedVertices.data(), m_Shape.m_count);
 	}
 
 	Ref<CircleCollisionShape2D> CircleCollisionShape2D::Create(float radius)
@@ -37,9 +51,10 @@ namespace OverEngine
 	{
 	}
 
-	void CircleCollisionShape2D::Invalidate(const Vector2& offset)
+	void CircleCollisionShape2D::Invalidate(const Mat4x4& transform)
 	{
-		m_Shape.m_p.Set(offset.x, offset.y);
+		// TODO: Dynamic size
+		m_Shape.m_p.Set(m_Offset.x, m_Offset.y);
 		m_Shape.m_radius = m_Radius;
 	}
 
@@ -85,7 +100,13 @@ namespace OverEngine
 
 		b2FixtureDef def;
 
-		def.shape                = m_Props.Shape->GetBox2DShape(m_Props.Offset);
+		auto& bodyTransform = m_BodyHandle->GetProps().AttachedEntity.GetComponent<TransformComponent>();
+		Mat4x4 shapeTransform = glm::inverse(
+			glm::translate(Mat4x4(1.0f), { bodyTransform.GetPosition().x, bodyTransform.GetPosition().y, 0.0f }) *
+			glm::rotate(Mat4x4(1.0f), glm::radians(bodyTransform.GetLocalEulerAngles().z), Vector3(0, 0, 1))
+		) * m_Props.AttachedEntity.GetComponent<TransformComponent>().GetLocalToWorld();
+
+		def.shape                = m_Props.Shape->GetBox2DShape(shapeTransform);
 		def.friction             = m_Props.Friction;
 		def.restitution          = m_Props.Bounciness;
 		def.restitutionThreshold = m_Props.BouncinessThreshold;

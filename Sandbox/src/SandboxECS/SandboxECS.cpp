@@ -44,7 +44,7 @@ SandboxECS::SandboxECS()
 			auto& playerColliderList = m_Player.AddComponent<Colliders2DComponent>();
 			Collider2DProps props;
 			props.Shape = CircleCollisionShape2D::Create(0.5f);
-			props.Bounciness = 0.0f;
+			props.Bounciness = 0.2f;
 			props.Friction = 100.0f;
 			props.Density = 1.0f;
 			playerColliderList.Colliders.push_back(Collider2D::Create(props));
@@ -79,7 +79,7 @@ SandboxECS::SandboxECS()
 		{
 			auto& colliderList = obstacle.AddComponent<Colliders2DComponent>();
 			Collider2DProps props;
-			props.Shape = BoxCollisionShape2D::Create({ 4.0f, 1.0f });
+			props.Shape = BoxCollisionShape2D::Create({ 1.0f, 1.0f });
 			props.Bounciness = 0.3f;
 			props.Friction = 1.0f;
 			props.Density = 200.0f;
@@ -115,7 +115,7 @@ SandboxECS::SandboxECS()
 		{
 			auto& colliderList = obstacle.AddComponent<Colliders2DComponent>();
 			Collider2DProps props;
-			props.Shape = BoxCollisionShape2D::Create({ 4000.0f, 1.0f });
+			props.Shape = BoxCollisionShape2D::Create({ 1.0f, 1.0f });
 			props.Bounciness = 0.3f;
 			props.Friction = 1.0f;
 			props.Density = 200.0f;

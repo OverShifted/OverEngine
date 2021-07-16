@@ -16,21 +16,25 @@ namespace OverEngine
 		Circle
 	};
 
+	// TODO: Inherit `Asset`
 	class CollisionShape2D
 	{
 	public:
 		virtual CollisionShape2DType GetType() const = 0;
-		virtual b2Shape* GetBox2DShape(const Vector2& offset) = 0;
+		virtual b2Shape* GetBox2DShape(const Mat4x4& transform) = 0;
+
+	protected:
+		Vector2 m_Offset = { 0.0f, 0.0f };
 	};
 
 	class BoxCollisionShape2D : public CollisionShape2D
 	{
 	public:
-		static Ref<BoxCollisionShape2D> Create(Vector2 size, float rotation = 0.0f);
-		BoxCollisionShape2D(Vector2 size, float rotation);
+		static Ref<BoxCollisionShape2D> Create(const Vector2& size, const Vector2& offset = { 0.0f, 0.0f }, float rotation = 0.0f);
+		BoxCollisionShape2D(const Vector2& size, const Vector2& offset, float rotation);
 
 		virtual CollisionShape2DType GetType() const override { return CollisionShape2DType::Box; }
-		virtual b2Shape* GetBox2DShape(const Vector2& offset) override { Invalidate(offset); return &m_Shape; }
+		virtual b2Shape* GetBox2DShape(const Mat4x4& transform) override { Invalidate(transform); return &m_Shape; }
 
 		const Vector2& GetSize() const { return m_Size; }
 		void SetSize(const Vector2& size) { m_Size = size; }
@@ -39,7 +43,7 @@ namespace OverEngine
 		void SetRotation(float rotation) { m_Rotation = rotation; }
 	
 	private:
-		void Invalidate(const Vector2& offset);
+		void Invalidate(const Mat4x4& transform);
 		b2PolygonShape m_Shape;
 
 		Vector2 m_Size;
@@ -53,13 +57,13 @@ namespace OverEngine
 		CircleCollisionShape2D(float radius);
 
 		virtual CollisionShape2DType GetType() const override { return CollisionShape2DType::Circle; }
-		virtual b2Shape* GetBox2DShape(const Vector2& offset) override { Invalidate(offset); return &m_Shape; }
+		virtual b2Shape* GetBox2DShape(const Mat4x4& transform) override { Invalidate(transform); return &m_Shape; }
 
 		float GetRadius() const { return m_Radius; }
 		void SetRadius(float radius) { m_Radius = radius; }
-	
+
 	private:
-		void Invalidate(const Vector2& offset);
+		void Invalidate(const Mat4x4& transform);
 		b2CircleShape m_Shape;
 
 		float m_Radius;
@@ -69,8 +73,6 @@ namespace OverEngine
 	{
 		Entity AttachedEntity = Entity();
 
-		// Shape
-		Vector2 Offset{ 0.0f, 0.0f };
 		Ref<CollisionShape2D> Shape = nullptr;
 
 		// Surface Properties
@@ -102,9 +104,6 @@ namespace OverEngine
 		const Collider2DProps& GetProps() const { return m_Props; }
 
 		RigidBody2D* GetAttachedBody() const { return m_BodyHandle; }
-
-		inline const Vector2& GetOffset() const { return m_Props.Offset; }
-		void SetOffset(const Vector2& offset) { m_Props.Offset = offset; Invalidate(); }
 
 		inline float GetFriction() const { return m_Props.Friction; }
 		inline void SetFriction(float friction) { m_Props.Friction = friction; Invalidate(); }

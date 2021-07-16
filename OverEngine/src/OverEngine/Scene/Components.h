@@ -126,6 +126,12 @@ namespace OverEngine
 				RigidBody = other.RigidBody;
 		}
 
+		void operator=(const RigidBody2DComponent& other)
+		{
+			AttachedEntity = other.AttachedEntity;
+			RigidBody = RigidBody2D::Create(other.RigidBody->GetProps());
+		}
+
 		RigidBody2DComponent(const Entity& entity, const RigidBody2DProps& props = RigidBody2DProps())
 			: Component(entity), RigidBody(RigidBody2D::Create(props)) {}
 
