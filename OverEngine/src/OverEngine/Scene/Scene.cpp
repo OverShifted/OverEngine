@@ -21,20 +21,6 @@ namespace OverEngine
 	{
 	}
 
-	template<typename T>
-	void CopyComponents_fn(entt::registry& src, entt::registry& dst, Scene* dstScene)
-	{
-		auto view = src.view<T>();
-		dst.insert<T>(view.data(), view.data() + view.size(), view.raw(), view.raw() + view.size());
-
-		dst.view<T>().each([&dstScene](entt::entity entity, T& component)
-		{
-			component.AttachedEntity = { entity, dstScene };
-		});
-	}
-
-	#define CopyComponents(T) CopyComponents_fn<T>(other.m_Registry, m_Registry, this);
-
 	Scene::Scene(Scene& other)
 		: m_Registry(), m_ViewportWidth(other.m_ViewportWidth), m_ViewportHeight(other.m_ViewportHeight),
 		  m_RootHandles(other.m_RootHandles), m_ComponentList(other.m_ComponentList)
@@ -42,13 +28,13 @@ namespace OverEngine
 		const auto& reg = other.m_Registry;
 		m_Registry.assign(reg.data(), reg.data() + reg.size());
 
-		CopyComponents(NameComponent);
-		CopyComponents(IDComponent);
-		CopyComponents(TransformComponent);
-		CopyComponents(SpriteRendererComponent);
-		CopyComponents(CameraComponent);
-		CopyComponents(RigidBody2DComponent);
-		CopyComponents(Colliders2DComponent);
+		CopyComponentsFrom<NameComponent>(other);
+		CopyComponentsFrom<IDComponent>(other);
+		CopyComponentsFrom<TransformComponent>(other);
+		CopyComponentsFrom<SpriteRendererComponent>(other);
+		CopyComponentsFrom<CameraComponent>(other);
+		CopyComponentsFrom<RigidBody2DComponent>(other);
+		CopyComponentsFrom<Colliders2DComponent>(other);
 	}
 
 	Scene::~Scene()

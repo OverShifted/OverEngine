@@ -63,6 +63,20 @@ namespace OverEngine
 		void HandleCollision(const Collision2D& collision, bool enter);
 		void OnCollisionEnter(const Collision2D& collision);
 		void OnCollisionExit(const Collision2D& collision);
+
+	private:
+		template<typename T>
+		void CopyComponentsFrom(Scene& src)
+		{
+			auto view = src.m_Registry.view<T>();
+			m_Registry.insert<T>(view.data(), view.data() + view.size(), view.raw(), view.raw() + view.size());
+
+			m_Registry.view<T>().each([this](entt::entity entity, T& component)
+			{
+				component.AttachedEntity = { entity, this };
+			});
+		}
+
 	private:
 		entt::registry m_Registry;
 		PhysicsWorld2D* m_PhysicsWorld2D = nullptr;
