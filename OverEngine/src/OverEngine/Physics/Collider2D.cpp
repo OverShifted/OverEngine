@@ -32,9 +32,7 @@ namespace OverEngine
 
 		for (int i = 0; i < m_Shape.m_count; i++)
 		{
-			Vector4 vertex = { m_Shape.m_vertices[i].x, m_Shape.m_vertices[i].y, 0.0f, 0.0f };
-			vertex = vertex * transform;
-
+			Vector4 vertex = Vector4{ m_Shape.m_vertices[i].x, m_Shape.m_vertices[i].y, 0.0f, 0.0f } * transform;
 			transformedVertices[i] = b2Vec2(vertex.x, vertex.y);
 		}
 
