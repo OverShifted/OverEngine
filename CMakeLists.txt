@@ -6,9 +6,9 @@ endif()
 
 set(CMAKE_CXX_STANDARD 17)
 project(OverEngine
-		VERSION 0.0
-		DESCRIPTION "Opensource game engine under MIT license"
-		LANGUAGES C CXX)
+        VERSION 0.0
+        DESCRIPTION "Opensource game engine under MIT license"
+        LANGUAGES C CXX)
 
 # vendor
 add_subdirectory(OverEngine/vendor/GLFW)
