@@ -1,0 +1,100 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"install"
+		],
+		"files" : 
+		[
+			"OverEngine/vendor/GLFW/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 292,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 295,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 299,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 302,
+				"parent" : 0
+			}
+		]
+	},
+	"installers" : 
+	[
+		{
+			"backtrace" : 1,
+			"component" : "Unspecified",
+			"destination" : "include",
+			"paths" : 
+			[
+				"OverEngine/vendor/GLFW/include/GLFW"
+			],
+			"type" : "directory"
+		},
+		{
+			"backtrace" : 2,
+			"component" : "Unspecified",
+			"destination" : "lib/cmake/glfw3",
+			"paths" : 
+			[
+				"out/build/x64-Debug/OverEngine/vendor/GLFW/src/glfw3Config.cmake",
+				"out/build/x64-Debug/OverEngine/vendor/GLFW/src/glfw3ConfigVersion.cmake"
+			],
+			"type" : "file"
+		},
+		{
+			"backtrace" : 3,
+			"component" : "Unspecified",
+			"destination" : "lib/cmake/glfw3",
+			"exportName" : "glfwTargets",
+			"exportTargets" : 
+			[
+				{
+					"id" : "glfw::@b41bf066effd6bb8940e",
+					"index" : 33
+				}
+			],
+			"paths" : 
+			[
+				"OverEngine/vendor/GLFW/CMakeFiles/Export/lib/cmake/glfw3/glfw3Targets.cmake"
+			],
+			"type" : "export"
+		},
+		{
+			"backtrace" : 4,
+			"component" : "Unspecified",
+			"destination" : "lib/pkgconfig",
+			"paths" : 
+			[
+				"out/build/x64-Debug/OverEngine/vendor/GLFW/src/glfw3.pc"
+			],
+			"type" : "file"
+		}
+	],
+	"paths" : 
+	{
+		"build" : "OverEngine/vendor/GLFW",
+		"source" : "OverEngine/vendor/GLFW"
+	}
+}

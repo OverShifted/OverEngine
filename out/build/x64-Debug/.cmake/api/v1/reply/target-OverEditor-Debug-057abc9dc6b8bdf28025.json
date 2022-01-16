@@ -1,0 +1,458 @@
+{
+	"artifacts" : 
+	[
+		{
+			"path" : "OverEditor/OverEditor.exe"
+		},
+		{
+			"path" : "OverEditor/OverEditor.pdb"
+		}
+	],
+	"backtrace" : 1,
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"add_executable",
+			"target_link_libraries",
+			"target_include_directories"
+		],
+		"files" : 
+		[
+			"OverEditor/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 4,
+				"parent" : 0
+			},
+			{
+				"command" : 1,
+				"file" : 0,
+				"line" : 15,
+				"parent" : 0
+			},
+			{
+				"command" : 2,
+				"file" : 0,
+				"line" : 9,
+				"parent" : 0
+			}
+		]
+	},
+	"compileGroups" : 
+	[
+		{
+			"compileCommandFragments" : 
+			[
+				{
+					"fragment" : "/DWIN32 /D_WINDOWS /GR /EHsc /Zi /Ob0 /Od /RTC1 -MDd"
+				},
+				{
+					"fragment" : "-std:c++17"
+				},
+				{
+					"fragment" : "/YcC:/Users/lbmas/source/repos/larrymason01/OverEngine/out/build/x64-Debug/OverEditor/CMakeFiles/OverEditor.dir/cmake_pch.hxx /FpC:/Users/lbmas/source/repos/larrymason01/OverEngine/out/build/x64-Debug/OverEditor/CMakeFiles/OverEditor.dir/./cmake_pch.cxx.pch /FIC:/Users/lbmas/source/repos/larrymason01/OverEngine/out/build/x64-Debug/OverEditor/CMakeFiles/OverEditor.dir/cmake_pch.hxx"
+				}
+			],
+			"defines" : 
+			[
+				{
+					"backtrace" : 2,
+					"define" : "OE_DEBUG"
+				}
+			],
+			"includes" : 
+			[
+				{
+					"backtrace" : 3,
+					"path" : "C:/Users/lbmas/source/repos/larrymason01/OverEngine/OverEditor/src"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "C:/Users/lbmas/source/repos/larrymason01/OverEngine/OverEngine/src"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "C:/Users/lbmas/source/repos/larrymason01/OverEngine/OverEngine/vendor"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "C:/Users/lbmas/source/repos/larrymason01/OverEngine/OverEngine/vendor/spdlog/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "C:/Users/lbmas/source/repos/larrymason01/OverEngine/OverEngine/vendor/imgui"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "C:/Users/lbmas/source/repos/larrymason01/OverEngine/OverEngine/vendor/glm"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "C:/Users/lbmas/source/repos/larrymason01/OverEngine/OverEngine/vendor/stb"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "C:/Users/lbmas/source/repos/larrymason01/OverEngine/OverEngine/vendor/entt/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "C:/Users/lbmas/source/repos/larrymason01/OverEngine/OverEngine/vendor/box2d/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "C:/Users/lbmas/source/repos/larrymason01/OverEngine/OverEngine/vendor/json/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "C:/Users/lbmas/source/repos/larrymason01/OverEngine/OverEngine/vendor/fmt/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "C:/Users/lbmas/source/repos/larrymason01/OverEngine/OverEngine/vendor/yaml-cpp/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "C:/Users/lbmas/source/repos/larrymason01/OverEngine/OverEngine/vendor/efsw/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "C:/Users/lbmas/source/repos/larrymason01/OverEngine/OverEngine/vendor/box2d/src/../include"
+				}
+			],
+			"language" : "CXX",
+			"languageStandard" : 
+			{
+				"backtraces" : 
+				[
+					1
+				],
+				"standard" : "17"
+			},
+			"precompileHeaders" : 
+			[
+				{
+					"backtrace" : 2,
+					"header" : "C:/Users/lbmas/source/repos/larrymason01/OverEngine/OverEngine/src/pcheader.h"
+				}
+			],
+			"sourceIndexes" : 
+			[
+				0
+			]
+		},
+		{
+			"compileCommandFragments" : 
+			[
+				{
+					"fragment" : "/DWIN32 /D_WINDOWS /GR /EHsc /Zi /Ob0 /Od /RTC1 -MDd"
+				},
+				{
+					"fragment" : "-std:c++17"
+				},
+				{
+					"fragment" : "/YuC:/Users/lbmas/source/repos/larrymason01/OverEngine/out/build/x64-Debug/OverEditor/CMakeFiles/OverEditor.dir/cmake_pch.hxx /FpC:/Users/lbmas/source/repos/larrymason01/OverEngine/out/build/x64-Debug/OverEditor/CMakeFiles/OverEditor.dir/./cmake_pch.cxx.pch /FIC:/Users/lbmas/source/repos/larrymason01/OverEngine/out/build/x64-Debug/OverEditor/CMakeFiles/OverEditor.dir/cmake_pch.hxx"
+				}
+			],
+			"defines" : 
+			[
+				{
+					"backtrace" : 2,
+					"define" : "OE_DEBUG"
+				}
+			],
+			"includes" : 
+			[
+				{
+					"backtrace" : 3,
+					"path" : "C:/Users/lbmas/source/repos/larrymason01/OverEngine/OverEditor/src"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "C:/Users/lbmas/source/repos/larrymason01/OverEngine/OverEngine/src"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "C:/Users/lbmas/source/repos/larrymason01/OverEngine/OverEngine/vendor"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "C:/Users/lbmas/source/repos/larrymason01/OverEngine/OverEngine/vendor/spdlog/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "C:/Users/lbmas/source/repos/larrymason01/OverEngine/OverEngine/vendor/imgui"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "C:/Users/lbmas/source/repos/larrymason01/OverEngine/OverEngine/vendor/glm"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "C:/Users/lbmas/source/repos/larrymason01/OverEngine/OverEngine/vendor/stb"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "C:/Users/lbmas/source/repos/larrymason01/OverEngine/OverEngine/vendor/entt/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "C:/Users/lbmas/source/repos/larrymason01/OverEngine/OverEngine/vendor/box2d/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "C:/Users/lbmas/source/repos/larrymason01/OverEngine/OverEngine/vendor/json/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "C:/Users/lbmas/source/repos/larrymason01/OverEngine/OverEngine/vendor/fmt/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "C:/Users/lbmas/source/repos/larrymason01/OverEngine/OverEngine/vendor/yaml-cpp/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "C:/Users/lbmas/source/repos/larrymason01/OverEngine/OverEngine/vendor/efsw/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "C:/Users/lbmas/source/repos/larrymason01/OverEngine/OverEngine/vendor/box2d/src/../include"
+				}
+			],
+			"language" : "CXX",
+			"languageStandard" : 
+			{
+				"backtraces" : 
+				[
+					1
+				],
+				"standard" : "17"
+			},
+			"precompileHeaders" : 
+			[
+				{
+					"backtrace" : 2,
+					"header" : "C:/Users/lbmas/source/repos/larrymason01/OverEngine/OverEngine/src/pcheader.h"
+				}
+			],
+			"sourceIndexes" : 
+			[
+				1,
+				2,
+				3,
+				4,
+				5,
+				6
+			]
+		}
+	],
+	"dependencies" : 
+	[
+		{
+			"backtrace" : 2,
+			"id" : "glad::@8e98828bb35454047fd5"
+		},
+		{
+			"backtrace" : 2,
+			"id" : "glfw::@b41bf066effd6bb8940e"
+		},
+		{
+			"backtrace" : 2,
+			"id" : "imgui::@7d8436b6795bf79e30b1"
+		},
+		{
+			"backtrace" : 2,
+			"id" : "yaml-cpp::@fe45af0118899a3a08bf"
+		},
+		{
+			"backtrace" : 2,
+			"id" : "box2d::@6ff02b2d3700da87aa4b"
+		},
+		{
+			"backtrace" : 2,
+			"id" : "OverEngine::@66bafb55752bdd5c4c6e"
+		}
+	],
+	"id" : "OverEditor::@4d971771ae720bd02a4c",
+	"link" : 
+	{
+		"commandFragments" : 
+		[
+			{
+				"fragment" : "/DWIN32 /D_WINDOWS /GR /EHsc /Zi /Ob0 /Od /RTC1 -MDd",
+				"role" : "flags"
+			},
+			{
+				"fragment" : "/machine:x64 /debug /INCREMENTAL /subsystem:console",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "OverEngine\\OverEngine.lib",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "OverEngine\\vendor\\GLFW\\src\\glfw3.lib",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "OverEngine\\vendor\\glad\\glad.lib",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "OverEngine\\vendor\\imgui\\imgui.lib",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "OverEngine\\vendor\\box2d\\bin\\box2d.lib",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "OverEngine\\vendor\\yaml-cpp\\yaml-cppd.lib",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib",
+				"role" : "libraries"
+			}
+		],
+		"language" : "CXX"
+	},
+	"name" : "OverEditor",
+	"nameOnDisk" : "OverEditor.exe",
+	"paths" : 
+	{
+		"build" : "OverEditor",
+		"source" : "OverEditor"
+	},
+	"sourceGroups" : 
+	[
+		{
+			"name" : "Source Files",
+			"sourceIndexes" : 
+			[
+				0,
+				1,
+				2,
+				3,
+				4,
+				5,
+				6
+			]
+		},
+		{
+			"name" : "Header Files",
+			"sourceIndexes" : 
+			[
+				7,
+				8,
+				9,
+				10,
+				11,
+				12,
+				13
+			]
+		},
+		{
+			"name" : "Precompile Header File",
+			"sourceIndexes" : 
+			[
+				14
+			]
+		}
+	],
+	"sources" : 
+	[
+		{
+			"backtrace" : 0,
+			"compileGroupIndex" : 0,
+			"path" : "out/build/x64-Debug/OverEditor/CMakeFiles/OverEditor.dir/cmake_pch.cxx",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "OverEditor/src/Behavior/EditorProject.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "OverEditor/src/EditorApp.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "OverEditor/src/EditorLayer.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "OverEditor/src/UI/Panels/AssetsPanel.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "OverEditor/src/UI/Panels/SceneHierarchyPanel.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "OverEditor/src/UI/Panels/ViewportPanel.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEditor/src/Behavior/EditorProject.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEditor/src/Behavior/SceneEditor.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEditor/src/EditorLayer.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEditor/src/UI/ComponentEditor.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEditor/src/UI/Panels/AssetsPanel.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEditor/src/UI/Panels/SceneHierarchyPanel.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEditor/src/UI/Panels/ViewportPanel.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 0,
+			"path" : "out/build/x64-Debug/OverEditor/CMakeFiles/OverEditor.dir/cmake_pch.hxx",
+			"sourceGroupIndex" : 2
+		}
+	],
+	"type" : "EXECUTABLE"
+}

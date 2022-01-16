@@ -1,0 +1,634 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"childIndexes" : 
+					[
+						1,
+						3,
+						4,
+						5,
+						7,
+						9,
+						10,
+						11
+					],
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-Debug-d0094a50bb2071803777.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.16"
+					},
+					"projectIndex" : 0,
+					"source" : "."
+				},
+				{
+					"build" : "OverEngine/vendor/GLFW",
+					"childIndexes" : 
+					[
+						2
+					],
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-OverEngine.vendor.GLFW-Debug-ffdb15c1a5bb47dfd5ae.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.1"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 1,
+					"source" : "OverEngine/vendor/GLFW",
+					"targetIndexes" : 
+					[
+						35
+					]
+				},
+				{
+					"build" : "OverEngine/vendor/GLFW/src",
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-OverEngine.vendor.GLFW.src-Debug-0ca3778d4ceb62e5f32e.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.1"
+					},
+					"parentIndex" : 1,
+					"projectIndex" : 1,
+					"source" : "OverEngine/vendor/GLFW/src",
+					"targetIndexes" : 
+					[
+						33
+					]
+				},
+				{
+					"build" : "OverEngine/vendor/glad",
+					"jsonFile" : "directory-OverEngine.vendor.glad-Debug-12087d6e0b7408b13172.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.16"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "OverEngine/vendor/glad",
+					"targetIndexes" : 
+					[
+						32
+					]
+				},
+				{
+					"build" : "OverEngine/vendor/imgui",
+					"jsonFile" : "directory-OverEngine.vendor.imgui-Debug-182b8f01da7732ca27c0.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.16"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "OverEngine/vendor/imgui",
+					"targetIndexes" : 
+					[
+						34
+					]
+				},
+				{
+					"build" : "OverEngine/vendor/yaml-cpp",
+					"childIndexes" : 
+					[
+						6
+					],
+					"jsonFile" : "directory-OverEngine.vendor.yaml-cpp-Debug-1eb7838aa19f71e08717.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.4"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 2,
+					"source" : "OverEngine/vendor/yaml-cpp",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10,
+						11,
+						12,
+						13,
+						14,
+						15,
+						16,
+						17,
+						18,
+						19,
+						20,
+						21,
+						22,
+						23,
+						24,
+						25,
+						26,
+						27,
+						36
+					]
+				},
+				{
+					"build" : "OverEngine/vendor/yaml-cpp/util",
+					"jsonFile" : "directory-OverEngine.vendor.yaml-cpp.util-Debug-98587c1d26015f565545.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.4"
+					},
+					"parentIndex" : 5,
+					"projectIndex" : 2,
+					"source" : "OverEngine/vendor/yaml-cpp/util",
+					"targetIndexes" : 
+					[
+						37,
+						38,
+						39
+					]
+				},
+				{
+					"build" : "OverEngine/vendor/box2d",
+					"childIndexes" : 
+					[
+						8
+					],
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-OverEngine.vendor.box2d-Debug-b27456149e3672bad902.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.8"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 3,
+					"source" : "OverEngine/vendor/box2d"
+				},
+				{
+					"build" : "OverEngine/vendor/box2d/src",
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-OverEngine.vendor.box2d.src-Debug-f7ffe29d7b3de4493617.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.8"
+					},
+					"parentIndex" : 7,
+					"projectIndex" : 3,
+					"source" : "OverEngine/vendor/box2d/src",
+					"targetIndexes" : 
+					[
+						31
+					]
+				},
+				{
+					"build" : "OverEngine",
+					"jsonFile" : "directory-OverEngine-Debug-56fdaa7f458a90269b8e.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.16"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "OverEngine",
+					"targetIndexes" : 
+					[
+						29
+					]
+				},
+				{
+					"build" : "OverEditor",
+					"jsonFile" : "directory-OverEditor-Debug-28890f1d28a2aeebc85a.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.16"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "OverEditor",
+					"targetIndexes" : 
+					[
+						28
+					]
+				},
+				{
+					"build" : "Sandbox",
+					"jsonFile" : "directory-Sandbox-Debug-5f4392a0e5eaed8a8ee6.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.16"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "Sandbox",
+					"targetIndexes" : 
+					[
+						30
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"childIndexes" : 
+					[
+						1,
+						2,
+						3
+					],
+					"directoryIndexes" : 
+					[
+						0,
+						3,
+						4,
+						9,
+						10,
+						11
+					],
+					"name" : "OverEngine",
+					"targetIndexes" : 
+					[
+						28,
+						29,
+						30,
+						32,
+						34
+					]
+				},
+				{
+					"directoryIndexes" : 
+					[
+						1,
+						2
+					],
+					"name" : "GLFW",
+					"parentIndex" : 0,
+					"targetIndexes" : 
+					[
+						33,
+						35
+					]
+				},
+				{
+					"directoryIndexes" : 
+					[
+						5,
+						6
+					],
+					"name" : "YAML_CPP",
+					"parentIndex" : 0,
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10,
+						11,
+						12,
+						13,
+						14,
+						15,
+						16,
+						17,
+						18,
+						19,
+						20,
+						21,
+						22,
+						23,
+						24,
+						25,
+						26,
+						27,
+						36,
+						37,
+						38,
+						39
+					]
+				},
+				{
+					"directoryIndexes" : 
+					[
+						7,
+						8
+					],
+					"name" : "box2d",
+					"parentIndex" : 0,
+					"targetIndexes" : 
+					[
+						31
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 5,
+					"id" : "Continuous::@fe45af0118899a3a08bf",
+					"jsonFile" : "target-Continuous-Debug-61a9412d9cf4a6b89ca8.json",
+					"name" : "Continuous",
+					"projectIndex" : 2
+				},
+				{
+					"directoryIndex" : 5,
+					"id" : "ContinuousBuild::@fe45af0118899a3a08bf",
+					"jsonFile" : "target-ContinuousBuild-Debug-7a7e835589d43295c2c7.json",
+					"name" : "ContinuousBuild",
+					"projectIndex" : 2
+				},
+				{
+					"directoryIndex" : 5,
+					"id" : "ContinuousConfigure::@fe45af0118899a3a08bf",
+					"jsonFile" : "target-ContinuousConfigure-Debug-5775b7e612beb688161a.json",
+					"name" : "ContinuousConfigure",
+					"projectIndex" : 2
+				},
+				{
+					"directoryIndex" : 5,
+					"id" : "ContinuousCoverage::@fe45af0118899a3a08bf",
+					"jsonFile" : "target-ContinuousCoverage-Debug-b3534a7c8783c028af11.json",
+					"name" : "ContinuousCoverage",
+					"projectIndex" : 2
+				},
+				{
+					"directoryIndex" : 5,
+					"id" : "ContinuousMemCheck::@fe45af0118899a3a08bf",
+					"jsonFile" : "target-ContinuousMemCheck-Debug-3fa571455d35c7e0fdb8.json",
+					"name" : "ContinuousMemCheck",
+					"projectIndex" : 2
+				},
+				{
+					"directoryIndex" : 5,
+					"id" : "ContinuousStart::@fe45af0118899a3a08bf",
+					"jsonFile" : "target-ContinuousStart-Debug-0cf1583011f796b28c00.json",
+					"name" : "ContinuousStart",
+					"projectIndex" : 2
+				},
+				{
+					"directoryIndex" : 5,
+					"id" : "ContinuousSubmit::@fe45af0118899a3a08bf",
+					"jsonFile" : "target-ContinuousSubmit-Debug-6275e97f37a0ad2d6f34.json",
+					"name" : "ContinuousSubmit",
+					"projectIndex" : 2
+				},
+				{
+					"directoryIndex" : 5,
+					"id" : "ContinuousTest::@fe45af0118899a3a08bf",
+					"jsonFile" : "target-ContinuousTest-Debug-9d159aa8d6443600138a.json",
+					"name" : "ContinuousTest",
+					"projectIndex" : 2
+				},
+				{
+					"directoryIndex" : 5,
+					"id" : "ContinuousUpdate::@fe45af0118899a3a08bf",
+					"jsonFile" : "target-ContinuousUpdate-Debug-59ca1ec38afab43d0401.json",
+					"name" : "ContinuousUpdate",
+					"projectIndex" : 2
+				},
+				{
+					"directoryIndex" : 5,
+					"id" : "Experimental::@fe45af0118899a3a08bf",
+					"jsonFile" : "target-Experimental-Debug-175b86d8e04eec45411f.json",
+					"name" : "Experimental",
+					"projectIndex" : 2
+				},
+				{
+					"directoryIndex" : 5,
+					"id" : "ExperimentalBuild::@fe45af0118899a3a08bf",
+					"jsonFile" : "target-ExperimentalBuild-Debug-ff2bb33c38ce0d9122d9.json",
+					"name" : "ExperimentalBuild",
+					"projectIndex" : 2
+				},
+				{
+					"directoryIndex" : 5,
+					"id" : "ExperimentalConfigure::@fe45af0118899a3a08bf",
+					"jsonFile" : "target-ExperimentalConfigure-Debug-cd3e0ca621079c7c98db.json",
+					"name" : "ExperimentalConfigure",
+					"projectIndex" : 2
+				},
+				{
+					"directoryIndex" : 5,
+					"id" : "ExperimentalCoverage::@fe45af0118899a3a08bf",
+					"jsonFile" : "target-ExperimentalCoverage-Debug-d4f72ae3643271a774a6.json",
+					"name" : "ExperimentalCoverage",
+					"projectIndex" : 2
+				},
+				{
+					"directoryIndex" : 5,
+					"id" : "ExperimentalMemCheck::@fe45af0118899a3a08bf",
+					"jsonFile" : "target-ExperimentalMemCheck-Debug-d6793c5f97eb47b65a0f.json",
+					"name" : "ExperimentalMemCheck",
+					"projectIndex" : 2
+				},
+				{
+					"directoryIndex" : 5,
+					"id" : "ExperimentalStart::@fe45af0118899a3a08bf",
+					"jsonFile" : "target-ExperimentalStart-Debug-7763c7a5aa1b508cebbd.json",
+					"name" : "ExperimentalStart",
+					"projectIndex" : 2
+				},
+				{
+					"directoryIndex" : 5,
+					"id" : "ExperimentalSubmit::@fe45af0118899a3a08bf",
+					"jsonFile" : "target-ExperimentalSubmit-Debug-4a6670af3f5cc4b4b6da.json",
+					"name" : "ExperimentalSubmit",
+					"projectIndex" : 2
+				},
+				{
+					"directoryIndex" : 5,
+					"id" : "ExperimentalTest::@fe45af0118899a3a08bf",
+					"jsonFile" : "target-ExperimentalTest-Debug-965bfa0f020c05a83bcf.json",
+					"name" : "ExperimentalTest",
+					"projectIndex" : 2
+				},
+				{
+					"directoryIndex" : 5,
+					"id" : "ExperimentalUpdate::@fe45af0118899a3a08bf",
+					"jsonFile" : "target-ExperimentalUpdate-Debug-07c065e8c46aad95e1be.json",
+					"name" : "ExperimentalUpdate",
+					"projectIndex" : 2
+				},
+				{
+					"directoryIndex" : 5,
+					"id" : "Nightly::@fe45af0118899a3a08bf",
+					"jsonFile" : "target-Nightly-Debug-db9f5806bf02c3f0c5c1.json",
+					"name" : "Nightly",
+					"projectIndex" : 2
+				},
+				{
+					"directoryIndex" : 5,
+					"id" : "NightlyBuild::@fe45af0118899a3a08bf",
+					"jsonFile" : "target-NightlyBuild-Debug-ae94af9fdda2094071be.json",
+					"name" : "NightlyBuild",
+					"projectIndex" : 2
+				},
+				{
+					"directoryIndex" : 5,
+					"id" : "NightlyConfigure::@fe45af0118899a3a08bf",
+					"jsonFile" : "target-NightlyConfigure-Debug-763bd8bef82a42091078.json",
+					"name" : "NightlyConfigure",
+					"projectIndex" : 2
+				},
+				{
+					"directoryIndex" : 5,
+					"id" : "NightlyCoverage::@fe45af0118899a3a08bf",
+					"jsonFile" : "target-NightlyCoverage-Debug-c49ec317bc7b02e050ce.json",
+					"name" : "NightlyCoverage",
+					"projectIndex" : 2
+				},
+				{
+					"directoryIndex" : 5,
+					"id" : "NightlyMemCheck::@fe45af0118899a3a08bf",
+					"jsonFile" : "target-NightlyMemCheck-Debug-ffe18d96893b81648c4e.json",
+					"name" : "NightlyMemCheck",
+					"projectIndex" : 2
+				},
+				{
+					"directoryIndex" : 5,
+					"id" : "NightlyMemoryCheck::@fe45af0118899a3a08bf",
+					"jsonFile" : "target-NightlyMemoryCheck-Debug-8dd91c9f02be6757adfe.json",
+					"name" : "NightlyMemoryCheck",
+					"projectIndex" : 2
+				},
+				{
+					"directoryIndex" : 5,
+					"id" : "NightlyStart::@fe45af0118899a3a08bf",
+					"jsonFile" : "target-NightlyStart-Debug-dbcdfd02f9b07891bff6.json",
+					"name" : "NightlyStart",
+					"projectIndex" : 2
+				},
+				{
+					"directoryIndex" : 5,
+					"id" : "NightlySubmit::@fe45af0118899a3a08bf",
+					"jsonFile" : "target-NightlySubmit-Debug-c52594e42bcb074387c5.json",
+					"name" : "NightlySubmit",
+					"projectIndex" : 2
+				},
+				{
+					"directoryIndex" : 5,
+					"id" : "NightlyTest::@fe45af0118899a3a08bf",
+					"jsonFile" : "target-NightlyTest-Debug-34b921e22e7955feb745.json",
+					"name" : "NightlyTest",
+					"projectIndex" : 2
+				},
+				{
+					"directoryIndex" : 5,
+					"id" : "NightlyUpdate::@fe45af0118899a3a08bf",
+					"jsonFile" : "target-NightlyUpdate-Debug-5f1d5b355542c2efd088.json",
+					"name" : "NightlyUpdate",
+					"projectIndex" : 2
+				},
+				{
+					"directoryIndex" : 10,
+					"id" : "OverEditor::@4d971771ae720bd02a4c",
+					"jsonFile" : "target-OverEditor-Debug-057abc9dc6b8bdf28025.json",
+					"name" : "OverEditor",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 9,
+					"id" : "OverEngine::@66bafb55752bdd5c4c6e",
+					"jsonFile" : "target-OverEngine-Debug-8f70f05cb685812f0af7.json",
+					"name" : "OverEngine",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 11,
+					"id" : "Sandbox::@df4fa095c2a3dbacf8fe",
+					"jsonFile" : "target-Sandbox-Debug-11faf1b227f402761ab3.json",
+					"name" : "Sandbox",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 8,
+					"id" : "box2d::@6ff02b2d3700da87aa4b",
+					"jsonFile" : "target-box2d-Debug-7ec549ff40b6cff81bc2.json",
+					"name" : "box2d",
+					"projectIndex" : 3
+				},
+				{
+					"directoryIndex" : 3,
+					"id" : "glad::@8e98828bb35454047fd5",
+					"jsonFile" : "target-glad-Debug-f6dbcc56d67a55d896a9.json",
+					"name" : "glad",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 2,
+					"id" : "glfw::@b41bf066effd6bb8940e",
+					"jsonFile" : "target-glfw-Debug-cb26de51a33dc937b02e.json",
+					"name" : "glfw",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 4,
+					"id" : "imgui::@7d8436b6795bf79e30b1",
+					"jsonFile" : "target-imgui-Debug-b43907d72afb9772169b.json",
+					"name" : "imgui",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 1,
+					"id" : "uninstall::@3a44a29bb4c21e574a5f",
+					"jsonFile" : "target-uninstall-Debug-d87bb838aabc9725cb33.json",
+					"name" : "uninstall",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 5,
+					"id" : "yaml-cpp::@fe45af0118899a3a08bf",
+					"jsonFile" : "target-yaml-cpp-Debug-6ae484bf400aecf38472.json",
+					"name" : "yaml-cpp",
+					"projectIndex" : 2
+				},
+				{
+					"directoryIndex" : 6,
+					"id" : "yaml-cpp-parse::@3528ed813cf50f366af8",
+					"jsonFile" : "target-yaml-cpp-parse-Debug-785052f6c32588d3de4f.json",
+					"name" : "yaml-cpp-parse",
+					"projectIndex" : 2
+				},
+				{
+					"directoryIndex" : 6,
+					"id" : "yaml-cpp-read::@3528ed813cf50f366af8",
+					"jsonFile" : "target-yaml-cpp-read-Debug-37b8e17ae18fdd6a5c22.json",
+					"name" : "yaml-cpp-read",
+					"projectIndex" : 2
+				},
+				{
+					"directoryIndex" : 6,
+					"id" : "yaml-cpp-sandbox::@3528ed813cf50f366af8",
+					"jsonFile" : "target-yaml-cpp-sandbox-Debug-b055fe9bc6016721fbea.json",
+					"name" : "yaml-cpp-sandbox",
+					"projectIndex" : 2
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "C:/Users/lbmas/source/repos/larrymason01/OverEngine/out/build/x64-Debug",
+		"source" : "C:/Users/lbmas/source/repos/larrymason01/OverEngine"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 3
+	}
+}

@@ -16,8 +16,7 @@ namespace OverEngine
 		Circle
 	};
 
-	// TODO: Inherit `Asset`
-	class CollisionShape2D
+	class CollisionShape2D: public Asset
 	{
 	public:
 		virtual CollisionShape2DType GetType() const = 0;

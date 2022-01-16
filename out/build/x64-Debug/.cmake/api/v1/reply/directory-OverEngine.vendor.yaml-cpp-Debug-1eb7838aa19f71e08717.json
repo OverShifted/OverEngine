@@ -1,0 +1,14 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : [],
+		"files" : [],
+		"nodes" : []
+	},
+	"installers" : [],
+	"paths" : 
+	{
+		"build" : "OverEngine/vendor/yaml-cpp",
+		"source" : "OverEngine/vendor/yaml-cpp"
+	}
+}

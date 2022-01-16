@@ -1,0 +1,45 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"install"
+		],
+		"files" : 
+		[
+			"OverEngine/vendor/GLFW/src/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 244,
+				"parent" : 0
+			}
+		]
+	},
+	"installers" : 
+	[
+		{
+			"backtrace" : 1,
+			"component" : "Unspecified",
+			"destination" : "lib",
+			"paths" : 
+			[
+				"OverEngine/vendor/GLFW/src/glfw3.lib"
+			],
+			"targetId" : "glfw::@b41bf066effd6bb8940e",
+			"targetIndex" : 33,
+			"type" : "target"
+		}
+	],
+	"paths" : 
+	{
+		"build" : "OverEngine/vendor/GLFW/src",
+		"source" : "OverEngine/vendor/GLFW/src"
+	}
+}

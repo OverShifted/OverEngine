@@ -1,0 +1,1317 @@
+{
+	"archive" : 
+	{
+		"commandFragments" : 
+		[
+			{
+				"fragment" : "/machine:x64",
+				"role" : "flags"
+			}
+		]
+	},
+	"artifacts" : 
+	[
+		{
+			"path" : "OverEngine/OverEngine.lib"
+		}
+	],
+	"backtrace" : 1,
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"add_library",
+			"target_link_libraries",
+			"target_compile_definitions",
+			"target_include_directories",
+			"target_precompile_headers"
+		],
+		"files" : 
+		[
+			"OverEngine/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 37,
+				"parent" : 0
+			},
+			{
+				"command" : 1,
+				"file" : 0,
+				"line" : 80,
+				"parent" : 0
+			},
+			{
+				"command" : 1,
+				"file" : 0,
+				"line" : 81,
+				"parent" : 0
+			},
+			{
+				"command" : 2,
+				"file" : 0,
+				"line" : 65,
+				"parent" : 0
+			},
+			{
+				"command" : 3,
+				"file" : 0,
+				"line" : 44,
+				"parent" : 0
+			},
+			{
+				"command" : 3,
+				"file" : 0,
+				"line" : 50,
+				"parent" : 0
+			},
+			{
+				"command" : 4,
+				"file" : 0,
+				"line" : 42,
+				"parent" : 0
+			}
+		]
+	},
+	"compileGroups" : 
+	[
+		{
+			"compileCommandFragments" : 
+			[
+				{
+					"fragment" : "/DWIN32 /D_WINDOWS /GR /EHsc /Zi /Ob0 /Od /RTC1 -MDd"
+				},
+				{
+					"fragment" : "-std:c++17"
+				},
+				{
+					"fragment" : "/YcC:/Users/lbmas/source/repos/larrymason01/OverEngine/out/build/x64-Debug/OverEngine/CMakeFiles/OverEngine.dir/cmake_pch.hxx /FpC:/Users/lbmas/source/repos/larrymason01/OverEngine/out/build/x64-Debug/OverEngine/CMakeFiles/OverEngine.dir/./cmake_pch.cxx.pch /FIC:/Users/lbmas/source/repos/larrymason01/OverEngine/out/build/x64-Debug/OverEngine/CMakeFiles/OverEngine.dir/cmake_pch.hxx"
+				}
+			],
+			"defines" : 
+			[
+				{
+					"backtrace" : 4,
+					"define" : "GLFW_INCLUDE_NONE"
+				},
+				{
+					"backtrace" : 4,
+					"define" : "OE_DEBUG"
+				},
+				{
+					"backtrace" : 4,
+					"define" : "_CRT_SECURE_NO_WARNINGS"
+				}
+			],
+			"includes" : 
+			[
+				{
+					"backtrace" : 5,
+					"path" : "C:/Users/lbmas/source/repos/larrymason01/OverEngine/OverEngine/res"
+				},
+				{
+					"backtrace" : 5,
+					"path" : "C:/Users/lbmas/source/repos/larrymason01/OverEngine/OverEngine/vendor/GLFW/include"
+				},
+				{
+					"backtrace" : 5,
+					"path" : "C:/Users/lbmas/source/repos/larrymason01/OverEngine/OverEngine/vendor/glad/include"
+				},
+				{
+					"backtrace" : 6,
+					"path" : "C:/Users/lbmas/source/repos/larrymason01/OverEngine/OverEngine/src"
+				},
+				{
+					"backtrace" : 6,
+					"path" : "C:/Users/lbmas/source/repos/larrymason01/OverEngine/OverEngine/vendor"
+				},
+				{
+					"backtrace" : 6,
+					"path" : "C:/Users/lbmas/source/repos/larrymason01/OverEngine/OverEngine/vendor/spdlog/include"
+				},
+				{
+					"backtrace" : 6,
+					"path" : "C:/Users/lbmas/source/repos/larrymason01/OverEngine/OverEngine/vendor/imgui"
+				},
+				{
+					"backtrace" : 6,
+					"path" : "C:/Users/lbmas/source/repos/larrymason01/OverEngine/OverEngine/vendor/glm"
+				},
+				{
+					"backtrace" : 6,
+					"path" : "C:/Users/lbmas/source/repos/larrymason01/OverEngine/OverEngine/vendor/stb"
+				},
+				{
+					"backtrace" : 6,
+					"path" : "C:/Users/lbmas/source/repos/larrymason01/OverEngine/OverEngine/vendor/entt/include"
+				},
+				{
+					"backtrace" : 6,
+					"path" : "C:/Users/lbmas/source/repos/larrymason01/OverEngine/OverEngine/vendor/box2d/include"
+				},
+				{
+					"backtrace" : 6,
+					"path" : "C:/Users/lbmas/source/repos/larrymason01/OverEngine/OverEngine/vendor/json/include"
+				},
+				{
+					"backtrace" : 6,
+					"path" : "C:/Users/lbmas/source/repos/larrymason01/OverEngine/OverEngine/vendor/fmt/include"
+				},
+				{
+					"backtrace" : 6,
+					"path" : "C:/Users/lbmas/source/repos/larrymason01/OverEngine/OverEngine/vendor/yaml-cpp/include"
+				},
+				{
+					"backtrace" : 6,
+					"path" : "C:/Users/lbmas/source/repos/larrymason01/OverEngine/OverEngine/vendor/efsw/include"
+				},
+				{
+					"backtrace" : 3,
+					"path" : "C:/Users/lbmas/source/repos/larrymason01/OverEngine/OverEngine/vendor/box2d/src/../include"
+				}
+			],
+			"language" : "CXX",
+			"languageStandard" : 
+			{
+				"backtraces" : 
+				[
+					1
+				],
+				"standard" : "17"
+			},
+			"precompileHeaders" : 
+			[
+				{
+					"backtrace" : 7,
+					"header" : "C:/Users/lbmas/source/repos/larrymason01/OverEngine/OverEngine/src/pcheader.h"
+				}
+			],
+			"sourceIndexes" : 
+			[
+				0
+			]
+		},
+		{
+			"compileCommandFragments" : 
+			[
+				{
+					"fragment" : "/DWIN32 /D_WINDOWS /GR /EHsc /Zi /Ob0 /Od /RTC1 -MDd"
+				},
+				{
+					"fragment" : "-std:c++17"
+				},
+				{
+					"fragment" : "/YuC:/Users/lbmas/source/repos/larrymason01/OverEngine/out/build/x64-Debug/OverEngine/CMakeFiles/OverEngine.dir/cmake_pch.hxx /FpC:/Users/lbmas/source/repos/larrymason01/OverEngine/out/build/x64-Debug/OverEngine/CMakeFiles/OverEngine.dir/./cmake_pch.cxx.pch /FIC:/Users/lbmas/source/repos/larrymason01/OverEngine/out/build/x64-Debug/OverEngine/CMakeFiles/OverEngine.dir/cmake_pch.hxx"
+				}
+			],
+			"defines" : 
+			[
+				{
+					"backtrace" : 4,
+					"define" : "GLFW_INCLUDE_NONE"
+				},
+				{
+					"backtrace" : 4,
+					"define" : "OE_DEBUG"
+				},
+				{
+					"backtrace" : 4,
+					"define" : "_CRT_SECURE_NO_WARNINGS"
+				}
+			],
+			"includes" : 
+			[
+				{
+					"backtrace" : 5,
+					"path" : "C:/Users/lbmas/source/repos/larrymason01/OverEngine/OverEngine/res"
+				},
+				{
+					"backtrace" : 5,
+					"path" : "C:/Users/lbmas/source/repos/larrymason01/OverEngine/OverEngine/vendor/GLFW/include"
+				},
+				{
+					"backtrace" : 5,
+					"path" : "C:/Users/lbmas/source/repos/larrymason01/OverEngine/OverEngine/vendor/glad/include"
+				},
+				{
+					"backtrace" : 6,
+					"path" : "C:/Users/lbmas/source/repos/larrymason01/OverEngine/OverEngine/src"
+				},
+				{
+					"backtrace" : 6,
+					"path" : "C:/Users/lbmas/source/repos/larrymason01/OverEngine/OverEngine/vendor"
+				},
+				{
+					"backtrace" : 6,
+					"path" : "C:/Users/lbmas/source/repos/larrymason01/OverEngine/OverEngine/vendor/spdlog/include"
+				},
+				{
+					"backtrace" : 6,
+					"path" : "C:/Users/lbmas/source/repos/larrymason01/OverEngine/OverEngine/vendor/imgui"
+				},
+				{
+					"backtrace" : 6,
+					"path" : "C:/Users/lbmas/source/repos/larrymason01/OverEngine/OverEngine/vendor/glm"
+				},
+				{
+					"backtrace" : 6,
+					"path" : "C:/Users/lbmas/source/repos/larrymason01/OverEngine/OverEngine/vendor/stb"
+				},
+				{
+					"backtrace" : 6,
+					"path" : "C:/Users/lbmas/source/repos/larrymason01/OverEngine/OverEngine/vendor/entt/include"
+				},
+				{
+					"backtrace" : 6,
+					"path" : "C:/Users/lbmas/source/repos/larrymason01/OverEngine/OverEngine/vendor/box2d/include"
+				},
+				{
+					"backtrace" : 6,
+					"path" : "C:/Users/lbmas/source/repos/larrymason01/OverEngine/OverEngine/vendor/json/include"
+				},
+				{
+					"backtrace" : 6,
+					"path" : "C:/Users/lbmas/source/repos/larrymason01/OverEngine/OverEngine/vendor/fmt/include"
+				},
+				{
+					"backtrace" : 6,
+					"path" : "C:/Users/lbmas/source/repos/larrymason01/OverEngine/OverEngine/vendor/yaml-cpp/include"
+				},
+				{
+					"backtrace" : 6,
+					"path" : "C:/Users/lbmas/source/repos/larrymason01/OverEngine/OverEngine/vendor/efsw/include"
+				},
+				{
+					"backtrace" : 3,
+					"path" : "C:/Users/lbmas/source/repos/larrymason01/OverEngine/OverEngine/vendor/box2d/src/../include"
+				}
+			],
+			"language" : "CXX",
+			"languageStandard" : 
+			{
+				"backtraces" : 
+				[
+					1
+				],
+				"standard" : "17"
+			},
+			"precompileHeaders" : 
+			[
+				{
+					"backtrace" : 7,
+					"header" : "C:/Users/lbmas/source/repos/larrymason01/OverEngine/OverEngine/src/pcheader.h"
+				}
+			],
+			"sourceIndexes" : 
+			[
+				2,
+				4,
+				5,
+				6,
+				7,
+				8,
+				9,
+				10,
+				11,
+				12,
+				13,
+				14,
+				15,
+				16,
+				17,
+				18,
+				19,
+				20,
+				21,
+				22,
+				23,
+				24,
+				25,
+				26,
+				27,
+				28,
+				29,
+				30,
+				31,
+				32,
+				33,
+				34,
+				35,
+				36,
+				37,
+				38,
+				39,
+				40,
+				41,
+				42,
+				43,
+				44,
+				45,
+				111,
+				113,
+				115,
+				116,
+				117,
+				118,
+				119,
+				122,
+				123,
+				124,
+				125,
+				126,
+				127,
+				128,
+				129
+			]
+		}
+	],
+	"dependencies" : 
+	[
+		{
+			"backtrace" : 2,
+			"id" : "glad::@8e98828bb35454047fd5"
+		},
+		{
+			"backtrace" : 2,
+			"id" : "glfw::@b41bf066effd6bb8940e"
+		},
+		{
+			"backtrace" : 3,
+			"id" : "imgui::@7d8436b6795bf79e30b1"
+		},
+		{
+			"backtrace" : 3,
+			"id" : "yaml-cpp::@fe45af0118899a3a08bf"
+		},
+		{
+			"backtrace" : 3,
+			"id" : "box2d::@6ff02b2d3700da87aa4b"
+		}
+	],
+	"id" : "OverEngine::@66bafb55752bdd5c4c6e",
+	"name" : "OverEngine",
+	"nameOnDisk" : "OverEngine.lib",
+	"paths" : 
+	{
+		"build" : "OverEngine",
+		"source" : "OverEngine"
+	},
+	"sourceGroups" : 
+	[
+		{
+			"name" : "Source Files",
+			"sourceIndexes" : 
+			[
+				0,
+				2,
+				4,
+				5,
+				6,
+				7,
+				8,
+				9,
+				10,
+				11,
+				12,
+				13,
+				14,
+				15,
+				16,
+				17,
+				18,
+				19,
+				20,
+				21,
+				22,
+				23,
+				24,
+				25,
+				26,
+				27,
+				28,
+				29,
+				30,
+				31,
+				32,
+				33,
+				34,
+				35,
+				36,
+				37,
+				38,
+				39,
+				40,
+				41,
+				42,
+				43,
+				44,
+				45,
+				111,
+				113,
+				115,
+				116,
+				117,
+				118,
+				119,
+				122,
+				123,
+				124,
+				125,
+				126,
+				127,
+				128,
+				129
+			]
+		},
+		{
+			"name" : "Header Files",
+			"sourceIndexes" : 
+			[
+				1,
+				3,
+				46,
+				47,
+				48,
+				49,
+				50,
+				51,
+				52,
+				53,
+				54,
+				55,
+				56,
+				57,
+				58,
+				59,
+				60,
+				61,
+				62,
+				63,
+				64,
+				65,
+				66,
+				67,
+				68,
+				69,
+				70,
+				71,
+				72,
+				73,
+				74,
+				75,
+				76,
+				77,
+				78,
+				79,
+				80,
+				81,
+				82,
+				83,
+				84,
+				85,
+				86,
+				87,
+				88,
+				89,
+				90,
+				91,
+				92,
+				93,
+				94,
+				95,
+				96,
+				97,
+				98,
+				99,
+				100,
+				101,
+				102,
+				103,
+				104,
+				105,
+				106,
+				107,
+				108,
+				109,
+				110,
+				112,
+				114,
+				120,
+				121,
+				130,
+				131,
+				132,
+				133,
+				134,
+				135,
+				136
+			]
+		},
+		{
+			"name" : "Precompile Header File",
+			"sourceIndexes" : 
+			[
+				137
+			]
+		}
+	],
+	"sources" : 
+	[
+		{
+			"backtrace" : 0,
+			"compileGroupIndex" : 0,
+			"path" : "out/build/x64-Debug/OverEngine/CMakeFiles/OverEngine.dir/cmake_pch.cxx",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/OverEngine.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "OverEngine/src/pcheader.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/pcheader.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "OverEngine/src/OverEngine/Core/AssetManagement/Asset.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "OverEngine/src/OverEngine/Core/AssetManagement/AssetDatabase.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "OverEngine/src/OverEngine/Core/FileSystem/FileSystem.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "OverEngine/src/OverEngine/Core/Log.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "OverEngine/src/OverEngine/Core/Math/Transform.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "OverEngine/src/OverEngine/Core/Object.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "OverEngine/src/OverEngine/Core/Random.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "OverEngine/src/OverEngine/Core/Runtime/Application.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "OverEngine/src/OverEngine/Core/Runtime/Reflection/TypeInfo.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "OverEngine/src/OverEngine/Core/Runtime/Runtime.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "OverEngine/src/OverEngine/Core/Runtime/Serialization/YamlConverters.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "OverEngine/src/OverEngine/Core/String.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "OverEngine/src/OverEngine/Core/Time/Time.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "OverEngine/src/OverEngine/Core/Variant.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "OverEngine/src/OverEngine/ImGui/Action.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "OverEngine/src/OverEngine/ImGui/DockingLayout.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "OverEngine/src/OverEngine/ImGui/ExtraImGui.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "OverEngine/src/OverEngine/ImGui/ImGuiBinding.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "OverEngine/src/OverEngine/ImGui/ImGuiLayer.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "OverEngine/src/OverEngine/ImGui/UIElements.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "OverEngine/src/OverEngine/Layers/Layer.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "OverEngine/src/OverEngine/Layers/LayerStack.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "OverEngine/src/OverEngine/Physics/Collider2D.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "OverEngine/src/OverEngine/Physics/PhysicsWorld2D.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "OverEngine/src/OverEngine/Physics/RigidBody2D.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "OverEngine/src/OverEngine/Renderer/Buffer.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "OverEngine/src/OverEngine/Renderer/FrameBuffer.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "OverEngine/src/OverEngine/Renderer/GraphicsContext.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "OverEngine/src/OverEngine/Renderer/ParticleSystem2D.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "OverEngine/src/OverEngine/Renderer/RenderCommand.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "OverEngine/src/OverEngine/Renderer/Renderer.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "OverEngine/src/OverEngine/Renderer/Renderer2D.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "OverEngine/src/OverEngine/Renderer/RendererAPI.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "OverEngine/src/OverEngine/Renderer/Shader.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "OverEngine/src/OverEngine/Renderer/Texture.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "OverEngine/src/OverEngine/Renderer/VertexArray.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "OverEngine/src/OverEngine/Scene/Components.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "OverEngine/src/OverEngine/Scene/Entity.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "OverEngine/src/OverEngine/Scene/Scene.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "OverEngine/src/OverEngine/Scene/SceneCamera.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "OverEngine/src/OverEngine/Scene/SceneSerializer.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "OverEngine/src/OverEngine/Scene/TransformComponent.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/OverEngine/Core/AssetManagement/Asset.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/OverEngine/Core/AssetManagement/AssetDatabase.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/OverEngine/Core/Core.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/OverEngine/Core/Extensions.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/OverEngine/Core/FileSystem/FileSystem.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/OverEngine/Core/Log.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/OverEngine/Core/Math/Color.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/OverEngine/Core/Math/Math.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/OverEngine/Core/Math/Transform.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/OverEngine/Core/Object.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/OverEngine/Core/Random.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/OverEngine/Core/Runtime/Application.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/OverEngine/Core/Runtime/EntryPoint.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/OverEngine/Core/Runtime/Reflection/TypeInfo.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/OverEngine/Core/Runtime/Runtime.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/OverEngine/Core/Runtime/Serialization/ObjectSerializer.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/OverEngine/Core/Runtime/Serialization/YamlConverters.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/OverEngine/Core/String.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/OverEngine/Core/Time/Time.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/OverEngine/Core/Time/TimeStep.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/OverEngine/Core/Variant.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/OverEngine/Core/Window.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/OverEngine/Debug/Instrumentor.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/OverEngine/Events/ApplicationEvent.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/OverEngine/Events/Event.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/OverEngine/Events/KeyEvent.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/OverEngine/Events/MouseEvent.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/OverEngine/ImGui/Action.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/OverEngine/ImGui/DockingLayout.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/OverEngine/ImGui/ExtraImGui.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/OverEngine/ImGui/ImGuiBinding.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/OverEngine/ImGui/ImGuiLayer.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/OverEngine/ImGui/ImGuiPanel.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/OverEngine/ImGui/UIElements.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/OverEngine/Input/Input.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/OverEngine/Input/KeyCodes.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/OverEngine/Layers/Layer.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/OverEngine/Layers/LayerStack.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/OverEngine/Physics/Collider2D.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/OverEngine/Physics/Collision2D.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/OverEngine/Physics/PhysicsWorld2D.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/OverEngine/Physics/RigidBody2D.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/OverEngine/Renderer/Buffer.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/OverEngine/Renderer/Camera.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/OverEngine/Renderer/ClearFlags.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/OverEngine/Renderer/FrameBuffer.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/OverEngine/Renderer/GraphicsContext.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/OverEngine/Renderer/ParticleSystem2D.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/OverEngine/Renderer/RenderCommand.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/OverEngine/Renderer/Renderer.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/OverEngine/Renderer/Renderer2D.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/OverEngine/Renderer/RendererAPI.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/OverEngine/Renderer/Shader.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/OverEngine/Renderer/Texture.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/OverEngine/Renderer/TextureEnums.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/OverEngine/Renderer/VertexArray.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/OverEngine/Scene/ComponentSerializer.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/OverEngine/Scene/Components.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/OverEngine/Scene/Entity.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/OverEngine/Scene/Scene.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/OverEngine/Scene/SceneCamera.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/OverEngine/Scene/SceneSerializer.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/OverEngine/Scene/ScriptableEntity.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/OverEngine/Scene/TransformComponent.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/vendor/stb/stb_image.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "OverEngine/vendor/stb/stb_image.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/vendor/stb/stb_sprintf.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "OverEngine/vendor/stb/stb_sprintf.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/vendor/tinyfiledialogs/tinyfiledialogs.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "OverEngine/vendor/tinyfiledialogs/tinyfiledialogsBuild.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "OverEngine/src/Platform/Windows/WindowsImGuiImplBuild.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "OverEngine/src/Platform/Windows/WindowsInput.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "OverEngine/src/Platform/Windows/WindowsTime.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "OverEngine/src/Platform/Windows/WindowsWindow.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/Platform/Windows/WindowsTime.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/Platform/Windows/WindowsWindow.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "OverEngine/src/Platform/OpenGL/OpenGLBuffer.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "OverEngine/src/Platform/OpenGL/OpenGLContext.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "OverEngine/src/Platform/OpenGL/OpenGLFrameBuffer.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "OverEngine/src/Platform/OpenGL/OpenGLImGuiImplBuild.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "OverEngine/src/Platform/OpenGL/OpenGLRendererAPI.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "OverEngine/src/Platform/OpenGL/OpenGLShader.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "OverEngine/src/Platform/OpenGL/OpenGLTexture.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "OverEngine/src/Platform/OpenGL/OpenGLVertexArray.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/Platform/OpenGL/OpenGLBuffer.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/Platform/OpenGL/OpenGLContext.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/Platform/OpenGL/OpenGLFrameBuffer.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/Platform/OpenGL/OpenGLRendererAPI.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/Platform/OpenGL/OpenGLShader.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/Platform/OpenGL/OpenGLTexture.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "OverEngine/src/Platform/OpenGL/OpenGLVertexArray.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 0,
+			"path" : "out/build/x64-Debug/OverEngine/CMakeFiles/OverEngine.dir/cmake_pch.hxx",
+			"sourceGroupIndex" : 2
+		}
+	],
+	"type" : "STATIC_LIBRARY"
+}

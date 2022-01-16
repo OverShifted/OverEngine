@@ -1,0 +1,102 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"install"
+		],
+		"files" : 
+		[
+			"OverEngine/vendor/box2d/src/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 122,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 139,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 147,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 160,
+				"parent" : 0
+			}
+		]
+	},
+	"installers" : 
+	[
+		{
+			"backtrace" : 1,
+			"component" : "Unspecified",
+			"destination" : "lib",
+			"isOptional" : true,
+			"paths" : 
+			[
+				"out/build/x64-Debug/OverEngine/vendor/box2d/src/Debug/box2d.pdb"
+			],
+			"type" : "file"
+		},
+		{
+			"backtrace" : 2,
+			"component" : "Unspecified",
+			"destination" : "lib",
+			"paths" : 
+			[
+				"OverEngine/vendor/box2d/bin/box2d.lib"
+			],
+			"targetId" : "box2d::@6ff02b2d3700da87aa4b",
+			"targetIndex" : 31,
+			"type" : "target"
+		},
+		{
+			"backtrace" : 3,
+			"component" : "Unspecified",
+			"destination" : "lib/cmake/box2d",
+			"exportName" : "box2dConfig",
+			"exportTargets" : 
+			[
+				{
+					"id" : "box2d::@6ff02b2d3700da87aa4b",
+					"index" : 31
+				}
+			],
+			"paths" : 
+			[
+				"OverEngine/vendor/box2d/src/CMakeFiles/Export/lib/cmake/box2d/box2dConfig.cmake"
+			],
+			"type" : "export"
+		},
+		{
+			"backtrace" : 4,
+			"component" : "Unspecified",
+			"destination" : "lib/cmake/box2d",
+			"paths" : 
+			[
+				"out/build/x64-Debug/OverEngine/vendor/box2d/src/box2dConfigVersion.cmake"
+			],
+			"type" : "file"
+		}
+	],
+	"paths" : 
+	{
+		"build" : "OverEngine/vendor/box2d/src",
+		"source" : "OverEngine/vendor/box2d/src"
+	}
+}
