@@ -8,6 +8,8 @@
 #include "OverEngine/Renderer/Renderer2D.h"
 #include "OverEngine/Physics/PhysicsWorld2D.h"
 
+#include "OverEngine/Scripting/Wren.h"
+
 #include "OverEngine/Core/Random.h"
 
 #include "OverEngine/Core/Runtime/Serialization/YamlConverters.h"
@@ -34,7 +36,7 @@ namespace OverEngine
 		CopyComponentsFrom<SpriteRendererComponent>(other);
 		CopyComponentsFrom<CameraComponent>(other);
 		CopyComponentsFrom<RigidBody2DComponent>(other);
-		CopyComponentsFrom<Colliders2DComponent>(other);
+		CopyComponentsFrom<Collider2DComponent>(other);
 	}
 
 	Scene::~Scene()
@@ -86,31 +88,26 @@ namespace OverEngine
 		{
 			if (rbc.RigidBody)
 			{
-				rbc.RigidBody->SetEnabled(rbc.Enabled);
-
-				if (rbc.Enabled)
+				if (tc.m_ChangedFlags & TransformComponent::ChangedFlags_ChangedForPhysics)
 				{
-					if (tc.m_ChangedFlags & TransformComponent::ChangedFlags_ChangedForPhysics)
-					{
-						// Push changes to Box2D world
-						const auto& pos = tc.GetPosition();
-						rbc.RigidBody->SetPosition({ pos.x, pos.y });
-						rbc.RigidBody->SetRotation(glm::radians(tc.GetEulerAngles().z));
-					}
-					else
-					{
-						// Push changes to OverEngine transform system
-						tc.SetPosition(Vector3(rbc.RigidBody->GetPosition(), tc.GetPosition().z));
-						const auto& angles = tc.GetEulerAngles();
-						tc.SetEulerAngles({ angles.x, angles.y, glm::degrees(rbc.RigidBody->GetRotation()) });
-					}
-
-					// In both cases; we need to perform this
-					// 1. we've pushed the changes to physics system and we need to remove the flag
-					// 2. we've pushed the changes to OverEngine's transform system and it added the
-					//    flag which we don't want
-					tc.m_ChangedFlags ^= TransformComponent::ChangedFlags_ChangedForPhysics;
+					// Push changes to Box2D world
+					const auto& pos = tc.GetPosition();
+					rbc.RigidBody->SetPosition({ pos.x, pos.y });
+					rbc.RigidBody->SetRotation(glm::radians(tc.GetEulerAngles().z));
 				}
+				else
+				{
+					// Push changes to OverEngine transform system
+					tc.SetPosition(Vector3(rbc.RigidBody->GetPosition(), tc.GetPosition().z));
+					const auto& angles = tc.GetEulerAngles();
+					tc.SetEulerAngles({ angles.x, angles.y, glm::degrees(rbc.RigidBody->GetRotation()) });
+				}
+
+				// In both cases; we need to perform this
+				// 1. we've pushed the changes to physics system and we need to remove the flag
+				// 2. we've pushed the changes to OverEngine's transform system and it added the
+				//    flag which we don't want
+				tc.m_ChangedFlags ^= TransformComponent::ChangedFlags_ChangedForPhysics;
 			}
 		});
 	}
@@ -125,12 +122,22 @@ namespace OverEngine
 			}
 		});
 
+		m_Registry.view<ScriptComponent>().each([&deltaTime](auto entity, auto& script)
+		{
+			script.Script->OnUpdate(deltaTime);
+		});
+
 		m_Registry.view<NativeScriptsComponent>().each([&deltaTime](auto entity, auto& nsc)
 		{
 			for (auto& script : nsc.Scripts)
 			{
 				script.second.Instance->OnLateUpdate(deltaTime);
 			}
+		});
+
+		m_Registry.view<ScriptComponent>().each([&deltaTime](auto entity, auto& script)
+		{
+			script.Script->OnLateUpdate(deltaTime);
 		});
 	}
 
@@ -181,17 +188,14 @@ namespace OverEngine
 		});
 
 		// Construct Colliders
-		m_Registry.view<Colliders2DComponent>().each([this](entt::entity entity, auto& pcc)
+		m_Registry.view<Collider2DComponent>().each([this](entt::entity entity, auto& pcc)
 		{
 			Ref<RigidBody2D> rb = FindAttachedBody({ entity, this });
 
 			OE_CORE_ASSERT(rb, "Cannot find any attached RigidBody");
 
-			for (auto& collider : pcc.Colliders)
-			{
-				collider->GetProps().AttachedEntity = Entity{ entity, this };
-				collider->Deploy(rb.get());
-			}
+			pcc.Collider->GetProps().AttachedEntity = Entity{ entity, this };
+			pcc.Collider->Deploy(rb.get());
 		});
 	}
 
@@ -209,6 +213,12 @@ namespace OverEngine
 				script.second.Instance->OnCreate();
 			}
 		});
+
+		// Initialize Wren scripts
+		m_Registry.view<ScriptComponent>().each([this](auto entity, auto& script)
+		{
+			script.Script->OnCreate();
+		});
 	}
 
 	void Scene::RenderSprites()
@@ -217,26 +227,23 @@ namespace OverEngine
 		for (auto sp : spritesGroup)
 		{
 			auto& sprite = spritesGroup.get<SpriteRendererComponent>(sp);
-			if (sprite.Enabled)
+			auto& transform = spritesGroup.get<TransformComponent>(sp);
+
+			if (sprite.Sprite)
 			{
-				auto& transform = spritesGroup.get<TransformComponent>(sp);
+				TexturedQuadProps props;
+				props.Tint      = sprite.Tint;
+				props.Sprite    = sprite.Sprite;
+				props.Tiling    = sprite.Tiling;
+				props.Offset    = sprite.Offset;
+				props.Flip      = sprite.Flip;
+				props.ForceTile = sprite.ForceTile;
 
-				if (sprite.Sprite && !sprite.Sprite->IsReference())
-				{
-					TexturedQuadProps props;
-					props.Tint      = sprite.Tint;
-					props.Sprite    = sprite.Sprite;
-					props.Tiling    = sprite.Tiling;
-					props.Offset    = sprite.Offset;
-					props.Flip      = sprite.Flip;
-					props.ForceTile = sprite.ForceTile;
-
-					Renderer2D::DrawQuad(transform.GetLocalToWorld(), props);
-				}
-				else
-				{
-					Renderer2D::DrawQuad(transform.GetLocalToWorld(), sprite.Tint);
-				}
+				Renderer2D::DrawQuad(transform.GetLocalToWorld(), props);
+			}
+			else
+			{
+				Renderer2D::DrawQuad(transform.GetLocalToWorld(), sprite.Tint);
 			}
 		}
 	}
@@ -247,17 +254,14 @@ namespace OverEngine
 		
 		m_Registry.group<CameraComponent>(entt::get<TransformComponent>).each([&anyCamera, this](auto entity, auto& cc, auto& tc)
 		{
-			if (cc.Enabled && tc.Enabled)
-			{
-				anyCamera = true;
+			anyCamera = true;
 
-				RenderCommand::SetClearColor(cc.Camera.GetClearColor());
-				RenderCommand::Clear(cc.Camera.GetClearFlags());
+			RenderCommand::SetClearColor(cc.Camera.GetClearColor());
+			RenderCommand::Clear(cc.Camera.GetClearFlags());
 
-				Renderer2D::BeginScene(glm::inverse(tc.GetLocalToWorld()), cc.Camera);
-				RenderSprites();
-				Renderer2D::EndScene();
-			}
+			Renderer2D::BeginScene(glm::inverse(tc.GetLocalToWorld()), cc.Camera);
+			RenderSprites();
+			Renderer2D::EndScene();
 		});
 
 		// Returns false if nothing is rendered
@@ -300,6 +304,13 @@ namespace OverEngine
 			}
 		}
 
+		if (entityA.HasComponent<ScriptComponent>()) {
+			if (enter)
+				entityA.GetComponent<ScriptComponent>().Script->OnCollisionEnter();
+			else
+				entityA.GetComponent<ScriptComponent>().Script->OnCollisionExit();
+		}
+
 		if (entityB.HasComponent<NativeScriptsComponent>())
 		{
 			Collision2D bCollision;
@@ -318,6 +329,13 @@ namespace OverEngine
 				for (auto& script : nsc.Scripts)
 					script.second.Instance->OnCollisionExit(bCollision);
 			}
+		}
+
+		if (entityB.HasComponent<ScriptComponent>()) {
+			if (enter)
+				entityB.GetComponent<ScriptComponent>().Script->OnCollisionEnter();
+			else
+				entityB.GetComponent<ScriptComponent>().Script->OnCollisionExit();
 		}
 	}
 

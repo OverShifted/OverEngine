@@ -3,7 +3,6 @@
 #include "OverEngine/Core/Time/TimeStep.h"
 #include "OverEngine/Core/Random.h"
 #include "OverEngine/Physics/PhysicsWorld2D.h"
-#include "OverEngine/Core/AssetManagement/Asset.h"
 
 #include <entt.hpp>
 
@@ -23,16 +22,12 @@ namespace OverEngine
 
 	class SceneSerializer;
 
-	class Scene : public Asset
+	class Scene
 	{
-		OE_CLASS_NO_REFLECT(Scene, Asset)
-
 	public:
 		Scene(const SceneSettings& settings = SceneSettings());
 		Scene(Scene& other);
 		~Scene();
-
-		inline virtual bool IsReference() const override { return false; }
 
 		Entity CreateEntity(const String& name = String(), uint64_t uuid = Random::UInt64());
 		Entity CreateEntity(Entity& parent, const String& name = String(), uint64_t uuid = Random::UInt64());

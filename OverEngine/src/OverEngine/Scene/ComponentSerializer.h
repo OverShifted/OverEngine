@@ -2,7 +2,6 @@
 
 #include "Components.h"
 #include "OverEngine/Core/Runtime/Serialization/ObjectSerializer.h"
-#include "OverEngine/Core/AssetManagement/AssetDatabase.h"
 
 namespace OverEngine
 {
@@ -40,8 +39,6 @@ namespace OverEngine
 		static bool Serialize(YAML::Emitter& out, const CameraComponent* object)
 		{
 			const CameraComponent& cc = *object;
-
-			out << YAML::Key << "Enabled" << YAML::Value << cc.Enabled;
 			out << YAML::Key << "ProjectionType" << YAML::Value << (int)cc.Camera.GetProjectionType();
 
 			out << YAML::Key << "PerspectiveFOV" << YAML::Value << cc.Camera.GetPerspectiveFOV();
@@ -92,18 +89,16 @@ namespace OverEngine
 		{
 			const SpriteRendererComponent& sp = *object;
 
-			out << YAML::Key << "Enabled" << YAML::Value << sp.Enabled;
-
 			out << YAML::Key << "Tint" << YAML::Value << sp.Tint;
 
 			out << YAML::Key << "Sprite" << YAML::Value;
-			if (sp.Sprite)
-			{
-				out << YAML::Flow << YAML::BeginMap;
-				out << YAML::Key << "Asset" << YAML::Value << YAML::Hex << sp.Sprite->GetGuid();
-				out << YAML::EndMap;
-			}
-			else
+			// if (sp.Sprite)
+			// {
+			// 	out << YAML::Flow << YAML::BeginMap;
+			// 	out << YAML::Key << "Asset" << YAML::Value << YAML::Hex << sp.Sprite->GetGuid();
+			// 	out << YAML::EndMap;
+			// }
+			// else
 			{
 				out << YAML::Null;
 			}
@@ -127,8 +122,8 @@ namespace OverEngine
 				auto asset = data["References"][refID];
 
 				String typeName = asset["Type"].as<String>();
-				if (typeName == Texture2D::GetStaticClassName())
-					sp.Sprite = AssetDatabase::RegisterAndGet<Texture2D>(asset["Guid"].as<uint64_t>());
+				// if (typeName == Texture2D::GetStaticClassName())
+				// 	sp.Sprite = AssetDatabase::RegisterAndGet<Texture2D>(asset["Guid"].as<uint64_t>());
 			}
 
 			sp.Tint = data["Tint"].as<Color>();
@@ -150,8 +145,6 @@ namespace OverEngine
 		static bool Serialize(YAML::Emitter& out, const RigidBody2DComponent* object)
 		{
 			const RigidBody2DComponent& rbc = *object;
-
-			out << YAML::Key << "Enabled" << YAML::Value << rbc.Enabled;
 
 			auto& props = rbc.RigidBody->GetProps();
 			out << YAML::Key << "Type" << YAML::Value << (int)props.Type;
@@ -190,19 +183,17 @@ namespace OverEngine
 	};
 
 	template<>
-	class ObjectSerializer<Colliders2DComponent>
+	class ObjectSerializer<Collider2DComponent>
 	{
 	public:
-		static bool Serialize(YAML::Emitter& out, const Colliders2DComponent* object)
+		static bool Serialize(YAML::Emitter& out, const Collider2DComponent* object)
 		{
-			const Colliders2DComponent& c2c = *object;
-
-			out << YAML::Key << "Enabled" << YAML::Value << c2c.Enabled;
+			const Collider2DComponent& c2c = *object;
 
 			out << YAML::Key << "Colliders" << YAML::Value << YAML::BeginSeq; // Colliders
+			#if 0
 			for (const auto& collider : c2c.Colliders)
 			{
-				#if 0
 
 				const auto& props = collider->GetProps();
 
@@ -233,17 +224,17 @@ namespace OverEngine
 
 				out << YAML::EndMap;
 
-				#endif
 			}
+			#endif
 			out << YAML::EndSeq; // Colliders
 
 			return true;
 		};
 
-		static bool Deserialize(YAML::Node data, Colliders2DComponent* object)
+		static bool Deserialize(YAML::Node data, Collider2DComponent* object)
 		{
 			#if 0
-			Colliders2DComponent& c2c = *object;
+			Collider2DComponent& c2c = *object;
 
 			for (auto collider : data["Colliders"])
 			{

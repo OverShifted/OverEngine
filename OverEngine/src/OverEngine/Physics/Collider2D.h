@@ -16,7 +16,6 @@ namespace OverEngine
 		Circle
 	};
 
-	// TODO: Inherit `Asset`
 	class CollisionShape2D
 	{
 	public:

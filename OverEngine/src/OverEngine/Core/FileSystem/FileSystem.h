@@ -10,9 +10,5 @@ namespace OverEngine
 	{
 	public:
 		static String ReadFile(const String& path);
-
-		static String FixPath(String path);
-		static void FixPath(String* pathPtr);
-		static void FixPath(char* path);
 	};
 }

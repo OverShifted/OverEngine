@@ -9,7 +9,7 @@ namespace OverEngine
 		DockNode() = default;
 
 		ImGuiID ID;
-		Ref<DockNode> ParentNode = nullptr;
+		WeakRef<DockNode> ParentNode{};
 		Ref<DockNode> ChildNodes[2] = { nullptr, nullptr }; // Child nodes (left/right or top/bottom).
 		ImGuiDockNodeFlags Flags;
 
@@ -22,12 +22,6 @@ namespace OverEngine
 		float SplitRatio = 0.0f;    // Ratio of first child.
 		ImGuiAxis SplitAxis;
 
-		bool IsRootNode()     const { return ParentNode == nullptr; }
-		bool IsDockSpace()    const { return Flags & ImGuiDockNodeFlags_DockSpace; }
-		bool IsFloatingNode() const { return IsRootNode() && !IsDockSpace(); }
-		bool IsCentralNode()  const { return Flags & ImGuiDockNodeFlags_CentralNode; }
-		bool IsHiddenTabBar() const { return Flags & ImGuiDockNodeFlags_HiddenTabBar; }
-		bool HasTabBar()      const { return Flags & ImGuiDockNodeFlags_NoTabBar; }
 		bool IsSplitNode()    const { return ChildNodes[0] != nullptr; }
 		bool IsLeafNode()     const { return ChildNodes[0] == nullptr; }
 	};

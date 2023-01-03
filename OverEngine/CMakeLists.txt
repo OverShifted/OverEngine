@@ -17,6 +17,9 @@ set(OE_CROSS_PLATFORM_FILES
 
 	"vendor/tinyfiledialogs/tinyfiledialogs.h"
 	"vendor/tinyfiledialogs/tinyfiledialogsBuild.cpp"
+
+	"vendor/wrenpp/Wren++.h"
+	"vendor/wrenpp/Wren++.cpp"
 )
 
 file(GLOB_RECURSE opengl_platform_source_files "src/Platform/OpenGL/*.cpp")
@@ -59,7 +62,7 @@ target_include_directories(OverEngine PUBLIC
 	"vendor/json/include"
 	"vendor/fmt/include"
 	"vendor/yaml-cpp/include"
-	"vendor/efsw/include"
+	"vendor/wrenbind17/include"
 )
 
 target_compile_definitions(
@@ -78,5 +81,5 @@ target_compile_definitions(
 )
 
 target_link_libraries(OverEngine PRIVATE glfw glad)
-target_link_libraries(OverEngine PUBLIC imgui box2d yaml-cpp)
+target_link_libraries(OverEngine PUBLIC imgui box2d yaml-cpp wren)
 

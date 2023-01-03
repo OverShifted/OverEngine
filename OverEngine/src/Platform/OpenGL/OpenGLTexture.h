@@ -8,9 +8,8 @@ namespace OverEngine
 	class OpenGLTexture2D : public Texture2D
 	{
 	public:
+		OpenGLTexture2D();
 		OpenGLTexture2D(const String& path);
-		OpenGLTexture2D(const uint64_t& guid);
-		virtual void Acquire(Ref<Asset> other) override;
 
 		virtual ~OpenGLTexture2D();
 
@@ -35,8 +34,8 @@ namespace OverEngine
 		virtual TextureFormat GetFormat() const override;
 		virtual TextureType GetType() const override;
 
-		// Asset
-		virtual bool IsReference() const override { return m_RendererID == 0; }
+		void Allocate(uint32_t w, uint32_t h, uint32_t channels);
+		void Upload(uint8_t* data);
 	private:
 
 		uint32_t m_RendererID = 0;

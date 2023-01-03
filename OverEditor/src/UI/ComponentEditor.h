@@ -136,107 +136,17 @@ namespace OverEditor
 	}
 
 	template<>
-	void ComponentEditor<Colliders2DComponent>(Entity entity, uint32_t typeID)
+	void ComponentEditor<Collider2DComponent>(Entity entity, uint32_t typeID)
 	{
-		if (UIElements::BeginComponentEditor<Colliders2DComponent>(entity, "Colliders2D", typeID))
+		if (UIElements::BeginComponentEditor<Collider2DComponent>(entity, "Colliders2D", typeID))
 		{
-			auto& pcc = entity.GetComponent<Colliders2DComponent>();
+			auto& pcc = entity.GetComponent<Collider2DComponent>();
 
 			static UIElements::EnumValues typeValues = {
 				{ 0, "Box" }, { 1, "Circle" }
 			};
 
-			auto colliderIt = pcc.Colliders.begin();
-			while (colliderIt != pcc.Colliders.end())
-			{
-				ImGui::PushID(&(*colliderIt));
-
-				if (ImGui::Button("X"))
-				{
-					colliderIt = pcc.Colliders.erase(colliderIt);
-				}
-				else
-				{
-					auto& collider = *colliderIt;
-
-					ImGui::SameLine();
-					ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-					if (ImGui::TreeNodeEx(&collider, ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_AllowItemOverlap, "%s", "Collider2D"))
-					{
-//						UIElements::BeginFieldGroup();
-//
-//						// TODO: change settings in realtime
-//
-//						UIElements::DragFloat2Field("Offset", "##Offset", glm::value_ptr(collider.Initializer.Offset));
-//
-//						Vector2 offset = collider->GetOffset();
-//
-//						if (UIElements::DragFloat2Field_U("Offset", "##Offset", &offset,
-//							ECS_ACTION_FUNCS(CameraComponent, Camera.SetOrthographicFarClip, Camera.GetOrthographicFarClip), 0.5f))
-//						{
-//							camera.Camera.SetOrthographicFarClip(OrthographicFarClip);
-//						}
-//
-//						if (collider.Initializer.Shape.Type == Collider2DType::Circle)
-//						{
-//							UIElements::DragFloatField("Radius", "##Radius", &collider.Initializer.Shape.CircleRadius);
-//						}
-//						else if (collider.Initializer.Shape.Type == Collider2DType::Box)
-//						{
-//							UIElements::DragFloat2Field("Size", "##Size", glm::value_ptr(collider.Initializer.Shape.BoxSize));
-//						}
-//
-//						{
-//							Vector2 offset = collider.Collider->GetOffset();
-//							if (UIElements::DragFloat2Field("Offset", "##Offset", glm::value_ptr(offset)))
-//								collider.Collider->SetOffset(offset);
-//
-//							float rotation = collider.Collider->GetRotation();
-//							if (UIElements::DragFloatField("Rotation", "##Rotation", &rotation))
-//								collider.Collider->SetRotation(rotation);
-//
-//							if (collider.Initializer.Shape.Type == Collider2DType::Circle)
-//							{
-//								float radius = collider.Collider->GetSizeHint().x;
-//								if (UIElements::DragFloatField("Radius", "##Radius", &radius))
-//								{
-//									if (radius < 0.001f)
-//										radius = 0.001f;
-//
-//									collider.Collider->ReShape(radius);
-//								}
-//							}
-//							else if (collider.Initializer.Shape.Type == Collider2DType::Box)
-//							{
-//								auto size = collider.Collider->GetSizeHint();
-//								if (UIElements::DragFloat2Field("Size", "##Size", glm::value_ptr(size)))
-//								{
-//									if (size.x < 0.001f)
-//										size.x = 0.001f;
-//									if (size.y < 0.001f)
-//										size.y = 0.001f;
-//
-//									collider.Collider->ReShape(size);
-//								}
-//							}
-//						}
-//
-//						UIElements::EndFieldGroup();
-						ImGui::TreePop();
-					}
-
-					colliderIt++;
-				}
-
-				ImGui::PopID();
-			}
-
-			if (ImGui::Button("Add Collider", { -1, 0 }))
-			{
-				Collider2DProps props;
-				props.Shape = BoxCollisionShape2D::Create({ 1.0f, 1.0f });
-				pcc.Colliders.push_back(Collider2D::Create(props));
-			}
+			// TODO: implement
 		}
 	}
 }

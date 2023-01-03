@@ -1,6 +1,7 @@
 #pragma once
 
 #include <OverEngine.h>
+#include <OverEngine/Scripting/Wren.h>
 
 using namespace OverEngine;
 
@@ -26,4 +27,6 @@ private:
 	Entity m_MainCamera;
 
 	ParticleSystem2D m_ParticleSystem;
+
+	Ref<OverEngine::WrenVM> m_VM;
 };

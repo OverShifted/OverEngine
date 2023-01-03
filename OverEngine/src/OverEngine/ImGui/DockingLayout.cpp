@@ -178,8 +178,8 @@ namespace OverEngine
 
 		out << YAML::Key << "ID" << YAML::Value << YAML::Hex << node->ID;
 
-		if (node->ParentNode)
-			out << YAML::Key << "Parent" << YAML::Value << YAML::Hex << node->ParentNode->ID;
+		if (Ref<DockNode> parent = node->ParentNode.lock())
+			out << YAML::Key << "Parent" << YAML::Value << YAML::Hex << parent->ID;
 		else
 			out << YAML::Key << "Parent" << YAML::Value << YAML::Null;
 

@@ -1,26 +1,8 @@
 #include "pcheader.h"
 #include "TransformComponent.h"
 
-#include "OverEngine/Core/Runtime/Reflection/TypeInfo.h"
-
 namespace OverEngine
 {
-	ObjectTypeInfo* TransformComponent::Reflect()
-	{
-		static ObjectTypeInfo* typeInfo = nullptr;
-
-		if (!typeInfo)
-		{
-			typeInfo = new ObjectTypeInfo(GetStaticClassName(), sizeof(TransformComponent), dynamic_cast<ObjectTypeInfo*>(TypeResolver<Component>::Get()));
-
-			ADD_GET_SET_PROPERTY_INSPECTOR_NAME(TransformComponent, LocalPosition, Position, GetLocalPosition, SetLocalPosition)
-			ADD_GET_SET_PROPERTY_INSPECTOR_NAME(TransformComponent, LocalEulerAngles, Rotation, GetLocalEulerAngles, SetLocalEulerAngles)
-			ADD_GET_SET_PROPERTY_INSPECTOR_NAME(TransformComponent, LocalScale, Scale, GetLocalScale, SetLocalScale)
-		}
-
-		return typeInfo;
-	}
-
 	#define ENTITY_FROM_HANDLE(handle) Entity{ handle, AttachedEntity.GetScene() }
 	#define ENTITY_HANDLE_TRANSFORM(handle) ENTITY_FROM_HANDLE(handle).GetComponent<TransformComponent>()
 

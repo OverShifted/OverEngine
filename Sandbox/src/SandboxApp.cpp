@@ -4,6 +4,8 @@
 #include "SandboxLayer/SandboxLayer.h"
 #include "Sandbox2D/Sandbox2D.h"
 #include "SandboxECS/SandboxECS.h"
+#include "StringSim/StringSim.h"
+#include "NeuralNetwork/NeuralNetwork.h"
 
 static ApplicationProps GenApplicationProps()
 {
@@ -23,6 +25,8 @@ public:
 		//PushLayer(new SandboxLayer());
 		//PushLayer(new Sandbox2D());
 		PushLayer(new SandboxECS());
+		// PushLayer(new StringSim());
+		// PushLayer(new NeuralNetwork());
 		m_ImGuiEnabled = true;
 	}
 

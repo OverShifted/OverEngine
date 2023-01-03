@@ -75,7 +75,7 @@
 	#define OE_DEBUGBREAK
 #endif // OE_DEBUG
 
-#ifdef OE_ENABLE_ASSERTS
+// #ifdef OE_ENABLE_ASSERTS
 	#define OE_ASSERT_TXT "========== Assertion Failed =========="
 
 	#define OE_ASSERT(x, ...)                             \
@@ -97,10 +97,10 @@
 			OE_CORE_ERROR(OE_ASSERT_TXT); OE_DEBUGBREAK;  \
 		}                                                 \
 	}
-#else
-	#define OE_ASSERT(x, ...)        { if (!(x)) OE_THROW(__VA_ARGS__); }
-	#define OE_CORE_ASSERT(x, ...)   { if (!(x)) OE_THROW(__VA_ARGS__); }
-#endif
+// #else
+// 	#define OE_ASSERT(x, ...)
+// 	#define OE_CORE_ASSERT(x, ...)
+// #endif
 
 #if !defined(_MSC_VER)
 	#define sprintf_s snprintf
@@ -124,7 +124,7 @@
 #define STD_CONTAINER_HAS(cont, val) (std::find(cont.begin(), cont.end(), val) != cont.end())
 #define STD_MAP_HAS(cont, val) (cont.find(val) != cont.end())
 
-/// Casts / Converters
+/// Casts / Convertions
 #define IMVEC2_2_VECTOR2(imvec2) (::OverEngine::Vector2(imvec2.x, imvec2.y))
 
 /// Other
@@ -168,6 +168,7 @@ namespace OverEngine
 
 	template<typename T> using Scope = std::unique_ptr<T>;
 	template<typename T> using Ref = std::shared_ptr<T>;
+	template<typename T> using WeakRef = std::weak_ptr<T>;
 
 	template<typename T, typename ... Args>
 	constexpr Scope<T> CreateScope(Args&& ... args)
@@ -218,4 +219,11 @@ namespace OverEngine
 	{
 		using Type = std::underlying_type_t<T>;
 	};
+
+	template<typename T>
+	T Remap(T in, T begin, T end, T targetBegin, T targetEnd)
+	{
+		T a = (targetEnd - targetBegin) / (end - begin);
+		return a * (in - begin) + targetBegin;
+	}
 }

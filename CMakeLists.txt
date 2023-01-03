@@ -11,6 +11,7 @@ project(OverEngine
         LANGUAGES C CXX)
 
 # vendor
+option(GLFW_BUILD_DOCS OFF)
 add_subdirectory(OverEngine/vendor/GLFW)
 add_subdirectory(OverEngine/vendor/glad)
 add_subdirectory(OverEngine/vendor/imgui)
@@ -22,5 +23,5 @@ add_subdirectory(OverEngine/vendor/box2d)
 
 # OverEngine
 add_subdirectory(OverEngine)
-add_subdirectory(OverEditor)
+# add_subdirectory(OverEditor)
 add_subdirectory(Sandbox)

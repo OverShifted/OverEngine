@@ -62,6 +62,10 @@ namespace OverEngine
 		}
 	}
 
+	OpenGLTexture2D::OpenGLTexture2D()
+	{
+	}
+
 	OpenGLTexture2D::OpenGLTexture2D(const String& path)
 	{
 		// Load image using stb_image
@@ -95,26 +99,6 @@ namespace OverEngine
 
 		// Free image buffer created by stb_image
 		stbi_image_free(data);
-	}
-
-	OpenGLTexture2D::OpenGLTexture2D(const uint64_t& guid)
-	{
-		SetGuid(guid);
-	}
-
-	void OpenGLTexture2D::Acquire(Ref<Asset> other)
-	{
-		if (auto otherGLTexture = std::dynamic_pointer_cast<OpenGLTexture2D>(other))
-		{
-			m_RendererID = otherGLTexture->m_RendererID;
-			m_Width      = otherGLTexture->m_Width;
-			m_Height     = otherGLTexture->m_Height;
-			m_Format     = otherGLTexture->m_Format;
-			m_Filter     = otherGLTexture->m_Filter;
-			m_Wrap       = otherGLTexture->m_Wrap;
-
-			otherGLTexture->m_RendererID = 0;
-		}
 	}
 
 	OpenGLTexture2D::~OpenGLTexture2D()
@@ -187,5 +171,19 @@ namespace OverEngine
 	TextureType OpenGLTexture2D::GetType() const
 	{
 		return TextureType::Master;
+	}
+
+	void OpenGLTexture2D::Allocate(uint32_t w, uint32_t h, uint32_t channels)
+	{
+		m_Width = w;
+		m_Height = h;
+		m_Format = GetFormatFromChannelCount(channels);
+		glCreateTextures(GL_TEXTURE_2D, 1, &m_RendererID);
+		glTextureStorage2D(m_RendererID, 1, GetOpenGLDataAndInternalFormat(m_Format).InternalFormat, m_Width, m_Height);
+	}
+
+	void OpenGLTexture2D::Upload(uint8_t* data)
+	{
+		glTextureSubImage2D(m_RendererID, 0, 0, 0, m_Width, m_Height, GetOpenGLDataAndInternalFormat(m_Format).DataFormat, GL_UNSIGNED_BYTE, data);
 	}
 }

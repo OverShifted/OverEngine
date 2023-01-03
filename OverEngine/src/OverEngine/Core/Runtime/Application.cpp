@@ -3,7 +3,6 @@
 
 #include "OverEngine/Core/Log.h"
 #include "OverEngine/Core/Random.h"
-#include "OverEngine/Core/AssetManagement/AssetDatabase.h"
 
 #include "OverEngine/ImGui/ImGuiLayer.h"
 
@@ -18,10 +17,8 @@ namespace OverEngine
 		s_Instance = this;
 
 		// Init features
-		Runtime::Init(props.RuntimeType);
 		Log::Init();
 		Random::Init();
-		AssetDatabase::Init();
 
 		#ifdef OE_RELEASE
 			const char* buildType = "Release";
@@ -54,7 +51,6 @@ namespace OverEngine
 
 	Application::~Application()
 	{
-		AssetDatabase::Clear();
 		Renderer::Shutdown();
 	}
 

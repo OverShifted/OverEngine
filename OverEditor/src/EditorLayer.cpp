@@ -217,6 +217,7 @@ namespace OverEditor
 			{
 				if (ImGui::CollapsingHeader("New Project"))
 				{
+					ImGui::Text("A new directory will be created.");
 					ImGui::InputText("Project Name", projectName, 32);
 					ImGui::InputText("Project Directory", projectDirectory, 1024);
 

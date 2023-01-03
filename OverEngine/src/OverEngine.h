@@ -3,7 +3,6 @@
 #include "pcheader.h"
 
 // To be used in OverApps
-#include "OverEngine/Core/Runtime/Runtime.h"
 #include "OverEngine/Core/Runtime/Application.h"
 #include "OverEngine/Core/Log.h"
 #include "OverEngine/Core/Time/Time.h"
@@ -12,11 +11,7 @@
 #include "OverEngine/Layers/Layer.h"
 
 #include "OverEngine/ImGui/ImGuiLayer.h"
-
-// ------- Assets --------------------
-#include "OverEngine/Core/AssetManagement/Asset.h"
-#include "OverEngine/Core/AssetManagement/AssetDatabase.h"
-// -----------------------------------
+#include "OverEngine/ImGui/ExtraImGui.h"
 
 // ------- ECS -----------------------
 #include "OverEngine/Scene/Scene.h"

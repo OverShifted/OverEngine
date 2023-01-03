@@ -1,13 +1,18 @@
 #include "SandboxECS.h"
 
+#include <OverEngine/Core/FileSystem/FileSystem.h>
+#include <wren.h>
+
 #include <imgui.h>
 
 using namespace OverEngine;
 
 SandboxECS::SandboxECS()
-	: Layer("SandboxECS")
+	: Layer("SandboxECS"), m_VM(CreateRef<OverEngine::WrenVM>())
 {
 	OE_PROFILE_FUNCTION();
+
+	m_VM->LoadModule("src/wren/scripts");
 
 #pragma region Textures
 	m_SpriteSheet = Texture2D::Create("assets/textures/platformPack_tilesheet@2.png");
@@ -41,13 +46,13 @@ SandboxECS::SandboxECS()
 
 		// Collider2D
 		{
-			auto& playerColliderList = m_Player.AddComponent<Colliders2DComponent>();
+			auto& playerCollider = m_Player.AddComponent<Collider2DComponent>();
 			Collider2DProps props;
 			props.Shape = CircleCollisionShape2D::Create(0.5f);
 			props.Bounciness = 0.2f;
 			props.Friction = 100.0f;
 			props.Density = 1.0f;
-			playerColliderList.Colliders.push_back(Collider2D::Create(props));
+			playerCollider.Collider = Collider2D::Create(props);
 		}
 	}
 
@@ -77,13 +82,13 @@ SandboxECS::SandboxECS()
 
 		// Collider2D
 		{
-			auto& colliderList = obstacle.AddComponent<Colliders2DComponent>();
+			auto& collider = obstacle.AddComponent<Collider2DComponent>();
 			Collider2DProps props;
 			props.Shape = BoxCollisionShape2D::Create({ 1.0f, 1.0f });
 			props.Bounciness = 0.3f;
 			props.Friction = 1.0f;
 			props.Density = 200.0f;
-			colliderList.Colliders.push_back(Collider2D::Create(props));
+			collider.Collider = Collider2D::Create(props);
 		}
 	}
 
@@ -113,13 +118,13 @@ SandboxECS::SandboxECS()
 
 		// Collider2D
 		{
-			auto& colliderList = obstacle.AddComponent<Colliders2DComponent>();
+			auto& collider = obstacle.AddComponent<Collider2DComponent>();
 			Collider2DProps props;
 			props.Shape = BoxCollisionShape2D::Create({ 1.0f, 1.0f });
 			props.Bounciness = 0.3f;
 			props.Friction = 1.0f;
 			props.Density = 200.0f;
-			colliderList.Colliders.push_back(Collider2D::Create(props));
+			collider.Collider = Collider2D::Create(props);
 		}
 	}
 
@@ -183,29 +188,14 @@ SandboxECS::SandboxECS()
 		Particle2DProps m_ParticleProps = Particle2DProps();
 	};
 
-	class CameraController : public ScriptableEntity
-	{
-	public:
-
-		CameraController(const Entity& player)
-			: m_PlayerEntity(player)
-		{
-		}
-
-		virtual void OnLateUpdate(TimeStep ts) override
-		{
-			auto& tc = GetComponent<TransformComponent>();
-			const Vector3& playerPosition = m_PlayerEntity.GetComponent<TransformComponent>().GetLocalPosition();
-			const Vector3& currentPosition = tc.GetLocalPosition();
-			tc.SetPosition(glm::mix(currentPosition, playerPosition, 10.0f * ts));
-		}
-
-	private:
-		Entity m_PlayerEntity;
-	};
-
 	m_Player.AddComponent<NativeScriptsComponent>().AddScript<Player>(&m_ParticleSystem);
-	m_MainCamera.AddComponent<NativeScriptsComponent>().AddScript<CameraController>(m_Player);
+	m_Player.AddComponent<ScriptComponent>(m_VM->GetScriptClass("src/wren/scripts", "Player")->Construct(m_Player));
+
+	{
+		auto cameraScript = m_VM->GetScriptClass("src/wren/scripts", "CameraController")->Construct(m_MainCamera);
+		cameraScript->CallMethod("player=(_)", m_Player);
+		m_MainCamera.AddComponent<ScriptComponent>(cameraScript);
+	}
 
 	m_Scene->OnScenePlay();
 	ImGui::GetStyle().Alpha = 0.8f;
@@ -222,7 +212,7 @@ void SandboxECS::OnUpdate(TimeStep deltaTime)
 	float cameraRotationDirection = 0.0f;
 	if (Input::IsKeyPressed(KeyCode::Q))
 		cameraRotationDirection -= 1.0f;
-	if (Input::IsKeyPressed(KeyCode::Q))
+	if (Input::IsKeyPressed(KeyCode::E))
 		cameraRotationDirection += 1.0f;
 
 	camTransform.SetEulerAngles({ 0.0f, 0.0f, camTransform.GetEulerAngles().z + cameraRotationDirection * deltaTime * 80.0f });

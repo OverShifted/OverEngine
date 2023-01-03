@@ -32,8 +32,9 @@ namespace OverEngine
 
 		for (int i = 0; i < m_Shape.m_count; i++)
 		{
-			Vector4 vertex = Vector4{ m_Shape.m_vertices[i].x, m_Shape.m_vertices[i].y, 0.0f, 0.0f } * transform;
-			transformedVertices[i] = b2Vec2(vertex.x, vertex.y);
+			b2Vec2 vertex = m_Shape.m_vertices[i];
+			Vector4 transformedVertex = Vector4{vertex.x, vertex.y, 0.0f, 0.0f} * transform;
+			transformedVertices[i] = b2Vec2(transformedVertex.x, transformedVertex.y);
 		}
 
 		m_Shape.Set(transformedVertices.data(), m_Shape.m_count);
@@ -51,7 +52,7 @@ namespace OverEngine
 
 	void CircleCollisionShape2D::Invalidate(const Mat4x4& transform)
 	{
-		// TODO: Dynamic size
+		// TODO: Change size
 		m_Shape.m_p.Set(m_Offset.x, m_Offset.y);
 		m_Shape.m_radius = m_Radius;
 	}
@@ -90,7 +91,7 @@ namespace OverEngine
 
 	void Collider2D::Invalidate()
 	{
-		OE_CORE_ASSERT(m_BodyHandle && m_BodyHandle->m_BodyHandle, "Cannot (re)build a collider without a body or with an undeployed one.")
+		OE_CORE_ASSERT(m_BodyHandle && m_BodyHandle->m_BodyHandle, "Cannot (re)build a collider without a body or with an undeployed one.");
 		OE_CORE_ASSERT(m_Props.Shape, "Cannot (re)build a collider with empty shape!");
 
 		if (m_FixtureHandle)
@@ -110,6 +111,7 @@ namespace OverEngine
 		def.restitutionThreshold = m_Props.BouncinessThreshold;
 		def.density              = m_Props.Density;
 		def.isSensor             = m_Props.IsTrigger;
+		def.userData.pointer     = (uintptr_t)this;
 
 		m_FixtureHandle = m_BodyHandle->m_BodyHandle->CreateFixture(&def);
 	}

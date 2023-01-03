@@ -1,7 +1,6 @@
 #pragma once
 
 #include "OverEngine/Core/Core.h"
-#include "OverEngine/Core/Runtime/Runtime.h"
 #include "OverEngine/Core/Window.h"
 #include "OverEngine/Core/Time/Time.h"
 
@@ -14,7 +13,6 @@ namespace OverEngine
 	struct ApplicationProps
 	{
 		WindowProps MainWindowProps;
-		OverEngine::RuntimeType RuntimeType = RuntimeType::Player;
 	};
 
 	class ImGuiLayer;

@@ -11,8 +11,6 @@ namespace OverEngine
 
 	class TransformComponent : public Component
 	{
-		OE_CLASS(TransformComponent, Component)
-
 	public:
 		TransformComponent(const TransformComponent&) = default;
 

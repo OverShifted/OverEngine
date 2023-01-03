@@ -4,7 +4,6 @@
 #include "Scene.h"
 
 #include "OverEngine/Core/Core.h"
-#include "OverEngine/Core/Object.h"
 #include "OverEngine/Core/Math/Math.h"
 #include "OverEngine/Core/Random.h"
 
@@ -18,15 +17,12 @@
 
 namespace OverEngine
 {
-	struct Component : public Object
+	struct Component
 	{
-		OE_CLASS_NO_REFLECT_PUBLIC(Component, Object)
-
 		Entity AttachedEntity;
-		bool Enabled = true;
 
-		Component(const Entity& attachedEntity, bool enabled = true)
-			: AttachedEntity(attachedEntity), Enabled(enabled) {}
+		Component(const Entity& attachedEntity)
+			: AttachedEntity(attachedEntity) {}
 	};
 
 	////////////////////////////////////////////////////////
@@ -35,8 +31,6 @@ namespace OverEngine
 
 	struct NameComponent : public Component
 	{
-		OE_CLASS_NO_REFLECT_PUBLIC(NameComponent, Component)
-
 		String Name;
 
 		NameComponent(const NameComponent&) = default;
@@ -46,8 +40,6 @@ namespace OverEngine
 
 	struct IDComponent : public Component
 	{
-		OE_CLASS_NO_REFLECT_PUBLIC(IDComponent, Component)
-
 		uint64_t ID = Random::UInt64();
 
 		IDComponent(const IDComponent&) = default;
@@ -61,8 +53,6 @@ namespace OverEngine
 
 	struct CameraComponent : public Component
 	{
-		OE_CLASS_NO_REFLECT_PUBLIC(CameraComponent, Component)
-
 		SceneCamera Camera;
 		bool FixedAspectRatio = false;
 
@@ -77,8 +67,6 @@ namespace OverEngine
 
 	struct SpriteRendererComponent : public Component
 	{
-		OE_CLASS_PUBLIC(SpriteRendererComponent, Component)
-
 		Color Tint = Color(1.0f);
 
 		Ref<Texture2D> Sprite;
@@ -105,8 +93,6 @@ namespace OverEngine
 
 	struct RigidBody2DComponent : public Component
 	{
-		OE_CLASS_NO_REFLECT_PUBLIC(RigidBody2DComponent, Component)
-
 		Ref<RigidBody2D> RigidBody = nullptr;
 
 		RigidBody2DComponent(const RigidBody2DComponent& other)
@@ -143,22 +129,17 @@ namespace OverEngine
 	};
 
 	// Store's all colliders attached to an Entity
-	struct Colliders2DComponent : public Component
+	struct Collider2DComponent : public Component
 	{
-		OE_CLASS_NO_REFLECT_PUBLIC(Colliders2DComponent, Component)
+		Ref<Collider2D> Collider;
 
-		Vector<Ref<Collider2D>> Colliders;
-
-		Colliders2DComponent(const Colliders2DComponent& other)
+		Collider2DComponent(const Collider2DComponent& other)
 			: Component(other.AttachedEntity)
 		{
-			for (const auto& collider : other.Colliders)
-			{
-				Colliders.push_back(Collider2D::Create(collider->GetProps()));
-			}
+			Collider = Collider2D::Create(other.Collider->GetProps());
 		}
 
-		Colliders2DComponent(const Entity& entity)
+		Collider2DComponent(const Entity& entity)
 			: Component(entity) {}
 	};
 
@@ -168,8 +149,6 @@ namespace OverEngine
 
 	struct NativeScriptsComponent : public Component
 	{
-		OE_CLASS_NO_REFLECT_PUBLIC(NativeScriptsComponent, Component)
-
 		struct ScriptData
 		{
 			ScriptableEntity* Instance = nullptr;
@@ -241,5 +220,23 @@ namespace OverEngine
 
 		inline bool HasScript(size_t hash) const { return Scripts.count(hash); }
 		void RemoveScript(size_t hash);
+	};
+
+	class WrenScriptInstance;
+	struct ScriptComponent : public Component
+	{
+		Ref<WrenScriptInstance> Script;
+		
+		ScriptComponent(const Entity& entity)
+			: Component(entity) {}
+
+		ScriptComponent(const Entity& entity, const Ref<WrenScriptInstance>& script)
+			: Component(entity), Script(script) {}
+
+		ScriptComponent(const ScriptComponent& other)
+			: Component(other.AttachedEntity)
+		{
+			Script = other.Script;
+		}
 	};
 }

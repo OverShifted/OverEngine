@@ -15,8 +15,9 @@ namespace OverEngine
 		logSinks.emplace_back(std::make_shared<spdlog::sinks::stdout_color_sink_mt>());
 		logSinks.emplace_back(std::make_shared<spdlog::sinks::basic_file_sink_mt>("OverEngine.log", true));
 
-		logSinks[0]->set_pattern("%^[%T] [thread %t] %n: %v%$");
-		logSinks[1]->set_pattern("[%T] [%l] [thread %t] %n: %v");
+		// logSinks[0]->set_pattern("%^[%T] %n: %v%$");
+		logSinks[0]->set_pattern("\033[37m[%T]\033[0m %^%l%$ \033[37m%n:\033[0m %v");
+		logSinks[1]->set_pattern("[%T] [%l] %n: %v");
 
 		s_CoreLogger = std::make_shared<spdlog::logger>("OverEngine", std::begin(logSinks), std::end(logSinks));
 		spdlog::register_logger(s_CoreLogger);

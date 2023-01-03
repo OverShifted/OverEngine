@@ -52,15 +52,15 @@ namespace OverEngine
 
 	void PhysicsWorld2D::CollisionListener::HandleContact(b2Contact* contact, void (*callback)(const Collision2D&, void*))
 	{
-		Collider2D* colliderA_ptr = reinterpret_cast<Collider2D*>(contact->GetFixtureA()->GetUserData().pointer);
-		Collider2D* colliderB_ptr = reinterpret_cast<Collider2D*>(contact->GetFixtureB()->GetUserData().pointer);
+		Collider2D* colliderA = reinterpret_cast<Collider2D*>(contact->GetFixtureA()->GetUserData().pointer);
+		Collider2D* colliderB = reinterpret_cast<Collider2D*>(contact->GetFixtureB()->GetUserData().pointer);
 
-		if (!(colliderA_ptr && colliderB_ptr))
+		if (!(colliderA && colliderB))
 			return;
 
 		Collision2D collision;
-		collision.ColliderA = colliderA_ptr->shared_from_this();
-		collision.ColliderB = colliderB_ptr->shared_from_this();
+		collision.ColliderA = colliderA->shared_from_this();
+		collision.ColliderB = colliderB->shared_from_this();
 
 		callback(collision, UserData);
 	}

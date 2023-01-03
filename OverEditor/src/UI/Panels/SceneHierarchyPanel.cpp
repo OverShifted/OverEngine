@@ -112,7 +112,7 @@ namespace OverEditor
 				CheckComponentEditor<SpriteRendererComponent>(componentTypeID, selectedEntity);
 				CheckComponentEditor<CameraComponent>(componentTypeID, selectedEntity);
 				CheckComponentEditor<RigidBody2DComponent>(componentTypeID, selectedEntity);
-				CheckComponentEditor<Colliders2DComponent>(componentTypeID, selectedEntity);
+				CheckComponentEditor<Collider2DComponent>(componentTypeID, selectedEntity);
 			}
 
 //			if (ImGui::Button("Add Component##Button", ImVec2(-1.0f, 40.0f)))
@@ -125,7 +125,7 @@ namespace OverEditor
 				CheckAddComponent<SpriteRendererComponent>(selectedEntity, "SpriteRenderer##AddComponentPopup", nullptr);
 				CheckAddComponent<CameraComponent>(selectedEntity, "Camera##AddComponentPopup");
 				CheckAddComponent<RigidBody2DComponent>(selectedEntity, "RigidBody2D##AddComponentPopup");
-				CheckAddComponent<Colliders2DComponent>(selectedEntity, "Colliders2D##AddComponentPopup");
+				CheckAddComponent<Collider2DComponent>(selectedEntity, "Colliders2D##AddComponentPopup");
 
 				ImGui::EndPopup();
 			}

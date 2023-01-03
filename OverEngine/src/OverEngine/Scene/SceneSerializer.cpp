@@ -83,14 +83,14 @@ namespace OverEngine
 				out << YAML::EndMap; // RigidBody2DComponent
 			}
 
-			else if (typeID == GetComponentTypeID<Colliders2DComponent>())
+			else if (typeID == GetComponentTypeID<Collider2DComponent>())
 			{
-				out << YAML::Key << "Colliders2DComponent" << YAML::BeginMap; // Colliders2DComponent
+				out << YAML::Key << "Collider2DComponent" << YAML::BeginMap; // Collider2DComponent
 
-				auto& c2c = entity.GetComponent<Colliders2DComponent>();
-				ObjectSerializer<Colliders2DComponent>::Serialize(out, &c2c);
+				auto& c2c = entity.GetComponent<Collider2DComponent>();
+				ObjectSerializer<Collider2DComponent>::Serialize(out, &c2c);
 
-				out << YAML::EndMap; // Colliders2DComponent
+				out << YAML::EndMap; // Collider2DComponent
 			}
 		}
 
@@ -180,10 +180,10 @@ namespace OverEngine
 					ObjectSerializer<RigidBody2DComponent>::Deserialize(rigidBody2DComponent, &rbc);
 				}
 
-				if (auto colliders2DComponent = entity["Colliders2DComponent"])
+				if (auto colliders2DComponent = entity["Collider2DComponent"])
 				{
-					auto& c2c = deserializedEntity.AddComponent<Colliders2DComponent>();
-					ObjectSerializer<Colliders2DComponent>::Deserialize(colliders2DComponent, &c2c);
+					auto& c2c = deserializedEntity.AddComponent<Collider2DComponent>();
+					ObjectSerializer<Collider2DComponent>::Deserialize(colliders2DComponent, &c2c);
 				}
 			}
 		}

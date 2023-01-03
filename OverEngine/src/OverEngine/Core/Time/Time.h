@@ -12,7 +12,7 @@ namespace OverEngine
 		Time(const Time&) = delete;
 		Time& operator=(const Time&) = delete;
 	public:
-		inline static float  GetTime() { return s_Instance->GetTimeImpl(); }
+		inline static float GetTime() { return s_Instance->GetTimeImpl(); }
 		inline static double GetTimeDouble() { return s_Instance->GetTimeDoubleImpl(); }
 
 		inline static TimeStep GetDeltaTime() { return m_DeltaTime; }
