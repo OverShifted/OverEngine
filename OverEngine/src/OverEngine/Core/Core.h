@@ -8,6 +8,8 @@
 #include <map>
 #include <unordered_map>
 #include <unordered_set>
+#include <algorithm>
+#include <functional>
 
 // For Assertion
 #include "OverEngine/Core/Log.h"

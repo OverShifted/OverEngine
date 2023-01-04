@@ -5,7 +5,7 @@
 #include "OverEngine/Scene/Components.h"
 #include "OverEngine/Scene/TransformComponent.h"
 
-#define WRENPP_BIND_STATIC(f, sig) .bindFunction<decltype(f), &f>(true, sig)
+#define WRENPP_BIND_STATIC(f, sig) .bindFunction<decltype(&f), &f>(true, sig)
 #define WRENPP_BIND_GETTER(f, sig) .bindGetter<decltype(f), &f>(sig)
 #define WRENPP_BIND_SETTER(f, sig) .bindSetter<decltype(f), &f>(sig)
 
@@ -59,3 +59,4 @@ namespace OverEngine
 		LoadModule("src/wren/lib/lib");
 	}
 }
+
