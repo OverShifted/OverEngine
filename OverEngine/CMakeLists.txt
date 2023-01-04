@@ -62,7 +62,7 @@ target_include_directories(OverEngine PUBLIC
 	"vendor/json/include"
 	"vendor/fmt/include"
 	"vendor/yaml-cpp/include"
-	"vendor/wrenbind17/include"
+	"vendor/wren/src/include"
 )
 
 target_compile_definitions(
