@@ -23,11 +23,9 @@ namespace ImGui
 		bool pressed;
 		if (!all_on && any_on)
 		{
-			ImGuiWindow* window = GetCurrentWindow();
-			ImGuiItemFlags backup_item_flags = window->DC.ItemFlags;
-			window->DC.ItemFlags |= ImGuiItemFlags_MixedValue;
+			ImGui::PushItemFlag(ImGuiItemFlags_MixedValue, true);
 			pressed = Checkbox(label, &all_on);
-			window->DC.ItemFlags = backup_item_flags;
+			ImGui::PopItemFlag();
 		}
 		else
 		{

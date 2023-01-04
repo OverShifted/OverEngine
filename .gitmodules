@@ -1,24 +1,27 @@
 [submodule "OverEngine/vendor/spdlog"]
 	path = OverEngine/vendor/spdlog
-	url = https://github.com/gabime/spdlog
+	url = https://github.com/OverShifted/spdlog
 [submodule "OverEngine/vendor/GLFW"]
 	path = OverEngine/vendor/GLFW
-	url = https://github.com/glfw/glfw
+	url = https://github.com/OverShifted/glfw
 [submodule "OverEngine/vendor/glm"]
 	path = OverEngine/vendor/glm
 	url = https://github.com/g-truc/glm
 [submodule "OverEngine/vendor/box2d"]
 	path = OverEngine/vendor/box2d
-	url = https://github.com/erincatto/box2d
+	url = https://github.com/OverShifted/box2d
 [submodule "OverEngine/vendor/imgui"]
 	path = OverEngine/vendor/imgui
-	url = https://github.com/ocornut/imgui
+	url = https://github.com/OverShifted/imgui
 [submodule "OverEngine/vendor/fmt"]
 	path = OverEngine/vendor/fmt
 	url = https://github.com/fmtlib/fmt.git
 [submodule "OverEngine/vendor/yaml-cpp"]
 	path = OverEngine/vendor/yaml-cpp
-	url = https://github.com/jbeder/yaml-cpp
+	url = https://github.com/OverShifted/yaml-cpp
 [submodule "OverEngine/vendor/wrenpp"]
 	path = OverEngine/vendor/wrenpp
-	url = https://github.com/nelarius/wrenpp.git
+	url = https://github.com/OverShifted/wrenpp
+[submodule "OverEngine/vendor/wren"]
+	path = OverEngine/vendor/wren
+	url = https://github.com/OverShifted/wren

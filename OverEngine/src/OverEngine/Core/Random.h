@@ -32,6 +32,17 @@ namespace OverEngine
 		{
 			return s_DistributionUInt64(s_RandomEngineUInt64);
 		}
+
+		static std::mt19937& GetMt19937()
+		{
+			return s_RandomEngineUInt32;
+		}
+
+		static std::mt19937_64& GetMt19937_64()
+		{
+			return s_RandomEngineUInt64;
+		}
+
 	private:
 		static std::mt19937 s_RandomEngineUInt32;
 		static std::uniform_int_distribution<std::mt19937::result_type> s_DistributionUInt32;

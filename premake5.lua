@@ -4,7 +4,7 @@ support32Bit = false
 staticRuntime = "on"
 
 workspace "OverEngine"
-	startproject "OverEditor"
+	startproject "Sandbox"
 
 	configurations
 	{
@@ -31,10 +31,9 @@ workspace "OverEngine"
 	}
 
 
---            configurations       OS              x86_64
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
--- include directories related to Solution folder
+-- include directories relative to Solution folder
 includeDir = {}
 includeDir["GLFW"]     = "%{wks.location}/OverEngine/vendor/GLFW/include"
 includeDir["glad"]     = "%{wks.location}/OverEngine/vendor/glad/include"
@@ -47,6 +46,7 @@ includeDir["box2d"]    = "%{wks.location}/OverEngine/vendor/box2d/include"
 includeDir["json"]     = "%{wks.location}/OverEngine/vendor/json/include"
 includeDir["fmt"]      = "%{wks.location}/OverEngine/vendor/fmt/include"
 includeDir["yaml_cpp"] = "%{wks.location}/OverEngine/vendor/yaml-cpp/include"
+includeDir["wren"]     = "%{wks.location}/OverEngine/vendor/wren/src/include"
 
 linkLibs = {
 	"GLFW",
@@ -54,6 +54,7 @@ linkLibs = {
 	"imgui",
 	"box2d",
 	"yaml-cpp",
+	"wren",
 }
 
 clientIncludes = {
@@ -68,6 +69,7 @@ clientIncludes = {
 	"%{includeDir.json}",
 	"%{includeDir.fmt}",
 	"%{includeDir.yaml_cpp}",
+	"%{includeDir.wren}",
 }
 
 group "Dependencies"
@@ -76,8 +78,9 @@ group "Dependencies"
 	include "OverEngine/vendor/imgui"
 	include "OverEngine/vendor/box2d"
 	include "OverEngine/vendor/yaml-cpp"
+	include "OverEngine/vendor/wren"
 group ""
 
 include "OverEngine"
-include "OverEditor"
+-- include "OverEditor"
 include "Sandbox"

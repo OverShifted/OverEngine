@@ -1,10 +1,11 @@
+#include "pcheader.h"
 #include "Wren.h"
-
+#include <wren.h>
 #include "OverEngine/Scene/Entity.h"
 #include "OverEngine/Scene/Components.h"
 #include "OverEngine/Scene/TransformComponent.h"
 
-#define WRENPP_BIND_STATIC(f, sig) .bindFunction<decltype(f), f>(true, sig)
+#define WRENPP_BIND_STATIC(f, sig) .bindFunction<decltype(f), &f>(true, sig)
 #define WRENPP_BIND_GETTER(f, sig) .bindGetter<decltype(f), &f>(sig)
 #define WRENPP_BIND_SETTER(f, sig) .bindSetter<decltype(f), &f>(sig)
 
@@ -28,7 +29,7 @@ namespace OverEngine
 		}
 	}
 
-	void WrenVM::InitializeBindings()
+	void Wren::InitializeBindings()
 	{
 		using namespace WrenBindings;
 

@@ -13,8 +13,11 @@ project(OverEngine
 # vendor
 option(GLFW_BUILD_DOCS OFF)
 add_subdirectory(OverEngine/vendor/GLFW)
+
 add_subdirectory(OverEngine/vendor/glad)
 add_subdirectory(OverEngine/vendor/imgui)
+
+option(YAML_CPP_BUILD_TOOLS OFF)
 add_subdirectory(OverEngine/vendor/yaml-cpp)
 
 option(BOX2D_BUILD_TESTBED "Build the Box2D testbed" OFF)

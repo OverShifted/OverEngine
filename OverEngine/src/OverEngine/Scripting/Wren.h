@@ -8,14 +8,14 @@
 namespace OverEngine
 {
 	class WrenScriptClass;
-	class WrenVM : public std::enable_shared_from_this<WrenVM>
+	class Wren : public std::enable_shared_from_this<Wren>
 	{
 	public:
-		WrenVM();
-		~WrenVM();
+		Wren();
+		~Wren();
 
-		WrenVM(const WrenVM&) = delete;
-		WrenVM& operator=(const WrenVM&) = delete;
+		Wren(const Wren&) = delete;
+		Wren& operator=(const Wren&) = delete;
 
 		inline WrenHandle* GetOnCreateMethod()     const { return m_OnCreateMethod; }
 		inline WrenHandle* GetOnDestroyMethod()    const { return m_OnDestroyMethod; }
@@ -77,7 +77,7 @@ namespace OverEngine
 	class WrenScriptClass
 	{
 	public:
-		WrenScriptClass(const Ref<WrenVM>& vm, const char* moduleName, const char* className);
+		WrenScriptClass(const Ref<Wren>& vm, const char* moduleName, const char* className);
 		~WrenScriptClass();
 
 		WrenScriptClass(const WrenScriptClass&) = delete;
@@ -86,14 +86,14 @@ namespace OverEngine
 		Ref<WrenScriptInstance> Construct(const Entity& entity) const;
 
 	private:
-		Ref<WrenVM> m_VM;
+		Ref<Wren> m_VM;
 		WrenHandle* m_ClassHandle;
 		WrenHandle* m_ConstructorHandle;
 	};
 
 	class WrenScriptInstance {
 	public:
-		WrenScriptInstance(const Ref<WrenVM>& vm, WrenHandle* instanceHandle);
+		WrenScriptInstance(const Ref<Wren>& vm, WrenHandle* instanceHandle);
 		~WrenScriptInstance();
 
 		WrenScriptInstance(const WrenScriptInstance&) = delete;
@@ -118,7 +118,7 @@ namespace OverEngine
 		}
 
 	private:
-		Ref<WrenVM> m_VM;
+		Ref<Wren> m_VM;
 		WrenHandle* m_InstanceHandle;
 	};
 }

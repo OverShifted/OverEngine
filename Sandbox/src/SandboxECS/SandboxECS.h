@@ -28,5 +28,5 @@ private:
 
 	ParticleSystem2D m_ParticleSystem;
 
-	Ref<OverEngine::WrenVM> m_VM;
+	Ref<Wren> m_VM;
 };

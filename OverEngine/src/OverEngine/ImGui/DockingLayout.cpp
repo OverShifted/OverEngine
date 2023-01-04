@@ -69,7 +69,7 @@ namespace OverEngine
 			ReadNodeRecursive(uiNode->ChildNodes[1]->ID, node->ChildNodes[1], nodes);
 		}
 
-		node->Flags = uiNode->GetMergedFlags();
+		node->Flags = uiNode->MergedFlags;
 
 		if (uiNode->TabBar)
 		{

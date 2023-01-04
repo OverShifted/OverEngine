@@ -8,7 +8,7 @@
 using namespace OverEngine;
 
 SandboxECS::SandboxECS()
-	: Layer("SandboxECS"), m_VM(CreateRef<OverEngine::WrenVM>())
+	: Layer("SandboxECS"), m_VM(CreateRef<Wren>())
 {
 	OE_PROFILE_FUNCTION();
 

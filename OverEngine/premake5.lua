@@ -30,6 +30,10 @@ project "OverEngine"
 		"vendor/tinyfiledialogs/tinyfiledialogs.h",
 		"vendor/tinyfiledialogs/tinyfiledialogsBuild.cpp",
 
+		-- Wrenpp
+		"vendor/wrenpp/Wren++.h",
+		"vendor/wrenpp/Wren++.cpp",
+
 		-- Resources
 		"res/**.h",
 
@@ -54,6 +58,7 @@ project "OverEngine"
 		"%{includeDir.json}",
 		"%{includeDir.fmt}",
 		"%{includeDir.yaml_cpp}",
+		"%{includeDir.wren}",
 	}
 
 	defines

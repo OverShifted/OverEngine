@@ -2,6 +2,8 @@
 
 #include <imgui.h>
 
+#include <algorithm>
+
 using namespace OverEngine;
 
 static float g = 8.0f;
@@ -50,10 +52,10 @@ StringSim::StringSim()
         }
     }
 
-    random_shuffle(std::begin(m_Links), std::end(m_Links));
+    std::shuffle(std::begin(m_Links), std::end(m_Links), Random::GetMt19937());
 }
 
-float angle_between(
+float angleBetween(
     glm::vec2 a,
     glm::vec2 b
 ) {
@@ -62,21 +64,21 @@ float angle_between(
     return glm::acos(glm::dot(da, db));
 }
 
-float cross_vec2(Vector2 a, Vector2 b) {
+float crossVec2(Vector2 a, Vector2 b) {
     return a.x * b.y - a.y * b.x;
 }
 
-bool lines_collide(
+bool linesCollide(
     Vector2 a0, Vector2 a1,
     Vector2 b0, Vector2 b1
 ) {
     Vector2 delta_a = a1 - a0;
     Vector2 delta_b = b1 - b0;
 
-    float t = cross_vec2(a0 - b0, delta_a) / cross_vec2(delta_b, delta_a);
-    float u = cross_vec2(a0 - b0, delta_b) / cross_vec2(delta_b, delta_a);
+    float t = crossVec2(a0 - b0, delta_a) / crossVec2(delta_b, delta_a);
+    float u = crossVec2(a0 - b0, delta_b) / crossVec2(delta_b, delta_a);
 
-    return t >= 0 and 1 >= t and u >= 0 and 1 >= u;
+    return t >= 0 && 1 >= t && u >= 0 && 1 >= u;
 }
 
 void StringSim::OnUpdate(TimeStep deltaTime)
@@ -128,7 +130,7 @@ void StringSim::OnUpdate(TimeStep deltaTime)
 
         Mat4x4 transform = 
             glm::translate(Mat4x4(1.0f), center) *
-            glm::rotate(Mat4x4(1.0f), angle_between(diffYSign * diff, Vector2 { 1.0f, 0.0f }), Vector3(0, 0, 1)) *
+            glm::rotate(Mat4x4(1.0f), angleBetween(diffYSign * diff, Vector2 { 1.0f, 0.0f }), Vector3(0, 0, 1)) *
 			glm::scale(Mat4x4(1.0f), Vector3(glm::length(diff), 0.05, 1.0f));
 
         Mat4x4 mat = m_Camera.GetProjection() * IDENTITY_MAT4X4 * transform;
@@ -163,10 +165,10 @@ void StringSim::OnUpdate(TimeStep deltaTime)
 //            }
 
             if (
-                lines_collide(m, mousePosLastFrame, a, b) ||
-                lines_collide(m, mousePosLastFrame, b, c) ||
-                lines_collide(m, mousePosLastFrame, c, d) ||
-                lines_collide(m, mousePosLastFrame, d, a)
+                linesCollide(m, mousePosLastFrame, a, b) ||
+                linesCollide(m, mousePosLastFrame, b, c) ||
+                linesCollide(m, mousePosLastFrame, c, d) ||
+                linesCollide(m, mousePosLastFrame, d, a)
             )
                 link.Enabled = false;
         }

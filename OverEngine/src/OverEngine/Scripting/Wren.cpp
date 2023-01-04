@@ -1,3 +1,4 @@
+#include "pcheader.h"
 #include "Wren.h"
 
 namespace OverEngine
@@ -13,7 +14,7 @@ namespace OverEngine
 		}
 	}
 
-	WrenVM::WrenVM()
+	Wren::Wren()
 		: m_VM()
 	{
 		wrenpp::VM::writeFn = [](const char* message) { if (strcmp(message, "\n")) OE_INFO("[wren] {}", message); };
@@ -36,7 +37,7 @@ namespace OverEngine
 		m_OnCollisionExitMethod  = wrenMakeCallHandle(m_VM, "onCollisionExit()");
 	}
 
-	WrenVM::~WrenVM()
+	Wren::~Wren()
 	{
 		wrenReleaseHandle(m_VM, m_OnCreateMethod);
 		wrenReleaseHandle(m_VM, m_OnDestroyMethod);
@@ -47,7 +48,7 @@ namespace OverEngine
 		wrenReleaseHandle(m_VM, m_OnCollisionExitMethod);
 	}
 
-	WrenScriptClass::WrenScriptClass(const Ref<WrenVM>& vm, const char* moduleName, const char* className)
+	WrenScriptClass::WrenScriptClass(const Ref<Wren>& vm, const char* moduleName, const char* className)
 		: m_VM(vm)
 	{
 		wrenEnsureSlots(m_VM->GetRaw(), 1);
@@ -70,7 +71,7 @@ namespace OverEngine
 		return CreateRef<WrenScriptInstance>(m_VM, instance);
 	}
 
-	WrenScriptInstance::WrenScriptInstance(const Ref<WrenVM>& vm, WrenHandle* instanceHandle)
+	WrenScriptInstance::WrenScriptInstance(const Ref<Wren>& vm, WrenHandle* instanceHandle)
 		: m_VM(vm), m_InstanceHandle(instanceHandle)
 	{
 	}
