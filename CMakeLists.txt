@@ -24,6 +24,8 @@ option(BOX2D_BUILD_TESTBED "Build the Box2D testbed" OFF)
 option(BOX2D_BUILD_UNIT_TESTS "Build the Box2D unit tests" OFF)
 add_subdirectory(OverEngine/vendor/box2d)
 
+add_subdirectory(OverEngine/vendor/wren)
+
 # OverEngine
 add_subdirectory(OverEngine)
 # add_subdirectory(OverEditor)
