@@ -1,4 +1,4 @@
-import "src/wren/lib/entity" for Entity
+import "entity" for Entity
 
 class Script {
 	construct new(entity) {

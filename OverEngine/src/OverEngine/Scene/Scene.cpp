@@ -114,7 +114,7 @@ namespace OverEngine
 
 	void Scene::OnScriptsUpdate(TimeStep deltaTime)
 	{
-		m_Registry.view<NativeScriptsComponent>().each([&deltaTime](auto entity, auto& nsc)
+		m_Registry.view<NativeScriptsComponent>().each([deltaTime](auto entity, auto& nsc)
 		{
 			for (auto& script : nsc.Scripts)
 			{
@@ -122,12 +122,12 @@ namespace OverEngine
 			}
 		});
 
-		m_Registry.view<ScriptComponent>().each([&deltaTime](auto entity, auto& script)
+		m_Registry.view<ScriptComponent>().each([deltaTime](auto entity, auto& script)
 		{
 			script.Script->OnUpdate(deltaTime);
 		});
 
-		m_Registry.view<NativeScriptsComponent>().each([&deltaTime](auto entity, auto& nsc)
+		m_Registry.view<NativeScriptsComponent>().each([deltaTime](auto entity, auto& nsc)
 		{
 			for (auto& script : nsc.Scripts)
 			{
@@ -135,7 +135,7 @@ namespace OverEngine
 			}
 		});
 
-		m_Registry.view<ScriptComponent>().each([&deltaTime](auto entity, auto& script)
+		m_Registry.view<ScriptComponent>().each([deltaTime](auto entity, auto& script)
 		{
 			script.Script->OnLateUpdate(deltaTime);
 		});

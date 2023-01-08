@@ -1,6 +1,16 @@
 #include "pcheader.h"
 #include "Wren.h"
 
+namespace WrenSources
+{
+	#include "Wren/entity.wren.inc"
+	#include "Wren/input.wren.inc"
+	#include "Wren/keycodes.wren.inc"
+	#include "Wren/lib.wren.inc"
+	#include "Wren/math.wren.inc"
+	#include "Wren/script.wren.inc"
+}
+
 namespace OverEngine
 {
 	inline const char* ErrorTypeToString(WrenErrorType type)
@@ -24,6 +34,34 @@ namespace OverEngine
 				OE_ERROR("{} in {}:{}> {}", typeStr, moduleName, line, message);
 			else
 				OE_ERROR("{}> {}", typeStr, message);
+		};
+
+
+		wrenpp::VM::loadModuleFn = [](const char* mod) -> char* {
+			#define WREN_MOD(m) if (strcmp(mod, #m) == 0) return const_cast<char*>(WrenSources::m##ModuleSource);
+
+			WREN_MOD(entity)
+			WREN_MOD(input)
+			WREN_MOD(keycodes)
+			WREN_MOD(lib)
+			WREN_MOD(math)
+			WREN_MOD(script)
+			
+			std::string path(mod);
+			path += ".wren";
+			std::string source;
+			try
+			{
+				source = wrenpp::detail::fileToString(path);
+			}
+			catch (const std::exception&)
+			{
+				return NULL;
+			}
+			char* buffer = (char*)malloc(source.size());
+			assert(buffer != nullptr);
+			memcpy(buffer, source.c_str(), source.size());
+			return buffer;
 		};
 
 		InitializeBindings();

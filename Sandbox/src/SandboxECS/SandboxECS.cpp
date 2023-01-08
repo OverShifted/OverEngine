@@ -153,21 +153,6 @@ SandboxECS::SandboxECS()
 
 		virtual void OnUpdate(TimeStep ts) override
 		{
-			Vector2 vel(0.0f);
-			if (Input::IsKeyPressed(KeyCode::A))
-				vel.x -= 1.0f;
-			if (Input::IsKeyPressed(KeyCode::D))
-				vel.x += 1.0f;
-			if (Input::IsKeyPressed(KeyCode::W))
-				vel.y += 1.0f;
-			if (Input::IsKeyPressed(KeyCode::S))
-				vel.y -= 1.0f;
-
-			vel *= 20 * ts;
-
-			auto& rb = GetComponent<RigidBody2DComponent>().RigidBody;
-			rb->ApplyLinearImpulseToCenter(vel);
-
 			m_ParticleProps.Position = GetComponent<TransformComponent>().GetPosition();
 			m_ParticleProps.Position.z = -0.2f;
 

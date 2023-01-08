@@ -10,4 +10,6 @@ foreign class Vector3 {
 	foreign z=(rhs)
 
 	toString { "Vector3(%(x), %(y), %(z))" }
+
+	*(rhs) { Vector3.new(x * rhs, y * rhs, z * rhs) }
 }
