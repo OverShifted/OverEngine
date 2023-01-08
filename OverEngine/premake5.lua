@@ -11,6 +11,16 @@ project "OverEngine"
 	pchheader "pcheader.h"
 	pchsource "src/pcheader.cpp"
 
+	prebuildcommands
+	{
+		[[python ../utils/wren_to_c_string.py src/Wren/entity.wren.inc src/Wren/entity.wren
+		python ../utils/wren_to_c_string.py src/Wren/input.wren.inc src/Wren/input.wren
+		python ../utils/wren_to_c_string.py src/Wren/keycodes.wren.inc src/Wren/keycodes.wren
+		python ../utils/wren_to_c_string.py src/Wren/lib.wren.inc src/Wren/lib.wren
+		python ../utils/wren_to_c_string.py src/Wren/math.wren.inc src/Wren/math.wren
+		python ../utils/wren_to_c_string.py src/Wren/script.wren.inc src/Wren/script.wren]]
+	}
+
 	files
 	{
 		-- Source Files

@@ -2,6 +2,8 @@
 
 #include "Event.h"
 
+#include <sstream>
+
 namespace OverEngine
 {
 	class WindowCloseEvent : public Event
