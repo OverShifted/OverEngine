@@ -3,6 +3,7 @@
 
 namespace WrenSources
 {
+	#include "Wren/components.wren.inc"
 	#include "Wren/entity.wren.inc"
 	#include "Wren/input.wren.inc"
 	#include "Wren/keycodes.wren.inc"
@@ -40,6 +41,7 @@ namespace OverEngine
 		wrenpp::VM::loadModuleFn = [](const char* mod) -> char* {
 			#define WREN_MOD(m) if (strcmp(mod, #m) == 0) return const_cast<char*>(WrenSources::m##ModuleSource);
 
+			WREN_MOD(components)
 			WREN_MOD(entity)
 			WREN_MOD(input)
 			WREN_MOD(keycodes)

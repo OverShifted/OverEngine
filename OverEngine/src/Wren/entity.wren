@@ -3,7 +3,6 @@ class EntityInternals {
 	foreign static getName(entity)
 	foreign static getPosition(entity)
 	foreign static setPosition(entity, position)
-	foreign static applyLinearImpulseToCenter(entity, impulse)
 }
 
 /// A single entity in the scene.
@@ -16,6 +15,12 @@ foreign class Entity {
 	position { EntityInternals.getPosition(this) }
 	position=(rhs) { EntityInternals.setPosition(this, rhs) }
 
-	/// Will be removed :)
-	applyLinearImpulseToCenter(impulse) { EntityInternals.applyLinearImpulseToCenter(this, impulse) }
+	hasComponent(type) { type.has(this) }
+	getComponent(type) {
+		if (hasComponent(type)) {
+			return type.new(this)
+		}
+
+		Fiber.abort("Entity '%(name)' doesn't have %(type)")
+	}
 }

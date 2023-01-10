@@ -36,9 +36,16 @@ namespace OverEngine
 			entity.GetComponent<TransformComponent>().SetPosition(position);
 		}
 
-		// TODO: Move into component classes (not all entities have rigidbodies)
-		// TODO: Use Vector2
-		void EntityInternals_applyLinearImpulseToCenter(Entity& entity, const Vector3& impulse)
+		#define COMPONENT_HAS(component)                 \
+			bool component##_has(Entity& entity)         \
+			{                                            \
+				return entity.HasComponent<component>(); \
+			}
+
+		COMPONENT_HAS(TransformComponent)
+		COMPONENT_HAS(RigidBody2DComponent)
+
+		void RigidBody2DComponent_applyLinearImpulseToCenter(Entity& entity, const Vector3& impulse)
 		{
 			entity.GetComponent<RigidBody2DComponent>().RigidBody->ApplyLinearImpulseToCenter(impulse);
 		}
@@ -59,11 +66,23 @@ namespace OverEngine
 				WRENPP_BIND_STATIC(EntityInternals_getName, "getName(_)")
 				WRENPP_BIND_STATIC(EntityInternals_getPosition, "getPosition(_)")
 				WRENPP_BIND_STATIC(EntityInternals_setPosition, "setPosition(_,_)")
-
-				WRENPP_BIND_STATIC(EntityInternals_applyLinearImpulseToCenter, "applyLinearImpulseToCenter(_,_)")
 			.endClass()
 
 			.bindClass<Entity>("Entity")
+			.endClass()
+		.endModule();
+
+		m_VM.beginModule("components")
+			.beginClass("ComponentInternals")
+				WRENPP_BIND_STATIC(RigidBody2DComponent_applyLinearImpulseToCenter, "RigidBody2DComponent_applyLinearImpulseToCenter(_,_)")
+			.endClass()
+
+			.beginClass("TransformComponent")
+				WRENPP_BIND_STATIC(TransformComponent_has, "has(_)")
+			.endClass()
+
+			.beginClass("RigidBody2DComponent")
+				WRENPP_BIND_STATIC(RigidBody2DComponent_has, "has(_)")
 			.endClass()
 		.endModule();
 

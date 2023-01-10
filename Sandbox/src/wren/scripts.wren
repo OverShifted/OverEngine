@@ -2,6 +2,7 @@ import "script" for Script
 import "keycodes" for KeyCode
 import "input" for Input
 import "math" for Vector3
+import "components" for RigidBody2DComponent
 
 class Player is Script {
 	construct new(e) {
@@ -10,6 +11,7 @@ class Player is Script {
 
 	onCreate() {
 		System.print("My name is '%(entity.name)'")
+		_rb = entity.getComponent(RigidBody2DComponent)
 	}
 
 	onUpdate(delta) {
@@ -20,7 +22,7 @@ class Player is Script {
 		if (Input.isKeyPressed(KeyCode.w)) { impulse.y = impulse.y + 1 }
 		if (Input.isKeyPressed(KeyCode.s)) { impulse.y = impulse.y - 1 }
 
-		entity.applyLinearImpulseToCenter(impulse * 20 * delta)
+		_rb.applyLinearImpulseToCenter(impulse * 20 * delta)
 	}
 }
 
@@ -32,6 +34,6 @@ class CameraController is Script {
 	player=(rhs) { _player = rhs }
 
 	onLateUpdate(delta) {
-		entity.position = _player.position
+		entity.position = _player.position.lerp(entity.position, 0.5)
 	}
 }
