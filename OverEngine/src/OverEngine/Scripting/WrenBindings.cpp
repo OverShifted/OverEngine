@@ -8,6 +8,8 @@
 #include "OverEngine/Scene/Components.h"
 #include "OverEngine/Scene/TransformComponent.h"
 
+#include "OverEngine/Core/Time/Time.h"
+
 #define WRENPP_BIND_STATIC(f, sig) .bindFunction<decltype(&f), &f>(true, sig)
 #define WRENPP_BIND_STATIC_EXACT(f, args) .bindFunction<decltype(&f), &f>(true, #f "(" args ")")
 
@@ -65,6 +67,16 @@ namespace OverEngine
 		{
 			entity.GetComponent<RigidBody2DComponent>().RigidBody->ApplyLinearImpulseToCenter(impulse);
 		}
+
+		double Time_time()
+		{
+			return Time::GetTimeDouble();
+		}
+
+		double Time_deltaTime()
+		{
+			return Time::GetDeltaTime().GetSeconds();
+		}
 	}
 
 	void Wren::InitializeBindings()
@@ -116,6 +128,13 @@ namespace OverEngine
 			.bindClass<Vector2, float, float>("Vector2")
 				WRENPP_BIND_GETSET(Vector2, x)
 				WRENPP_BIND_GETSET(Vector2, y)
+			.endClass()
+		.endModule();
+
+		m_VM.beginModule("time")
+			.beginClass("Time")
+				WRENPP_BIND_STATIC(Time_time, "time")
+				WRENPP_BIND_STATIC(Time_deltaTime, "deltaTime")
 			.endClass()
 		.endModule();
 

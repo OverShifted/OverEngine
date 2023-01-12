@@ -3,6 +3,7 @@ import "keycodes" for KeyCode
 import "input" for Input
 import "math" for Math, Vector2
 import "components" for RigidBody2DComponent
+import "scheduler" for Scheduler, WaitSeconds
 
 class Player is Script {
 	construct new(e) {
@@ -12,6 +13,16 @@ class Player is Script {
 	onCreate() {
 		System.print("My name is '%(entity.name)'")
 		_rb = entity.getComponent(RigidBody2DComponent)
+
+		Scheduler.add {
+			var i = 10
+			while (i >= 0) {
+				System.print("%(this.name)'s countdown: %(i)")
+				Fiber.yield(WaitSeconds.new(0.1))
+				i = i - 1
+			}
+			System.print("Boom!")
+		}
 	}
 
 	onUpdate(delta) {
@@ -24,7 +35,8 @@ class Player is Script {
 
 		_rb.applyLinearImpulseToCenter(impulse * 20 * delta)
 
-		System.print("%(Input.mouseX) %(Input.mouseY) %(Input.mousePosition)")
+		// System.print("%(Input.mouseX) %(Input.mouseY) %(Input.mousePosition)")
+		Scheduler.poll()
 	}
 }
 

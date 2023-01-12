@@ -88,6 +88,8 @@ namespace OverEngine
 	private:
 		Ref<Wren> m_VM;
 		WrenHandle* m_ClassHandle;
+
+		// TODO: move to Wren
 		WrenHandle* m_ConstructorHandle;
 	};
 

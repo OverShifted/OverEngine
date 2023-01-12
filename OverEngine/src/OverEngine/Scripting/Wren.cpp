@@ -9,7 +9,9 @@ namespace WrenSources
 	#include "Wren/keycodes.wren.inc"
 	#include "Wren/lib.wren.inc"
 	#include "Wren/math.wren.inc"
+	#include "Wren/scheduler.wren.inc"
 	#include "Wren/script.wren.inc"
+	#include "Wren/time.wren.inc"
 }
 
 namespace OverEngine
@@ -48,6 +50,8 @@ namespace OverEngine
 			WREN_MOD(lib)
 			WREN_MOD(math)
 			WREN_MOD(script)
+			WREN_MOD(scheduler)
+			WREN_MOD(time)
 			
 			std::string path(mod);
 			path += ".wren";
@@ -93,6 +97,9 @@ namespace OverEngine
 	{
 		wrenEnsureSlots(m_VM->GetRaw(), 1);
 		wrenGetVariable(m_VM->GetRaw(), moduleName, className, 0);
+
+		OE_CORE_ASSERT(wrenGetSlotType(m_VM->GetRaw(), 0) != WREN_TYPE_NULL, "Wren class is null! Maybe it failed to compile.");
+
 		m_ClassHandle = wrenGetSlotHandle(m_VM->GetRaw(), 0);
 		m_ConstructorHandle = wrenMakeCallHandle(m_VM->GetRaw(), "new(_)");
 	}
