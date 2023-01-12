@@ -1,19 +1,13 @@
-#nodoc
-class EntityInternals {
-	foreign static getName(entity)
-	foreign static getPosition(entity)
-	foreign static setPosition(entity, position)
-}
+import "components" for NameComponent, TransformComponent
 
 /// A single entity in the scene.
 foreign class Entity {
 	/// The name of the entity.
 	/// Under the hood, its stored in NameComponent.
-	name { EntityInternals.getName(this) }
+	name { getComponent(NameComponent).name }
+	toString { "Entity(\"%(name)\")" }
 
-	/// Position of the entity in spatial space.
-	position { EntityInternals.getPosition(this) }
-	position=(rhs) { EntityInternals.setPosition(this, rhs) }
+	transform { getComponent(TransformComponent) }
 
 	hasComponent(type) { type.has(this) }
 	getComponent(type) {

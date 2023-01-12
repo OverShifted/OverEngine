@@ -21,7 +21,7 @@ namespace OverEngine
 		}
 		else
 		{
-			OE_CORE_ASSERT("Could not open file '{0}'", path);
+			OE_CORE_ASSERT(false, "Could not open file '{0}'", path);
 		}
 
 		return result;

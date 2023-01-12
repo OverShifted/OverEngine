@@ -6,6 +6,8 @@ class Script {
 	}
 
 	entity { _entity }
+	name { _entity.name }
+	transform { _entity.transform }
 
 	onCreate() {}
 	onDestroy() {}

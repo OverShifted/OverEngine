@@ -1,7 +1,7 @@
 import "script" for Script
 import "keycodes" for KeyCode
 import "input" for Input
-import "math" for Vector3
+import "math" for Math, Vector2
 import "components" for RigidBody2DComponent
 
 class Player is Script {
@@ -15,7 +15,7 @@ class Player is Script {
 	}
 
 	onUpdate(delta) {
-		var impulse = Vector3.new(0, 0, 0)
+		var impulse = Vector2.new(0, 0)
 
 		if (Input.isKeyPressed(KeyCode.a)) { impulse.x = impulse.x - 1 }
 		if (Input.isKeyPressed(KeyCode.d)) { impulse.x = impulse.x + 1 }
@@ -23,6 +23,8 @@ class Player is Script {
 		if (Input.isKeyPressed(KeyCode.s)) { impulse.y = impulse.y - 1 }
 
 		_rb.applyLinearImpulseToCenter(impulse * 20 * delta)
+
+		System.print("%(Input.mouseX) %(Input.mouseY) %(Input.mousePosition)")
 	}
 }
 
@@ -34,6 +36,6 @@ class CameraController is Script {
 	player=(rhs) { _player = rhs }
 
 	onLateUpdate(delta) {
-		entity.position = _player.position.lerp(entity.position, 0.5)
+		transform.position = Math.lerp(_player.transform.position, transform.position, 0.5)
 	}
 }
