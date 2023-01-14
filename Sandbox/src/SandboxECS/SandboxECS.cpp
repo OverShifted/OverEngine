@@ -186,8 +186,6 @@ SandboxECS::SandboxECS()
 	ImGui::GetStyle().Alpha = 0.8f;
 }
 
-static int s_MaxFPS = 0;
-
 void SandboxECS::OnUpdate(TimeStep deltaTime)
 {
 	OE_PROFILE_FUNCTION();
@@ -213,26 +211,13 @@ void SandboxECS::OnImGuiRender()
 {
 	OE_PROFILE_FUNCTION();
 
-	auto& camTransform = m_MainCamera.GetComponent<TransformComponent>();
-
-	ImGui::Begin("Camera");
-	Vector3 pos = camTransform.GetPosition();
-	ImGui::PushItemWidth(-1);
-	if (ImGui::DragFloat3("##CameraPosition", glm::value_ptr(pos), m_MainCamera.GetComponent<CameraComponent>().Camera.GetOrthographicSize() / 20))
-		camTransform.SetPosition(pos);
-	ImGui::End();
-
-	ImGui::Begin("Renderer2D Statistics");
-
-	ImGui::Text("FPS : %i   ", (int)(1.0f / Time::GetDeltaTime())); ImGui::SameLine();
-	ImGui::Text("MaxFPS : %i   ", s_MaxFPS);
-
 	if (ImGui::Button("Reload Renderer2D Shader"))
 		Renderer2D::GetShader()->Reload();
 
-	ImGui::SameLine();
+	ImGui::Text("FPS: %i", (int)(1.0f / Time::GetDeltaTime()));
 
-	ImGui::End();
+	Vector3 camPos = m_MainCamera.GetComponent<TransformComponent>().GetPosition();
+	ImGui::Text("Camera position: %.3f %.3f", camPos.x, camPos.y);
 }
 
 void SandboxECS::OnEvent(Event& event)

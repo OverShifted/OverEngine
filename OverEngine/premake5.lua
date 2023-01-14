@@ -1,3 +1,7 @@
+function wren2c_command(name)
+	return string.format("python ../utils/wren_to_c_string.py src/Wren/" .. name .. ".wren.inc src/Wren/" .. name .. ".wren\n")
+end
+
 project "OverEngine"
 	kind "StaticLib"
 
@@ -13,12 +17,14 @@ project "OverEngine"
 
 	prebuildcommands
 	{
-		[[python ../utils/wren_to_c_string.py src/Wren/entity.wren.inc src/Wren/entity.wren
-		python ../utils/wren_to_c_string.py src/Wren/input.wren.inc src/Wren/input.wren
-		python ../utils/wren_to_c_string.py src/Wren/keycodes.wren.inc src/Wren/keycodes.wren
-		python ../utils/wren_to_c_string.py src/Wren/lib.wren.inc src/Wren/lib.wren
-		python ../utils/wren_to_c_string.py src/Wren/math.wren.inc src/Wren/math.wren
-		python ../utils/wren_to_c_string.py src/Wren/script.wren.inc src/Wren/script.wren]]
+		wren2c_command("entity")    ..
+		wren2c_command("input")     ..
+		wren2c_command("keycodes")  ..
+		wren2c_command("lib")       ..
+		wren2c_command("math")      ..
+		wren2c_command("scheduler") ..
+		wren2c_command("script")    ..
+		wren2c_command("time")
 	}
 
 	files
@@ -42,7 +48,6 @@ project "OverEngine"
 
 		-- Wrenpp
 		"vendor/wrenpp/Wren++.h",
-		"vendor/wrenpp/Wren++.cpp",
 
 		-- Resources
 		"res/**.h",

@@ -19,7 +19,6 @@ set(OE_CROSS_PLATFORM_FILES
 	"vendor/tinyfiledialogs/tinyfiledialogsBuild.cpp"
 
 	"vendor/wrenpp/Wren++.h"
-	"vendor/wrenpp/Wren++.cpp"
 )
 
 file(GLOB_RECURSE OE_OPENGL_SOURCE_FILES "src/Platform/OpenGL/*.cpp")
