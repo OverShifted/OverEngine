@@ -4,6 +4,8 @@ class ComponentInternals {
 
 	foreign static TransformComponent_position(entity)
 	foreign static TransformComponent_set_position(entity, position)
+	foreign static TransformComponent_eulerAngles(entity)
+	foreign static TransformComponent_set_eulerAngles(entity, eulerAngles)
 
 	foreign static RigidBody2DComponent_applyLinearImpulseToCenter(entity, impulse)
 }
@@ -29,6 +31,9 @@ class TransformComponent is Component {
 
 	position { ComponentInternals.TransformComponent_position(entity) }
 	position=(rhs) { ComponentInternals.TransformComponent_set_position(entity, rhs) }
+
+	eulerAngles { ComponentInternals.TransformComponent_eulerAngles(entity) }
+	eulerAngles=(rhs) { ComponentInternals.TransformComponent_set_eulerAngles(entity, rhs) }
 }
 
 class RigidBody2DComponent is Component {

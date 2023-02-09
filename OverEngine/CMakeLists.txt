@@ -80,6 +80,14 @@ target_include_directories(OverEngine PUBLIC
 	"vendor/wren/src/include"
 )
 
+string(LENGTH "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE_LEN)
+if(CMAKE_BUILD_TYPE_LEN EQUAL 0)
+	message(SEND_ERROR "No build type is specified. It can cause problems because 'stb_image.cpp' "
+					   "relies on the 'OE_DEBUG' macro which won't be properly defined without an "
+					   "explicit build type. Make sure to run CMake with "
+					   "-DCMAKE_BUILD_TYPE={Debug|Release}")
+endif()
+
 target_compile_definitions(
 	OverEngine
 

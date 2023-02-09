@@ -33,5 +33,7 @@ OverEngineProfile-StartUp.json
 OverEngineProfile-Runtime.json
 OverEngineProfile-Shutdown.json
 
-# Log files
+# Other
 OverEngine.log
+imgui.ini
+

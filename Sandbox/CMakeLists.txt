@@ -6,6 +6,6 @@ add_executable(Sandbox
 	${sandbox_header_files}
 )
 
-set_property(TARGET Sandbox PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/Sandbox")
+set_property(TARGET Sandbox PROPERTY VS_DEBUGGER_WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(Sandbox PRIVATE OverEngine)

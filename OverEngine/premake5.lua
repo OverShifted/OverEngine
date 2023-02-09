@@ -1,6 +1,16 @@
 function wren2c_command(name)
-	return string.format("python ../utils/wren_to_c_string.py src/Wren/" .. name .. ".wren.inc src/Wren/" .. name .. ".wren\n")
+	return string.format("python ../utils/wren_to_c_string.py %s.inc %s\n", name, name)
 end
+
+function map(tbl, f)
+	local t = {}
+	for k, v in pairs(tbl) do
+		t[k] = f(v)
+	end
+	return t
+end
+
+wren2c_commands = table.concat(map(os.matchfiles("src/Wren/*.wren"), wren2c_command), '')
 
 project "OverEngine"
 	kind "StaticLib"
@@ -17,14 +27,7 @@ project "OverEngine"
 
 	prebuildcommands
 	{
-		wren2c_command("entity")    ..
-		wren2c_command("input")     ..
-		wren2c_command("keycodes")  ..
-		wren2c_command("lib")       ..
-		wren2c_command("math")      ..
-		wren2c_command("scheduler") ..
-		wren2c_command("script")    ..
-		wren2c_command("time")
+		wren2c_commands
 	}
 
 	files

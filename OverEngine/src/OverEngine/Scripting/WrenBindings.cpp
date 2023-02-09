@@ -2,6 +2,7 @@
 #include "Wren.h"
 
 #include <wren.h>
+#include <imgui/imgui.h>
 
 #include "OverEngine/Input/Input.h"
 #include "OverEngine/Scene/Entity.h"
@@ -21,10 +22,10 @@ namespace OverEngine
 {
 	namespace WrenBindings
 	{
-		#define WREN_INPUT(name, wrenParams, nativeCallParams)            \
-			auto Input_##name(wrenParams) \
-			{                                                                \
-				return Input::name(nativeCallParams);                \
+		#define WREN_INPUT(name, wrenParams, nativeCallParams) \
+			auto Input_##name(wrenParams)                      \
+			{                                                  \
+				return Input::name(nativeCallParams);          \
 			}
 
 		WREN_INPUT(IsKeyPressed, int keycode, (KeyCode)keycode)
@@ -33,7 +34,22 @@ namespace OverEngine
 		WREN_INPUT(GetMouseX,,)
 		WREN_INPUT(GetMouseY,,)
 
-		#define WREN_COMPONENT_HAS(component)                 \
+		bool ImGui_begin(const char* name)
+		{
+			return ImGui::Begin(name);
+		}
+
+		void ImGui_end()
+		{
+			ImGui::End();
+		}
+
+		void ImGui_text(const char* text)
+		{
+			ImGui::TextUnformatted(text);
+		}
+
+		#define WREN_COMPONENT_HAS(component)            \
 			bool component##_has(Entity& entity)         \
 			{                                            \
 				return entity.HasComponent<component>(); \
@@ -61,6 +77,16 @@ namespace OverEngine
 		void TransformComponent_set_position(Entity& entity, const Vector3& position)
 		{
 			entity.GetComponent<TransformComponent>().SetPosition(position);
+		}
+
+		Vector3 TransformComponent_eulerAngles(Entity& entity)
+		{
+			return entity.GetComponent<TransformComponent>().GetEulerAngles();
+		}
+
+		void TransformComponent_set_eulerAngles(Entity& entity, const Vector3& eulerAngles)
+		{
+			entity.GetComponent<TransformComponent>().SetEulerAngles(eulerAngles);
 		}
 
 		void RigidBody2DComponent_applyLinearImpulseToCenter(Entity& entity, const Vector2& impulse)
@@ -94,6 +120,15 @@ namespace OverEngine
 			.endClass()
 		.endModule();
 
+		m_VM.beginModule("imgui")
+			.beginClass("ImGui")
+				WRENPP_BIND_STATIC(ImGui_begin, "begin(_)")
+				WRENPP_BIND_STATIC(ImGui_end, "end()")
+
+				WRENPP_BIND_STATIC(ImGui_text, "text(_)")
+			.endClass()
+		.endModule();
+
 		m_VM.beginModule("entity")
 			.bindClass<Entity>("Entity")
 			.endClass()
@@ -106,6 +141,8 @@ namespace OverEngine
 
 				WRENPP_BIND_STATIC_EXACT(TransformComponent_position, "_")
 				WRENPP_BIND_STATIC_EXACT(TransformComponent_set_position, "_,_")
+				WRENPP_BIND_STATIC_EXACT(TransformComponent_eulerAngles, "_")
+				WRENPP_BIND_STATIC_EXACT(TransformComponent_set_eulerAngles, "_,_")
 
 				WRENPP_BIND_STATIC_EXACT(RigidBody2DComponent_applyLinearImpulseToCenter, "_,_")
 			.endClass()

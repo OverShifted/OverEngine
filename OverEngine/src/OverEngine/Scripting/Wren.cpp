@@ -5,6 +5,7 @@ namespace WrenSources
 {
 	#include "Wren/components.wren.inc"
 	#include "Wren/entity.wren.inc"
+	#include "Wren/imgui.wren.inc"
 	#include "Wren/input.wren.inc"
 	#include "Wren/keycodes.wren.inc"
 	#include "Wren/lib.wren.inc"
@@ -45,6 +46,7 @@ namespace OverEngine
 
 			WREN_MOD(components)
 			WREN_MOD(entity)
+			WREN_MOD(imgui)
 			WREN_MOD(input)
 			WREN_MOD(keycodes)
 			WREN_MOD(lib)
@@ -112,9 +114,13 @@ namespace OverEngine
 
 	Ref<WrenScriptInstance> WrenScriptClass::Construct(const Entity& entity) const
 	{
-		m_VM->CallMethod(m_ClassHandle, m_ConstructorHandle, entity);
-		WrenHandle* instance = wrenGetSlotHandle(m_VM->GetRaw(), 0);
+		if (m_VM->CallMethod(m_ClassHandle, m_ConstructorHandle, entity) != WREN_RESULT_SUCCESS)
+		{
+			OE_CORE_ASSERT(false, "Script instantiation failure!");
+			return nullptr;
+		}
 
+		WrenHandle* instance = wrenGetSlotHandle(m_VM->GetRaw(), 0);
 		return CreateRef<WrenScriptInstance>(m_VM, instance);
 	}
 

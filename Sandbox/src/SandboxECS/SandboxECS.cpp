@@ -151,18 +151,20 @@ SandboxECS::SandboxECS()
 		{
 		}
 
-		virtual void OnUpdate(TimeStep ts) override
+		virtual void OnCreate() override
 		{
-			m_ParticleProps.Position = GetComponent<TransformComponent>().GetPosition();
-			m_ParticleProps.Position.z = -0.2f;
-
-			m_ParticleProps.Position.x += Random::Range(-0.2f, 0.2f);
-			m_ParticleProps.Position.y += Random::Range(-0.2f, 0.2f);
-
 			m_ParticleProps.BirthSize = Vector2(0.2f);
 
 			m_ParticleProps.RenderingProps.Sprite = GetComponent<SpriteRendererComponent>().Sprite;
 			m_ParticleProps.RenderingProps.BirthColor = Color(0.8f, 0.8f, 0.8f, 1.0f);
+		}
+
+		virtual void OnUpdate(TimeStep ts) override
+		{
+			m_ParticleProps.Position = GetComponent<TransformComponent>().GetPosition();
+			m_ParticleProps.Position.x += Random::Range(-0.2f, 0.2f);
+			m_ParticleProps.Position.y += Random::Range(-0.2f, 0.2f);
+			m_ParticleProps.Position.z = -0.2f; // Move particles behind player
 
 			OE_SIMPLE_FOR_LOOP(2) m_ParticleSystem->Emit(m_ParticleProps);
 		}
@@ -183,7 +185,7 @@ SandboxECS::SandboxECS()
 	}
 
 	m_Scene->OnScenePlay();
-	ImGui::GetStyle().Alpha = 0.8f;
+	ImGui::GetStyle().Alpha = 0.9f;
 }
 
 void SandboxECS::OnUpdate(TimeStep deltaTime)
@@ -191,14 +193,6 @@ void SandboxECS::OnUpdate(TimeStep deltaTime)
 	OE_PROFILE_FUNCTION();
 
 	auto& camTransform = m_MainCamera.GetComponent<TransformComponent>();
-
-	float cameraRotationDirection = 0.0f;
-	if (Input::IsKeyPressed(KeyCode::Q))
-		cameraRotationDirection -= 1.0f;
-	if (Input::IsKeyPressed(KeyCode::E))
-		cameraRotationDirection += 1.0f;
-
-	camTransform.SetEulerAngles({ 0.0f, 0.0f, camTransform.GetEulerAngles().z + cameraRotationDirection * deltaTime * 80.0f });
 
 	Window& win = Application::Get().GetWindow();
 	m_Scene->SetViewportSize(win.GetWidth(), win.GetHeight());
@@ -214,10 +208,12 @@ void SandboxECS::OnImGuiRender()
 	if (ImGui::Button("Reload Renderer2D Shader"))
 		Renderer2D::GetShader()->Reload();
 
-	ImGui::Text("FPS: %i", (int)(1.0f / Time::GetDeltaTime()));
+	// ImGui::Text("FPS: %i", (int)(1.0f / Time::GetDeltaTime()));
 
-	Vector3 camPos = m_MainCamera.GetComponent<TransformComponent>().GetPosition();
-	ImGui::Text("Camera position: %.3f %.3f", camPos.x, camPos.y);
+	// Vector3 camPos = m_MainCamera.GetComponent<TransformComponent>().GetPosition();
+	// ImGui::Text("Camera position: %.3f %.3f", camPos.x, camPos.y);
+
+	m_MainCamera.GetComponent<ScriptComponent>().Script->CallMethod("onImGuiRender()");
 }
 
 void SandboxECS::OnEvent(Event& event)
@@ -245,14 +241,7 @@ bool SandboxECS::OnMouseScrolledEvent(MouseScrolledEvent& event)
 bool SandboxECS::OnKeyPressedEvent(KeyPressedEvent& event)
 {
 	if (event.GetKeyCode() == KeyCode::Escape)
-	{
-		auto& cam = m_MainCamera.GetComponent<CameraComponent>().Camera;
-		auto& camTransform = m_MainCamera.GetComponent<TransformComponent>();
-
-		camTransform.SetPosition({ 0.0f, 0.0f, 0.0f });
-		camTransform.SetEulerAngles({ 0.0f, 0.0f, 0.0f });
-		cam.SetOrthographicSize(10.0f);
-	}
+		m_MainCamera.GetComponent<CameraComponent>().Camera.SetOrthographicSize(10.0f);
 
 	return false;
 }

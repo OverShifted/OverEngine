@@ -43,7 +43,9 @@ namespace OverEngine
 		// Setup Platform/Renderer bindings
 		ImGuiBinding::Init(&Application::Get().GetWindow());
 
-		io.Fonts->AddFontFromMemoryCompressedTTF(&Roboto_compressed_data, Roboto_compressed_size, 15.0f);
+		ImFontConfig fontTemplate;
+		strcpy_s(fontTemplate.Name, 40, "Roboto");
+		io.Fonts->AddFontFromMemoryCompressedTTF(&Roboto_compressed_data, Roboto_compressed_size, 20.0f, &fontTemplate);
 	}
 
 	void ImGuiLayer::OnDetach()
