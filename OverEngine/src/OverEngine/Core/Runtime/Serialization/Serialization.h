@@ -8,7 +8,7 @@ namespace OverEngine
 	template <typename T>
 	class YamlEmitter;
 
-	#define OE_DECL_EMITTER(T)                                   \
+	#define OE_DECL_EMITTER(T)                                \
 		template<>                                            \
 		struct YamlEmitter<T>                                 \
 		{                                                     \
@@ -18,7 +18,7 @@ namespace OverEngine
 	template <typename T>
 	class YamlDecoder;
 
-	#define OE_DECL_DECODER(T)                                     \
+	#define OE_DECL_DECODER(T)                                  \
 		template<>                                              \
 		struct YamlDecoder<T>                                   \
 		{                                                       \
