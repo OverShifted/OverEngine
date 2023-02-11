@@ -11,7 +11,7 @@
 
 #include "OverEngine/Core/Time/Time.h"
 
-#define WRENPP_BIND_STATIC(f, sig) .bindFunction<decltype(&f), &f>(true, sig)
+#define WRENPP_BIND_STATIC_AS(f, sig) .bindFunction<decltype(&f), &f>(true, sig)
 #define WRENPP_BIND_STATIC_EXACT(f, args) .bindFunction<decltype(&f), &f>(true, #f "(" args ")")
 
 #define WRENPP_BIND_GETTER(f, sig) .bindGetter<decltype(f), &f>(sig)
@@ -111,21 +111,21 @@ namespace OverEngine
 
 		m_VM.beginModule("input")
 			.beginClass("Input")
-				WRENPP_BIND_STATIC(Input_IsKeyPressed, "isKeyPressed(_)")
-				WRENPP_BIND_STATIC(Input_IsMouseButtonPressed, "isMouseButtonPressed(_)")
+				WRENPP_BIND_STATIC_AS(Input_IsKeyPressed, "isKeyPressed(_)")
+				WRENPP_BIND_STATIC_AS(Input_IsMouseButtonPressed, "isMouseButtonPressed(_)")
 				
-				WRENPP_BIND_STATIC(Input_GetMousePosition, "mousePosition")
-				WRENPP_BIND_STATIC(Input_GetMouseX, "mouseX")
-				WRENPP_BIND_STATIC(Input_GetMouseY, "mouseY")
+				WRENPP_BIND_STATIC_AS(Input_GetMousePosition, "mousePosition")
+				WRENPP_BIND_STATIC_AS(Input_GetMouseX, "mouseX")
+				WRENPP_BIND_STATIC_AS(Input_GetMouseY, "mouseY")
 			.endClass()
 		.endModule();
 
 		m_VM.beginModule("imgui")
 			.beginClass("ImGui")
-				WRENPP_BIND_STATIC(ImGui_begin, "begin(_)")
-				WRENPP_BIND_STATIC(ImGui_end, "end()")
+				WRENPP_BIND_STATIC_AS(ImGui_begin, "begin(_)")
+				WRENPP_BIND_STATIC_AS(ImGui_end, "end()")
 
-				WRENPP_BIND_STATIC(ImGui_text, "text(_)")
+				WRENPP_BIND_STATIC_AS(ImGui_text, "text(_)")
 			.endClass()
 		.endModule();
 
@@ -147,7 +147,7 @@ namespace OverEngine
 				WRENPP_BIND_STATIC_EXACT(RigidBody2DComponent_applyLinearImpulseToCenter, "_,_")
 			.endClass()
 
-			#define BIND_WREN_COMPONENT_HAS(component) .beginClass(#component) WRENPP_BIND_STATIC(component##_has, "has(_)").endClass()
+			#define BIND_WREN_COMPONENT_HAS(component) .beginClass(#component) WRENPP_BIND_STATIC_AS(component##_has, "has(_)").endClass()
 
 			BIND_WREN_COMPONENT_HAS(NameComponent)
 			BIND_WREN_COMPONENT_HAS(TransformComponent)
@@ -170,8 +170,8 @@ namespace OverEngine
 
 		m_VM.beginModule("time")
 			.beginClass("Time")
-				WRENPP_BIND_STATIC(Time_time, "time")
-				WRENPP_BIND_STATIC(Time_deltaTime, "deltaTime")
+				WRENPP_BIND_STATIC_AS(Time_time, "time")
+				WRENPP_BIND_STATIC_AS(Time_deltaTime, "deltaTime")
 			.endClass()
 		.endModule();
 

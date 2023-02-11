@@ -1,18 +1,31 @@
 #pragma once
 
 #include "Components.h"
-#include "OverEngine/Core/Runtime/Serialization/ObjectSerializer.h"
+#include "OverEngine/Core/Runtime/Serialization/YamlConverters.h"
+
+#include <yaml-cpp/yaml.h>
 
 namespace OverEngine
 {
 	template<>
-	class ObjectSerializer<TransformComponent>
+	class YamlEmitter<NameComponent>
 	{
 	public:
-		static bool Serialize(YAML::Emitter& out, const TransformComponent* object)
+		static void Emit(YAML::Emitter& out, const NameComponent& nc)
 		{
-			const TransformComponent& tc = *object;
+			out << YAML::BeginMap;
+			out << YAML::Key << "Name" << YAML::Value << nc.Name;
+			out << YAML::EndMap;
+		}
+	};
 
+	template<>
+	class YamlEmitter<TransformComponent>
+	{
+	public:
+		static void Emit(YAML::Emitter& out, const TransformComponent& tc)
+		{
+			out << YAML::BeginMap;
 			out << YAML::Key << "Parent" << YAML::Value;
 			if (auto parent = tc.GetParent())
 			{
@@ -27,18 +40,17 @@ namespace OverEngine
 			out << YAML::Key << "Position" << YAML::Value << tc.GetLocalPosition();
 			out << YAML::Key << "Rotation" << YAML::Value << tc.GetLocalEulerAngles();
 			out << YAML::Key << "Scale" << YAML::Value << tc.GetLocalScale();
-
-			return true;
-		};
+			out << YAML::EndMap;
+		}
 	};
 
 	template<>
-	class ObjectSerializer<CameraComponent>
+	class YamlEmitter<CameraComponent>
 	{
 	public:
-		static bool Serialize(YAML::Emitter& out, const CameraComponent* object)
+		static void Emit(YAML::Emitter& out, const CameraComponent& cc)
 		{
-			const CameraComponent& cc = *object;
+			out << YAML::BeginMap;
 			out << YAML::Key << "ProjectionType" << YAML::Value << (int)cc.Camera.GetProjectionType();
 
 			out << YAML::Key << "PerspectiveFOV" << YAML::Value << cc.Camera.GetPerspectiveFOV();
@@ -53,15 +65,17 @@ namespace OverEngine
 			out << YAML::Key << "ClearColor" << YAML::Value << cc.Camera.GetClearColor();
 
 			out << YAML::Key << "FixedAspectRatio" << YAML::Value << cc.FixedAspectRatio;
+			out << YAML::EndMap;
+		}
+	};
 
-			return true;
-		};
-
-		static bool Deserialize(YAML::Node data, CameraComponent* object)
+	template<>
+	class YamlDecoder<CameraComponent>
+	{
+	public:
+		static bool Decode(const YAML::Node& node, CameraComponent& cc)
 		{
-			CameraComponent& cc = *object;
-
-			auto cameraProps = data["Camera"];
+			auto cameraProps = node["Camera"];
 			cc.Camera.SetProjectionType((SceneCamera::ProjectionType)cameraProps["ProjectionType"].as<int>());
 
 			cc.Camera.SetPerspectiveFOV(cameraProps["PerspectiveFOV"].as<float>());
@@ -75,20 +89,19 @@ namespace OverEngine
 			cc.Camera.SetClearFlags(cameraProps["ClearFlags"].as<uint8_t>());
 			cc.Camera.SetClearColor(cameraProps["ClearColor"].as<Color>());
 
-			cc.FixedAspectRatio = data["FixedAspectRatio"].as<bool>();
+			cc.FixedAspectRatio = node["FixedAspectRatio"].as<bool>();
 
 			return true;
-		};
+		}
 	};
 
 	template<>
-	class ObjectSerializer<SpriteRendererComponent>
+	class YamlEmitter<SpriteRendererComponent>
 	{
 	public:
-		static bool Serialize(YAML::Emitter& out, const SpriteRendererComponent* object)
+		static void Emit(YAML::Emitter& out, const SpriteRendererComponent& sp)
 		{
-			const SpriteRendererComponent& sp = *object;
-
+			out << YAML::BeginMap;
 			out << YAML::Key << "Tint" << YAML::Value << sp.Tint;
 
 			out << YAML::Key << "Sprite" << YAML::Value;
@@ -108,30 +121,32 @@ namespace OverEngine
 			out << YAML::Key << "Flip" << YAML::Value << (int)sp.Flip;
 
 			out << YAML::Key << "ForceTile" << YAML::Value << sp.ForceTile;
+			out << YAML::EndMap;
+		}
+	};
 
-			return true;
-		};
-
-		static bool Deserialize(YAML::Node data, SpriteRendererComponent* object)
+	template<>
+	class YamlDecoder<SpriteRendererComponent>
+	{
+	public:
+		static bool Decode(const YAML::Node& node, SpriteRendererComponent& sp)
 		{
-			SpriteRendererComponent& sp = *object;
-
-			if (!data["Sprite"].IsNull())
+			if (!node["Sprite"].IsNull())
 			{
-				uint32_t refID = data["Sprite"]["Reference"].as<uint32_t>();
-				auto asset = data["References"][refID];
+				uint32_t refID = node["Sprite"]["Reference"].as<uint32_t>();
+				auto asset = node["References"][refID];
 
 				String typeName = asset["Type"].as<String>();
 				// if (typeName == Texture2D::GetStaticClassName())
 				// 	sp.Sprite = AssetDatabase::RegisterAndGet<Texture2D>(asset["Guid"].as<uint64_t>());
 			}
 
-			sp.Tint = data["Tint"].as<Color>();
-			sp.Tiling = data["Tiling"].as<Vector2>();
+			sp.Tint = node["Tint"].as<Color>();
+			sp.Tiling = node["Tiling"].as<Vector2>();
 
-			if (data["Flip.x"].as<bool>())
+			if (node["Flip.x"].as<bool>())
 				sp.Flip |= TextureFlip_X;
-			if (data["Flip.y"].as<bool>())
+			if (node["Flip.y"].as<bool>())
 				sp.Flip |= TextureFlip_Y;
 
 			return true;
@@ -139,13 +154,12 @@ namespace OverEngine
 	};
 
 	template<>
-	class ObjectSerializer<RigidBody2DComponent>
+	class YamlEmitter<RigidBody2DComponent>
 	{
 	public:
-		static bool Serialize(YAML::Emitter& out, const RigidBody2DComponent* object)
+		static void Emit(YAML::Emitter& out, const RigidBody2DComponent& rbc)
 		{
-			const RigidBody2DComponent& rbc = *object;
-
+			out << YAML::BeginMap;
 			auto& props = rbc.RigidBody->GetProps();
 			out << YAML::Key << "Type" << YAML::Value << (int)props.Type;
 			out << YAML::Key << "LinearVelocity" << YAML::Value << props.Dynamics.LinearVelocity;
@@ -157,122 +171,28 @@ namespace OverEngine
 			out << YAML::Key << "FixedRotation" << YAML::Value << props.FixedRotation;
 			out << YAML::Key << "GravityScale" << YAML::Value << props.GravityScale;
 			out << YAML::Key << "Bullet" << YAML::Value << props.Bullet;
-
-			return true;
-		};
-
-		static bool Deserialize(YAML::Node data, RigidBody2DComponent* object)
-		{
-			RigidBody2DComponent& rbc = *object;
-
-			RigidBody2DProps props;
-			props.Type                     = (RigidBody2DType)data["Type"].as<int>();
-			props.Dynamics.LinearVelocity  = data["LinearVelocity"].as<Vector2>();
-			props.Dynamics.AngularVelocity = data["AngularVelocity"].as<float>();
-			props.LinearDamping            = data["LinearDamping"].as<float>();
-			props.AngularDamping           = data["AngularDamping"].as<float>();
-			props.AllowSleep               = data["AllowSleep"].as<bool>();
-			props.Dynamics.IsAwake         = data["Awake"].as<bool>();
-			props.FixedRotation            = data["FixedRotation"].as<bool>();
-			props.GravityScale             = data["GravityScale"].as<float>();
-			props.Bullet                   = data["Bullet"].as<bool>();
-			rbc.RigidBody                  = RigidBody2D::Create(props);
-
-			return true;
+			out << YAML::EndMap;
 		}
 	};
 
 	template<>
-	class ObjectSerializer<Collider2DComponent>
+	class YamlDecoder<RigidBody2DComponent>
 	{
 	public:
-		static bool Serialize(YAML::Emitter& out, const Collider2DComponent* object)
+		static bool Decode(const YAML::Node& node, RigidBody2DComponent& rbc)
 		{
-			const Collider2DComponent& c2c = *object;
-
-			out << YAML::Key << "Colliders" << YAML::Value << YAML::BeginSeq; // Colliders
-			#if 0
-			for (const auto& collider : c2c.Colliders)
-			{
-
-				const auto& props = collider->GetProps();
-
-				out << YAML::BeginMap;
-
-				out << YAML::Key << "Offset" << YAML::Value << props.Offset;
-
-				out << YAML::Key << "Shape" << YAML::Value << YAML::BeginMap; // Shape
-				{
-					out << YAML::Key << "Type" << YAML::Value << (int)props.Shape->GetType();
-					if (auto boxShape = std::dynamic_pointer_cast<BoxCollisionShape2D>(props.Shape))
-					{
-						out << YAML::Key << "Size" << YAML::Value << boxShape->GetSize();
-						out << YAML::Key << "Rotation" << YAML::Value << boxShape->GetRotation();
-					}
-					else if (auto circleShape = std::dynamic_pointer_cast<CircleCollisionShape2D>(props.Shape))
-					{
-						out << YAML::Key << "Radius" << YAML::Value << circleShape->GetRadius();
-					}
-				}
-				out << YAML::EndMap; // Shape
-
-				out << YAML::Key << "IsTrigger" << YAML::Value << props.IsTrigger;
-				out << YAML::Key << "Friction" << YAML::Value << props.Friction;
-				out << YAML::Key << "Density" << YAML::Value << props.Density;
-				out << YAML::Key << "Bounciness" << YAML::Value << props.Bounciness;
-				out << YAML::Key << "BouncinessThreshold" << YAML::Value << props.BouncinessThreshold;
-
-				out << YAML::EndMap;
-
-			}
-			#endif
-			out << YAML::EndSeq; // Colliders
-
-			return true;
-		};
-
-		static bool Deserialize(YAML::Node data, Collider2DComponent* object)
-		{
-			#if 0
-			Collider2DComponent& c2c = *object;
-
-			for (auto collider : data["Colliders"])
-			{
-				Collider2DProps props;
-
-				props.Offset = collider["Offset"].as<Vector2>();
-
-				// Shape
-				auto shapeType = (CollisionShape2DType)collider["Shape"]["Type"].as<int>();
-
-				Ref<CollisionShape2D> shape;
-				switch (shapeType)
-				{
-				case CollisionShape2DType::Box:
-					shape = BoxCollisionShape2D::Create(collider["Shape"]["Size"].as<Vector2>(), collider["Shape"]["Rotation"].as<float>());
-					break;
-
-				case CollisionShape2DType::Circle:
-					shape = CircleCollisionShape2D::Create(collider["Shape"]["Radius"].as<float>());
-					break;
-
-				default:
-					break;
-				}
-
-				props.Shape = shape;
-
-				props.Friction = collider["Friction"].as<float>();
-				props.Bounciness = collider["Bounciness"].as<float>();
-				props.BouncinessThreshold = collider["BouncinessThreshold"].as<float>();
-
-				props.Density = collider["Density"].as<float>();
-				props.IsTrigger = collider["IsTrigger"].as<bool>();
-
-				c2c.Colliders.push_back(Collider2D::Create(props));
-			}
-
-			#endif
+			RigidBody2DProps props;
+			props.Type                     = (RigidBody2DType)node["Type"].as<int>();
+			props.Dynamics.LinearVelocity  = node["LinearVelocity"].as<Vector2>();
+			props.Dynamics.AngularVelocity = node["AngularVelocity"].as<float>();
+			props.LinearDamping            = node["LinearDamping"].as<float>();
+			props.AngularDamping           = node["AngularDamping"].as<float>();
+			props.AllowSleep               = node["AllowSleep"].as<bool>();
+			props.Dynamics.IsAwake         = node["Awake"].as<bool>();
+			props.FixedRotation            = node["FixedRotation"].as<bool>();
+			props.GravityScale             = node["GravityScale"].as<float>();
+			props.Bullet                   = node["Bullet"].as<bool>();
+			rbc.RigidBody                  = RigidBody2D::Create(props);
 
 			return true;
 		}

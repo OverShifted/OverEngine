@@ -1,6 +1,6 @@
 #include "SandboxECS.h"
 
-#include <OverEngine/Core/FileSystem/FileSystem.h>
+#include <OverEngine/Scene/SceneSerializer.h>
 #include <wren.h>
 
 #include <imgui.h>
@@ -199,6 +199,9 @@ void SandboxECS::OnUpdate(TimeStep deltaTime)
 
 	m_Scene->OnUpdate(deltaTime);
 	m_ParticleSystem.UpdateAndRender(deltaTime, glm::inverse(camTransform.GetLocalToWorld()), m_MainCamera.GetComponent<CameraComponent>().Camera);
+
+	// TODO: Cache `WrenHandle`s
+	m_VM->GetWrenpp().method("scheduler", "Scheduler", "poll()")();
 }
 
 void SandboxECS::OnImGuiRender()
@@ -208,10 +211,8 @@ void SandboxECS::OnImGuiRender()
 	if (ImGui::Button("Reload Renderer2D Shader"))
 		Renderer2D::GetShader()->Reload();
 
-	// ImGui::Text("FPS: %i", (int)(1.0f / Time::GetDeltaTime()));
-
-	// Vector3 camPos = m_MainCamera.GetComponent<TransformComponent>().GetPosition();
-	// ImGui::Text("Camera position: %.3f %.3f", camPos.x, camPos.y);
+	if (ImGui::Button("Serialize"))
+		SceneSerializer(m_Scene).Serialize("SandboxScene.oes");
 
 	m_MainCamera.GetComponent<ScriptComponent>().Script->CallMethod("onImGuiRender()");
 }

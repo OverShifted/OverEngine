@@ -28,9 +28,6 @@ class Player is Script {
 		if (Input.isKeyPressed(KeyCode.s)) { impulse.y = impulse.y - 1 }
 
 		_rb.applyLinearImpulseToCenter(impulse * 20 * delta)
-
-		// System.print("%(Input.mouseX) %(Input.mouseY) %(Input.mousePosition)")
-		Scheduler.poll()
 	}
 
 	countdown() {

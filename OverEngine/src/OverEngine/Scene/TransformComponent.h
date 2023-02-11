@@ -79,7 +79,7 @@ namespace OverEngine
 		void EachChild(Func func) const
 		{
 			for (const auto& child : m_Children)
-				func({ child, AttachedEntity.GetScene() });
+				func(Entity { child, AttachedEntity.GetScene() });
 		}
 
 		using ChangedFlags = int8;
