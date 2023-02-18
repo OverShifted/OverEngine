@@ -175,6 +175,7 @@ namespace OverEngine
 			.endClass()
 		.endModule();
 
+		// Load some modules which are referenced from C++
 		LoadModule("lib");
 	}
 }

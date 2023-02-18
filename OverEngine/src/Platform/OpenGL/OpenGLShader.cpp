@@ -71,9 +71,9 @@ namespace OverEngine
 			OE_CORE_ASSERT(ShaderTypeFromString(type), "Invalid shader type specified!");
 
 			size_t nextLinePos = source.find_first_not_of("\r\n", eol); // Start of shader code after shader type declaration line
-			OE_CORE_ASSERT(nextLinePos != std::string::npos, "Syntax error");
+			OE_CORE_ASSERT(nextLinePos != String::npos, "Syntax error");
 			pos = source.find(typeToken, nextLinePos); // Start of next shader type declaration line
-			shaderSources[ShaderTypeFromString(type)] = (pos == std::string::npos) ? source.substr(nextLinePos) : source.substr(nextLinePos, pos - nextLinePos);
+			shaderSources[ShaderTypeFromString(type)] = (pos == String::npos) ? source.substr(nextLinePos) : source.substr(nextLinePos, pos - nextLinePos);
 		}
 
 		return shaderSources;

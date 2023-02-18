@@ -78,6 +78,7 @@ target_include_directories(OverEngine PUBLIC
 	"vendor/fmt/include"
 	"vendor/yaml-cpp/include"
 	"vendor/wren/src/include"
+	"vendor/wren/src/vm"
 )
 
 string(LENGTH "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE_LEN)

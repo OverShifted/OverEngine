@@ -104,9 +104,9 @@ namespace OverEngine
 				}
 
 				// In both cases; we need to perform this
-				// 1. we've pushed the changes to physics system and we need to remove the flag
-				// 2. we've pushed the changes to OverEngine's transform system and it added the
-				//    flag which we don't want
+				// 1. We've pushed changes to Box2d, so we need to remove the flag
+				// 2. We've pushed changes to OverEngine which unwantedly set the
+				//    flag, which we don't want
 				tc.m_ChangedFlags ^= TransformComponent::ChangedFlags_ChangedForPhysics;
 			}
 		});

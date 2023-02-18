@@ -10,7 +10,7 @@
 static ApplicationProps GenApplicationProps()
 {
 	ApplicationProps props;
-	props.MainWindowProps.Title = "OverEngine's Sandbox Demo";
+	props.MainWindowProps.Title = "Sandbox";
 	props.MainWindowProps.Width = 1600;
 	props.MainWindowProps.Height = 900;
 	return props;

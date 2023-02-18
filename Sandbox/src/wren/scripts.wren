@@ -44,6 +44,18 @@ class Player is Script {
 class CameraController is Script {
 	construct new(e) {
 		super(e)
+		_foo = 42
+		_bar = "Me"
+		_baz = [12, "Me", 42]
+		_boo = [this, _baz, _foo, _bar]
+		_baz.add(null)
+		_baz.add({
+			"name": "apple",
+			"color": "red"
+		})
+
+		// It will cause infinite recursion
+		// _baz.add(_baz)
 	}
 
 	player=(rhs) { _player = rhs }
@@ -60,6 +72,11 @@ class CameraController is Script {
 			transform.position = Vector3.new(0, 0, 0)
 			transform.eulerAngles = Vector3.new(0, 0, 0)
 		}
+
+		_foo = _foo + 1
+		_bar = "Me %(_foo)"
+		_baz[1] = _bar
+		_baz[-1]["name"] = "apple %(_foo)"
 	}
 
 	onLateUpdate(delta) {

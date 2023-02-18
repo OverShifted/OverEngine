@@ -18,11 +18,9 @@ namespace OverEngine
 
 		virtual void Bind(uint32_t slot = 0) = 0;
 
-		// Filter
 		virtual TextureFilter GetFilter() const = 0;
 		virtual void SetFilter(TextureFilter filter) = 0;
 
-		// Wrap
 		virtual TextureWrap GetUWrap() const = 0;
 		virtual void SetUWrap(TextureWrap wrap) = 0;
 

@@ -5,6 +5,10 @@
 
 #include <wrenpp/Wren++.h>
 
+extern "C" {
+	#include <wren_value.h>
+}
+
 namespace OverEngine
 {
 	class WrenScriptClass;
@@ -28,33 +32,35 @@ namespace OverEngine
 		inline ::WrenVM* GetRaw() const { return &*m_VM; }
 		inline wrenpp::VM& GetWrenpp() { return m_VM; }
 
+		WrenHandle* CallHandle(const char* signature) const;
+		WrenHandle* GetVariable(const char* moduleName, const char* variableName);
+
+		String ToString(WrenHandle* handle) const;
+		String ToString(Value value) const;
+
 		template<typename... Args>
-		WrenInterpretResult CallMethod(WrenHandle* reciver, WrenHandle* method, Args... args) const
+		WrenInterpretResult Call(WrenHandle* reciver, WrenHandle* method, Args... args) const
 		{
-			::WrenVM *vm = GetRaw();
-
 			// Copied from Wrenpp
-			constexpr const std::size_t Arity = sizeof...(Args);
-			wrenEnsureSlots(vm, Arity + 1u);
-			wrenSetSlotHandle(vm, 0, reciver);
+			constexpr const std::size_t arity = sizeof...(Args);
+			wrenEnsureSlots(m_VM, arity + 1u);
+			wrenSetSlotHandle(m_VM, 0, reciver);
 
-			std::tuple<Args...> tuple = std::make_tuple(args...);
-			wrenpp::detail::passArgumentsToWren(vm, tuple, std::make_index_sequence<Arity>{});
-
-			return wrenCall(vm, method);
+			wrenpp::detail::passArgumentsToWren(m_VM, std::make_tuple(args...), std::make_index_sequence<arity>{});
+			return wrenCall(m_VM, method);
 		}
 
-		inline wrenpp::Result LoadModule(const char* moduleName)
-		{
-			return m_VM.executeModule(moduleName);
-		}
+		inline wrenpp::Result LoadModule(const char* moduleName) { return m_VM.executeModule(moduleName); }
+		wrenpp::ModuleContext beginModule(const String& name) { return m_VM.beginModule(name); }
 
 		inline Ref<WrenScriptClass> GetScriptClass(const char* moduleName, const char* className)
 		{
 			return CreateRef<WrenScriptClass>(shared_from_this(), moduleName, className);
 		}
 
-		wrenpp::ModuleContext beginModule(const String& name) { return m_VM.beginModule(name); }
+		inline WrenHandle* GetScheduler() { return m_Scheduler; }
+
+		inline const Vector<String>& GetFields(const char* className) const { return m_FieldNames.at(className); }
 
 	private:
 		// Implemented in WrenBindings.cpp
@@ -62,8 +68,13 @@ namespace OverEngine
 
 	private:
 		wrenpp::VM m_VM;
+		UnorderedMap<String, Vector<String>> m_FieldNames;
+
+		WrenHandle* m_Scheduler;
 
 		// Call Handles
+		mutable UnorderedMap<String, WrenHandle*> m_CallHandles;
+
 		WrenHandle* m_OnCreateMethod;
 		WrenHandle* m_OnDestroyMethod;
 		WrenHandle* m_OnUpdateMethod;
@@ -93,7 +104,8 @@ namespace OverEngine
 		WrenHandle* m_ConstructorHandle;
 	};
 
-	class WrenScriptInstance {
+	class WrenScriptInstance
+	{
 	public:
 		WrenScriptInstance(const Ref<Wren>& vm, WrenHandle* instanceHandle);
 		~WrenScriptInstance();
@@ -101,23 +113,28 @@ namespace OverEngine
 		WrenScriptInstance(const WrenScriptInstance&) = delete;
 		WrenScriptInstance& operator=(const WrenScriptInstance&) = delete;
 
-		void OnCreate() const;
-		void OnDestroy() const;
-		void OnUpdate(float delta) const;
-		void OnLateUpdate(float delta) const;
+		WrenInterpretResult OnCreate() const;
+		WrenInterpretResult OnDestroy() const;
+		WrenInterpretResult OnUpdate(float delta) const;
+		WrenInterpretResult OnLateUpdate(float delta) const;
 
-		void OnCollisionEnter() const;
-		void OnCollisionExit() const;
+		WrenInterpretResult OnCollisionEnter() const;
+		WrenInterpretResult OnCollisionExit() const;
 
 		template<typename... Args>
-		WrenInterpretResult CallMethod(const String& sig, Args... args)
+		WrenInterpretResult Call(const char* sig, Args... args) const
 		{
-			WrenHandle* methodSig = wrenMakeCallHandle(m_VM->GetRaw(), sig.c_str());
-			WrenInterpretResult result = m_VM->CallMethod(m_InstanceHandle, methodSig, args...);
-			wrenReleaseHandle(m_VM->GetRaw(), methodSig);
-
-			return result;
+			return Call(m_VM->CallHandle(sig), args...);
 		}
+
+		template<typename... Args>
+		WrenInterpretResult Call(WrenHandle* method, Args... args) const
+		{
+			return m_VM->Call(m_InstanceHandle, method, args...);
+		}
+
+		// Dump field data to log.
+		void Inspect() const;
 
 	private:
 		Ref<Wren> m_VM;

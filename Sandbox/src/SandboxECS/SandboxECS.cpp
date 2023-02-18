@@ -171,7 +171,6 @@ SandboxECS::SandboxECS()
 
 	private:
 		ParticleSystem2D* m_ParticleSystem;
-
 		Particle2DProps m_ParticleProps = Particle2DProps();
 	};
 
@@ -180,7 +179,7 @@ SandboxECS::SandboxECS()
 
 	{
 		auto cameraScript = m_VM->GetScriptClass("src/wren/scripts", "CameraController")->Construct(m_MainCamera);
-		cameraScript->CallMethod("player=(_)", m_Player);
+		cameraScript->Call("player=(_)", m_Player);
 		m_MainCamera.AddComponent<ScriptComponent>(cameraScript);
 	}
 
@@ -200,8 +199,7 @@ void SandboxECS::OnUpdate(TimeStep deltaTime)
 	m_Scene->OnUpdate(deltaTime);
 	m_ParticleSystem.UpdateAndRender(deltaTime, glm::inverse(camTransform.GetLocalToWorld()), m_MainCamera.GetComponent<CameraComponent>().Camera);
 
-	// TODO: Cache `WrenHandle`s
-	m_VM->GetWrenpp().method("scheduler", "Scheduler", "poll()")();
+	m_VM->Call(m_VM->GetScheduler(), m_VM->CallHandle("poll()"));
 }
 
 void SandboxECS::OnImGuiRender()
@@ -214,7 +212,12 @@ void SandboxECS::OnImGuiRender()
 	if (ImGui::Button("Serialize"))
 		SceneSerializer(m_Scene).Serialize("SandboxScene.oes");
 
-	m_MainCamera.GetComponent<ScriptComponent>().Script->CallMethod("onImGuiRender()");
+	auto& script = m_MainCamera.GetComponent<ScriptComponent>().Script;
+	script->Call("onImGuiRender()");
+
+	ImGui::Begin("CameraController script");
+	script->Inspect();
+	ImGui::End();
 }
 
 void SandboxECS::OnEvent(Event& event)

@@ -1,6 +1,12 @@
 #include "pcheader.h"
 #include "Wren.h"
 
+#include <imgui.h>
+
+extern "C" {
+	#include <wren_vm.h>
+}
+
 namespace WrenSources
 {
 	#include "Wren/components.wren.inc"
@@ -31,6 +37,7 @@ namespace OverEngine
 	Wren::Wren()
 		: m_VM()
 	{
+		// FIXME: Only one VM instance can exist, because there callbacks are static variables.
 		wrenpp::VM::writeFn = [](const char* message) { if (strcmp(message, "\n")) OE_INFO("[wren] {}", message); };
 		wrenpp::VM::errorFn = [](WrenErrorType type, const char* moduleName, int line, const char* message) -> void {
 			const char* typeStr = ErrorTypeToString(type);
@@ -40,6 +47,15 @@ namespace OverEngine
 				OE_ERROR("{}> {}", typeStr, message);
 		};
 
+		// This wont register superclasses fields.
+		wrenpp::VM::reportClassFn = [this](ClassInfo* classInfo) {
+			this->m_FieldNames[classInfo->name->value] = Vector<String>();
+			auto& fieldNames = this->m_FieldNames[classInfo->name->value];
+
+			SymbolTable* syms = &classInfo->fields;
+			for (ObjString** current = syms->data; current < syms->data + syms->count; current++)
+				fieldNames.push_back((*current)->value);
+		};
 
 		wrenpp::VM::loadModuleFn = [](const char* mod) -> char* {
 			#define WREN_MOD(m) if (strcmp(mod, #m) == 0) return const_cast<char*>(WrenSources::m##ModuleSource);
@@ -73,6 +89,8 @@ namespace OverEngine
 		};
 
 		InitializeBindings();
+
+		m_Scheduler = GetVariable("scheduler", "Scheduler");
 		
 		m_OnCreateMethod     = wrenMakeCallHandle(m_VM, "onCreate()");
 		m_OnDestroyMethod    = wrenMakeCallHandle(m_VM, "onDestroy()");
@@ -92,17 +110,45 @@ namespace OverEngine
 
 		wrenReleaseHandle(m_VM, m_OnCollisionEnterMethod);
 		wrenReleaseHandle(m_VM, m_OnCollisionExitMethod);
+
+		for (auto [_, handle] : m_CallHandles)
+			wrenReleaseHandle(m_VM, handle);
+	}
+
+	WrenHandle* Wren::CallHandle(const char* signature) const
+	{
+		if (auto handle = m_CallHandles.find(signature); handle != m_CallHandles.end())
+			return handle->second;
+
+		WrenHandle* callHandle = wrenMakeCallHandle(m_VM, signature);
+		m_CallHandles[signature] = callHandle;
+		return callHandle;
+	}
+
+	WrenHandle* Wren::GetVariable(const char* moduleName, const char* variableName)
+	{
+		wrenEnsureSlots(m_VM, 1);
+		wrenGetVariable(m_VM, moduleName, variableName, 0);
+		return wrenGetSlotType(m_VM, 0) == WREN_TYPE_NULL ? nullptr : wrenGetSlotHandle(m_VM, 0);
+	}
+
+	String Wren::ToString(WrenHandle* handle) const
+	{
+		Call(handle, CallHandle("toString"));
+		return String(wrenGetSlotString(m_VM, 0));
+	}
+
+	String Wren::ToString(Value value) const
+	{
+		WrenHandle handle { value, nullptr, nullptr };
+		return ToString(&handle);
 	}
 
 	WrenScriptClass::WrenScriptClass(const Ref<Wren>& vm, const char* moduleName, const char* className)
 		: m_VM(vm)
 	{
-		wrenEnsureSlots(m_VM->GetRaw(), 1);
-		wrenGetVariable(m_VM->GetRaw(), moduleName, className, 0);
-
-		OE_CORE_ASSERT(wrenGetSlotType(m_VM->GetRaw(), 0) != WREN_TYPE_NULL, "Wren class is null! Maybe it failed to compile.");
-
-		m_ClassHandle = wrenGetSlotHandle(m_VM->GetRaw(), 0);
+		m_ClassHandle = m_VM->GetVariable(moduleName, className);
+		OE_CORE_ASSERT(m_ClassHandle, "Wren class is null! Maybe it failed to compile.");
 		m_ConstructorHandle = wrenMakeCallHandle(m_VM->GetRaw(), "new(_)");
 	}
 
@@ -114,7 +160,7 @@ namespace OverEngine
 
 	Ref<WrenScriptInstance> WrenScriptClass::Construct(const Entity& entity) const
 	{
-		if (m_VM->CallMethod(m_ClassHandle, m_ConstructorHandle, entity) != WREN_RESULT_SUCCESS)
+		if (m_VM->Call(m_ClassHandle, m_ConstructorHandle, entity) != WREN_RESULT_SUCCESS)
 		{
 			OE_CORE_ASSERT(false, "Script instantiation failure!");
 			return nullptr;
@@ -134,34 +180,38 @@ namespace OverEngine
 		wrenReleaseHandle(m_VM->GetRaw(), m_InstanceHandle);
 	}
 
-	// TODO: Return result
-	void WrenScriptInstance::OnCreate() const
-	{
-		m_VM->CallMethod(m_InstanceHandle, m_VM->GetOnCreateMethod());
-	}
+	#define IMPL_METHOD_CALL_NO_PARAM(methode)                  \
+		WrenInterpretResult WrenScriptInstance::methode() const \
+		{                                                       \
+			return Call(m_VM->Get##methode##Method());          \
+		}
 
-	void WrenScriptInstance::OnDestroy() const
-	{
-		m_VM->CallMethod(m_InstanceHandle, m_VM->GetOnDestroyMethod());
-	}
+	#define IMPL_METHOD_CALL_WITH_PARAM(methode, params, wrenParams)  \
+		WrenInterpretResult WrenScriptInstance::methode(params) const \
+		{                                                             \
+			return Call(m_VM->Get##methode##Method(), wrenParams);    \
+		}
 
-	void WrenScriptInstance::OnUpdate(float delta) const
-	{
-		m_VM->CallMethod(m_InstanceHandle, m_VM->GetOnUpdateMethod(), delta);
-	}
+	IMPL_METHOD_CALL_NO_PARAM(OnCreate)
+	IMPL_METHOD_CALL_NO_PARAM(OnDestroy)
+	IMPL_METHOD_CALL_WITH_PARAM(OnUpdate, float delta, delta)
+	IMPL_METHOD_CALL_WITH_PARAM(OnLateUpdate, float delta, delta)
+	IMPL_METHOD_CALL_NO_PARAM(OnCollisionEnter)
+	IMPL_METHOD_CALL_NO_PARAM(OnCollisionExit)
 
-	void WrenScriptInstance::OnLateUpdate(float delta) const
+	void WrenScriptInstance::Inspect() const
 	{
-		m_VM->CallMethod(m_InstanceHandle, m_VM->GetOnLateUpdateMethod(), delta);
-	}
+		ObjClass* klass = wrenGetClass(m_VM->GetRaw(), m_InstanceHandle->value);
+		ObjInstance* instance = AS_INSTANCE(m_InstanceHandle->value);
 
-	void WrenScriptInstance::OnCollisionEnter() const
-	{
-		m_VM->CallMethod(m_InstanceHandle, m_VM->GetOnCollisionEnterMethod());
-	}
+		auto& fields = m_VM->GetFields(klass->name->value);
 
-	void WrenScriptInstance::OnCollisionExit() const
-	{
-		m_VM->CallMethod(m_InstanceHandle, m_VM->GetOnCollisionExitMethod());
+		for (int i = 0; i < klass->numFields; i++)
+		{
+			// FIXME: Climb the inheritance chain to access superclass fields.
+			ImGui::TextUnformatted(i == 0 ? "_entity" : fields[i - 1].c_str());
+			ImGui::SameLine();
+			ImGui::TextUnformatted(m_VM->ToString(instance->fields[i]).c_str());
+		}
 	}
 }
