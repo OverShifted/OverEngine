@@ -49,13 +49,15 @@ namespace OverEngine
 
 		// This wont register superclasses fields.
 		wrenpp::VM::reportClassFn = [this](ClassInfo* classInfo) {
-			this->m_FieldNames[classInfo->name->value] = Vector<String>();
-			auto& fieldNames = this->m_FieldNames[classInfo->name->value];
+			this->m_FieldNames[classInfo->name->value] = std::make_pair(false, Vector<String>());
+			auto& fieldNames = this->m_FieldNames[classInfo->name->value].second;
 
 			SymbolTable* syms = &classInfo->fields;
 			for (ObjString** current = syms->data; current < syms->data + syms->count; current++)
 				fieldNames.push_back((*current)->value);
 		};
+
+		m_FieldNames["Object"] = std::make_pair(true, Vector<String>());
 
 		wrenpp::VM::loadModuleFn = [](const char* mod) -> char* {
 			#define WREN_MOD(m) if (strcmp(mod, #m) == 0) return const_cast<char*>(WrenSources::m##ModuleSource);
@@ -111,7 +113,7 @@ namespace OverEngine
 		wrenReleaseHandle(m_VM, m_OnCollisionEnterMethod);
 		wrenReleaseHandle(m_VM, m_OnCollisionExitMethod);
 
-		for (auto [_, handle] : m_CallHandles)
+		for (auto& [_, handle] : m_CallHandles)
 			wrenReleaseHandle(m_VM, handle);
 	}
 
@@ -142,6 +144,26 @@ namespace OverEngine
 	{
 		WrenHandle handle { value, nullptr, nullptr };
 		return ToString(&handle);
+	}
+
+	const Vector<String>& Wren::GetFields(ObjClass* klass) const
+	{
+		auto& [hasSuperClassFields, fields] = m_FieldNames.at(klass->name->value);
+
+		if (!hasSuperClassFields)
+			AddSuperClassFields(klass);
+
+		return fields;
+	}
+
+	void Wren::AddSuperClassFields(ObjClass* klass) const
+	{
+		auto& [hasSuperClassFields, fields] = m_FieldNames[klass->name->value];
+
+		auto& superClassFields = GetFields(klass->superclass);
+		fields.insert(fields.begin(), superClassFields.begin(), superClassFields.end());
+
+		hasSuperClassFields = true;
 	}
 
 	WrenScriptClass::WrenScriptClass(const Ref<Wren>& vm, const char* moduleName, const char* className)
@@ -180,16 +202,16 @@ namespace OverEngine
 		wrenReleaseHandle(m_VM->GetRaw(), m_InstanceHandle);
 	}
 
-	#define IMPL_METHOD_CALL_NO_PARAM(methode)                  \
-		WrenInterpretResult WrenScriptInstance::methode() const \
-		{                                                       \
-			return Call(m_VM->Get##methode##Method());          \
+	#define IMPL_METHOD_CALL_NO_PARAM(method)                  \
+		WrenInterpretResult WrenScriptInstance::method() const \
+		{                                                      \
+			return Call(m_VM->Get##method##Method());          \
 		}
 
-	#define IMPL_METHOD_CALL_WITH_PARAM(methode, params, wrenParams)  \
-		WrenInterpretResult WrenScriptInstance::methode(params) const \
-		{                                                             \
-			return Call(m_VM->Get##methode##Method(), wrenParams);    \
+	#define IMPL_METHOD_CALL_WITH_PARAM(method, params, wrenParams)  \
+		WrenInterpretResult WrenScriptInstance::method(params) const \
+		{                                                            \
+			return Call(m_VM->Get##method##Method(), wrenParams);    \
 		}
 
 	IMPL_METHOD_CALL_NO_PARAM(OnCreate)
@@ -204,12 +226,11 @@ namespace OverEngine
 		ObjClass* klass = wrenGetClass(m_VM->GetRaw(), m_InstanceHandle->value);
 		ObjInstance* instance = AS_INSTANCE(m_InstanceHandle->value);
 
-		auto& fields = m_VM->GetFields(klass->name->value);
+		auto& fields = m_VM->GetFields(klass);
 
 		for (int i = 0; i < klass->numFields; i++)
 		{
-			// FIXME: Climb the inheritance chain to access superclass fields.
-			ImGui::TextUnformatted(i == 0 ? "_entity" : fields[i - 1].c_str());
+			ImGui::TextUnformatted(fields[i].c_str());
 			ImGui::SameLine();
 			ImGui::TextUnformatted(m_VM->ToString(instance->fields[i]).c_str());
 		}

@@ -47,7 +47,7 @@ class Scheduler {
 			if (schedule.resumeTime <= Time.time) {
 				addFiber(__scheduled.removeAt(i).fiber)
 			}
-			i  = i - 1
+			i = i - 1
 		}
 	}
 

@@ -47,6 +47,7 @@ includeDir["json"]     = "%{wks.location}/OverEngine/vendor/json/include"
 includeDir["fmt"]      = "%{wks.location}/OverEngine/vendor/fmt/include"
 includeDir["yaml_cpp"] = "%{wks.location}/OverEngine/vendor/yaml-cpp/include"
 includeDir["wren"]     = "%{wks.location}/OverEngine/vendor/wren/src/include"
+includeDir["wren_vm"]  = "%{wks.location}/OverEngine/vendor/wren/src/vm"
 
 linkLibs = {
 	"GLFW",
@@ -70,6 +71,7 @@ clientIncludes = {
 	"%{includeDir.fmt}",
 	"%{includeDir.yaml_cpp}",
 	"%{includeDir.wren}",
+	"%{includeDir.wren_vm}",
 }
 
 group "Dependencies"

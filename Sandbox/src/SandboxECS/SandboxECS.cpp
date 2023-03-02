@@ -3,6 +3,7 @@
 #include <OverEngine/Scene/SceneSerializer.h>
 #include <wren.h>
 
+#include <OverEngine/ImGui/ExtraImGui.h>
 #include <imgui.h>
 
 using namespace OverEngine;
@@ -217,6 +218,18 @@ void SandboxECS::OnImGuiRender()
 
 	ImGui::Begin("CameraController script");
 	script->Inspect();
+	ImGui::End();
+
+	ImGui::Begin("Wren console");
+	static String wrenInputValue = "";
+	ImGui::PushItemWidth(-35);
+	ImGui::InputText("##WrenInput", &wrenInputValue);
+	ImGui::PopItemWidth();
+	ImGui::SameLine();
+	if (ImGui::Button(">"))
+	{
+		m_VM->ExecuteString(wrenInputValue.c_str());
+	}
 	ImGui::End();
 }
 

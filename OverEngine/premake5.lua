@@ -77,11 +77,13 @@ project "OverEngine"
 		"%{includeDir.fmt}",
 		"%{includeDir.yaml_cpp}",
 		"%{includeDir.wren}",
+		"%{includeDir.wren_vm}",
 	}
 
 	defines
 	{
 		"GLFW_INCLUDE_NONE",
+		"YAML_CPP_STATIC_DEFINE",
 	}
 
 	filter "system:windows"

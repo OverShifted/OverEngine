@@ -42,6 +42,7 @@ class Player is Script {
 }
 
 class CameraController is Script {
+	static instances { __instances }
 	construct new(e) {
 		super(e)
 		_foo = 42
@@ -53,6 +54,9 @@ class CameraController is Script {
 			"name": "apple",
 			"color": "red"
 		})
+
+		if (__instances == null) { __instances = [] }
+		__instances.add(this)
 
 		// It will cause infinite recursion
 		// _baz.add(_baz)

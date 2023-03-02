@@ -14,7 +14,9 @@ Run `GenerateProjectFiles.bat` and open the generated solution file in Visual St
 ### Linux
 Build with CMake:
 ```sh
-cmake -S . -B build && cmake --build build
+git clone https://github.com/OverShifted/OverEngine
+cd OverEngine
+cmake -B build -DCMAKE_BUILD_TYPE=Debug && cmake --build build
 ```
 ## Credits
 * [spdlog](https://github.com/gabime/spdlog)
@@ -30,3 +32,4 @@ cmake -S . -B build && cmake --build build
 * [wrenpp](https://github.com/Nelarius/wrenpp)
 
 Contributions are welcome.
+

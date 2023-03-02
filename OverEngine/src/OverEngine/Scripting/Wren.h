@@ -50,6 +50,8 @@ namespace OverEngine
 			return wrenCall(m_VM, method);
 		}
 
+		// TODO: run code on custom module.
+		inline wrenpp::Result ExecuteString(const char* string) { return m_VM.executeString(string); }
 		inline wrenpp::Result LoadModule(const char* moduleName) { return m_VM.executeModule(moduleName); }
 		wrenpp::ModuleContext beginModule(const String& name) { return m_VM.beginModule(name); }
 
@@ -60,15 +62,17 @@ namespace OverEngine
 
 		inline WrenHandle* GetScheduler() { return m_Scheduler; }
 
-		inline const Vector<String>& GetFields(const char* className) const { return m_FieldNames.at(className); }
+		const Vector<String>& GetFields(ObjClass* klass) const;
 
 	private:
 		// Implemented in WrenBindings.cpp
 		void InitializeBindings();
+		
+		void AddSuperClassFields(ObjClass* klass) const;
 
 	private:
 		wrenpp::VM m_VM;
-		UnorderedMap<String, Vector<String>> m_FieldNames;
+		mutable UnorderedMap<String, std::pair<bool, Vector<String>>> m_FieldNames;
 
 		WrenHandle* m_Scheduler;
 
