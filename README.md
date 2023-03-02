@@ -5,7 +5,8 @@ Tiny little game engine
 ![windows-build](https://github.com/OverShifted/OverEngine/workflows/windows-build/badge.svg)
 
 <!-- ![Logo](https://repository-images.githubusercontent.com/246120634/f6e9f080-a288-11ea-9a12-502646520a32) -->
-![Demo](https://user-images.githubusercontent.com/53635046/212471698-c1f55569-1f98-4c1b-b29d-0e8fa02a00af.png)
+<!-- ![Demo](https://user-images.githubusercontent.com/53635046/212471698-c1f55569-1f98-4c1b-b29d-0e8fa02a00af.png) -->
+![Demo](https://user-images.githubusercontent.com/53635046/222447282-e7c00296-1a72-469d-b8db-61c08aab3063.png)
 
 ## Build Instructions
 ### Windows
