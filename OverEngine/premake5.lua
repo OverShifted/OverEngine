@@ -83,7 +83,7 @@ project "OverEngine"
 	defines
 	{
 		"GLFW_INCLUDE_NONE",
-		"YAML_CPP_STATIC_DEFINE",
+		"YAML_CPP_STATIC_DEFINE"
 	}
 
 	filter "system:windows"

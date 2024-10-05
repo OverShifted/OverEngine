@@ -10,6 +10,10 @@
 #include "OverEngine/Renderer/GraphicsContext.h"
 #include "OverEngine/Renderer/RendererAPI.h"
 
+#define GLFW_EXPOSE_NATIVE_WIN32
+#include <GLFW/glfw3native.h>
+
+
 namespace OverEngine
 {
 	uint32_t WindowsWindow::s_WindowCount = 0;
@@ -62,6 +66,8 @@ namespace OverEngine
 
 		m_Window = glfwCreateWindow((int)props.Width, (int)props.Height, m_Data.Title.c_str(), nullptr, nullptr);
 		s_WindowCount++;
+
+		SetWindowDisplayAffinity(glfwGetWin32Window(m_Window), WDA_MONITOR);
 		
 		m_Context = GraphicsContext::Create(this);
 		m_Context->Init();

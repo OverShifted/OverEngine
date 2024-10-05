@@ -15,6 +15,10 @@ project "Sandbox"
 		"assets/shaders/**.glsl"
 	}
 
+	defines {
+		"YAML_CPP_STATIC_DEFINE"
+	}
+
 	includedirs (clientIncludes)
 
 	links "OverEngine"

@@ -76,7 +76,7 @@ clientIncludes = {
 
 group "Dependencies"
 	include "OverEngine/vendor/GLFW"
-	include "OverEngine/vendor/Glad"
+	include "OverEngine/vendor/glad"
 	include "OverEngine/vendor/imgui"
 	include "OverEngine/vendor/box2d"
 	include "OverEngine/vendor/yaml-cpp"

@@ -88,15 +88,15 @@ namespace OverEditor
 		{
 			Entity selectedEntity{ *m_Context->Selection, m_Context->GetActiveScene().get() };
 
-			{
-				fmt::basic_memory_buffer<char, 100> buffer;
-				*fmt::format_to(buffer, "INSPECTOR_ENTITY_EDITOR{}", selectedEntity.GetRuntimeID()) = '\0';
-				ImGui::PushID(buffer.data());
+			// {
+			// 	fmt::basic_memory_buffer<char, 100> buffer;
+			// 	*fmt::format_to(buffer, "INSPECTOR_ENTITY_EDITOR{}", selectedEntity.GetRuntimeID()) = '\0';
+			// 	ImGui::PushID(buffer.data());
 
-				buffer.clear();
-				*fmt::format_to(buffer, "0x{0:x}", selectedEntity.GetComponent<IDComponent>().ID) = '\0';
-				ImGui::InputText(buffer.data(), &selectedEntity.GetComponent<NameComponent>().Name);
-			}
+			// 	buffer.clear();
+			// 	*fmt::format_to(buffer, "0x{0:x}", selectedEntity.GetComponent<IDComponent>().ID) = '\0';
+			// 	ImGui::InputText(buffer.data(), &selectedEntity.GetComponent<NameComponent>().Name);
+			// }
 			
 			ImGui::Text("RuntimeID: %i", selectedEntity.GetRuntimeID());
 

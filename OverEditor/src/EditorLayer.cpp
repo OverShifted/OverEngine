@@ -87,8 +87,8 @@ namespace OverEditor
 		// DockSpace
 		static constexpr ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
 		ImGuiViewport* viewport = ImGui::GetMainViewport();
-		ImGui::SetNextWindowPos(viewport->GetWorkPos());
-		ImGui::SetNextWindowSize(viewport->GetWorkSize());
+		ImGui::SetNextWindowPos(viewport->Pos);
+		ImGui::SetNextWindowSize(viewport->Size);
 		ImGui::SetNextWindowViewport(viewport->ID);
 
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
@@ -141,6 +141,11 @@ namespace OverEditor
 		}
 
 		ImGui::End();
+
+		ImGui::ShowDemoWindow();
+		ImGui::ShowAboutWindow();
+		ImGui::ShowStyleEditor();
+		ImGui::ShowUserGuide();
 
 		OnProjectManagerGUI();
 
@@ -260,7 +265,7 @@ namespace OverEditor
 				#ifdef OE_PLATFORM_WINDOWS
 					auto project = CreateRef<EditorProject>("D:/overenginedev/SuperMario/project.oep");
 				#elif defined(OE_PLATFORM_LINUX)
-					auto project = CreateRef<EditorProject>("/home/sepehr/dev/SuperMario/project.oep");
+					auto project = CreateRef<EditorProject>("/mnt/Data/Stuff/overenginedev/SuperMario/project.oep");
 				#endif
 					m_EditingProject = project;
 
