@@ -65,4 +65,8 @@ namespace OverEngine
 
 		Invalidate();
 	}
+
+	void OpenGLFrameBuffer::BindColorAttachment(uint32_t slot) const {
+		glBindTextureUnit(slot, m_ColorAttachment);
+	}
 }

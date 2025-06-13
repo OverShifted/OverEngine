@@ -37,3 +37,4 @@ OverEngineProfile-Shutdown.json
 Sandbox/SandboxScene.oes
 OverEngine.log
 imgui.ini
+/build.sh

@@ -37,8 +37,8 @@ namespace OverEngine
 		static void Flush();
 
 		static void DrawQuad(const Vector2& position, float rotation, const Vector2& size, const Color& color);
-		static void DrawQuad(const Vector3& position, float rotation, const Vector2& size, const Color& color);
-		static void DrawQuad(const Mat4x4& transform, const Color& color);
+		static void DrawQuad(const Vector3& position, float rotation, const Vector2& size, const Color& color, int liquidGlass = false);
+		static void DrawQuad(const Mat4x4& transform, const Color& color, int liquidGlass = false);
 
 		static void DrawQuad(const Vector2& position, float rotation, const Vector2& size, const TexturedQuadProps& props = TexturedQuadProps());
 		static void DrawQuad(const Vector3& position, float rotation, const Vector2& size, const TexturedQuadProps& props = TexturedQuadProps());
@@ -61,7 +61,9 @@ namespace OverEngine
 
 		static Statistics& GetStatistics() { return s_Statistics; }
 		static Ref<Shader>& GetShader();
+		static void ReloadShader();
 	private:
+		static void InitShader();
 		static Statistics s_Statistics;
 	};
 }

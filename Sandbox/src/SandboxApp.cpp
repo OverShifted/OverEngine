@@ -1,11 +1,12 @@
 #define OE_CLIENT_INCLUDE_ENTRY_POINT
 #include <OverEngine.h>
 
-#include "SandboxLayer/SandboxLayer.h"
-#include "Sandbox2D/Sandbox2D.h"
-#include "SandboxECS/SandboxECS.h"
-#include "StringSim/StringSim.h"
-#include "NeuralNetwork/NeuralNetwork.h"
+// #include "SandboxLayer/SandboxLayer.h"
+// #include "Sandbox2D/Sandbox2D.h"
+// #include "SandboxECS/SandboxECS.h"
+// #include "NeuralNetwork/NeuralNetwork.h"
+// #include "StringSim/StringSim.h"
+#include "LiquidGlass/LiquidGlass.h"
 
 static ApplicationProps GenApplicationProps()
 {
@@ -24,7 +25,8 @@ public:
 	{
 		//PushLayer(new SandboxLayer());
 		//PushLayer(new Sandbox2D());
-		PushLayer(new SandboxECS());
+		// PushLayer(new StringSim());
+		PushLayer(new LiquidGlass());
 		// PushLayer(new StringSim());
 		// PushLayer(new NeuralNetwork());
 		m_ImGuiEnabled = true;

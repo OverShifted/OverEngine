@@ -18,6 +18,7 @@ namespace OverEngine
 		virtual void Resize(uint32_t width, uint32_t height) override;
 
 		virtual uint32_t GetColorAttachmentRendererID() const override { return m_ColorAttachment; }
+		virtual void BindColorAttachment(uint32_t slot) const override;
 
 		virtual const FrameBufferProps& GetProps() const override { return m_Props; }
 	private:

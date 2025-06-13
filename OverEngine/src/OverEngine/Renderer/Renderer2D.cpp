@@ -16,9 +16,11 @@ namespace OverEngine
 
 		Color   a_Color     = Color(1.0f);
 		int     a_TexSlot   = -1;
-		Vector4 a_TexCoord  = Vector4(0.0f);
+		Vector4 a_TexCoord  = Vector4(0, 0, 1, 1);
 		Vector4 a_TexRegion = Vector4(0.0f);
 		int     a_TexRepeat = 0;
+
+		int a_LiquidGlass    = false;
 	};
 
 	// Hard-coded Limits
@@ -66,7 +68,9 @@ namespace OverEngine
 			{ ShaderDataType::Int, "a_TexSlot" },
 			{ ShaderDataType::Float4, "a_TexCoord" },
 			{ ShaderDataType::Float4, "a_TexRegion" },
-			{ ShaderDataType::Int, "a_TexRepeat" }
+			{ ShaderDataType::Int, "a_TexRepeat" },
+
+			{ ShaderDataType::Int, "a_LiquidGlass" }
 		});
 		s_Data->QuadVA->AddVertexBuffer(s_Data->QuadVB);
 
@@ -87,15 +91,7 @@ namespace OverEngine
 		s_Data->QuadBufferPtr = s_Data->QuadBufferBasePtr;
 
 		s_Data->Shader = Shader::Create("assets/shaders/BatchRenderer2D.glsl");
-		{
-			int textureIDs[MaxTextureCount];
-
-			for (int i = 0; i < (int)MaxTextureCount; i++)
-				textureIDs[i] = i;
-
-			s_Data->Shader->Bind();
-			s_Data->Shader->UploadUniformIntArray("u_Slots", textureIDs, MaxTextureCount);
-		}
+		InitShader();
 
 		s_Statistics.Reset();
 	}
@@ -109,6 +105,22 @@ namespace OverEngine
 	Ref<Shader>& Renderer2D::GetShader()
 	{
 		return s_Data->Shader;
+	}
+
+	void Renderer2D::ReloadShader()
+	{
+		s_Data->Shader->Reload();
+		InitShader();		
+	}
+
+	void Renderer2D::InitShader()
+	{
+		int textureIDs[MaxTextureCount];
+		for (int i = 0; i < (int)MaxTextureCount; i++)
+			textureIDs[i] = i;
+
+		s_Data->Shader->Bind();
+		s_Data->Shader->UploadUniformIntArray("u_Slots", textureIDs, MaxTextureCount);
 	}
 
 	void Renderer2D::Reset()
@@ -188,17 +200,17 @@ namespace OverEngine
 		DrawQuad(Vector3(position, 0.0f), rotation, size, color);
 	}
 
-	void Renderer2D::DrawQuad(const Vector3& position, float rotation, const Vector2& size, const Color& color)
+	void Renderer2D::DrawQuad(const Vector3& position, float rotation, const Vector2& size, const Color& color, int liquidGlass)
 	{
 		Mat4x4 transform =
 			glm::translate(Mat4x4(1.0f), position) *
 			glm::rotate(Mat4x4(1.0f), rotation, Vector3(0, 0, 1)) *
 			glm::scale(Mat4x4(1.0f), Vector3(size, 1.0f));
 
-		DrawQuad(transform, color);
+		DrawQuad(transform, color, liquidGlass);
 	}
 
-	void Renderer2D::DrawQuad(const Mat4x4& transform, const Color& color)
+	void Renderer2D::DrawQuad(const Mat4x4& transform, const Color& color, int liquidGlass)
 	{
 		if (color.a == 0)
 			return;
@@ -212,9 +224,17 @@ namespace OverEngine
 		s_Data->QuadBufferPtr->a_Position1 = Vector3(mat * Vector4( 0.5, -0.5, 0.0, 1.0));
 		s_Data->QuadBufferPtr->a_Position2 = Vector3(mat * Vector4(-0.5,  0.5, 0.0, 1.0));
 		s_Data->QuadBufferPtr->a_Position3 = Vector3(mat * Vector4( 0.5,  0.5, 0.0, 1.0));
-
+		
+		// OE_CORE_INFO("Emitting {}: ({}, {}) ({}, {}) ({}, {}) ({}, {})", liquidGlass,
+		// 	s_Data->QuadBufferPtr->a_Position0.x, s_Data->QuadBufferPtr->a_Position0.y,
+		// 	s_Data->QuadBufferPtr->a_Position1.x, s_Data->QuadBufferPtr->a_Position1.y,
+		// 	s_Data->QuadBufferPtr->a_Position2.x, s_Data->QuadBufferPtr->a_Position2.y,
+		// 	s_Data->QuadBufferPtr->a_Position3.x, s_Data->QuadBufferPtr->a_Position3.y);
+		
 		s_Data->QuadBufferPtr->a_Color = color;
 		s_Data->QuadBufferPtr->a_TexSlot = -1;
+
+		s_Data->QuadBufferPtr->a_LiquidGlass = liquidGlass;
 
 		s_Data->QuadBufferPtr++;
 		s_Data->QuadCount++;
@@ -259,7 +279,7 @@ namespace OverEngine
 			if (it == end)
 			{
 				uint8_t slot = s_Data->TextureCount;
-				if (slot + 1u > RenderCommand::GetMaxTextureSlotCount())
+				if (slot + 1u > MaxTextureCount)
 				{
 					NextBatch();
 					slot = 0;

@@ -33,22 +33,24 @@ StringSim::StringSim()
     //     m_Links.push_back(Link { i, i + 1, 0.5f });
     // }
 
-    for (uint32_t x = 0; x < 20; x++) {
-        for (uint32_t y = 0; y < 10; y++) {
+    const uint ys = 20;
+    const uint xs = 40;
+    for (uint32_t x = 0; x < xs; x++) {
+        for (uint32_t y = 0; y < ys; y++) {
             // if (y > 0) m_Links.push_back(Link { 10 * y + x - 1, 10 * y + x, 0.5f });
-            if (y < 9) m_Links.push_back(Link { 
-                x * 10 + y,
-                x * 10 + y + 1,
+            if (y < ys - 1) m_Links.push_back(Link {
+                x * ys + y,
+                x * ys + y + 1,
                 0.5
             });
 
-            if (x < 19) m_Links.push_back(Link { 
-                x * 10 + y,
-                (x + 1) * 10 + y,
+            if (x < xs - 1) m_Links.push_back(Link {
+                x * ys + y,
+                (x + 1) * ys + y,
                 0.5
              });
-            Vector2 p = { (x * 0.5) - 5, (y * 0.5) - 2 };
-            m_Nodes.push_back(Node { y == 9 , p, p });
+            Vector2 p = { (x * 0.5) - xs / 4, (y * 0.5) - ys / 4 };
+            m_Nodes.push_back(Node { y + 1 == ys , p, p });
         }
     }
 
@@ -128,7 +130,7 @@ void StringSim::OnUpdate(TimeStep deltaTime)
         Vector2 diff = m_Nodes[link.N0].P1 - m_Nodes[link.N1].P1;
         float diffYSign = diff.y >= 0 ? 1.0 : -1.0;
 
-        Mat4x4 transform = 
+        Mat4x4 transform =
             glm::translate(Mat4x4(1.0f), center) *
             glm::rotate(Mat4x4(1.0f), angleBetween(diffYSign * diff, Vector2 { 1.0f, 0.0f }), Vector3(0, 0, 1)) *
 			glm::scale(Mat4x4(1.0f), Vector3(glm::length(diff), 0.05, 1.0f));
@@ -172,12 +174,14 @@ void StringSim::OnUpdate(TimeStep deltaTime)
             )
                 link.Enabled = false;
         }
-        
+
         Renderer2D::DrawQuad(transform, Color{ 0.6 });
+
+        // Renderer2D::DrawQuad(center, angleBetween(diffYSign * diff, Vector2 { 1.0f, 0.0f }), Vector2(glm::length(diff), 0.05), Color{ 0.6 });
     }
 
     for (Node& node : m_Nodes) {
-        Renderer2D::DrawQuad(node.P1, 0.0, Vector2{ 1.0, 1.0 } * 0.1f, 
+        Renderer2D::DrawQuad(node.P1, 0.0, Vector2{ 1.0, 1.0 } * 0.1f,
             node.Locked ? Color{ 1.0, 0.2, 0.2, 1.0 } : Color{ 1.0 });
     }
 

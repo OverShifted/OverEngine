@@ -91,7 +91,7 @@ namespace OverEngine
 	{
 		GLuint program = glCreateProgram();
 
-		OE_CORE_ASSERT(shaderSources.size() <= 3, "{0} shader sources got but 3 is maximim", shaderSources.size());
+		OE_CORE_ASSERT(shaderSources.size() <= 3, "{0} shader sources got but 3 is the maximum!", shaderSources.size());
 
 		std::array<GLint, 3> glShaderIDs{ -1, -1, -1 };
 		int glShaderIdIndex = 0;
@@ -239,6 +239,7 @@ namespace OverEngine
 
 	bool OpenGLShader::Reload(const String& filePath)
 	{
+		OE_CORE_INFO("Reloading shader from: {}", m_FilePath);
 		if (filePath.empty())
 		{
 			if (m_FilePath.empty())
