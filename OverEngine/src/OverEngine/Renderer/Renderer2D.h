@@ -52,8 +52,8 @@ namespace OverEngine
 				DrawCalls = 0;
 			}
 
-			uint32_t GetIndexCount() { return QuadCount; }
-			uint32_t GetVertexCount() { return QuadCount; }
+			uint32_t GetIndexCount() { return 6 * QuadCount; }
+			uint32_t GetVertexCount() { return 4 * QuadCount; }
 
 			uint32_t QuadCount;
 			uint32_t DrawCalls;

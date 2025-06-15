@@ -11,7 +11,7 @@ namespace OverEngine
 	OpenGLContext::OpenGLContext(Window* window)
 	{
 		m_WindowHandle = static_cast<GLFWwindow*>(window->GetNativeWindow());
-		OE_CORE_ASSERT(window, "Window handle is null!")
+		OE_CORE_ASSERT(window, "Window handle is null!");
 	}
 
 	void OpenGLContext::Init()

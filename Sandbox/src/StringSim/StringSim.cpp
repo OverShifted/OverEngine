@@ -33,8 +33,8 @@ StringSim::StringSim()
     //     m_Links.push_back(Link { i, i + 1, 0.5f });
     // }
 
-    const uint ys = 20;
-    const uint xs = 40;
+    const uint32_t ys = 20;
+    const uint32_t xs = 40;
     for (uint32_t x = 0; x < xs; x++) {
         for (uint32_t y = 0; y < ys; y++) {
             // if (y > 0) m_Links.push_back(Link { 10 * y + x - 1, 10 * y + x, 0.5f });

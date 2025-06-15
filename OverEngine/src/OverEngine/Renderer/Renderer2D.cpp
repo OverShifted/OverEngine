@@ -9,23 +9,22 @@ namespace OverEngine
 
 	struct Vertex
 	{
-		Vector3 a_Position0 = Vector3(0.0f);
-		Vector3 a_Position1 = Vector3(0.0f);
-		Vector3 a_Position2 = Vector3(0.0f);
-		Vector3 a_Position3 = Vector3(0.0f);
+		Vector3 a_Position = Vector3(0.0f);
 
 		Color   a_Color     = Color(1.0f);
 		int     a_TexSlot   = -1;
-		Vector4 a_TexCoord  = Vector4(0, 0, 1, 1);
+		Vector2 a_TexCoord  = Vector4(0, 0, 1, 1);
 		Vector4 a_TexRegion = Vector4(0.0f);
 		int     a_TexRepeat = 0;
 
-		int a_LiquidGlass    = false;
+		Vector3 a_MidPoint  = Vector3(0.0f);
+		Vector2 a_QuadNDC2ScreenNDCScale  = Vector3(1.0f);
+		int a_LiquidGlass   = 0;
 	};
 
 	// Hard-coded Limits
 	static constexpr uint32_t MaxTextureCount = 32;
-	static constexpr uint32_t MaxQuadCount = 1000000;
+	static constexpr uint32_t MaxQuadCount = 1000;
 	
 	struct Renderer2DData
 	{
@@ -46,6 +45,8 @@ namespace OverEngine
 
 		Mat4x4 ViewProjectionMatrix;
 		bool DepthSorting;
+
+		// static constexpr float Qua
 	};
 
 	static Renderer2DData* s_Data;
@@ -57,29 +58,35 @@ namespace OverEngine
 		s_Data->QuadVA = VertexArray::Create();
 
 		s_Data->QuadVB = VertexBuffer::Create();
-		s_Data->QuadVB->AllocateStorage(MaxQuadCount * sizeof(Vertex));
+		s_Data->QuadVB->AllocateStorage(MaxQuadCount * 4 * sizeof(Vertex));
 		s_Data->QuadVB->SetLayout({
-			{ ShaderDataType::Float3, "a_Position0" },
-			{ ShaderDataType::Float3, "a_Position1" },
-			{ ShaderDataType::Float3, "a_Position2" },
-			{ ShaderDataType::Float3, "a_Position3" },
+			{ ShaderDataType::Float3, "a_Position" },
 
 			{ ShaderDataType::Float4, "a_Color" },
 			{ ShaderDataType::Int, "a_TexSlot" },
-			{ ShaderDataType::Float4, "a_TexCoord" },
+			{ ShaderDataType::Float2, "a_TexCoord" },
 			{ ShaderDataType::Float4, "a_TexRegion" },
 			{ ShaderDataType::Int, "a_TexRepeat" },
 
+			{ ShaderDataType::Float3, "a_MidPoint" },
+			{ ShaderDataType::Float2, "v_QuadNDC2ScreenNDCScale" },
 			{ ShaderDataType::Int, "a_LiquidGlass" }
 		});
 		s_Data->QuadVA->AddVertexBuffer(s_Data->QuadVB);
 
+		// TODO: Dynamically scale
 		{
 			auto quadIB = IndexBuffer::Create();
-			uint32_t* indices = new uint32_t[MaxQuadCount];
+			uint32_t* indices = new uint32_t[6 * MaxQuadCount];
 
-			for (uint32_t i = 0; i < MaxQuadCount; i++)
-				indices[i] = i;
+			for (uint32_t i = 0; i < MaxQuadCount; i++) {
+				indices[6 * i + 0] = 4 * i + 0;
+				indices[6 * i + 1] = 4 * i + 1;
+				indices[6 * i + 2] = 4 * i + 3;
+				indices[6 * i + 3] = 4 * i + 3;
+				indices[6 * i + 4] = 4 * i + 2;
+				indices[6 * i + 5] = 4 * i + 0;
+			}
 
 			quadIB->BufferData(indices, MaxQuadCount);
 			delete[] indices;
@@ -87,7 +94,7 @@ namespace OverEngine
 			s_Data->QuadVA->SetIndexBuffer(quadIB);
 		}
 
-		s_Data->QuadBufferBasePtr = new Vertex[MaxQuadCount];
+		s_Data->QuadBufferBasePtr = new Vertex[4 * MaxQuadCount];
 		s_Data->QuadBufferPtr = s_Data->QuadBufferBasePtr;
 
 		s_Data->Shader = Shader::Create("assets/shaders/BatchRenderer2D.glsl");
@@ -171,12 +178,12 @@ namespace OverEngine
 		{
 			std::sort(s_Data->QuadBufferBasePtr, s_Data->QuadBufferBasePtr + s_Data->QuadCount, [](const Vertex& a, const Vertex& b)
 			{
-				return a.a_Position0.z > b.a_Position0.z;
+				return a.a_Position.z > b.a_Position.z;
 			});
 		}
 
 		// Upload Data
-		s_Data->QuadVB->BufferSubData((void*)s_Data->QuadBufferBasePtr, s_Data->QuadCount * sizeof(Vertex));
+        s_Data->QuadVB->BufferSubData((void*)s_Data->QuadBufferBasePtr, 4 * s_Data->QuadCount * sizeof(Vertex));
 
 		// Bind Textures
 		for (uint8_t i = 0; i < s_Data->TextureCount; i++)
@@ -187,7 +194,7 @@ namespace OverEngine
 		s_Data->Shader->Bind();
 
 		// DrawCall
-		RenderCommand::DrawIndexed(s_Data->QuadVA, s_Data->QuadCount, DrawType::Points);
+		RenderCommand::DrawIndexed(s_Data->QuadVA, 6 * s_Data->QuadCount, DrawType::Triangles);
 		s_Statistics.DrawCalls++;
 	}
 
@@ -220,23 +227,35 @@ namespace OverEngine
 
 		auto mat = s_Data->ViewProjectionMatrix * transform;
 
-		s_Data->QuadBufferPtr->a_Position0 = Vector3(mat * Vector4(-0.5, -0.5, 0.0, 1.0));
-		s_Data->QuadBufferPtr->a_Position1 = Vector3(mat * Vector4( 0.5, -0.5, 0.0, 1.0));
-		s_Data->QuadBufferPtr->a_Position2 = Vector3(mat * Vector4(-0.5,  0.5, 0.0, 1.0));
-		s_Data->QuadBufferPtr->a_Position3 = Vector3(mat * Vector4( 0.5,  0.5, 0.0, 1.0));
-		
 		// OE_CORE_INFO("Emitting {}: ({}, {}) ({}, {}) ({}, {}) ({}, {})", liquidGlass,
 		// 	s_Data->QuadBufferPtr->a_Position0.x, s_Data->QuadBufferPtr->a_Position0.y,
 		// 	s_Data->QuadBufferPtr->a_Position1.x, s_Data->QuadBufferPtr->a_Position1.y,
 		// 	s_Data->QuadBufferPtr->a_Position2.x, s_Data->QuadBufferPtr->a_Position2.y,
 		// 	s_Data->QuadBufferPtr->a_Position3.x, s_Data->QuadBufferPtr->a_Position3.y);
 		
-		s_Data->QuadBufferPtr->a_Color = color;
-		s_Data->QuadBufferPtr->a_TexSlot = -1;
+		s_Data->QuadBufferPtr[0].a_Position = Vector3(mat * Vector4(-0.5, -0.5, 0.0, 1.0));
+		s_Data->QuadBufferPtr[1].a_Position = Vector3(mat * Vector4( 0.5, -0.5, 0.0, 1.0));
+		s_Data->QuadBufferPtr[2].a_Position = Vector3(mat * Vector4(-0.5,  0.5, 0.0, 1.0));
+		s_Data->QuadBufferPtr[3].a_Position = Vector3(mat * Vector4( 0.5,  0.5, 0.0, 1.0));
 
-		s_Data->QuadBufferPtr->a_LiquidGlass = liquidGlass;
+		s_Data->QuadBufferPtr[0].a_TexCoord = Vector2(0.0, 0.0);
+		s_Data->QuadBufferPtr[1].a_TexCoord = Vector2(1.0, 0.0);
+		s_Data->QuadBufferPtr[2].a_TexCoord = Vector2(0.0, 1.0);
+		s_Data->QuadBufferPtr[3].a_TexCoord = Vector2(1.0, 1.0);
 
-		s_Data->QuadBufferPtr++;
+		Vector3 midPoint = (s_Data->QuadBufferPtr[0].a_Position + s_Data->QuadBufferPtr[3].a_Position) * 0.5f;
+		Vector3 quadNDC2ScreenNDCScale = (s_Data->QuadBufferPtr[3].a_Position - s_Data->QuadBufferPtr[0].a_Position) * 0.5f;
+		
+		for (int i = 0; i < 4; i++) {
+			s_Data->QuadBufferPtr[i].a_Color = color;
+			s_Data->QuadBufferPtr[i].a_TexSlot = -1;
+
+			s_Data->QuadBufferPtr[i].a_MidPoint = midPoint;
+			s_Data->QuadBufferPtr[i].a_QuadNDC2ScreenNDCScale = quadNDC2ScreenNDCScale;
+			s_Data->QuadBufferPtr[i].a_LiquidGlass = liquidGlass;
+		}
+
+		s_Data->QuadBufferPtr += 4;
 		s_Data->QuadCount++;
 		s_Statistics.QuadCount++;
 	}
@@ -271,6 +290,7 @@ namespace OverEngine
 		if (s_Data->QuadCount + 1 >= MaxQuadCount)
 			NextBatch();
 
+		uint8_t slot;
 		{
 			Ref<Texture2D> gpuTex = (props.Sprite->GetType() == TextureType::SubTexture) ? std::dynamic_pointer_cast<SubTexture2D>(props.Sprite)->GetMasterTexture() : props.Sprite;
 
@@ -278,7 +298,7 @@ namespace OverEngine
 			auto it = std::find(s_Data->TextureBindList.begin(), end, gpuTex);
 			if (it == end)
 			{
-				uint8_t slot = s_Data->TextureCount;
+				slot = s_Data->TextureCount;
 				if (slot + 1u > MaxTextureCount)
 				{
 					NextBatch();
@@ -286,24 +306,39 @@ namespace OverEngine
 				}
 				s_Data->TextureBindList[slot] = gpuTex;
 				s_Data->TextureCount++;
-				s_Data->QuadBufferPtr->a_TexSlot = slot;
 			}
 			else
 			{
-				s_Data->QuadBufferPtr->a_TexSlot = static_cast<int>(it - s_Data->TextureBindList.begin());
+				slot = static_cast<int>(it - s_Data->TextureBindList.begin());
 			}
 		}
 
 		auto mat = s_Data->ViewProjectionMatrix * transform;
 
-		s_Data->QuadBufferPtr->a_Position0 = Vector3(mat * Vector4(-0.5, -0.5, 0.0, 1.0));
-		s_Data->QuadBufferPtr->a_Position1 = Vector3(mat * Vector4( 0.5, -0.5, 0.0, 1.0));
-		s_Data->QuadBufferPtr->a_Position2 = Vector3(mat * Vector4(-0.5,  0.5, 0.0, 1.0));
-		s_Data->QuadBufferPtr->a_Position3 = Vector3(mat * Vector4( 0.5,  0.5, 0.0, 1.0));
+		s_Data->QuadBufferPtr[0].a_Position = Vector3(mat * Vector4(-0.5, -0.5, 0.0, 1.0));
+		s_Data->QuadBufferPtr[1].a_Position = Vector3(mat * Vector4( 0.5, -0.5, 0.0, 1.0));
+		s_Data->QuadBufferPtr[2].a_Position = Vector3(mat * Vector4(-0.5,  0.5, 0.0, 1.0));
+		s_Data->QuadBufferPtr[3].a_Position = Vector3(mat * Vector4( 0.5,  0.5, 0.0, 1.0));
 
-		s_Data->QuadBufferPtr->a_Color = props.Tint;
-		s_Data->QuadBufferPtr->a_TexCoord = (props.Sprite->GetType() == TextureType::Master) ? Vector4(0, 0, 1, 1) : std::dynamic_pointer_cast<SubTexture2D>(props.Sprite)->GetRect();
-		s_Data->QuadBufferPtr->a_TexRepeat = props.ForceTile;
+		Vector4 texCoord = (props.Sprite->GetType() == TextureType::Master)
+								? Vector4(0, 0, 1, 1)
+								: std::dynamic_pointer_cast<SubTexture2D>(props.Sprite)->GetRect();
+
+		s_Data->QuadBufferPtr[0].a_TexCoord = Vector2(texCoord.x, texCoord.y) + Vector2(0.0, texCoord.w);
+		s_Data->QuadBufferPtr[1].a_TexCoord = Vector2(texCoord.x, texCoord.y) + Vector2(texCoord.z, texCoord.w);
+		s_Data->QuadBufferPtr[2].a_TexCoord = Vector2(texCoord.x, texCoord.y);
+		s_Data->QuadBufferPtr[3].a_TexCoord = Vector2(texCoord.x, texCoord.y) + Vector2(texCoord.z, 0.0);
+
+		for (int i = 0; i < 4; i++) {
+			s_Data->QuadBufferPtr[i].a_Color = props.Tint;
+			s_Data->QuadBufferPtr[i].a_TexSlot = slot;
+			s_Data->QuadBufferPtr[i].a_TexRepeat = props.ForceTile;
+			// s_Data->QuadBufferPtr[i].a_TexRegion = s_Data->QuadBufferPtr->a_TexCoord;
+
+			s_Data->QuadBufferPtr[i].a_LiquidGlass = 0;
+		}
+
+		/*
 
 		if (props.ForceTile)
 		{
@@ -330,7 +365,9 @@ namespace OverEngine
 		s_Data->QuadBufferPtr->a_TexCoord.y += (props.Flip & TextureFlip_X) * s_Data->QuadBufferPtr->a_TexCoord.w;
 		s_Data->QuadBufferPtr->a_TexCoord.w *= -1 + (int)(!(props.Flip & TextureFlip_Y)) * 2;
 
-		s_Data->QuadBufferPtr++;
+		*/
+
+		s_Data->QuadBufferPtr += 4;
 		s_Data->QuadCount++;
 		s_Statistics.QuadCount++;
 	}

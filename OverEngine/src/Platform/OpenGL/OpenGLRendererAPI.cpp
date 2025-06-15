@@ -76,7 +76,9 @@ namespace OverEngine
 
 	void OpenGLRendererAPI::DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indexCount, DrawType drawType)
 	{
-		uint32_t count = indexCount ? indexCount : vertexArray->GetIndexBuffer()->GetCount();
+		const Ref<IndexBuffer>& indexBuffer = vertexArray->GetIndexBuffer();
+		indexBuffer->Bind();
+		uint32_t count = indexCount ? indexCount : indexBuffer->GetCount();
 
 		GLenum mode = GL_TRIANGLES;
 		if (drawType == DrawType::Points)         mode = GL_POINTS;

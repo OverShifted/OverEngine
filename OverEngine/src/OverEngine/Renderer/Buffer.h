@@ -88,12 +88,10 @@ namespace OverEngine
 	private:
 		void CalculateOffsetsAndStride()
 		{
-			uint32_t offset = 0;
 			m_Stride = 0;
 			for (auto& element : m_Elements)
 			{
-				element.Offset = offset;
-				offset += element.Size;
+				element.Offset = m_Stride;
 				m_Stride += element.Size;
 			}
 		}
@@ -101,6 +99,9 @@ namespace OverEngine
 		Vector<BufferElement> m_Elements;
 		uint32_t m_Stride = 0;
 	};
+
+	// TODO: Refactor: BufferData and AllocateStorage are basically the same
+	// TODO: Use and enum instead of staticDraw
 
 	class VertexBuffer
 	{
