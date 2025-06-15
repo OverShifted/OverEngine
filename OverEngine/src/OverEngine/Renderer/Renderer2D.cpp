@@ -58,7 +58,7 @@ namespace OverEngine
 		s_Data->QuadVA = VertexArray::Create();
 
 		s_Data->QuadVB = VertexBuffer::Create();
-		s_Data->QuadVB->AllocateStorage(MaxQuadCount * 4 * sizeof(Vertex));
+		s_Data->QuadVB->Allocate(MaxQuadCount * 4 * sizeof(Vertex));
 		s_Data->QuadVB->SetLayout({
 			{ ShaderDataType::Float3, "a_Position" },
 
@@ -88,7 +88,7 @@ namespace OverEngine
 				indices[6 * i + 5] = 4 * i + 0;
 			}
 
-			quadIB->BufferData(indices, MaxQuadCount);
+			quadIB->Allocate(MaxQuadCount, indices);
 			delete[] indices;
 
 			s_Data->QuadVA->SetIndexBuffer(quadIB);
@@ -183,7 +183,7 @@ namespace OverEngine
 		}
 
 		// Upload Data
-        s_Data->QuadVB->BufferSubData((void*)s_Data->QuadBufferBasePtr, 4 * s_Data->QuadCount * sizeof(Vertex));
+        s_Data->QuadVB->Upload((void*)s_Data->QuadBufferBasePtr, 4 * s_Data->QuadCount * sizeof(Vertex));
 
 		// Bind Textures
 		for (uint8_t i = 0; i < s_Data->TextureCount; i++)

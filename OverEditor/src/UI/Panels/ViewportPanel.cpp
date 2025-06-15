@@ -59,12 +59,12 @@ namespace OverEditor
 				 0.5f,  0.5f, 1.0f, 1.0f,
 				-0.5f,  0.5f, 0.0f, 1.0f
 			};
-			s_Data->GizmoVB->BufferData(quadVertices, sizeof(quadVertices));
+			s_Data->GizmoVB->Allocate(sizeof(quadVertices), quadVertices);
 			s_Data->GizmoVA->AddVertexBuffer(s_Data->GizmoVB);
 
 			s_Data->GizmoIB = IndexBuffer::Create();
 			static constexpr uint32_t quadIndices[] = { 0, 1, 2, 2, 3, 0 };
-			s_Data->GizmoIB->BufferData(quadIndices, OE_ARRAY_SIZE(quadIndices));
+			s_Data->GizmoIB->Allocate(OE_ARRAY_SIZE(quadIndices), quadIndices);
 			s_Data->GizmoVA->SetIndexBuffer(s_Data->GizmoIB);
 
 			// Grid
@@ -83,11 +83,11 @@ namespace OverEditor
 				 1.0f,  1.0f, 1.0f, 1.0f,
 				-1.0f,  1.0f, 0.0f, 1.0f
 			};
-			s_Data->GridVB->BufferData(gridVertices, sizeof(gridVertices));
+			s_Data->GridVB->Allocate(sizeof(gridVertices), gridVertices);
 			s_Data->GridVA->AddVertexBuffer(s_Data->GridVB);
 
 			s_Data->GridIB = IndexBuffer::Create();
-			s_Data->GridIB->BufferData(quadIndices, OE_ARRAY_SIZE(quadIndices));
+			s_Data->GridIB->Allocate(OE_ARRAY_SIZE(quadIndices), quadIndices);
 			s_Data->GridVA->SetIndexBuffer(s_Data->GridIB);
 		}
 	}

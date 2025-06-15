@@ -100,23 +100,21 @@ namespace OverEngine
 		uint32_t m_Stride = 0;
 	};
 
-	// TODO: Refactor: BufferData and AllocateStorage are basically the same
-	// TODO: Use and enum instead of staticDraw
-
+	// TODO: Add support for specifying allocation mode (static/dynamic/stream)
+	
 	class VertexBuffer
 	{
 	public:
 		static Ref<VertexBuffer> Create();
-		static Ref<VertexBuffer> Create(const void* vertices, uint32_t size, bool staticDraw = true);
+		static Ref<VertexBuffer> Create(const void* vertices, uint32_t size);
 
 		virtual ~VertexBuffer() = default;
 
 		virtual void Bind() const = 0;
 		virtual void Unbind() const = 0;
 
-		virtual void BufferData(const void* vertices, uint32_t size, bool staticDraw = true) const = 0;
-		virtual void BufferSubData(const void* vertices, uint32_t size, uint32_t offset = 0) const = 0;
-		virtual void AllocateStorage(uint32_t size) const = 0;
+		virtual void Allocate(uint32_t size, const void* vertices = nullptr) const = 0;
+		virtual void Upload(const void* vertices, uint32_t size, uint32_t offset = 0) const = 0;
 
 		virtual const BufferLayout& GetLayout() const = 0;
 		virtual void SetLayout(const BufferLayout& layout) = 0;
@@ -126,16 +124,15 @@ namespace OverEngine
 	{
 	public:
 		static Ref<IndexBuffer> Create();
-		static Ref<IndexBuffer> Create(const uint32_t* indices, uint32_t count, bool staticDraw = true);
+		static Ref<IndexBuffer> Create(const uint32_t* indices, uint32_t count);
 
 		virtual ~IndexBuffer() = default;
 
 		virtual void Bind() const = 0;
 		virtual void Unbind() const = 0;
 
-		virtual void BufferData(const uint32_t* indices, uint32_t count, bool staticDraw = true) const = 0;
-		virtual void BufferSubData(const uint32_t* indices, uint32_t count, uint32_t offset = 0) const = 0;
-		virtual void AllocateStorage(uint32_t count) const = 0;
+		virtual void Allocate(uint32_t count, const uint32_t* indices = nullptr) const = 0;
+		virtual void Upload(const uint32_t* indices, uint32_t count, uint32_t offset = 0) const = 0;
 
 		virtual uint32_t GetCount() const = 0;
 	};

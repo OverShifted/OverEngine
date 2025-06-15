@@ -27,11 +27,11 @@ class BlurPass {
 			Vertex { { 1.0, 1.0, 0.0 }, { 1.0, 1.0 } },
 			Vertex { { -1., 1.0, 0.0 }, { 0.0, 1.0 } }
 		};
-		m_VB->BufferData(vertices, 4 * sizeof(Vertex), true);
+		m_VB->Allocate(4 * sizeof(Vertex), vertices);
 
 
 		uint32_t indices[6] = {0, 1, 2, 2, 3, 0 };
-		m_IB = IndexBuffer::Create(indices, 6, false);
+		m_IB = IndexBuffer::Create(indices, 6);
 
 		m_VA = VertexArray::Create();
 		m_VA->AddVertexBuffer(m_VB);
