@@ -10,6 +10,8 @@ project(OverEngine
         DESCRIPTION "Opensource game engine under MIT license"
         LANGUAGES C CXX)
 
+option(OVERENGINE_BUILD_SANDBOX "Build the Sandbox demo" ON)
+
 # vendor
 option(GLFW_BUILD_DOCS OFF)
 add_subdirectory(OverEngine/vendor/GLFW)
@@ -29,4 +31,6 @@ add_subdirectory(OverEngine/vendor/wren)
 # OverEngine
 add_subdirectory(OverEngine)
 # add_subdirectory(OverEditor)
-add_subdirectory(Sandbox)
+if (OVERENGINE_BUILD_SANDBOX)
+	add_subdirectory(Sandbox)
+endif()
